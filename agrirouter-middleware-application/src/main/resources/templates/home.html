@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title},~{::main})}" lang="en">
+<head>
+    <title th:text="#{home.title}"></title>
+</head>
+<body>
+<main class="mdl-layout__content">
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--4-col">&nbsp;</div>
+        <div class="mdl-cell mdl-cell--4-col"><img th:src="@{/img/agrirouter-middleware-logo.png}"
+                                                   th:alt="#{home.logo.alt}"/></div>
+        <div class="mdl-cell mdl-cell--4-col">&nbsp;</div>
+    </div>
+</main>
+</body>
+</html>

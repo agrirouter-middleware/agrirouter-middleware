@@ -1,0 +1,33 @@
+# JAVA #
+*.class
+*.jar
+*.war
+*.ear
+
+# MAVEN #
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# IDEA #
+*.iml
+.idea
+*.ipr
+*.iws
+
+# ECLIPSE #
+.classpath
+.project
+.settings
+
+# GENERATED #
+src/main/generated
+
+# MQTT #
+.lck

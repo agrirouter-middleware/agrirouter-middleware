@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.6.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>de.krone.agrirouter</groupId>
+    <artifactId>agrirouter-middleware</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>agrirouter-middleware-application</module>
+        <module>agrirouter-middleware-controller</module>
+        <module>agrirouter-middleware-persistence</module>
+        <module>agrirouter-middleware-domain</module>
+        <module>agrirouter-middleware-integration</module>
+        <module>agrirouter-middleware-api</module>
+        <module>agrirouter-middleware-business</module>
+        <module>agrirouter-middleware-efdi</module>
+        <module>agrirouter-middleware-persistence-search</module>
+        <module>agrirouter-middleware-isoxml</module>
+        <module>agrirouter-middleware-business-log</module>
+    </modules>
+
+    <properties>
+        <project.build.finalName>agrirouter-middleware</project.build.finalName>
+
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.encoding>UTF-8</project.encoding>
+
+        <springdoc-openapi-ui.version>1.6.5</springdoc-openapi-ui.version>
+        <mariadb-java-client.version>3.0.3</mariadb-java-client.version>
+        <agrirouter-api-java.version>1.4.2</agrirouter-api-java.version>
+        <querydsl.version>5.0.0</querydsl.version>
+        <swagger-annotations.version>2.1.2</swagger-annotations.version>
+        <protobuf-java.version>4.0.0-rc-2</protobuf-java.version>
+        <agrirouter-api-protobuf-definitions.version>1.1.1</agrirouter-api-protobuf-definitions.version>
+        <modelmapper.version>3.0.0</modelmapper.version>
+        <client-name-decoder.version>1.0</client-name-decoder.version>
+        <log4j.version>2.17.1</log4j.version>
+        <material-design-lite.version>1.3.0</material-design-lite.version>
+
+        <maven-compiler-plugin.version>3.9.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+        <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>dke-data</id>
+            <name>GitHub DKE-Data Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/DKE-Data/*</url>
+        </repository>
+        <repository>
+            <id>saschadoemer</id>
+            <name>GitHub Sascha Doemer Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/saschadoemer/*</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- INTERNAL -->
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-controller</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-persistence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-persistence-search</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-integration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-business</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-efdi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-isoxml</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.krone.agrirouter</groupId>
+                <artifactId>agrirouter-middleware-business-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi-ui.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+
+            <!-- MARIA DB -->
+            <dependency>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>${mariadb-java-client.version}</version>
+            </dependency>
+
+            <!-- AGRIROUTER -->
+            <dependency>
+                <groupId>com.agrirouter.api</groupId>
+                <artifactId>agrirouter-api-java-api</artifactId>
+                <version>${agrirouter-api-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.agrirouter.api</groupId>
+                <artifactId>agrirouter-api-java-impl</artifactId>
+                <version>${agrirouter-api-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.agrirouter.api</groupId>
+                <artifactId>agrirouter-api-java-convenience</artifactId>
+                <version>${agrirouter-api-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.agrirouter.proto</groupId>
+                <artifactId>agrirouter-api-protobuf-definitions</artifactId>
+                <version>${agrirouter-api-protobuf-definitions.version}</version>
+            </dependency>
+
+            <!-- QUERY DSL -->
+            <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <version>${querydsl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-jpa</artifactId>
+                <version>${querydsl.version}</version>
+            </dependency>
+
+            <!-- PROTOBUF -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>3.15.8</version>
+            </dependency>
+
+            <!-- Model Mapper -->
+            <dependency>
+                <groupId>org.modelmapper</groupId>
+                <artifactId>modelmapper</artifactId>
+                <version>${modelmapper.version}</version>
+            </dependency>
+
+            <!-- Client Name Decoders -->
+            <dependency>
+                <groupId>de.saschadoemer.iso-11783</groupId>
+                <artifactId>client-name-decoder</artifactId>
+                <version>${client-name-decoder.version}</version>
+            </dependency>
+
+            <!-- LOG4J -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <!-- Material UI -->
+            <dependency>
+                <groupId>org.webjars.bower</groupId>
+                <artifactId>material-design-lite</artifactId>
+                <version>${material-design-lite.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <mainClass>de.agrirouter.middleware.Main</mainClass>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <configuration>
+                    <encoding>${project.encoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

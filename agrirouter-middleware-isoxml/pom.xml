@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>agrirouter-middleware</artifactId>
+        <groupId>de.krone.agrirouter</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>agrirouter-middleware-isoxml</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.krone.agrirouter</groupId>
+            <artifactId>agrirouter-middleware-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.krone.agrirouter</groupId>
+            <artifactId>agrirouter-middleware-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.krone.agrirouter</groupId>
+            <artifactId>agrirouter-middleware-efdi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>2.5.0</version>
+                <executions>
+                    <execution>
+                        <id>xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sources>
+                        <source>src/main/resources/xsd/ISO11783_TimeLog_V4-3.xsd</source>
+                    </sources>
+                    <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                    <clearOutputDir>false</clearOutputDir>
+                    <packageName>de.krone.agrirouter.middleware.isoxml</packageName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

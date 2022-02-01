@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout-without-menu :: layout(~{::title},~{::main})}"
+      lang="en">
+<head>
+    <title th:text="#{onboard-process-result.title}"></title>
+</head>
+<body>
+<main>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--5-col"></div>
+        <div class="mdl-cell mdl-cell--2-col">
+            <div class="mdl-cell mdl-cell--12-col"
+                 th:if="${#strings.equalsIgnoreCase(onboardProcessResult, 'SUCCESS')}">
+                <div class="material-icons mdl-cell mdl-cell--12-col"
+                     style="text-align: center;color:darkgreen;font-size: xxx-large">
+                    check_circle
+                </div>
+                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                     th:text="#{onboard-process-result.success-message}"></div>
+                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                     th:text="#{onboard-process-result.close-window}"></div>
+            </div>
+            <div class="mdl-cell mdl-cell--12-col"
+                 th:unless="${#strings.equalsIgnoreCase(onboardProcessResult, 'SUCCESS')}">
+                <div class="material-icons mdl-cell mdl-cell--12-col"
+                     style="text-align: center;color:darkred;font-size: xxx-large">
+                    cancel
+                </div>
+                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                     th:text="#{onboard-process-result.failure-message}"></div>
+                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                     th:text="#{onboard-process-result.close-window}"></div>
+            </div>
+        </div>
+        <div class="mdl-cell mdl-cell--5-col"></div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_SCHEMA}?useUnicode=true&characterEncoding=UTF-8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+  data:
+    mongodb:
+      host: ${MONGODB_HOST}
+      port: ${MONGODB_PORT}
+      database: ${MONGODB_SCHEMA}
+      username: ${MONGODB_USER}
+      password: ${MONGODB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database: default
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    baseline-on-migrate: true
+    enabled: true
+
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: trace
+    org.hibernate.type.descriptor.sql: trace
+    org.springframework.web.filter.CommonsRequestLoggingFilter: trace
+    de.agrirouter.middleware: trace
+    com.dke.data.agrirouter: off
+
+app:
+  fetch-messages:
+    max-tries: 5
+    interval: 1000
+  scheduled:
+    connection-check: "0 */1 * * * *"
+    fetching-and-confirming-existing-messages: "0 */5 * * * *"
+    status-logging: "0 */1 * * * *"

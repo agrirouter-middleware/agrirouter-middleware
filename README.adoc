@@ -1,0 +1,53 @@
+= Agrirouter Middleware
+:imagesdir: assets/img
+:toc:
+:toc-title:
+:toclevels: 4
+
+== The Project
+
+image::agrirouter-middleware-logo.png[agrirouter-middleware,175,role=left]
+
+The agrirouter middleware was developed to have easier access to the functionality of the agrirouter.
+The agrirouter middleware is an additional layer of abstraction and provides access to the agrirouter without deep knowledge of the underlying processes.
+The agrirouter middleware manages the connections and fetches messages from the agrirouter, based on the technical messages types registered.
+In addition, the agrirouter middleware provides simple data conversion from ISOXML TaskData to EFDI Telemetry Data and provides searching operations for DDIs and other parts of the specification.
+
+== The Partners
+
+The project would not have been possible without strong partners for the idea and the development. The following companies have taken an active part during the development of the agrirouter middleware.
+
+image::partners/krone.png[krone,175,role="left]
+
+The initial idea for the agrirouter middleware has been developed by the https://landmaschinen.krone.de/[Maschinenfabrik Bernard Krone GmbH & Co. KG].
+The main concept is based on the idea to make the agrirouter connection easier for third party app providers.
+
+image::partners/holmer.png[holmer,175,role="left]
+
+The https://www.holmer-maschinenbau.com/[Holmer Maschinenbau GmBH] joined the project after the development started and added the use case of sending machine data using the agrirouter middleware.
+The agrirouter middleware is part of the communication concept between their machines and the agrirouter on the other side.
+
+image::partners/lmis.svg[lmis,175,role="left]
+
+The https://lmis.de[LMIS AG] is part of the agrirouter universe since the beginning of the project and was chosen as implementation partner for the middleware.
+Using an agile development process the middleware was developed in 2021/2022 and will be maintained as long as the project is active.
+
+image::partners/agrirouter.svg[lmis,175,role="left]
+
+Without the https://my-agrirouter.com[agrirouter] there would not have been such a project. The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
+
+== How Does It Work?
+
+The agrirouter middleware is an abstraction to the well-known interface of the https://my-agrirouter.com[agrirouter]. The agrirouter middleware uses the interface of the agrirouter and provides an easy way to manage applications and endpoints, send and receive messages or handle the connection to the agrirouter.
+
+image::system-overview.svg[agrirouter middleware overview]
+
+The agrirouter middleware provides a REST interface for endpoint management, sending messages and retrieving messages. On the other hand the connection to the agrirouter is based on the faster MQTT protocol to have live telemetry data with real push notifications. The messages from the agrirouter are fetched, confirmed and stored within an internal database. There is no need to implement the business process on your own.
+
+=== Interface Documentation
+
+The agrirouter middleware is documented using the OpenAPI standard, you can find the documentation within the project.
+
+== Release-Management
+
+The release workflow follows the https://docs.microsoft.com/en-us/azure/devops/repos/git/git-branching-guidance?view=azure-devops[Microsoft DevOps Release Model] where a release shows up as a branch in the repository.

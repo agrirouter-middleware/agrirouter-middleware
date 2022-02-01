@@ -1,0 +1,14 @@
+logging:
+  level:
+    root: warn
+    org.hibernate.SQL: off
+    org.hibernate.type.descriptor.sql: off
+    org.springframework.web.filter.CommonsRequestLoggingFilter: trace
+    de.agrirouter.middleware: trace
+    com.dke.data.agrirouter: off
+
+app:
+  scheduled:
+    connection-check: "0 */5 * * * *"
+    fetching-and-confirming-existing-messages: "0 */15 * * * *"
+    status-logging: "0 */5 * * * *"
