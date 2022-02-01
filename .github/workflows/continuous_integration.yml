@@ -1,0 +1,27 @@
+name: Continuous integration
+
+on:
+  push:
+    branches:
+      - "main"
+      - "releases/**"
+      - "feature/**"
+  pull_request:
+    branches:
+      - "main"
+      - "releases/**"
+
+jobs:
+  build_jdk8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Build with Maven
+        env:
+          GITHUB_USER: ${{ secrets.GITHUB_USER }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B package --file pom.xml --settings ci/settings.xml
