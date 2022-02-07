@@ -22,6 +22,5 @@ jobs:
           java-version: 17
       - name: Build with Maven
         env:
-          GITHUB_USER: ${{ secrets.GTHB_USER }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B package --file pom.xml --settings ci/github-settings.xml
