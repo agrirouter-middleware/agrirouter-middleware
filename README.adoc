@@ -15,7 +15,7 @@ In addition, the agrirouter middleware provides simple data conversion from ISOX
 
 == Current status
 
-image::https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml/badge.svg[Status badge, link="https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/continuous_integration.yml"]
+image::https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml/badge.svg[Status badge, link="https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml"]
 
 == The Partners
 
