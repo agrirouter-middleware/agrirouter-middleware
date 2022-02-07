@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business.scheduled;
 
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.parameters.MessageQueryParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.MessageHeaderQueryServiceImpl;
@@ -60,7 +61,7 @@ public class ScheduledStatusLogging {
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
             messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageId);
-            messageWaitingForAcknowledgement.setTechnicalMessageType(TechnicalMessageType.DKE_FEED_HEADER_QUERY.getKey());
+            messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_HEADER_QUERY.getKey());
             messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
         });
     }

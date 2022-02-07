@@ -2,8 +2,10 @@ package de.agrirouter.middleware.integration;
 
 import agrirouter.request.payload.endpoint.Capabilities;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
-import com.dke.data.agrirouter.api.service.messaging.SetCapabilityService;
+import com.dke.data.agrirouter.api.service.messaging.mqtt.SetCapabilityService;
 import com.dke.data.agrirouter.api.service.parameters.SetCapabilitiesParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SetCapabilityServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -74,7 +76,7 @@ public class EndpointIntegrationService {
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
-        messageWaitingForAcknowledgement.setTechnicalMessageType(TechnicalMessageType.DKE_CAPABILITIES.getKey());
+        messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CAPABILITIES.getKey());
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
     }
 

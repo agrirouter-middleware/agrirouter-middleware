@@ -1,5 +1,7 @@
 package de.agrirouter.middleware.business;
 
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -72,7 +74,7 @@ public class TimeLogService {
         final var messagingIntegrationParameters = new MessagingIntegrationParameters();
         messagingIntegrationParameters.setExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
         messagingIntegrationParameters.setTeamSetContextId(publishTimeLogParameters.getTeamSetContextId());
-        messagingIntegrationParameters.setTechnicalMessageType(TechnicalMessageType.ISO_11783_TIME_LOG);
+        messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_TIME_LOG);
         messagingIntegrationParameters.setMessage(asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()));
         sendMessageIntegrationService.publish(messagingIntegrationParameters);
     }

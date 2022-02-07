@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business;
 
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -278,7 +279,7 @@ public class DeviceDescriptionService {
                 messagingIntegrationParameters.setMessage(asByteString(registerMachineParameters.getBase64EncodedDeviceDescription()));
                 messagingIntegrationParameters.setExternalEndpointId(endpoint.getExternalEndpointId());
                 messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
-                messagingIntegrationParameters.setTechnicalMessageType(TechnicalMessageType.ISO_11783_DEVICE_DESCRIPTION);
+                messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
                 sendMessageIntegrationService.publish(messagingIntegrationParameters);
                 return teamSetContextId;
             } else {
@@ -341,7 +342,7 @@ public class DeviceDescriptionService {
                 messagingIntegrationParameters.setMessage(asByteString(deviceDescription.getBase64EncodedDeviceDescription()));
                 messagingIntegrationParameters.setExternalEndpointId(deviceDescription.getExternalEndpointId());
                 messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
-                messagingIntegrationParameters.setTechnicalMessageType(TechnicalMessageType.ISO_11783_DEVICE_DESCRIPTION);
+                messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
                 sendMessageIntegrationService.publish(messagingIntegrationParameters);
                 lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
             }

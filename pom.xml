@@ -39,7 +39,7 @@
 
         <springdoc-openapi-ui.version>1.6.5</springdoc-openapi-ui.version>
         <mariadb-java-client.version>3.0.3</mariadb-java-client.version>
-        <agrirouter-api-java.version>1.4.2</agrirouter-api-java.version>
+        <agrirouter-sdk-java.version>2.0.0</agrirouter-sdk-java.version>
         <querydsl.version>5.0.0</querydsl.version>
         <swagger-annotations.version>2.1.2</swagger-annotations.version>
         <protobuf-java.version>4.0.0-rc-2</protobuf-java.version>
@@ -147,18 +147,18 @@
             <!-- AGRIROUTER -->
             <dependency>
                 <groupId>com.agrirouter.api</groupId>
-                <artifactId>agrirouter-api-java-api</artifactId>
-                <version>${agrirouter-api-java.version}</version>
+                <artifactId>agrirouter-sdk-java-api</artifactId>
+                <version>${agrirouter-sdk-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.agrirouter.api</groupId>
-                <artifactId>agrirouter-api-java-impl</artifactId>
-                <version>${agrirouter-api-java.version}</version>
+                <artifactId>agrirouter-sdk-java-impl</artifactId>
+                <version>${agrirouter-sdk-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.agrirouter.api</groupId>
-                <artifactId>agrirouter-api-java-convenience</artifactId>
-                <version>${agrirouter-api-java.version}</version>
+                <artifactId>agrirouter-sdk-java-convenience</artifactId>
+                <version>${agrirouter-sdk-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.agrirouter.proto</groupId>
@@ -221,11 +221,18 @@
                 <version>${log4j.version}</version>
             </dependency>
 
-            <!-- Material UI -->
+            <!-- MATERIAL UI -->
             <dependency>
                 <groupId>org.webjars.bower</groupId>
                 <artifactId>material-design-lite</artifactId>
                 <version>${material-design-lite.version}</version>
+            </dependency>
+
+            <!-- COMMONS -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.12.0</version>
             </dependency>
 
         </dependencies>

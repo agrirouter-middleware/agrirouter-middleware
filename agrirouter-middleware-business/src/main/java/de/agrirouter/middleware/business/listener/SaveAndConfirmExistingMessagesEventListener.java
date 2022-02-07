@@ -1,8 +1,9 @@
 package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
-import com.dke.data.agrirouter.api.service.messaging.MessageQueryService;
+import com.dke.data.agrirouter.api.service.messaging.mqtt.MessageQueryService;
 import com.dke.data.agrirouter.api.service.parameters.MessageQueryParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.MessageQueryServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -90,7 +91,7 @@ public class SaveAndConfirmExistingMessagesEventListener {
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
-        messageWaitingForAcknowledgement.setTechnicalMessageType(TechnicalMessageType.DKE_FEED_MESSAGE_QUERY.getKey());
+        messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_MESSAGE_QUERY.getKey());
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
         businessLogService.fetchAndConfirmExistingMessages(endpoint);
     }

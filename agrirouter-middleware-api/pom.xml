@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>com.agrirouter.api</groupId>
-            <artifactId>agrirouter-api-java-api</artifactId>
+            <artifactId>agrirouter-sdk-java-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
