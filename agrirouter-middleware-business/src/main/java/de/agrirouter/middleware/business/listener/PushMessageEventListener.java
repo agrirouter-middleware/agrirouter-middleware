@@ -1,5 +1,7 @@
 package de.agrirouter.middleware.business.listener;
 
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodePushNotificationService;
 import com.dke.data.agrirouter.api.service.parameters.MessageConfirmationParameters;
@@ -125,18 +127,18 @@ public class PushMessageEventListener {
         contentMessageRepository.save(contentMessage);
         businessLogService.persistContentMessage(receiverId, technicalMessageType);
 
-        if (technicalMessageType.equals(TechnicalMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
+        if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
             final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
             taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
             businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
 
-        if (technicalMessageType.equals(TechnicalMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
+        if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
             deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
             businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
 
-        if (technicalMessageType.equals(TechnicalMessageType.ISO_11783_TIME_LOG.getKey())) {
+        if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage
             );
             businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
@@ -170,7 +172,7 @@ public class PushMessageEventListener {
                 MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
                 messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
                 messageWaitingForAcknowledgement.setMessageId(messageId);
-                messageWaitingForAcknowledgement.setTechnicalMessageType(TechnicalMessageType.DKE_FEED_CONFIRM.getKey());
+                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
                 messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
                 businessLogService.confirmMessages(endpoint);
             } else {

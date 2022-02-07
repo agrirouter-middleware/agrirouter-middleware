@@ -1,6 +1,8 @@
 package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
@@ -57,36 +59,33 @@ public class MessageAcknowledgementEventListener {
             final var messageWaitingForAcknowledgement = optionalMessageWaitingForAcknowledgement.get();
             final var decodedMessageResponse = messageAcknowledgementEvent.getDecodedMessageResponse();
             switch (decodedMessageResponse.getResponseEnvelope().getType()) {
-                case ACK:
-                case ACK_FOR_FEED_MESSAGE:
-                case ACK_FOR_FEED_HEADER_LIST:
-                case CLOUD_REGISTRATIONS:
+                case ACK, ACK_FOR_FEED_MESSAGE, ACK_FOR_FEED_HEADER_LIST, CLOUD_REGISTRATIONS -> {
                     handleSuccessMessage(messageWaitingForAcknowledgement);
-                    if (TechnicalMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                    if (SystemMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, messageWaitingForAcknowledgement.getAgrirouterEndpointId()));
                     }
-                    if (TechnicalMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                    if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
-                    break;
-                case ACK_WITH_MESSAGES:
+                }
+                case ACK_WITH_MESSAGES -> {
                     handleSuccessMessageAndUpdateWarnings(decodedMessageResponse, messageWaitingForAcknowledgement);
-                    if (TechnicalMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                    if (SystemMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, messageWaitingForAcknowledgement.getAgrirouterEndpointId()));
                     }
-                    if (TechnicalMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                    if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
-                    break;
-                case ACK_WITH_FAILURE:
+                }
+                case ACK_WITH_FAILURE -> {
                     handleErrorMessage(decodedMessageResponse, messageWaitingForAcknowledgement);
                     final var messages = decodeMessageService.decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails());
                     final var message = messages.getMessages(0);
-                    if (TechnicalMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType()) && message.getMessageCode().equals("VAL_000004")) {
+                    if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType()) && message.getMessageCode().equals("VAL_000004")) {
                         LOGGER.debug("Looks like there are no recipients for the device description. But the AR received the device description and it was valid. Trigger activation.");
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
-                    break;
+                }
             }
             messageWaitingForAcknowledgementService.delete(messageWaitingForAcknowledgement);
         } else {

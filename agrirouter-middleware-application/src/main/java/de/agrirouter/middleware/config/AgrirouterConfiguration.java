@@ -4,9 +4,9 @@ import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.env.Production;
 import com.dke.data.agrirouter.api.env.QA;
 import com.dke.data.agrirouter.api.service.RevokingService;
-import com.dke.data.agrirouter.api.service.messaging.FetchMessageService;
-import com.dke.data.agrirouter.api.service.messaging.SetCapabilityService;
-import com.dke.data.agrirouter.api.service.messaging.SetSubscriptionService;
+import com.dke.data.agrirouter.api.service.messaging.http.FetchMessageService;
+import com.dke.data.agrirouter.api.service.messaging.mqtt.SetCapabilityService;
+import com.dke.data.agrirouter.api.service.messaging.mqtt.SetSubscriptionService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodePushNotificationService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageService;
@@ -18,9 +18,9 @@ import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import com.dke.data.agrirouter.impl.messaging.encoding.DecodeMessageServiceImpl;
 import com.dke.data.agrirouter.impl.messaging.encoding.DecodePushNotificationServiceImpl;
 import com.dke.data.agrirouter.impl.messaging.encoding.EncodeMessageServiceImpl;
+import com.dke.data.agrirouter.impl.messaging.mqtt.SetCapabilityServiceImpl;
+import com.dke.data.agrirouter.impl.messaging.mqtt.SetSubscriptionServiceImpl;
 import com.dke.data.agrirouter.impl.messaging.rest.FetchMessageServiceImpl;
-import com.dke.data.agrirouter.impl.messaging.rest.SetCapabilityServiceImpl;
-import com.dke.data.agrirouter.impl.messaging.rest.SetSubscriptionServiceImpl;
 import com.dke.data.agrirouter.impl.onboard.OnboardingServiceImpl;
 import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceImpl;
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
@@ -61,16 +61,6 @@ public class AgrirouterConfiguration {
     }
 
     /**
-     * Create an instance of the fetch message service used for HTTP message fetching.
-     *
-     * @return -
-     */
-    @Bean
-    public FetchMessageService fetchMessageService() {
-        return new FetchMessageServiceImpl();
-    }
-
-    /**
      * Create an instance of the decoded message service used for message decoding.
      *
      * @return -
@@ -78,28 +68,6 @@ public class AgrirouterConfiguration {
     @Bean
     public DecodeMessageService decodeMessageService() {
         return new DecodeMessageServiceImpl();
-    }
-
-    /**
-     * Create an instance of the service to set the capabilities.
-     *
-     * @param environment The current environment, injected.
-     * @return -
-     */
-    @Bean
-    public SetCapabilityService setCapabilityService(Environment environment) {
-        return new SetCapabilityServiceImpl(environment);
-    }
-
-    /**
-     * Create an instance of the service to set the subscriptions.
-     *
-     * @param environment The current environment, injected.
-     * @return -
-     */
-    @Bean
-    public SetSubscriptionService setSubscriptionService(Environment environment) {
-        return new SetSubscriptionServiceImpl(environment);
     }
 
     /**
@@ -193,7 +161,7 @@ public class AgrirouterConfiguration {
      * @return -
      */
     @Bean
-    public EncodeMessageService encodeMessageService(Environment environment) {
+    public EncodeMessageService encodeMessageService() {
         return new EncodeMessageServiceImpl();
     }
 

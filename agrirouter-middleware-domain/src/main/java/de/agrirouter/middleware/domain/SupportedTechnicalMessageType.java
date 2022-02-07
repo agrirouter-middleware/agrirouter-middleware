@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.domain;
 
 import agrirouter.request.payload.endpoint.Capabilities.CapabilitySpecification.Direction;
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,7 +25,7 @@ public class SupportedTechnicalMessageType extends BaseEntity {
      * The technical message type, that the application does support, i.e. TaskData, EFDI, etc.
      */
     @Enumerated(EnumType.STRING)
-    private TechnicalMessageType technicalMessageType;
+    private ContentMessageType technicalMessageType;
 
     /**
      * The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.

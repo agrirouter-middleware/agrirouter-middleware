@@ -34,15 +34,15 @@
         </dependency>
         <dependency>
             <groupId>com.agrirouter.api</groupId>
-            <artifactId>agrirouter-api-java-api</artifactId>
+            <artifactId>agrirouter-sdk-java-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.agrirouter.api</groupId>
-            <artifactId>agrirouter-api-java-impl</artifactId>
+            <artifactId>agrirouter-sdk-java-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.agrirouter.api</groupId>
-            <artifactId>agrirouter-api-java-convenience</artifactId>
+            <artifactId>agrirouter-sdk-java-convenience</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.controller.dto.request;
 
 import agrirouter.request.payload.endpoint.Capabilities;
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -33,7 +34,7 @@ public class AddSupportedTechnicalMessageTypeRequest {
          * The technical message type, that the application does support, i.e. TaskData, EFDI, etc.
          */
         @Schema(description = "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.")
-        private TechnicalMessageType technicalMessageType;
+        private ContentMessageType technicalMessageType;
 
         /**
          * The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.
@@ -41,7 +42,7 @@ public class AddSupportedTechnicalMessageTypeRequest {
         @Schema(description = "The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.")
         private Capabilities.CapabilitySpecification.Direction direction;
 
-        public TechnicalMessageType getTechnicalMessageType() {
+        public ContentMessageType getTechnicalMessageType() {
             return technicalMessageType;
         }
 
