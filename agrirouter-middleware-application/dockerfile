@@ -1,4 +1,4 @@
-FROM openjdk:17feat
+FROM openjdk:17
 
 ADD @project.build.finalName@.jar /opt/application/application.jar
 
