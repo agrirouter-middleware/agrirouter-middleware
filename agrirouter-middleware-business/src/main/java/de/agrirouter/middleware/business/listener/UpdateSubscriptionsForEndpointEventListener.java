@@ -2,8 +2,9 @@ package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.Gateway;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
-import com.dke.data.agrirouter.api.service.messaging.SetSubscriptionService;
+import com.dke.data.agrirouter.api.service.messaging.mqtt.SetSubscriptionService;
 import com.dke.data.agrirouter.api.service.parameters.SetSubscriptionParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SetSubscriptionServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -142,7 +143,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
-        messageWaitingForAcknowledgement.setTechnicalMessageType(TechnicalMessageType.DKE_SUBSCRIPTION.getKey());
+        messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_SUBSCRIPTION.getKey());
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
     }
 

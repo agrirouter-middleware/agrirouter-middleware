@@ -31,3 +31,6 @@ src/main/generated
 
 # MQTT #
 .lck
+
+# LOCAL SETTINGS #
+ci/local-settings.xml

@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.parameters.CloudOffboardingParameters;
 import com.dke.data.agrirouter.convenience.decode.DecodeCloudOnboardingResponsesService;
@@ -98,7 +99,7 @@ public class CloudRegistrationEventListener {
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
-        messageWaitingForAcknowledgement.setTechnicalMessageType(TechnicalMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
+        messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
 
         virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(endpointService::deleteEndpointData);

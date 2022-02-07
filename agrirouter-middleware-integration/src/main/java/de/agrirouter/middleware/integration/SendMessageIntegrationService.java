@@ -3,7 +3,6 @@ package de.agrirouter.middleware.integration;
 import agrirouter.commons.MessageOuterClass;
 import agrirouter.request.Request;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.SendMessageService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageService;
 import com.dke.data.agrirouter.api.service.parameters.MessageHeaderParameters;
@@ -71,7 +70,7 @@ public class SendMessageIntegrationService {
             if (iMqttClient.isEmpty()) {
                 throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
             }
-            SendMessageService sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
+            SendMessageServiceImpl sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
             SendMessageParameters sendMessageParameters = new SendMessageParameters();
             sendMessageParameters.setOnboardingResponse(onboardingResponse);
             sendMessageParameters.setEncodedMessages(Collections.singletonList(encodeMessageService.encode(messageHeaderParameters, payloadParameters)));
@@ -93,23 +92,9 @@ public class SendMessageIntegrationService {
 
     private PayloadParameters createPayloadParameters(MessagingIntegrationParameters messagingIntegrationParameters) {
         final var payloadParameters = new PayloadParameters();
-        payloadParameters.setTypeUrl(getTypeUrlForTechnicalMessageType(messagingIntegrationParameters.getTechnicalMessageType()));
+        payloadParameters.setTypeUrl(messagingIntegrationParameters.getTechnicalMessageType().getTypeUrl());
         payloadParameters.setValue(messagingIntegrationParameters.getMessage());
         return payloadParameters;
-    }
-
-    // FIXME Remove after integration of the new version of the API.
-    private String getTypeUrlForTechnicalMessageType(TechnicalMessageType technicalMessageType) {
-        switch (technicalMessageType) {
-            case ISO_11783_TIME_LOG:
-                return "types.agrirouter.com/efdi.TimeLog";
-            case ISO_11783_DEVICE_DESCRIPTION:
-                return "types.agrirouter.com/efdi.ISO11783_TaskData";
-            case GPS_INFO:
-                return "types.agrirouter.com/agrirouter.technicalmessagetype.GPSList";
-            default:
-                return "";
-        }
     }
 
     private MessageHeaderParameters createMessageHeaderParameters(MessagingIntegrationParameters messagingIntegrationParameters, OnboardingResponse onboardingResponse) {
