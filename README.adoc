@@ -13,6 +13,10 @@ The agrirouter middleware is an additional layer of abstraction and provides acc
 The agrirouter middleware manages the connections and fetches messages from the agrirouter, based on the technical messages types registered.
 In addition, the agrirouter middleware provides simple data conversion from ISOXML TaskData to EFDI Telemetry Data and provides searching operations for DDIs and other parts of the specification.
 
+== Current status
+
+image::https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml/badge.svg[Status badge, link="https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/continuous_integration.yml"]
+
 == The Partners
 
 The project would not have been possible without strong partners for the idea and the development. The following companies have taken an active part during the development of the agrirouter middleware.
