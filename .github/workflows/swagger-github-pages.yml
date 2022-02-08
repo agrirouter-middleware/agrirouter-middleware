@@ -10,15 +10,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Download openapi.json
-        uses: actions/download-artifact@v2
-        with:
-          name: spec-file
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
           output: swagger-ui
-          spec-file: openapi.json
+          spec-file: swagger/openapi.json
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
