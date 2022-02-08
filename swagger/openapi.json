@@ -1,0 +1,2268 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Agrirouter Middleware",
+    "description": "Middleware to access the agrirouter using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter within a custom database.",
+    "contact": {
+      "name": "Agrirouter Middleware",
+      "url": "https://github.com/agrirouter-middleware"
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://github.com/agrirouter-middleware/LICENSE"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://agrirouter-middleware-holmer.qa.lmis.de",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "application management",
+      "description": "Operations for the application management, i.e. register, add supported technical message types and status checks."
+    },
+    {
+      "name": "endpoint management",
+      "description": "Operations for the endpoint management, i.e. status checking or searching for endpoints."
+    },
+    {
+      "name": "farming software management",
+      "description": "Operations for farming software management, i.e. onboard process for endpoints or revoking endpoints."
+    },
+    {
+      "name": "telemetry data management",
+      "description": "Operations for telemetry data management, i.e. search for telemetry data, search for time log periods or fetch data from the internal storage."
+    },
+    {
+      "name": "telemetry platform management",
+      "description": "Operations for telemetry platform management, i.e. onboard process for (virtual) endpoints or revoking endpoints."
+    },
+    {
+      "name": "maintenance",
+      "description": "Maintenance operations for internal usage. Do NOT use this profile in production."
+    },
+    {
+      "name": "agrirouter callback",
+      "description": "The callback for the agrirouter. This callback has to be referenced within the newly created application."
+    }
+  ],
+  "paths": {
+    "/unsecured/api/maintenance/endpoint/resend/capabilities-and-subscriptions/{internalEndpointId}": {
+      "put": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Resend the capabilities and subscriptions for the endpoint.",
+        "operationId": "maintenance.resend-capabilities",
+        "parameters": [
+          {
+            "name": "internalEndpointId",
+            "in": "path",
+            "description": "The internal endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "In case the operation was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unsecured/api/maintenance/endpoint/disable/{internalEndpointId}": {
+      "put": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Disable a specific endoint.",
+        "operationId": "maintenance.disable",
+        "parameters": [
+          {
+            "name": "internalEndpointId",
+            "in": "path",
+            "description": "The internal endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "In case the operation was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/secured/api/application/supported-technical-message-types/{applicationId}": {
+      "put": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Define the technical types for the application.",
+        "operationId": "application.define-technical-message-types",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSupportedTechnicalMessageTypeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "In case the supported technical message types were added."
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/application/router-device/{applicationId}": {
+      "put": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Add a router device to the application.",
+        "operationId": "application.add-router-device",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddRouterDeviceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "In case the router device was added."
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/unsecured/api/maintenance/tenant/register": {
+      "post": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Register a new tenant within the middleware. Can be skipped if you only use the default tenant.",
+        "operationId": "maintenance.tenant.register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "In case the tenant was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/secured/apitelemetry-platform/{endpointId}/virtual": {
+      "post": {
+        "tags": [
+          "telemetry platform management"
+        ],
+        "description": "Onboard a virtual endpoint for the given telemetry platform.",
+        "operationId": "telemetry-platform.onboard.virtual",
+        "parameters": [
+          {
+            "name": "endpointId",
+            "in": "path",
+            "description": "The ID of the existing endpoint.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardVirtualEndpointRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The response if the endpoint was created successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "telemetry platform management"
+        ],
+        "description": "Revoke a virtual endpoint for the given telemetry platform.",
+        "operationId": "telemetry-platform.revoke.virtual",
+        "parameters": [
+          {
+            "name": "endpointId",
+            "in": "path",
+            "description": "The ID of the existing endpoint.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeVirtualEndpointRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The response if the endpoint was revoked successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-data/search/time-periods": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Search for the time periods with the machine data.",
+        "operationId": "telemetry-data.search-time-periods",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTelemetryDataPeriodsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The response containing the time log periods for the devices.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-data/search/time-logs": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Search for the time logs with the machine data and time log period data.",
+        "operationId": "telemetry-data.search-time-logs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The response containing all time logs.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-data/search/machines": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Search machines within the middleware.",
+        "operationId": "telemetry-data.search-machines",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchMachinesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The response, containing all machines found.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-data/register/machine/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Register a new machine within the middleware and within the agrirouter.",
+        "operationId": "telemetry-data.register-machine",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterMachineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The response if the machine was created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterMachineResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-data/publish/{externalEndpointId}/{teamSetContextId}": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Publish a message for a given team set.",
+        "operationId": "telemetry-data.publish-message",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamSetContextId",
+            "in": "path",
+            "description": "The team set context ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishTimeLogDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/status": {
+      "post": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the status of an existing endpoint.",
+        "operationId": "endpoint.status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/application": {
+      "post": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Register an application within the middleware.",
+        "operationId": "application.register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The application has been registered and was created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/unsecured/api/telemetry-platform/{applicationId}/{externalEndpointId}": {
+      "get": {
+        "tags": [
+          "telemetry platform management"
+        ],
+        "description": "Create an authorization URL for the telemetry platform.",
+        "operationId": "telemetry-platform.auth-url",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "The URL (as redirect) to authorize the creation of an endpoint within the account of the user.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unsecured/api/maintenance/tenant/": {
+      "get": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Find all tenants within the middleware.",
+        "operationId": "maintenance.tenant.find-all",
+        "responses": {
+          "200": {
+            "description": "In case there are tenants.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindTenantResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unsecured/api/farming-software/{applicationId}/{externalEndpointId}": {
+      "get": {
+        "tags": [
+          "farming software management"
+        ],
+        "description": "Create an authorization URL for the telemetry platform.",
+        "operationId": "onboard.farming-software.auth-url",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "The URL (as redirect) to authorize the creation of an endpoint within the account of the user.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unsecured/api/callback": {
+      "get": {
+        "tags": [
+          "agrirouter callback"
+        ],
+        "description": "The callback for the onboard process. Used by the agrirouter to send the onboard process data.",
+        "operationId": "callback.callback",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "description": "The state to identify the request internally.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token containing the information for the onboard process, generated by the agrirouter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "description": "Signature from the agrirouter, used for validation.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "description": "Error information, in case the onboard process failed.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "In case of a successful response, the callback redirects to an internal page to show the result of the onboard process.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/secured/api/application/{applicationId}": {
+      "get": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Find a specific application by the given ID.",
+        "operationId": "application.find",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A container holding the application that has been found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/application/{applicationId}/endpoints": {
+      "get": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Fetch all endpoints for an application.",
+        "operationId": "application.endpoints",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The endpoints for the application.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindEndpointsForApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/application/status/{applicationId}": {
+      "get": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Show the status of an application",
+        "operationId": "application.status",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The ID of the application.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A container holding the status of the application.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/application/all": {
+      "get": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Search for all applications.",
+        "operationId": "application.all",
+        "responses": {
+          "200": {
+            "description": "All applications registered for the current tenant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/apitelemetry-platform/{externalEndpointId}": {
+      "delete": {
+        "tags": [
+          "telemetry platform management"
+        ],
+        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
+        "operationId": "telemetry-platform.revoke-process",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The revoke process was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/apifarming-software/{externalEndpointId}": {
+      "delete": {
+        "tags": [
+          "farming software management"
+        ],
+        "description": "Revoke a farming software from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
+        "operationId": "farming-software.revoke",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The revoke process was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "key": {
+            "type": "string",
+            "description": "The key of the error."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The message of the error."
+          }
+        },
+        "description": "Generic error response to map the internal errors and provide clean API description."
+      },
+      "AddSupportedTechnicalMessageTypeRequest": {
+        "required": [
+          "supportedTechnicalMessageTypes"
+        ],
+        "type": "object",
+        "properties": {
+          "supportedTechnicalMessageTypes": {
+            "type": "array",
+            "description": "The list of supported technical message types.",
+            "items": {
+              "$ref": "#/components/schemas/SupportedTechnicalMessageTypeDto"
+            }
+          }
+        },
+        "description": "The container holding the parameters to add the supported technical messages types."
+      },
+      "SupportedTechnicalMessageTypeDto": {
+        "type": "object",
+        "properties": {
+          "technicalMessageType": {
+            "type": "string",
+            "description": "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.",
+            "enum": [
+              "EMPTY",
+              "DKE_CLOUD_ONBOARD_ENDPOINTS",
+              "DKE_CLOUD_OFFBOARD_ENDPOINTS",
+              "DKE_CAPABILITIES",
+              "DKE_SUBSCRIPTION",
+              "DKE_LIST_ENDPOINTS",
+              "DKE_LIST_ENDPOINTS_UNFILTERED",
+              "DKE_FEED_CONFIRM",
+              "DKE_FEED_DELETE",
+              "DKE_FEED_MESSAGE_QUERY",
+              "DKE_FEED_HEADER_QUERY",
+              "DKE_OTHER",
+              "ISO_11783_TASKDATA_ZIP",
+              "ISO_11783_DEVICE_DESCRIPTION",
+              "ISO_11783_TIME_LOG",
+              "SHP_SHAPE_ZIP",
+              "DOC_PDF",
+              "IMG_JPEG",
+              "IMG_PNG",
+              "IMG_BMP",
+              "VID_AVI",
+              "VID_MP4",
+              "VID_WMV",
+              "GPS_INFO",
+              "TESTING_PURPOSE_INVALID",
+              "TEST_OTHER"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "description": "The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.",
+            "enum": [
+              "SEND",
+              "RECEIVE",
+              "SEND_RECEIVE",
+              "UNRECOGNIZED"
+            ]
+          }
+        },
+        "description": "Representation of a technical message type to add."
+      },
+      "AddRouterDeviceRequest": {
+        "required": [
+          "routerDevice"
+        ],
+        "type": "object",
+        "properties": {
+          "routerDevice": {
+            "$ref": "#/components/schemas/RouterDevice"
+          }
+        },
+        "description": "The container holding the parameters to add a router device."
+      },
+      "Authentication": {
+        "required": [
+          "certificate",
+          "secret",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of the certificate.",
+            "enum": [
+              "PEM",
+              "P12"
+            ]
+          },
+          "secret": {
+            "type": "string",
+            "description": "The secret for the certificate."
+          },
+          "certificate": {
+            "type": "string",
+            "description": "The certificate."
+          }
+        },
+        "description": "The authentication details for a router device."
+      },
+      "ConnectionCriteria": {
+        "required": [
+          "clientId",
+          "host",
+          "port"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "The client ID."
+          },
+          "host": {
+            "type": "string",
+            "description": "The host."
+          },
+          "port": {
+            "type": "string",
+            "description": "The port."
+          }
+        },
+        "description": "Connection details for a router device."
+      },
+      "RouterDevice": {
+        "required": [
+          "authentication",
+          "connectionCriteria",
+          "deviceAlternateId"
+        ],
+        "type": "object",
+        "properties": {
+          "deviceAlternateId": {
+            "type": "string",
+            "description": "The device alternate ID."
+          },
+          "authentication": {
+            "$ref": "#/components/schemas/Authentication"
+          },
+          "connectionCriteria": {
+            "$ref": "#/components/schemas/ConnectionCriteria"
+          }
+        },
+        "description": "A router device from the AR."
+      },
+      "TenantRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "tenantId": {
+            "type": "string",
+            "description": "Internal ID of the tenant."
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Access token for API usage. Will be shown only once, therefore better save this one."
+          }
+        },
+        "description": "The response after the tenant was registered."
+      },
+      "TenantRegistrationRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant, has to be unique."
+          }
+        },
+        "description": "The request holding information to register a new tenant."
+      },
+      "OnboardVirtualEndpointRequest": {
+        "required": [
+          "endpointName",
+          "externalVirtualEndpointId"
+        ],
+        "type": "object",
+        "properties": {
+          "externalVirtualEndpointId": {
+            "type": "string",
+            "description": "The ID of the new virtual endpoint within the middleware."
+          },
+          "endpointName": {
+            "type": "string",
+            "description": "The list of names for the virtual endpoints."
+          }
+        },
+        "description": "Necessary information to create the virtual endpoint."
+      },
+      "SearchTelemetryDataPeriodsRequest": {
+        "required": [
+          "externalEndpointId"
+        ],
+        "type": "object",
+        "properties": {
+          "externalEndpointId": {
+            "type": "string",
+            "description": "The ID of the endpoint within the middleware."
+          },
+          "internalDeviceIds": {
+            "type": "array",
+            "description": "The list of internal device IDs to search for.",
+            "items": {
+              "type": "string",
+              "description": "The list of internal device IDs to search for."
+            }
+          },
+          "filterEmptyEntries": {
+            "type": "boolean",
+            "description": "Filter empty entries, like machines and time periods."
+          },
+          "sendFrom": {
+            "type": "integer",
+            "description": "The beginning of the time interval.",
+            "format": "int64"
+          },
+          "sendTo": {
+            "type": "integer",
+            "description": "The end of the time interval.",
+            "format": "int64"
+          }
+        },
+        "description": "The request with all necessary information to search for the time log periods."
+      },
+      "SearchTelemetryDataRequest": {
+        "required": [
+          "internalDeviceId",
+          "teamSetContextId"
+        ],
+        "type": "object",
+        "properties": {
+          "internalDeviceId": {
+            "type": "string",
+            "description": "The ID of the device."
+          },
+          "teamSetContextId": {
+            "type": "string",
+            "description": "The team set context ID."
+          },
+          "timeLogPeriodId": {
+            "type": "string",
+            "description": "The ID of the time log period."
+          },
+          "sendFrom": {
+            "type": "integer",
+            "description": "The beginning of the time interval.",
+            "format": "int64"
+          },
+          "sendTo": {
+            "type": "integer",
+            "description": "The end of the time interval.",
+            "format": "int64"
+          }
+        },
+        "description": "The request with all necessary information to search for the telemetry data (time logs)."
+      },
+      "SearchMachinesRequest": {
+        "required": [
+          "externalEndpointId"
+        ],
+        "type": "object",
+        "properties": {
+          "externalEndpointId": {
+            "type": "string",
+            "description": "The ID of the endpoint within the middleware."
+          },
+          "internalDeviceIds": {
+            "type": "array",
+            "description": "The list of internal device IDs to search for.",
+            "items": {
+              "type": "string",
+              "description": "The list of internal device IDs to search for."
+            }
+          },
+          "withCurrentDeviceDescription": {
+            "type": "boolean",
+            "description": "Show the current device description."
+          }
+        },
+        "description": "The request for searching for machines."
+      },
+      "RegisterMachineResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "teamSetContextId": {
+            "type": "string",
+            "description": "The team set context ID, provided by the agrirouter."
+          }
+        },
+        "description": "The response when registering a machine."
+      },
+      "RegisterMachineRequest": {
+        "required": [
+          "base64EncodedDeviceDescription"
+        ],
+        "type": "object",
+        "properties": {
+          "base64EncodedDeviceDescription": {
+            "type": "string",
+            "description": "The device description itself, should be Base64 encoded."
+          }
+        },
+        "description": "The request the information to register a machine."
+      },
+      "PublishTimeLogDataRequest": {
+        "required": [
+          "base64EncodedMessages"
+        ],
+        "type": "object",
+        "properties": {
+          "base64EncodedMessages": {
+            "type": "array",
+            "description": "The Base64 encoded messages.",
+            "items": {
+              "type": "string",
+              "description": "The Base64 encoded messages."
+            }
+          }
+        },
+        "description": "The request body containing all necessary information to publish a time log."
+      },
+      "EndpointStatusRequest": {
+        "required": [
+          "externalEndpointIds"
+        ],
+        "type": "object",
+        "properties": {
+          "externalEndpointIds": {
+            "type": "array",
+            "description": "The list of external endpoint IDs.",
+            "items": {
+              "type": "string",
+              "description": "The list of external endpoint IDs."
+            }
+          }
+        },
+        "description": "The to search for one or multiple endpoints."
+      },
+      "ApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The technical ID of the entity.",
+            "format": "int64"
+          },
+          "version": {
+            "type": "string",
+            "description": "The version of the entity.",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "The agrirouter ID of the application."
+          },
+          "internalApplicationId": {
+            "type": "string",
+            "description": "The internal ID of the application."
+          },
+          "versionId": {
+            "type": "string",
+            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+          }
+        },
+        "description": "A container holding the basic representation of an application."
+      },
+      "RegisterApplicationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "application": {
+            "$ref": "#/components/schemas/ApplicationDto"
+          }
+        },
+        "description": "The response after an application has been successfully registered."
+      },
+      "ApplicationRegistrationRequest": {
+        "required": [
+          "applicationId",
+          "applicationType",
+          "name",
+          "versionId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "versionId": {
+            "type": "string",
+            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+          },
+          "publicKey": {
+            "type": "string",
+            "description": "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+          },
+          "applicationType": {
+            "type": "string",
+            "description": "The type of the application.",
+            "enum": [
+              "COMMUNICATION_UNIT",
+              "FARMING_SOFTWARE",
+              "TELEMETRY_PLATFORM"
+            ]
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "The redirect URL for the application. To configure a custom redirect URL that matches the location of the service."
+          }
+        },
+        "description": "The request parameters to register an application."
+      },
+      "FindTenantResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "tenants": {
+            "type": "array",
+            "description": "The tenants found for the request.",
+            "items": {
+              "$ref": "#/components/schemas/TenantDto"
+            }
+          }
+        },
+        "description": "The response when searching for tenants."
+      },
+      "TenantDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "description": "Internal ID of the tenant."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant."
+          }
+        },
+        "description": "Representation of a tenant within the middleware."
+      },
+      "FindApplicationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "application": {
+            "$ref": "#/components/schemas/ApplicationDto"
+          }
+        },
+        "description": "The response when searching for an application."
+      },
+      "EndpointDto": {
+        "type": "object",
+        "properties": {
+          "agrirouterEndpointId": {
+            "type": "string",
+            "description": "The ID of an endpoint."
+          },
+          "externalEndpointId": {
+            "type": "string",
+            "description": "The external ID of an endpoint."
+          },
+          "endpointType": {
+            "type": "string",
+            "description": "The type of the endpoint.",
+            "enum": [
+              "NON_VIRTUAL",
+              "VIRTUAL"
+            ]
+          },
+          "deactivated": {
+            "type": "boolean",
+            "description": "Marks an endpoint as deactivated."
+          },
+          "agrirouterAccountId": {
+            "type": "string",
+            "description": "The account ID for this endpoint."
+          }
+        },
+        "description": "Representation of an endpoint."
+      },
+      "EndpointWithChildrenDto": {
+        "type": "object",
+        "properties": {
+          "agrirouterEndpointId": {
+            "type": "string",
+            "description": "The ID of an endpoint."
+          },
+          "externalEndpointId": {
+            "type": "string",
+            "description": "The external ID of an endpoint."
+          },
+          "endpointType": {
+            "type": "string",
+            "description": "The type of the endpoint.",
+            "enum": [
+              "NON_VIRTUAL",
+              "VIRTUAL"
+            ]
+          },
+          "connectedVirtualEndpoints": {
+            "type": "array",
+            "description": "All the children of the endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/EndpointDto"
+            }
+          },
+          "deactivated": {
+            "type": "boolean",
+            "description": "Marks an endpoint as deactivated."
+          },
+          "agrirouterAccountId": {
+            "type": "string",
+            "description": "The account ID for this endpoint."
+          }
+        },
+        "description": "Representation of an endpoint with all children."
+      },
+      "FindEndpointsForApplicationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "endpoints": {
+            "type": "array",
+            "description": "The endpoints for this application.",
+            "items": {
+              "$ref": "#/components/schemas/EndpointWithChildrenDto"
+            }
+          }
+        },
+        "description": "The response when searching for endpoints belonging to the application."
+      },
+      "ApplicationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "application": {
+            "$ref": "#/components/schemas/ApplicationWithEndpointStatusDto"
+          }
+        },
+        "description": "Response class to show the current status of an application."
+      },
+      "ApplicationWithEndpointStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The technical ID of the entity.",
+            "format": "int64"
+          },
+          "version": {
+            "type": "string",
+            "description": "The version of the entity.",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "The agrirouter ID of the application."
+          },
+          "internalApplicationId": {
+            "type": "string",
+            "description": "The internal ID of the application."
+          },
+          "versionId": {
+            "type": "string",
+            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+          },
+          "endpointsWithStatus": {
+            "type": "array",
+            "description": "The status information for all endpoints within the application.",
+            "items": {
+              "$ref": "#/components/schemas/EndpointWithStatusDto"
+            }
+          }
+        },
+        "description": "The current status of the application incl. its endpoints."
+      },
+      "ConnectionErrorDto": {
+        "type": "object",
+        "properties": {
+          "pointInTime": {
+            "type": "string",
+            "description": "The point in time the connection error occurred.",
+            "format": "date-time"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The error message."
+          }
+        },
+        "description": "A single connection error, documented for the endpoint."
+      },
+      "ConnectionStateDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "boolean",
+            "description": "Is the connection available and cached?"
+          },
+          "connected": {
+            "type": "boolean",
+            "description": "Is the connection still connected to the AR?"
+          },
+          "clientId": {
+            "type": "string",
+            "description": "The client ID of the connection."
+          }
+        },
+        "description": "The current status of the connection."
+      },
+      "EndpointStatusDto": {
+        "type": "object",
+        "properties": {
+          "lastUpdate": {
+            "type": "string",
+            "description": "The last update.",
+            "format": "date-time"
+          },
+          "nrOfMessagesWithinTheInbox": {
+            "type": "integer",
+            "description": "The number of messages within the inbox.",
+            "format": "int32"
+          },
+          "connectionState": {
+            "$ref": "#/components/schemas/ConnectionStateDto"
+          }
+        },
+        "description": "The connection status of an endpoint."
+      },
+      "EndpointWithStatusDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "The version of the endpoint.",
+            "format": "date-time"
+          },
+          "agrirouterEndpointId": {
+            "type": "string",
+            "description": "The ID of an endpoint."
+          },
+          "externalEndpointId": {
+            "type": "string",
+            "description": "The external ID of an endpoint."
+          },
+          "deactivated": {
+            "type": "boolean",
+            "description": "The current status of an endpoint, could be active or deactivated."
+          },
+          "internalApplicationId": {
+            "type": "string",
+            "description": "The internal ID of the application."
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "The ID of the application."
+          },
+          "versionId": {
+            "type": "string",
+            "description": "The ID of the application version."
+          },
+          "agrirouterAccountId": {
+            "type": "string",
+            "description": "The account ID for this endpoint."
+          },
+          "endpointType": {
+            "type": "string",
+            "description": "The type of the endpoint.",
+            "enum": [
+              "NON_VIRTUAL",
+              "VIRTUAL"
+            ]
+          },
+          "endpointStatus": {
+            "$ref": "#/components/schemas/EndpointStatusDto"
+          },
+          "errors": {
+            "type": "array",
+            "description": "The errors for the endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/LogEntryDto"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "description": "The warnings for the endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/LogEntryDto"
+            }
+          },
+          "connectionErrors": {
+            "type": "array",
+            "description": "The detailed error messages with timestamps.",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionErrorDto"
+            }
+          },
+          "messagesWaitingForAck": {
+            "type": "array",
+            "description": "The messages currently waiting for ACK.",
+            "items": {
+              "$ref": "#/components/schemas/MessageWaitingForAcknowledgementDto"
+            }
+          }
+        },
+        "description": "The status of an endpoint."
+      },
+      "LogEntryDto": {
+        "type": "object",
+        "properties": {
+          "responseCode": {
+            "type": "integer",
+            "description": "The response code.",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message of the error."
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp of the log.",
+            "format": "date-time"
+          },
+          "responseType": {
+            "type": "string",
+            "description": "The type of the response."
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID of the message."
+          }
+        },
+        "description": "A log entry for the endpoint."
+      },
+      "MessageWaitingForAcknowledgementDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "integer",
+            "description": "The point in time the message has been sent and is waiting.",
+            "format": "int64"
+          },
+          "humanReadableCreated": {
+            "type": "string",
+            "description": "The point in time the message has been sent and is waiting.",
+            "format": "date-time"
+          },
+          "agrirouterEndpointId": {
+            "type": "string",
+            "description": "The endpoint ID."
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The message ID."
+          },
+          "technicalMessageType": {
+            "type": "string",
+            "description": "The type of message waiting for response."
+          },
+          "dynamicProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Dynamic properties for the message waiting for ACK."
+            },
+            "description": "Dynamic properties for the message waiting for ACK."
+          }
+        },
+        "description": "The message waiting for acknowledgement from the agrirouter."
+      },
+      "RevokeVirtualEndpointRequest": {
+        "required": [
+          "externalEndpointIds"
+        ],
+        "type": "object",
+        "properties": {
+          "externalEndpointIds": {
+            "type": "array",
+            "description": "The list of endpoint IDs for the virtual endpoints.",
+            "items": {
+              "type": "string",
+              "description": "The list of endpoint IDs for the virtual endpoints."
+            }
+          }
+        },
+        "description": "The necessary information to revoke the virtual endpoint."
+      }
+    },
+    "securitySchemes": {
+      "secured": {
+        "type": "http",
+        "description": "Default security scheme, used for the private flows.",
+        "scheme": "basic"
+      }
+    }
+  }
+}
