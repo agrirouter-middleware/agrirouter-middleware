@@ -13,12 +13,6 @@
     },
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "https://agrirouter-middleware-holmer.qa.lmis.de",
-      "description": "Generated server url"
-    }
-  ],
   "tags": [
     {
       "name": "application management",
