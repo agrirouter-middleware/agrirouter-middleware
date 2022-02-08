@@ -6,6 +6,7 @@ import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.service.messaging.SendMessageService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageService;
 import com.dke.data.agrirouter.api.service.parameters.MessageHeaderParameters;
+import com.dke.data.agrirouter.api.service.parameters.MessageParameterTuple;
 import com.dke.data.agrirouter.api.service.parameters.PayloadParameters;
 import com.dke.data.agrirouter.api.service.parameters.SendMessageParameters;
 import com.dke.data.agrirouter.impl.common.MessageIdService;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Messaging service for sending or publishing messages.
@@ -66,6 +68,10 @@ public class SendMessageIntegrationService {
             final var onboardingResponse = endpoint.asOnboardingResponse();
             final var messageHeaderParameters = createMessageHeaderParameters(messagingIntegrationParameters, onboardingResponse);
             final var payloadParameters = createPayloadParameters(messagingIntegrationParameters);
+
+            final var messageParameterTuples = encodeMessageService.chunkAndEncode(messageHeaderParameters, payloadParameters, onboardingResponse);
+            final var encodedMessages = encodeMessageService.encode(messageParameterTuples);
+
             final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
             if (iMqttClient.isEmpty()) {
                 throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
@@ -73,7 +79,7 @@ public class SendMessageIntegrationService {
             SendMessageServiceImpl sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
             SendMessageParameters sendMessageParameters = new SendMessageParameters();
             sendMessageParameters.setOnboardingResponse(onboardingResponse);
-            sendMessageParameters.setEncodedMessages(Collections.singletonList(encodeMessageService.encode(messageHeaderParameters, payloadParameters)));
+            sendMessageParameters.setEncodedMessages(encodedMessages);
             sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.getTeamSetContextId());
             sendMessageService.send(sendMessageParameters);
             businessLogService.publishMessage(endpoint, messagingIntegrationParameters.getTechnicalMessageType());
