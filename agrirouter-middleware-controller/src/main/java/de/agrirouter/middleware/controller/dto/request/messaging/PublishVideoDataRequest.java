@@ -22,7 +22,6 @@ public class PublishVideoDataRequest extends PublishNonTelemetryDataRequest {
      * The type of video.
      */
     @NotNull
-    @NotEmpty
     @Schema(description = "The type of video.")
     private VideoType videoType;
 

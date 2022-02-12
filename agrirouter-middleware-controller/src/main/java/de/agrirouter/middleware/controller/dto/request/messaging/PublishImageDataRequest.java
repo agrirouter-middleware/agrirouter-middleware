@@ -22,7 +22,6 @@ public class PublishImageDataRequest extends PublishNonTelemetryDataRequest {
      * The type of image.
      */
     @NotNull
-    @NotEmpty
     @Schema(description = "The type of image.")
     private ImageType imageType;
 
