@@ -17,12 +17,6 @@ import java.util.List;
 public class EndpointWithStatusDto {
 
     /**
-     * The version of the endpoint.
-     */
-    @Schema(description = "The version of the endpoint.")
-    private LocalDateTime version;
-
-    /**
      * The ID of an endpoint.
      */
     @Schema(description = "The ID of an endpoint.")

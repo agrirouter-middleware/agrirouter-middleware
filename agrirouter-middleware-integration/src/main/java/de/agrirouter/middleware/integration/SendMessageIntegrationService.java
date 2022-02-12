@@ -57,7 +57,7 @@ public class SendMessageIntegrationService {
     }
 
     /**
-     * Publish a message. If the recipients are set also, the sending mode will be both, publishing and direct sending.
+     * Publish a message. If the recipients are set also, the sending mode will be only direct sending, you have to decice between publishing and direct sending.
      *
      * @param messagingIntegrationParameters -
      */
@@ -116,7 +116,7 @@ public class SendMessageIntegrationService {
 
         if (null != messagingIntegrationParameters.getRecipients() && !messagingIntegrationParameters.getRecipients().isEmpty()) {
             messageHeaderParameters.setRecipients(new ArrayList<>(messagingIntegrationParameters.getRecipients()));
-            messageHeaderParameters.setMode(Request.RequestEnvelope.Mode.PUBLISH_WITH_DIRECT);
+            messageHeaderParameters.setMode(Request.RequestEnvelope.Mode.DIRECT);
         } else {
             messageHeaderParameters.setMode(Request.RequestEnvelope.Mode.PUBLISH);
         }

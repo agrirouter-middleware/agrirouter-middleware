@@ -20,7 +20,7 @@ public interface BusinessLogEventRepository extends JpaRepository<BusinessLogEve
      * @param fourWeeks -
      */
     @Transactional
-    void deleteBusinessLogEventByVersionBefore(LocalDateTime fourWeeks);
+    void deleteBusinessLogEventByLastUpdateBeforeOrLastUpdateIsNull(LocalDateTime fourWeeks);
 
     /**
      * Remove all log events for the given endpoint.
