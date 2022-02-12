@@ -276,7 +276,7 @@ public class NonTelemetryDataController implements SecuredApiController {
      * @return -
      */
     @PostMapping(
-            value = "/publish/PDF/{externalEndpointId}",
+            value = "/publish/pdf/{externalEndpointId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
