@@ -222,7 +222,7 @@ public class NonTelemetryDataController implements SecuredApiController {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
-            operationId = "non-telemetry-data.publish-videos",
+            operationId = "non-telemetry-data.publish-video",
             description = "Publish video files for an existing endpoint.",
             responses = {
                     @ApiResponse(
@@ -263,6 +263,64 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataParameters.setFilename(messageTuple.getFileName());
                     publishNonTelemetryDataParameters.setRecipients(messageTuple.getRecipients());
                     publishNonTelemetryDataParameters.setContentMessageType(publishVideoDataRequest.getVideoType().getContentMessageType());
+                    publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
+                }
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Publish documents for a given endpoint.
+     *
+     * @param publishNonTelemetryDataRequest -
+     * @return -
+     */
+    @PostMapping(
+            value = "/publish/PDF/{externalEndpointId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "non-telemetry-data.publish-PDF",
+            description = "Publish PDF files for an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Response if the message was published successfully.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<Void> publishPdf(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+                                           @Parameter(description = "The request body containing all necessary information to publish PDF files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest) {
+        publishNonTelemetryDataRequest.getMessageTuples().forEach(messageTuple -> {
+                    final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
+                    publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
+                    publishNonTelemetryDataParameters.setBase64EncodedMessageContent(messageTuple.getMessageContent());
+                    publishNonTelemetryDataParameters.setFilename(messageTuple.getFileName());
+                    publishNonTelemetryDataParameters.setRecipients(messageTuple.getRecipients());
+                    publishNonTelemetryDataParameters.setContentMessageType(ContentMessageType.DOC_PDF);
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
