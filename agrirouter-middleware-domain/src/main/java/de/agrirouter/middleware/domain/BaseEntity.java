@@ -26,6 +26,19 @@ public abstract class BaseEntity implements Serializable {
      * Version of the entity
      */
     @Version
-    private LocalDateTime version;
+    private int version;
+
+    /**
+     * The last update.
+     */
+    private LocalDateTime lastUpdate;
+
+    /**
+     * Define timestamp for the last update.
+     */
+    @PrePersist
+    public void setLastUpdate() {
+        lastUpdate = LocalDateTime.now();
+    }
 
 }

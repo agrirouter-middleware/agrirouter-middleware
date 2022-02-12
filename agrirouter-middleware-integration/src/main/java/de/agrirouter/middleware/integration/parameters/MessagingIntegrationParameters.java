@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,9 +29,9 @@ public class MessagingIntegrationParameters {
     private TechnicalMessageType technicalMessageType;
 
     /**
-     * A set of endpoint IDs as recipients.
+     * A list of endpoint IDs as recipients.
      */
-    private Set<String> recipients;
+    private List<String> recipients;
 
     /**
      * Name of the file, optional.

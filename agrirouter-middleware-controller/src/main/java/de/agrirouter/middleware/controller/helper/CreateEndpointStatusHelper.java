@@ -33,7 +33,6 @@ public class CreateEndpointStatusHelper {
     public static EndpointWithStatusDto map(ModelMapper modelMapper, EndpointService endpointService, ApplicationService applicationService, MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService, Endpoint endpoint) {
         final var endpointWithStatusDto = new EndpointWithStatusDto();
         modelMapper.map(endpoint, endpointWithStatusDto);
-        endpointWithStatusDto.getEndpointStatus().setLastUpdate(endpoint.getEndpointStatus().getVersion());
         final var errors = new ArrayList<LogEntryDto>();
         endpointService.getErrors(endpoint).forEach(error -> {
             final var logEntryDto = new LogEntryDto();

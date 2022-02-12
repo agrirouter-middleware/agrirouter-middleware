@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -265,7 +264,7 @@ public class BusinessLogService {
     @Scheduled(initialDelay = 10_000, fixedDelay = 360_000)
     public void cleanLogHistory() {
         final var fourWeeks = Instant.now().minus(28, ChronoUnit.DAYS);
-        businessLogEventRepository.deleteBusinessLogEventByVersionBefore(LocalDateTime.ofInstant(fourWeeks, ZoneOffset.UTC));
+        businessLogEventRepository.deleteBusinessLogEventByLastUpdateBeforeOrLastUpdateIsNull(LocalDateTime.ofInstant(fourWeeks, ZoneOffset.UTC));
     }
 
     /**
