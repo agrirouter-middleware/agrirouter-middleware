@@ -23,7 +23,7 @@ public class PublishNonTelemetryDataRequest {
      */
     @NotNull
     @NotEmpty
-    @Schema(description = "The message tuples")
+    @Schema(description = "The message tuples.")
     private List<PublishNonTelemetryDataMessageTuple> messageTuples;
 
     /**
@@ -40,7 +40,7 @@ public class PublishNonTelemetryDataRequest {
          */
         @NotNull
         @NotEmpty
-        @Schema(description = "The Base64 encoded message content")
+        @Schema(description = "The Base64 encoded message content.")
         private String messageContent;
 
         /**
