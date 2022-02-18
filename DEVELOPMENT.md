@@ -52,3 +52,12 @@ Creating the docker image is straight-forward.
 * Build and install all the dependencies via `mvn clean install`.
 * Run `spring-boot:build-image` to create the docker image within the module `agrirouter-middleware-application`.
 * Run `docker run -it -p8080:8080 agrirouter-middleware-application:1.0-SNAPSHOT` to run the container locally.
+
+### Running the whole stack using docker-compose
+
+You can run the whole required stack, including Mongo and MariaDB, using docker-compose.
+
+* copy `.env.example` to `.env` (or run `./prepare-env.sh`, which sets secure passwords)
+* edit `.env`:
+  * set `GITHUB_USER` and `GITHUB_TOKEN` to credentials from Github, the token only needs `read:packages` rights
+  * set all fields marked as "required" (not needed if `prepare-env` has been used)

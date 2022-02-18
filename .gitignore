@@ -34,3 +34,6 @@ src/main/generated
 
 # LOCAL SETTINGS #
 ci/local-settings.xml
+
+# ENV FOR DOCKER-COMPOSE SECRETS #
+.env
