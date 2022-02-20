@@ -63,7 +63,14 @@ You can run the whole required stack, including Mongo and MariaDB, using docker-
   * set all fields marked as "required" (not needed if `prepare-env` has been used)
 * run (one of) the following commands:
   * `docker-compose build`: builds the agrirouter-middleware sourcecode and packs it into a docker image
-  * `docker-compose up -d`: creates and starts all containers (agrirouter middleware, mongo and mysql) in detached mode
+  * `docker-compose up [-d]`: creates and starts all containers (agrirouter middleware, mongo and mysql) [in detached mode]
   * `docker-compose stop`: stops the running containers
-  * `docker-compose down`: removes all containers, but keeps the volumes which hold the data
-  * `docker-compose down -v`: removes all containers and persisted data
+  * `docker-compose down [-v]`: removes all containers, but keeps the volumes which hold the data [unless -v is specified]
+  * `docker-compose logs [-f]`: print the accumulated logs from all containers [and follow the output]
+
+After the initializaition of the databases is complete (the middleware container will restart multiple times
+because the database is not available yet) and all containers are up, you can extract the generated tenant credentials from the logs:
+
+```
+docker-compose logs middleware | grep "Generated default" -B 2 -A 8
+```

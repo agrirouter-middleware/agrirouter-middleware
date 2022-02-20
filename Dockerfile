@@ -8,7 +8,7 @@ ARG GITHUB_TOKEN
 RUN mvn --batch-mode --update-snapshots --settings m2-settings.xml verify
 
 FROM openjdk:17
-WORKDIR /opt
+WORKDIR /srv
 COPY --from=build /usr/src/agrirouter-middleware-application/target/agrirouter-middleware.jar .
 
 CMD java -jar /opt/agrirouter-middleware.jar
