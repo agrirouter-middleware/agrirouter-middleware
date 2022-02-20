@@ -6,7 +6,7 @@
 
 The project provides a Swagger documentation and brings its own Swagger-UI that can be accessed using the following url:
 
-http://your-path-to-the-middleware/swagger-ui
+http://your-path-to-the-middleware/swagger-ui/index.html
 
 When running the project locally, the Swagger-UI can be found [here](http://localhost:8080/swagger-ui/index.html).
 
