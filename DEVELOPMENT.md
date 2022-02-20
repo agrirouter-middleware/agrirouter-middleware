@@ -8,7 +8,7 @@ The project provides a Swagger documentation and brings its own Swagger-UI that 
 
 http://your-path-to-the-middleware/swagger-ui
 
-When running the project locally, the Swagger-UI can be found [here](http://localhost:8080/swagger-ui).
+When running the project locally, the Swagger-UI can be found [here](http://localhost:8080/swagger-ui/index.html).
 
 ## Development
 
