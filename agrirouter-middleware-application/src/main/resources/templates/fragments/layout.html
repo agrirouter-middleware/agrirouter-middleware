@@ -6,7 +6,7 @@
     <title th:replace="${title}">Layout Title</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="webjars/material-design-lite/1.3.0/material.min.css"/>
-    <link rel="shortcut icon" type="image/png" th:href="@{/img/favicon.ico}"/>
+    <link rel="shortcut icon" type="image/png" th:href="${@environment.getProperty('app.branding.favicon')}"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-light_green.min.css"/>
 </head>
