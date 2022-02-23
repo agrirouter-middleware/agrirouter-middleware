@@ -15,6 +15,10 @@
   },
   "tags": [
     {
+      "name": "non telemetry data management",
+      "description": "Operations for non telemetry data management, i.e. publish images, task data or documents to the agrirouter."
+    },
+    {
       "name": "application management",
       "description": "Operations for the application management, i.e. register, add supported technical message types and status checks."
     },
@@ -730,6 +734,321 @@
         ]
       }
     },
+    "/secured/api/non-telemetry-data/publish/video/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish video files for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-video",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishVideoDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/taskdata/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish a task data file for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-taskdata",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/shape/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish a shape file for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-shape",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/pdf/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish PDF files for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-PDF",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/image/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish image files for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-image",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishImageDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
     "/secured/api/endpoint/status": {
       "post": {
         "tags": [
@@ -1066,6 +1385,62 @@
             }
           }
         }
+      }
+    },
+    "/secured/api/endpoint/status/{externalEndpointId}": {
+      "get": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the health status of an existing endpoint.",
+        "operationId": "endpoint.status.health",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The endpoint is connected and is able to communicate."
+          },
+          "404": {
+            "description": "In case that the endpoint was not found."
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "In case the endpoint is currently not connected."
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
       }
     },
     "/secured/api/application/{applicationId}": {
@@ -1436,21 +1811,7 @@
             "type": "string",
             "description": "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.",
             "enum": [
-              "EMPTY",
-              "DKE_CLOUD_ONBOARD_ENDPOINTS",
-              "DKE_CLOUD_OFFBOARD_ENDPOINTS",
-              "DKE_CAPABILITIES",
-              "DKE_SUBSCRIPTION",
-              "DKE_LIST_ENDPOINTS",
-              "DKE_LIST_ENDPOINTS_UNFILTERED",
-              "DKE_FEED_CONFIRM",
-              "DKE_FEED_DELETE",
-              "DKE_FEED_MESSAGE_QUERY",
-              "DKE_FEED_HEADER_QUERY",
-              "DKE_OTHER",
               "ISO_11783_TASKDATA_ZIP",
-              "ISO_11783_DEVICE_DESCRIPTION",
-              "ISO_11783_TIME_LOG",
               "SHP_SHAPE_ZIP",
               "DOC_PDF",
               "IMG_JPEG",
@@ -1460,8 +1821,8 @@
               "VID_MP4",
               "VID_WMV",
               "GPS_INFO",
-              "TESTING_PURPOSE_INVALID",
-              "TEST_OTHER"
+              "ISO_11783_DEVICE_DESCRIPTION",
+              "ISO_11783_TIME_LOG"
             ]
           },
           "direction": {
@@ -1746,6 +2107,100 @@
           }
         },
         "description": "The request body containing all necessary information to publish a time log."
+      },
+      "PublishNonTelemetryDataMessageTuple": {
+        "required": [
+          "fileName",
+          "messageContent"
+        ],
+        "type": "object",
+        "properties": {
+          "messageContent": {
+            "type": "string",
+            "description": "The Base64 encoded message content."
+          },
+          "fileName": {
+            "type": "string",
+            "description": "The name of the file."
+          },
+          "recipients": {
+            "type": "array",
+            "description": "The recipients for direct sending. If there is a recipient, the file will not be published.",
+            "items": {
+              "type": "string",
+              "description": "The recipients for direct sending. If there is a recipient, the file will not be published."
+            }
+          }
+        },
+        "description": "Internal class to encapsulate the message tuples."
+      },
+      "PublishVideoDataRequest": {
+        "required": [
+          "messageTuples",
+          "videoType"
+        ],
+        "type": "object",
+        "properties": {
+          "messageTuples": {
+            "type": "array",
+            "description": "The message tuples.",
+            "items": {
+              "$ref": "#/components/schemas/PublishNonTelemetryDataMessageTuple"
+            }
+          },
+          "videoType": {
+            "type": "string",
+            "description": "The video type, used to map the specific agrirouter message type.",
+            "enum": [
+              "AVI",
+              "MP4",
+              "WMV"
+            ]
+          }
+        },
+        "description": "The request body containing all necessary information to publish video files."
+      },
+      "PublishNonTelemetryDataRequest": {
+        "required": [
+          "messageTuples"
+        ],
+        "type": "object",
+        "properties": {
+          "messageTuples": {
+            "type": "array",
+            "description": "The message tuples.",
+            "items": {
+              "$ref": "#/components/schemas/PublishNonTelemetryDataMessageTuple"
+            }
+          }
+        },
+        "description": "The request body containing all necessary information to publish PDF files."
+      },
+      "PublishImageDataRequest": {
+        "required": [
+          "imageType",
+          "messageTuples"
+        ],
+        "type": "object",
+        "properties": {
+          "messageTuples": {
+            "type": "array",
+            "description": "The message tuples.",
+            "items": {
+              "$ref": "#/components/schemas/PublishNonTelemetryDataMessageTuple"
+            }
+          },
+          "imageType": {
+            "type": "string",
+            "description": "The image type, used to map the specific agrirouter message type.",
+            "enum": [
+              "JPEG",
+              "PNG",
+              "BMP"
+            ]
+          }
+        },
+        "description": "The request body containing all necessary information to publish image files."
       },
       "EndpointStatusRequest": {
         "required": [
@@ -2094,11 +2549,6 @@
       "EndpointWithStatusDto": {
         "type": "object",
         "properties": {
-          "version": {
-            "type": "string",
-            "description": "The version of the endpoint.",
-            "format": "date-time"
-          },
           "agrirouterEndpointId": {
             "type": "string",
             "description": "The ID of an endpoint."
