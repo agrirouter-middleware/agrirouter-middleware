@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduledConnectionCheck {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledConnectionCheck.class);
 
     private final EndpointRepository endpointRepository;

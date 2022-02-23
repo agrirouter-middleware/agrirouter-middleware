@@ -24,6 +24,11 @@
       "name": "app.scheduled.status-logging",
       "type": "java.lang.String",
       "description": "The interval for the status logging, has to be a valid CRON expression."
+    },
+    {
+      "name": "app.scheduled.recipient-query",
+      "type": "java.lang.String",
+      "description": "The interval for the recipient query, has to be a valid CRON expression."
     }
   ]
 }
