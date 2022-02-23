@@ -55,7 +55,6 @@ public class EndpointController implements SecuredApiController {
      * @return HTTP 200 with the data of the endpoint or an HTTP 400 with an error message.
      */
     @PostMapping(
-            value = "/",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
