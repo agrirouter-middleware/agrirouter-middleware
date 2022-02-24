@@ -39,3 +39,5 @@ app:
     connection-check: "0 */1 * * * *"
     fetching-and-confirming-existing-messages: "0 */5 * * * *"
     status-logging: "0 */1 * * * *"
+  branding:
+    favicon: "/img/favicon.ico"
