@@ -1387,13 +1387,80 @@
         }
       }
     },
-    "/secured/api/endpoint/status/{externalEndpointId}": {
+    "/secured/api/endpoint/recipients/{externalEndpointId}": {
+      "get": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the recipients of an existing endpoint.",
+        "operationId": "endpoint.recipients",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reponse with all the recipients available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointRecipientsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "In case that the endpoint was not found.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointRecipientsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/health/{externalEndpointId}": {
       "get": {
         "tags": [
           "endpoint management"
         ],
         "description": "Fetch the health status of an existing endpoint.",
-        "operationId": "endpoint.status.health",
+        "operationId": "endpoint.health",
         "parameters": [
           {
             "name": "externalEndpointId",
@@ -2342,6 +2409,48 @@
         },
         "description": "Representation of a tenant within the middleware."
       },
+      "EndpointRecipientsResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "messageRecipients": {
+            "type": "array",
+            "description": "The message recipients for this endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/MessageRecipientDto"
+            }
+          }
+        },
+        "description": "The response when asking for the recipients of an endpoint."
+      },
+      "MessageRecipientDto": {
+        "type": "object",
+        "properties": {
+          "agrirouterEndpointId": {
+            "type": "string"
+          },
+          "endpointName": {
+            "type": "string"
+          },
+          "endpointType": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "technicalMessageType": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          }
+        },
+        "description": "The status of an endpoint."
+      },
       "FindApplicationResponse": {
         "type": "object",
         "properties": {
@@ -2614,6 +2723,13 @@
             "description": "The messages currently waiting for ACK.",
             "items": {
               "$ref": "#/components/schemas/MessageWaitingForAcknowledgementDto"
+            }
+          },
+          "messageRecipients": {
+            "type": "array",
+            "description": "The message recipients for this endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/MessageRecipientDto"
             }
           }
         },
