@@ -11,7 +11,7 @@ create table if not exists message_recipient
     external_id            varchar(255) not null,
     technical_message_type varchar(50)  not null,
     direction              varchar(20)  not null,
-    endpoint_id            bigint       not null
+    endpoint_id            bigint
 );
 
 alter table message_recipient

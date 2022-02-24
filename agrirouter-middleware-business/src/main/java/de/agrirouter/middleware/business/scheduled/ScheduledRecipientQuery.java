@@ -49,7 +49,7 @@ public class ScheduledRecipientQuery {
             final var listEndpointsService = new ListEndpointsServiceImpl(iMqttClient.get());
             final var parameters = new ListEndpointsParameters();
             parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-            parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.RECEIVE);
+            parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.SEND);
             parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
             parameters.setUnfilteredList(false);
             final var messageId = listEndpointsService.send(parameters);

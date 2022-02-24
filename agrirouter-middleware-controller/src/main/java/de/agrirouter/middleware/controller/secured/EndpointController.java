@@ -3,9 +3,11 @@ package de.agrirouter.middleware.controller.secured;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
+import de.agrirouter.middleware.controller.dto.response.EndpointRecipientsResponse;
 import de.agrirouter.middleware.controller.dto.response.EndpointStatusResponse;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
+import de.agrirouter.middleware.controller.dto.response.domain.MessageRecipientDto;
 import de.agrirouter.middleware.controller.helper.CreateEndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +28,7 @@ import java.util.HashMap;
  * Controller to manage applications.
  */
 @RestController
-@RequestMapping(SecuredApiController.API_PREFIX + "/endpoint/status")
+@RequestMapping(SecuredApiController.API_PREFIX + "/endpoint")
 @Tag(
         name = "endpoint management",
         description = "Operations for the endpoint management, i.e. status checking or searching for endpoints."
@@ -55,7 +57,9 @@ public class EndpointController implements SecuredApiController {
      * @return HTTP 200 with the data of the endpoint or an HTTP 400 with an error message.
      */
     @PostMapping(
-            produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/status",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
             operationId = "endpoint.status",
@@ -107,10 +111,10 @@ public class EndpointController implements SecuredApiController {
      * @return -
      */
     @GetMapping(
-            value = "/{externalEndpointId}"
+            value = "/health/{externalEndpointId}"
     )
     @Operation(
-            operationId = "endpoint.status.health",
+            operationId = "endpoint.health",
             description = "Fetch the health status of an existing endpoint.",
             responses = {
                     @ApiResponse(
@@ -147,7 +151,7 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> healthStatus(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<Void> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
@@ -157,6 +161,69 @@ public class EndpointController implements SecuredApiController {
             } else {
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    /**
+     * Fetch the recipients for an endpoint.
+     *
+     * @param externalEndpointId -
+     * @return -
+     */
+    @GetMapping(
+            value = "/recipients/{externalEndpointId}"
+    )
+    @Operation(
+            operationId = "endpoint.recipients",
+            description = "Fetch the recipients of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Reponse with all the recipients available.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = EndpointRecipientsResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "In case that the endpoint was not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<EndpointRecipientsResponse> recipients(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            final var messageRecipientDtos = endpoint.getMessageRecipients()
+                    .stream()
+                    .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
+                    .toList();
+            return ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
