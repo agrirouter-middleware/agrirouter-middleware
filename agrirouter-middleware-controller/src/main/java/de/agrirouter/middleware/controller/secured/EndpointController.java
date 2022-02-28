@@ -1,10 +1,12 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
 import de.agrirouter.middleware.controller.dto.response.EndpointStatusResponse;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
 import de.agrirouter.middleware.controller.helper.CreateEndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -17,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,6 +85,16 @@ public class EndpointController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -93,7 +106,11 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointStatusResponse> status(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @RequestBody EndpointStatusRequest endpointStatusRequest) {
+    public ResponseEntity<EndpointStatusResponse> status(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                         @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, EndpointWithStatusDto>();
         endpoints.forEach(endpoint -> {
