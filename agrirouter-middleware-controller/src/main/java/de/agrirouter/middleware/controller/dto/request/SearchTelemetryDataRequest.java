@@ -53,12 +53,6 @@ public class SearchTelemetryDataRequest {
     private Long sendTo;
 
     /**
-     * Flag to search for the data only and skip the other parts.
-     */
-    @Schema(description = "Flag to search for the data only and skip the other parts.")
-    private boolean dataOnly;
-
-    /**
      * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
      */
     @Schema(description = "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.")

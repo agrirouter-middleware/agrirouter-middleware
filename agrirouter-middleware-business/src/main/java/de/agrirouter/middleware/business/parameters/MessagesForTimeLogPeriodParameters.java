@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Set;
+
 /**
  * Parameter class to fetch messages for a time log period.e
  */
@@ -72,5 +74,4 @@ public class MessagesForTimeLogPeriodParameters {
     public long getSendToOrDefault() {
         return null != sendTo ? sendTo : Long.MAX_VALUE;
     }
-
 }

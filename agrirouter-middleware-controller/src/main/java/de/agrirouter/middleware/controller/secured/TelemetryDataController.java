@@ -14,6 +14,7 @@ import de.agrirouter.middleware.controller.dto.request.SearchTelemetryDataReques
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishTimeLogDataRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.DeviceDto;
+import de.agrirouter.middleware.controller.dto.response.domain.timelog.RawTimeLogDataDto;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.TimeLogWithRawDataDto;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodDto;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodDtosForDevice;
@@ -362,5 +363,56 @@ public class TelemetryDataController implements SecuredApiController {
         final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
         final var timeLogsWithRawData = messages.stream().map(timeLog -> modelMapper.map(timeLog, TimeLogWithRawDataDto.class)).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(new TimeLogSearchResponse(timeLogsWithRawData.size(), timeLogsWithRawData));
+    }
+
+    /**
+     * Search for the time logs with the machine data and time log period data.
+     *
+     * @param searchTelemetryDataRequest -
+     * @return -
+     */
+    @PostMapping(
+            value = "/search/time-logs/raw",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "telemetry-data.search-raw-time-logs",
+            description = "Search for the time logs with the machine data and time log period data.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The response containing all time logs.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<RawTimeLogSearchResponse> searchTelemetryRawDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest) {
+        final var messagesForTimeLogPeriodParameters = modelMapper.map(searchTelemetryDataRequest, MessagesForTimeLogPeriodParameters.class);
+        final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
+        final var rawTimeLogs = messages.stream().map(timeLog -> modelMapper.map(timeLog, RawTimeLogDataDto.class)).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(new RawTimeLogSearchResponse(rawTimeLogs.size(), rawTimeLogs));
     }
 }
