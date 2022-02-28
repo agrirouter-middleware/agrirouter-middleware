@@ -378,7 +378,7 @@ public class TelemetryDataController implements SecuredApiController {
     )
     @Operation(
             operationId = "telemetry-data.search-raw-time-logs",
-            description = "Search for the time logs with the machine data and time log period data.",
+            description = "Search for the raw time logs with the machine data and time log period data.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
