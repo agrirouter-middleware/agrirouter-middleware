@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
@@ -24,6 +25,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -79,10 +81,20 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -100,7 +112,11 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<RegisterApplicationResponse> register(Principal principal,
-                                                                @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest) {
+                                                                @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest,
+                                                                @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         Application application = new Application();
         application.setApplicationId(applicationRegistrationRequest.getApplicationId());
         application.setVersionId(applicationRegistrationRequest.getVersionId());
@@ -146,10 +162,20 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -168,7 +194,11 @@ public class ApplicationController implements SecuredApiController {
     )
     public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
                                                                      @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
-                                                                     @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest) {
+                                                                     @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
+                                                                     @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes = new HashSet<>();
         addSupportedTechnicalMessageTypeRequest.getSupportedTechnicalMessageTypes().forEach(dto -> {
             final var supportedTechnicalMessageType = new SupportedTechnicalMessageType();
@@ -202,10 +232,20 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -224,7 +264,11 @@ public class ApplicationController implements SecuredApiController {
     )
     public ResponseEntity<Void> addRouterDevice(Principal principal,
                                                 @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
-                                                @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest) {
+                                                @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
+                                                @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var addRouterDeviceParameters = new AddRouterDeviceParameters();
         addRouterDeviceParameters.setInternalApplicationId(applicationId);
         addRouterDeviceParameters.setTenantId(principal.getName());
@@ -266,10 +310,20 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -287,7 +341,11 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindApplicationResponse> find(Principal principal,
-                                                        @Parameter(description = "The ID of the application", required = true) @PathVariable String applicationId) {
+                                                        @Parameter(description = "The ID of the application", required = true) @PathVariable String applicationId,
+                                                        @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var application = applicationService.find(applicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
@@ -321,7 +379,17 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
@@ -342,7 +410,11 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<ApplicationStatusResponse> status(Principal principal,
-                                                            @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
+                                                            @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                                            @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var application = applicationService.find(applicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
@@ -379,10 +451,20 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -399,7 +481,11 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<FindApplicationsResponse> findAll(Principal principal) {
+    public ResponseEntity<FindApplicationsResponse> findAll(Principal principal,
+                                                            @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         List<Application> applications = applicationService.findAll(principal);
         List<ApplicationDto> findApplicationsResponse = new ArrayList<>();
         applications.forEach(application -> {
@@ -436,7 +522,17 @@ public class ApplicationController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
@@ -457,7 +553,11 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
-                                                                                           @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
+                                                                                           @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                                                                           @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var application = applicationService.find(applicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
         application.getEndpoints().forEach(endpoint -> {
