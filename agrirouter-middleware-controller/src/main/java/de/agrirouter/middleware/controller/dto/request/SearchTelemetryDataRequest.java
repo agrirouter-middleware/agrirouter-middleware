@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * A request to search for telemetry data.
@@ -50,4 +51,16 @@ public class SearchTelemetryDataRequest {
      */
     @Schema(description = "The end of the time interval.")
     private Long sendTo;
+
+    /**
+     * Flag to search for the data only and skip the other parts.
+     */
+    @Schema(description = "Flag to search for the data only and skip the other parts.")
+    private boolean dataOnly;
+
+    /**
+     * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
+     */
+    @Schema(description = "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.")
+    private Set<String> ddisToList;
 }
