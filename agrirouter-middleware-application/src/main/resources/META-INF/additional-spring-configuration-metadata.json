@@ -29,6 +29,11 @@
       "name": "app.scheduled.recipient-query",
       "type": "java.lang.String",
       "description": "The interval for the recipient query, has to be a valid CRON expression."
+    },
+    {
+      "name": "app.branding.favicon",
+      "type": "java.lang.String",
+      "description": "An url to a favicon. Can be a relative or an absolute url. Default is the agrirouter middleware icon."
     }
   ]
 }
