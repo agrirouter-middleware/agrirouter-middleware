@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -93,4 +92,11 @@ public class EndpointWithStatusDto {
      */
     @Schema(description = "The messages currently waiting for ACK.")
     private List<MessageWaitingForAcknowledgementDto> messagesWaitingForAck;
+
+    /**
+     * The message recipients for this endpoint.
+     */
+    @Schema(description = "The message recipients for this endpoint.")
+    private List<MessageRecipientDto> messageRecipients;
+
 }
