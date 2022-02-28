@@ -1,8 +1,6 @@
 package de.agrirouter.middleware.business;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
-import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
@@ -160,21 +158,35 @@ public class TimeLogService {
      * @return The list of time logs.
      */
     public List<TimeLog> getMessagesForTimeLogPeriod(MessagesForTimeLogPeriodParameters messagesForTimeLogPeriodParameters) {
+        List<TimeLog> timelogs;
         if (messagesForTimeLogPeriodParameters.shouldSearchInASpecificTimePeriod()) {
             final var messageIds = timeLogPeriodSearchCache.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters.getInternalDeviceId(), messagesForTimeLogPeriodParameters.getTeamSetContextId(), messagesForTimeLogPeriodParameters.getTimeLogPeriodId());
             if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
-                return timeLogRepository.findAllByMessageIdInAndTimestampBetween(messageIds, messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
+                timelogs = timeLogRepository.findAllByMessageIdInAndTimestampBetween(messageIds, messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
             } else {
-                return timeLogRepository.findAllByMessageIdIn(messageIds);
+                timelogs = timeLogRepository.findAllByMessageIdIn(messageIds);
             }
         } else {
             if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
-                return timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
+                timelogs = timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
             } else {
                 log.warn("This would have been a search over all time logs, this causes an exception, since there has to be either a filter for period or a filter for time.");
                 throw new BusinessException(ErrorMessageFactory.missingFilterCriteriaForTimeLogSearch());
             }
         }
+        if (null != messagesForTimeLogPeriodParameters.getDdisToList() && !messagesForTimeLogPeriodParameters.getDdisToList().isEmpty()) {
+            timelogs.forEach(timeLog -> {
+                final var document = timeLog.getDocument();
+                final var timeEntries = document.getList("time", Document.class);
+                timeEntries.forEach(timeEntry -> {
+                    final var dataLogValues = timeEntry.getList("dataLogValue", Document.class);
+                    final var filteredDataLogValues = dataLogValues.stream().filter(d -> messagesForTimeLogPeriodParameters.getDdisToList().contains(d.getInteger("processDataDdi"))).toList();
+                    timeEntry.put("dataLogValue", filteredDataLogValues);
+                });
+                document.put("time", timeEntries);
+            });
+        }
+        return timelogs;
     }
 
     /**
