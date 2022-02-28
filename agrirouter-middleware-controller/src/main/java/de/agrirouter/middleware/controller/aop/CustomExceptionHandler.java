@@ -1,8 +1,10 @@
 package de.agrirouter.middleware.controller.aop;
 
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,10 +32,17 @@ public class CustomExceptionHandler {
         return ResponseEntity.badRequest().body(new ErrorResponse(businessException.getErrorMessage().getKey().getKey(), businessException.getErrorMessage().getMessage()));
     }
 
+    @ExceptionHandler(ParameterValidationException.class)
+    public ResponseEntity<ParameterValidationProblemResponse> handle(ParameterValidationException parameterValidationException) {
+        LOGGER.error("A parameter validation exception occurred.", parameterValidationException);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ParameterValidationProblemResponse(parameterValidationException.getErrors().getAllErrors()));
+    }
+
     @ExceptionHandler({RuntimeException.class, Exception.class})
     public ResponseEntity<ErrorResponse> handle(RuntimeException runtimeException) {
         LOGGER.error("A unknown exception occurred.", runtimeException);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(UNKNOWN_ERROR);
     }
+
 
 }
