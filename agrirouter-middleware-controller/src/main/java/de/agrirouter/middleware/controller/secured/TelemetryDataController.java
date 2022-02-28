@@ -470,6 +470,16 @@ public class TelemetryDataController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -481,7 +491,11 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<RawTimeLogSearchResponse> searchTelemetryRawDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest) {
+    public ResponseEntity<RawTimeLogSearchResponse> searchTelemetryRawDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
+                                                                                   @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var messagesForTimeLogPeriodParameters = modelMapper.map(searchTelemetryDataRequest, MessagesForTimeLogPeriodParameters.class);
         final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
         final var rawTimeLogs = messages.stream().map(timeLog -> modelMapper.map(timeLog, RawTimeLogDataDto.class)).collect(Collectors.toList());
