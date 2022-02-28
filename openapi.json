@@ -543,6 +543,58 @@
         ]
       }
     },
+    "/secured/api/telemetry-data/search/time-logs/raw": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Search for the raw time logs with the machine data and time log period data.",
+        "operationId": "telemetry-data.search-raw-time-logs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The response containing all time logs.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
     "/secured/api/telemetry-data/search/machines": {
       "post": {
         "tags": [
@@ -2101,6 +2153,15 @@
             "type": "integer",
             "description": "The end of the time interval.",
             "format": "int64"
+          },
+          "ddisToList": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
+            "items": {
+              "type": "string",
+              "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied."
+            }
           }
         },
         "description": "The request with all necessary information to search for the telemetry data (time logs)."
