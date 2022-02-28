@@ -56,5 +56,5 @@ public class SearchTelemetryDataRequest {
      * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
      */
     @Schema(description = "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.")
-    private Set<String> ddisToList;
+    private Set<Integer> ddisToList;
 }

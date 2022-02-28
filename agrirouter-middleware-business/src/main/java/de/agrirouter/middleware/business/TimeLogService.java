@@ -174,6 +174,18 @@ public class TimeLogService {
                 throw new BusinessException(ErrorMessageFactory.missingFilterCriteriaForTimeLogSearch());
             }
         }
+        if (null != messagesForTimeLogPeriodParameters.getDdisToList() && !messagesForTimeLogPeriodParameters.getDdisToList().isEmpty()) {
+            timelogs.forEach(timeLog -> {
+                final var document = timeLog.getDocument();
+                final var timeEntries = document.getList("time", Document.class);
+                timeEntries.forEach(timeEntry -> {
+                    final var dataLogValues = timeEntry.getList("dataLogValue", Document.class);
+                    final var filteredDataLogValues = dataLogValues.stream().filter(d -> messagesForTimeLogPeriodParameters.getDdisToList().contains(d.getInteger("processDataDdi"))).toList();
+                    timeEntry.put("dataLogValue", filteredDataLogValues);
+                });
+                document.put("time", timeEntries);
+            });
+        }
         return timelogs;
     }
 

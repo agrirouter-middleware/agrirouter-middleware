@@ -40,6 +40,11 @@ public class MessagesForTimeLogPeriodParameters {
     private Long sendTo;
 
     /**
+     * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
+     */
+    private Set<Integer> ddisToList;
+
+    /**
      * Should be filtered by time?
      *
      * @return -
