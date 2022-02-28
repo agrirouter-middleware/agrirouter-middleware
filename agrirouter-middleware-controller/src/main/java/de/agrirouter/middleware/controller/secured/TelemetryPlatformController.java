@@ -1,11 +1,13 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.*;
 import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParameters;
 import de.agrirouter.middleware.business.parameters.VirtualOnboardProcessParameters;
 import de.agrirouter.middleware.controller.dto.request.OnboardVirtualEndpointRequest;
 import de.agrirouter.middleware.controller.dto.request.RevokeVirtualEndpointRequest;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -66,10 +69,20 @@ public class TelemetryPlatformController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
                             )
@@ -87,7 +100,10 @@ public class TelemetryPlatformController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> onboard(@Parameter(description = "The ID of the existing endpoint.", required = true) @PathVariable String endpointId,
-                                        @Parameter(description = "Necessary information to create the virtual endpoint.", required = true) @Valid @RequestBody OnboardVirtualEndpointRequest onboardVirtualEndpointRequest) {
+                                        @Parameter(description = "Necessary information to create the virtual endpoint.", required = true) @Valid @RequestBody OnboardVirtualEndpointRequest onboardVirtualEndpointRequest, @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var virtualOnboardProcessParameters = new VirtualOnboardProcessParameters();
         virtualOnboardProcessParameters.setExternalEndpointId(endpointId);
         virtualOnboardProcessParameters.setExternalVirtualEndpointId(onboardVirtualEndpointRequest.getExternalVirtualEndpointId());
@@ -120,10 +136,20 @@ public class TelemetryPlatformController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
                             )
@@ -141,7 +167,11 @@ public class TelemetryPlatformController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> revoke(@Parameter(description = "The ID of the existing endpoint.", required = true) @PathVariable String endpointId,
-                                       @Parameter(description = "The necessary information to revoke the virtual endpoint.") @Valid @RequestBody RevokeVirtualEndpointRequest revokeVirtualEndpointRequest) {
+                                       @Parameter(description = "The necessary information to revoke the virtual endpoint.") @Valid @RequestBody RevokeVirtualEndpointRequest revokeVirtualEndpointRequest,
+                                       @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var virtualOffboardProcessParameters = new VirtualOffboardProcessParameters();
         virtualOffboardProcessParameters.setExternalEndpointId(endpointId);
         virtualOffboardProcessParameters.setExternalVirtualEndpointIds(revokeVirtualEndpointRequest.getExternalEndpointIds());
@@ -168,10 +198,20 @@ public class TelemetryPlatformController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
                             )
@@ -188,7 +228,11 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> revokeTelemetryPlatform(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<Void> revokeTelemetryPlatform(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId,
+                                                        @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         endpointService.revoke(externalEndpointId);
         return ResponseEntity.ok().build();
     }

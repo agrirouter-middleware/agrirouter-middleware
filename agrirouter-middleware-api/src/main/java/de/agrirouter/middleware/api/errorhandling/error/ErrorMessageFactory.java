@@ -113,6 +113,10 @@ public final class ErrorMessageFactory {
     }
 
     public static ErrorMessage missingFilterCriteriaForTimeLogSearch() {
-        return new ErrorMessage(ErrorKey.MISSING_FILTER_CRITERIA_FOR_TIME_LOG_SEARCH,"There has to be a criteria for searching for time logs. Either the time log period has to be given or there has to be a time interval.");
+        return new ErrorMessage(ErrorKey.MISSING_FILTER_CRITERIA_FOR_TIME_LOG_SEARCH, "There has to be a criteria for searching for time logs. Either the time log period has to be given or there has to be a time interval.");
+    }
+
+    public static ErrorMessage parameterValidationProblem() {
+        return new ErrorMessage(ErrorKey.PARAMETER_VALIDATION_PROBLEM, "There was an error while validating the parameters for the request.");
     }
 }

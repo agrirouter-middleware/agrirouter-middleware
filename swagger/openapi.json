@@ -74,11 +74,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -122,11 +122,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -177,11 +177,11 @@
             "description": "In case the supported technical message types were added."
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -237,11 +237,11 @@
             "description": "In case the router device was added."
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -293,11 +293,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -351,11 +351,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -412,11 +412,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -464,11 +464,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -516,11 +516,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -568,11 +568,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -620,11 +620,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -687,11 +687,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -759,11 +759,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -822,11 +822,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -885,11 +885,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -948,11 +948,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1011,11 +1011,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1074,11 +1074,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1126,11 +1126,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1182,11 +1182,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1244,11 +1244,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1285,11 +1285,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1342,11 +1342,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1417,11 +1417,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1592,11 +1592,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1649,7 +1649,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1706,7 +1706,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1752,11 +1752,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1805,11 +1805,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1858,11 +1858,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1906,6 +1906,51 @@
           }
         },
         "description": "Generic error response to map the internal errors and provide clean API description."
+      },
+      "ObjectError": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "defaultMessage": {
+            "type": "string"
+          },
+          "objectName": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "description": "The validation errors."
+      },
+      "ParameterValidationProblemResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "The validation errors.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectError"
+            }
+          }
+        },
+        "description": "Generic error response to map parameter validation errors and provide clean API description without publishing internals."
       },
       "AddSupportedTechnicalMessageTypeRequest": {
         "required": [
@@ -2159,8 +2204,9 @@
             "type": "array",
             "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
             "items": {
-              "type": "string",
-              "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied."
+              "type": "integer",
+              "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
+              "format": "int32"
             }
           }
         },
