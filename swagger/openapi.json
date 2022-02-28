@@ -74,11 +74,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -122,11 +122,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -177,11 +177,11 @@
             "description": "In case the supported technical message types were added."
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -237,11 +237,11 @@
             "description": "In case the router device was added."
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -293,11 +293,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -351,11 +351,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -412,11 +412,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -464,11 +464,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -516,11 +516,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -568,63 +568,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/telemetry-data/search/time-logs/raw": {
-      "post": {
-        "tags": [
-          "telemetry data management"
-        ],
-        "description": "Search for the raw time logs with the machine data and time log period data.",
-        "operationId": "telemetry-data.search-raw-time-logs",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchTelemetryDataRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "The response containing all time logs.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -672,11 +620,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -739,11 +687,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -811,11 +759,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -874,11 +822,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -937,11 +885,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1000,11 +948,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1063,11 +1011,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1126,326 +1074,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/non-telemetry-data/publish/video/{externalEndpointId}": {
-      "post": {
-        "tags": [
-          "non telemetry data management"
-        ],
-        "description": "Publish video files for an existing endpoint.",
-        "operationId": "non-telemetry-data.publish-video",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint ID.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublishVideoDataRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Response if the message was published successfully.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/non-telemetry-data/publish/taskdata/{externalEndpointId}": {
-      "post": {
-        "tags": [
-          "non telemetry data management"
-        ],
-        "description": "Publish a task data file for an existing endpoint.",
-        "operationId": "non-telemetry-data.publish-taskdata",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint ID.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Response if the message was published successfully.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/non-telemetry-data/publish/shape/{externalEndpointId}": {
-      "post": {
-        "tags": [
-          "non telemetry data management"
-        ],
-        "description": "Publish a shape file for an existing endpoint.",
-        "operationId": "non-telemetry-data.publish-shape",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint ID.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Response if the message was published successfully.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/non-telemetry-data/publish/pdf/{externalEndpointId}": {
-      "post": {
-        "tags": [
-          "non telemetry data management"
-        ],
-        "description": "Publish PDF files for an existing endpoint.",
-        "operationId": "non-telemetry-data.publish-PDF",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint ID.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Response if the message was published successfully.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/non-telemetry-data/publish/image/{externalEndpointId}": {
-      "post": {
-        "tags": [
-          "non telemetry data management"
-        ],
-        "description": "Publish image files for an existing endpoint.",
-        "operationId": "non-telemetry-data.publish-image",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint ID.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublishImageDataRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Response if the message was published successfully.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1493,11 +1126,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1549,11 +1182,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1611,11 +1244,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1652,11 +1285,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1709,11 +1342,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1784,11 +1417,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1959,11 +1592,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -2016,7 +1649,7 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2073,7 +1706,7 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2119,11 +1752,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -2172,11 +1805,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -2225,11 +1858,11 @@
             }
           },
           "400": {
-            "description": "In case of a business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -2273,6 +1906,51 @@
           }
         },
         "description": "Generic error response to map the internal errors and provide clean API description."
+      },
+      "ObjectError": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "defaultMessage": {
+            "type": "string"
+          },
+          "objectName": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "description": "The validation errors."
+      },
+      "ParameterValidationProblemResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "The validation errors.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectError"
+            }
+          }
+        },
+        "description": "Generic error response to map parameter validation errors and provide clean API description without publishing internals."
       },
       "AddSupportedTechnicalMessageTypeRequest": {
         "required": [
@@ -2526,8 +2204,9 @@
             "type": "array",
             "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
             "items": {
-              "type": "string",
-              "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied."
+              "type": "integer",
+              "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
+              "format": "int32"
             }
           }
         },
