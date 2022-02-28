@@ -3,9 +3,11 @@ package de.agrirouter.middleware.controller.secured;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
+import de.agrirouter.middleware.controller.dto.response.EndpointRecipientsResponse;
 import de.agrirouter.middleware.controller.dto.response.EndpointStatusResponse;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
+import de.agrirouter.middleware.controller.dto.response.domain.MessageRecipientDto;
 import de.agrirouter.middleware.controller.helper.CreateEndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,12 +17,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -58,7 +58,8 @@ public class EndpointController implements SecuredApiController {
      */
     @PostMapping(
             value = "/status",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
             operationId = "endpoint.status",
@@ -101,6 +102,131 @@ public class EndpointController implements SecuredApiController {
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
+    }
+
+    /**
+     * Fetch the health status for an endpoint. This is the more common way to have a quick health check for the endpoint.
+     *
+     * @param externalEndpointId -
+     * @return -
+     */
+    @GetMapping(
+            value = "/health/{externalEndpointId}"
+    )
+    @Operation(
+            operationId = "endpoint.health",
+            description = "Fetch the health status of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The endpoint is connected and is able to communicate."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "In case that the endpoint was not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "503",
+                            description = "In case the endpoint is currently not connected."
+                    )
+            }
+    )
+    public ResponseEntity<Void> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            final var connected = endpoint.getEndpointStatus().getConnectionState().isConnected();
+            if (connected) {
+                return ResponseEntity.status(HttpStatus.OK).build();
+            } else {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    /**
+     * Fetch the recipients for an endpoint.
+     *
+     * @param externalEndpointId -
+     * @return -
+     */
+    @GetMapping(
+            value = "/recipients/{externalEndpointId}"
+    )
+    @Operation(
+            operationId = "endpoint.recipients",
+            description = "Fetch the recipients of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Reponse with all the recipients available.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = EndpointRecipientsResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "In case that the endpoint was not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<EndpointRecipientsResponse> recipients(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            final var messageRecipientDtos = endpoint.getMessageRecipients()
+                    .stream()
+                    .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
+                    .toList();
+            return ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
 }
