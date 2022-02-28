@@ -1,12 +1,14 @@
 package de.agrirouter.middleware.controller.secured;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishImageDataRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishNonTelemetryDataRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishVideoDataRequest;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -69,6 +72,16 @@ public class NonTelemetryDataController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -81,7 +94,11 @@ public class NonTelemetryDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> publishTaskData(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                                @Parameter(description = "The request body containing all necessary information to publish task data files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest) {
+                                                @Parameter(description = "The request body containing all necessary information to publish task data files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
+                                                @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         publishNonTelemetryDataRequest.getMessageTuples().forEach(messageTuple -> {
                     final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
                     publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
@@ -127,6 +144,16 @@ public class NonTelemetryDataController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -139,7 +166,11 @@ public class NonTelemetryDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> publishShape(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                             @Parameter(description = "The request body containing all necessary information to publish shape files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest) {
+                                             @Parameter(description = "The request body containing all necessary information to publish shape files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
+                                             @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         publishNonTelemetryDataRequest.getMessageTuples().forEach(messageTuple -> {
                     final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
                     publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
@@ -185,6 +216,16 @@ public class NonTelemetryDataController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -197,7 +238,11 @@ public class NonTelemetryDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> publishImage(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                             @Parameter(description = "The request body containing all necessary information to publish image files.", required = true) @Valid @RequestBody PublishImageDataRequest publishImageDataRequest) {
+                                             @Parameter(description = "The request body containing all necessary information to publish image files.", required = true) @Valid @RequestBody PublishImageDataRequest publishImageDataRequest,
+                                             @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         publishImageDataRequest.getMessageTuples().forEach(messageTuple -> {
                     final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
                     publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
@@ -243,6 +288,16 @@ public class NonTelemetryDataController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -255,7 +310,11 @@ public class NonTelemetryDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> publishVideo(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                             @Parameter(description = "The request body containing all necessary information to publish video files.", required = true) @Valid @RequestBody PublishVideoDataRequest publishVideoDataRequest) {
+                                             @Parameter(description = "The request body containing all necessary information to publish video files.", required = true) @Valid @RequestBody PublishVideoDataRequest publishVideoDataRequest,
+                                             @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         publishVideoDataRequest.getMessageTuples().forEach(messageTuple -> {
                     final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
                     publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
@@ -301,6 +360,16 @@ public class NonTelemetryDataController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -313,7 +382,11 @@ public class NonTelemetryDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> publishPdf(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                           @Parameter(description = "The request body containing all necessary information to publish PDF files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest) {
+                                           @Parameter(description = "The request body containing all necessary information to publish PDF files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
+                                           @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         publishNonTelemetryDataRequest.getMessageTuples().forEach(messageTuple -> {
                     final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
                     publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
