@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +103,7 @@ public class TenantMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<TenantRegistrationResponse> register(@Parameter(description = "The request holding information to register a new tenant.", required = true) @RequestBody TenantRegistrationRequest tenantRegistrationRequest,
+    public ResponseEntity<TenantRegistrationResponse> register(@Parameter(description = "The request holding information to register a new tenant.", required = true) @Valid @RequestBody TenantRegistrationRequest tenantRegistrationRequest,
                                                                @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -166,10 +167,7 @@ public class TenantMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<FindTenantResponse> findAll(@Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+    public ResponseEntity<FindTenantResponse> findAll() {
         final var tenants = tenantService.findAll().stream().map(tenant -> modelMapper.map(tenant, TenantDto.class)).collect(Collectors.toList());
         return ResponseEntity.ok(new FindTenantResponse(tenants));
     }
