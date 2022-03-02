@@ -108,8 +108,7 @@ public class TenantMaintenanceController implements UnsecuredApiController {
             throw new ParameterValidationException(errors);
         }
         final var tenantRegistrationResult = tenantService.register(tenantRegistrationRequest.getName());
-        final var tenantRegistrationResponse = modelMapper.map(tenantRegistrationResult, TenantRegistrationResponse.class);
-        return ResponseEntity.status(HttpStatus.CREATED).body(tenantRegistrationResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TenantRegistrationResponse(tenantRegistrationResult.getTenantId(),tenantRegistrationResult.getAccessToken()));
     }
 
     /**
