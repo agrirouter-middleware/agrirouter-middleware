@@ -319,16 +319,6 @@ public class ApplicationController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ParameterValidationProblemResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -341,11 +331,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindApplicationResponse> find(Principal principal,
-                                                        @Parameter(description = "The ID of the application", required = true) @PathVariable String applicationId,
-                                                        @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+                                                        @Parameter(description = "The ID of the application", required = true) @PathVariable String applicationId) {
         final var application = applicationService.find(applicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
@@ -388,16 +374,6 @@ public class ApplicationController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -410,11 +386,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<ApplicationStatusResponse> status(Principal principal,
-                                                            @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
-                                                            @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+                                                            @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
         final var application = applicationService.find(applicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
@@ -460,16 +432,6 @@ public class ApplicationController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ParameterValidationProblemResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -481,11 +443,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<FindApplicationsResponse> findAll(Principal principal,
-                                                            @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+    public ResponseEntity<FindApplicationsResponse> findAll(Principal principal) {
         List<Application> applications = applicationService.findAll(principal);
         List<ApplicationDto> findApplicationsResponse = new ArrayList<>();
         applications.forEach(application -> {
@@ -531,16 +489,6 @@ public class ApplicationController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -553,11 +501,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
-                                                                                           @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
-                                                                                           @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+                                                                                           @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
         final var application = applicationService.find(applicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
         application.getEndpoints().forEach(endpoint -> {

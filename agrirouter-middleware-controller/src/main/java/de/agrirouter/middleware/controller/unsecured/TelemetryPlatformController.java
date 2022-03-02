@@ -68,16 +68,6 @@ public class TelemetryPlatformController implements UnsecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ParameterValidationProblemResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -90,11 +80,7 @@ public class TelemetryPlatformController implements UnsecuredApiController {
             }
     )
     public RedirectView onboardTelemetryPlatform(@Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
-                                                 @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                                 @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+                                                 @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         final var application = applicationService.find(applicationId);
         final var redirectUrl = securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId);
         return new RedirectView(redirectUrl);

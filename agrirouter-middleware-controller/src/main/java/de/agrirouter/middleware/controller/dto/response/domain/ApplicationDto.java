@@ -24,7 +24,7 @@ public class ApplicationDto {
      * The version of the entity.
      */
     @Schema(description = "The version of the entity.")
-    private LocalDateTime version;
+    private int version;
 
     /**
      * The name of the application.
