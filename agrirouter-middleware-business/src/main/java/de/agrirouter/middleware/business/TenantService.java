@@ -10,6 +10,7 @@ import de.agrirouter.middleware.domain.Tenant;
 import de.agrirouter.middleware.persistence.TenantRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,9 +51,9 @@ public class TenantService implements UserDetailsService {
         if (tenantRepository.findTenantByGeneratedTenantIsTrue().isEmpty()) {
             Tenant tenant = new Tenant();
             tenant.setTenantId(IdFactory.tenantId());
-            tenant.setName(RandomStringUtils.random(24, true, true));
+            tenant.setName(generateAccessToken(24));
             tenant.setGeneratedTenant(true);
-            final var accessToken = RandomStringUtils.randomAlphanumeric(DEFAULT_ACCESS_TOKEN_LENGTH);
+            final var accessToken = generateAccessToken(DEFAULT_ACCESS_TOKEN_LENGTH);
             tenant.setAccessToken(passwordEncoder.encode(accessToken));
             tenantRepository.save(tenant);
             LOGGER.info("#######################################################################################################################################################");
@@ -97,7 +98,7 @@ public class TenantService implements UserDetailsService {
             if (tenantRepository.findTenantByNameIgnoreCase(name).isPresent()) {
                 throw new BusinessException(ErrorMessageFactory.tenantAlreadyExists(name));
             } else {
-                String accessToken = RandomStringUtils.random(DEFAULT_ACCESS_TOKEN_LENGTH);
+                String accessToken = generateAccessToken(DEFAULT_ACCESS_TOKEN_LENGTH);
                 String tenantId = IdFactory.tenantId();
                 final var tenant = new Tenant();
                 tenant.setName(name);
@@ -111,6 +112,11 @@ public class TenantService implements UserDetailsService {
                 return tenantRegistrationResult;
             }
         }
+    }
+
+    @NotNull
+    private String generateAccessToken(int defaultAccessTokenLength) {
+        return RandomStringUtils.random(defaultAccessTokenLength, true, true);
     }
 
     @Override
