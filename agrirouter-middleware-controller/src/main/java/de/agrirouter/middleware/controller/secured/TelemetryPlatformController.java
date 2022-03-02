@@ -207,16 +207,6 @@ public class TelemetryPlatformController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ParameterValidationProblemResponse.class
-                                    ),
-                                    mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -228,11 +218,7 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> revokeTelemetryPlatform(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId,
-                                                        @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+    public ResponseEntity<Void> revokeTelemetryPlatform(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         endpointService.revoke(externalEndpointId);
         return ResponseEntity.ok().build();
     }
