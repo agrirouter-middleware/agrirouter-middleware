@@ -52,7 +52,7 @@ public class TenantService implements UserDetailsService {
             tenant.setTenantId(IdFactory.tenantId());
             tenant.setName(RandomStringUtils.random(24, true, true));
             tenant.setGeneratedTenant(true);
-            final var accessToken = RandomStringUtils.random(DEFAULT_ACCESS_TOKEN_LENGTH, true, true);
+            final var accessToken = RandomStringUtils.randomAlphanumeric(DEFAULT_ACCESS_TOKEN_LENGTH);
             tenant.setAccessToken(passwordEncoder.encode(accessToken));
             tenantRepository.save(tenant);
             LOGGER.info("#######################################################################################################################################################");
