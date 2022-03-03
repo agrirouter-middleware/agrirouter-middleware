@@ -32,7 +32,7 @@ public class Application extends BaseEntity {
     private String internalApplicationId;
 
     /**
-     * The agrirouter ID of the application.
+     * The agrirouter© ID of the application.
      */
     @Column(length = 36, nullable = false)
     private String applicationId;

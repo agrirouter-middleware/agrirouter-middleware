@@ -33,9 +33,9 @@ public class ApplicationDto {
     private String name;
 
     /**
-     * The agrirouter ID of the application.
+     * The agrirouter© ID of the application.
      */
-    @Schema(description = "The agrirouter ID of the application.")
+    @Schema(description = "The agrirouter© ID of the application.")
     private String applicationId;
 
     /**

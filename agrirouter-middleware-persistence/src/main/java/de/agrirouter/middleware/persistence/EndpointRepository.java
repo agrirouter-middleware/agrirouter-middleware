@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
 
     /**
-     * Finding an endpoint by the given agrirouter endpoint ID.
+     * Finding an endpoint by the given agrirouter© endpoint ID.
      *
      * @param endpointId The ID of the endpoint.
      * @return -

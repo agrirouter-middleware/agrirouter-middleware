@@ -12,15 +12,15 @@ import javax.ws.rs.ApplicationPath;
  */
 @OpenAPIDefinition(
         info = @Info(
-                title = "Agrirouter Middleware",
-                description = "Middleware to access the agrirouter using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter within a custom database.",
+                title = "Agrirouter© Middleware",
+                description = "Middleware to access the agrirouter© using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter© within a custom database.",
                 version = "1.0.0",
                 license = @License(
                         name = "Apache License Version 2.0",
                         url = "https://github.com/agrirouter-middleware/LICENSE"
                 ),
                 contact = @Contact(
-                        name = "Agrirouter Middleware",
+                        name = "Agrirouter© Middleware",
                         url = "https://github.com/agrirouter-middleware"
                 )
         )

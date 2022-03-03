@@ -13,7 +13,7 @@ import lombok.ToString;
 public class MessageRecipientDto {
 
     /**
-     * The agrirouter endpoint ID.
+     * The agrirouter© endpoint ID.
      */
     private String agrirouterEndpointId;
 

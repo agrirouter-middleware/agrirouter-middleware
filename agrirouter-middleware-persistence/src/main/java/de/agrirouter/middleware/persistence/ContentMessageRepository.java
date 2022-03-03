@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ContentMessageRepository extends JpaRepository<ContentMessage, Long> {
 
     /**
-     * Remove all content messages by the agrirouter endpoint id.
+     * Remove all content messages by the agrirouter© endpoint id.
      *
      * @param agrirouterEndpointId -
      */

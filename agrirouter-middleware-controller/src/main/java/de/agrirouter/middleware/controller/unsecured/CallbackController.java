@@ -35,7 +35,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @RestController
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/callback")
 @Tag(
-        name = "agrirouter callback",
+        name = "agrirouter© callback",
         description = "The callback for the agrirouter. This callback has to be referenced within the newly created application."
 )
 public class CallbackController implements UnsecuredApiController {
@@ -65,7 +65,7 @@ public class CallbackController implements UnsecuredApiController {
     @GetMapping
     @Operation(
             operationId = "callback.callback",
-            description = "The callback for the onboard process. Used by the agrirouter to send the onboard process data.",
+            description = "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
             responses = {
                     @ApiResponse(
                             responseCode = "302",
