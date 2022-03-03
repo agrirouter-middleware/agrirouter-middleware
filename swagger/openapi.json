@@ -122,11 +122,11 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -315,7 +315,7 @@
         }
       }
     },
-    "/secured/apitelemetry-platform/{endpointId}/virtual": {
+    "/secured/api/telemetry-platform/{endpointId}/virtual": {
       "post": {
         "tags": [
           "telemetry platform management"
@@ -1244,11 +1244,11 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1592,11 +1592,11 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1649,7 +1649,7 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1706,7 +1706,7 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1752,64 +1752,11 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/apitelemetry-platform/{externalEndpointId}": {
-      "delete": {
-        "tags": [
-          "telemetry platform management"
-        ],
-        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
-        "operationId": "telemetry-platform.revoke-process",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint id.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The revoke process was successful.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of a parameter validation exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -1858,11 +1805,64 @@
             }
           },
           "400": {
-            "description": "In case of a parameter validation exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-platform/{externalEndpointId}": {
+      "delete": {
+        "tags": [
+          "telemetry platform management"
+        ],
+        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
+        "operationId": "telemetry-platform.revoke-process",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The revoke process was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2402,9 +2402,9 @@
             "format": "int64"
           },
           "version": {
-            "type": "string",
+            "type": "integer",
             "description": "The version of the entity.",
-            "format": "date-time"
+            "format": "int32"
           },
           "name": {
             "type": "string",
@@ -2680,9 +2680,9 @@
             "format": "int64"
           },
           "version": {
-            "type": "string",
+            "type": "integer",
             "description": "The version of the entity.",
-            "format": "date-time"
+            "format": "int32"
           },
           "name": {
             "type": "string",

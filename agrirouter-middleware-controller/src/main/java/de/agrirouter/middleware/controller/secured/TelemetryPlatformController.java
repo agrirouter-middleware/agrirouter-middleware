@@ -26,7 +26,7 @@ import javax.ws.rs.core.MediaType;
  * Controller to onboard a single endpoint.
  */
 @RestController
-@RequestMapping(SecuredApiController.API_PREFIX + "telemetry-platform/")
+@RequestMapping(SecuredApiController.API_PREFIX + "/telemetry-platform/")
 @Tag(
         name = "telemetry platform management",
         description = "Operations for telemetry platform management, i.e. onboard process for (virtual) endpoints or revoking endpoints."
