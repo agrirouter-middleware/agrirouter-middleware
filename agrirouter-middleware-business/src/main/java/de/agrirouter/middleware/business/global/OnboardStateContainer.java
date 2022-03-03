@@ -25,11 +25,12 @@ public class OnboardStateContainer {
      * @param internalApplicationId The ID of the application.
      * @param externalEndpointId    The endpoint ID.
      * @param tenantId              The ID of the tenant.
+     * @param redirectUrl           The redirect URL after callback.
      * @return The ID of the state.
      */
-    public String push(String internalApplicationId, String externalEndpointId, String tenantId) {
+    public String push(String internalApplicationId, String externalEndpointId, String tenantId, String redirectUrl) {
         final var state = RandomStringUtils.randomAlphabetic(32);
-        states.put(state, new OnboardState(internalApplicationId, externalEndpointId, tenantId));
+        states.put(state, new OnboardState(internalApplicationId, externalEndpointId, tenantId, redirectUrl));
         return state;
     }
 
@@ -63,6 +64,10 @@ public class OnboardStateContainer {
          */
         private final String tenantId;
 
+        /**
+         * The redirect URL after the callback has been called.
+         */
+        private final String redirectUrlAfterCallback;
     }
 
 }

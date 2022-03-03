@@ -12,7 +12,7 @@ import java.util.Set;
 public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
 
     /**
-     * Delete all time logs by agrirouter ID.
+     * Delete all time logs by agrirouter© ID.
      *
      * @param agrirouterEndpointId -
      */

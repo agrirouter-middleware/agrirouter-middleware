@@ -4,9 +4,9 @@ import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * The image type, used to map the specific agrirouter message type.
+ * The image type, used to map the specific agrirouter© message type.
  */
-@Schema(description = "The image type, used to map the specific agrirouter message type.")
+@Schema(description = "The image type, used to map the specific agrirouter© message type.")
 public enum ImageType {
 
     JPEG(ContentMessageType.IMG_JPEG),

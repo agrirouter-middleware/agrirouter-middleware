@@ -1,10 +1,10 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Agrirouter Middleware",
-    "description": "Middleware to access the agrirouter using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter within a custom database.",
+    "title": "Agrirouter© Middleware",
+    "description": "Middleware to access the agrirouter© using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter© within a custom database.",
     "contact": {
-      "name": "Agrirouter Middleware",
+      "name": "Agrirouter© Middleware",
       "url": "https://github.com/agrirouter-middleware"
     },
     "license": {
@@ -43,7 +43,7 @@
       "description": "Maintenance operations for internal usage. Do NOT use this profile in production."
     },
     {
-      "name": "agrirouter callback",
+      "name": "agrirouter© callback",
       "description": "The callback for the agrirouter. This callback has to be referenced within the newly created application."
     }
   ],
@@ -1367,9 +1367,9 @@
     "/unsecured/api/callback": {
       "get": {
         "tags": [
-          "agrirouter callback"
+          "agrirouter© callback"
         ],
-        "description": "The callback for the onboard process. Used by the agrirouter to send the onboard process data.",
+        "description": "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
         "operationId": "callback.callback",
         "parameters": [
           {
@@ -2324,7 +2324,7 @@
           },
           "videoType": {
             "type": "string",
-            "description": "The video type, used to map the specific agrirouter message type.",
+            "description": "The video type, used to map the specific agrirouter© message type.",
             "enum": [
               "AVI",
               "MP4",
@@ -2366,7 +2366,7 @@
           },
           "imageType": {
             "type": "string",
-            "description": "The image type, used to map the specific agrirouter message type.",
+            "description": "The image type, used to map the specific agrirouter© message type.",
             "enum": [
               "JPEG",
               "PNG",
@@ -2412,7 +2412,7 @@
           },
           "applicationId": {
             "type": "string",
-            "description": "The agrirouter ID of the application."
+            "description": "The agrirouter© ID of the application."
           },
           "internalApplicationId": {
             "type": "string",
@@ -2690,7 +2690,7 @@
           },
           "applicationId": {
             "type": "string",
-            "description": "The agrirouter ID of the application."
+            "description": "The agrirouter© ID of the application."
           },
           "internalApplicationId": {
             "type": "string",

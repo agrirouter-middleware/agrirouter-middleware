@@ -16,7 +16,7 @@ import javax.persistence.Entity;
 public class MessageRecipient extends BaseEntity {
 
     /**
-     * The agrirouter endpoint ID.
+     * The agrirouter© endpoint ID.
      */
     private String agrirouterEndpointId;
 

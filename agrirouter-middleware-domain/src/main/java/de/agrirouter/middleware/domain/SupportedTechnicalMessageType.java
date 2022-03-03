@@ -13,7 +13,7 @@ import javax.persistence.Enumerated;
 
 /**
  * A supported technical message type.
- * Every technical message type has a direction and a agrirouter specific technical message type.
+ * Every technical message type has a direction and a agrirouter© specific technical message type.
  */
 @Data
 @Entity

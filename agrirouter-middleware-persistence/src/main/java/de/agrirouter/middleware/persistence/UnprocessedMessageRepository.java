@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface UnprocessedMessageRepository extends JpaRepository<UnprocessedMessage, Long> {
 
     /**
-     * Delete all unprocessed messages by the agrirouter endpoint ID.
+     * Delete all unprocessed messages by the agrirouter© endpoint ID.
      *
      * @param agrirouterEndpointId -
      */

@@ -35,7 +35,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @RestController
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/callback")
 @Tag(
-        name = "agrirouter callback",
+        name = "agrirouter© callback",
         description = "The callback for the agrirouter. This callback has to be referenced within the newly created application."
 )
 public class CallbackController implements UnsecuredApiController {
@@ -65,7 +65,7 @@ public class CallbackController implements UnsecuredApiController {
     @GetMapping
     @Operation(
             operationId = "callback.callback",
-            description = "The callback for the onboard process. Used by the agrirouter to send the onboard process data.",
+            description = "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
             responses = {
                     @ApiResponse(
                             responseCode = "302",
@@ -131,14 +131,14 @@ public class CallbackController implements UnsecuredApiController {
                 onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
                 try {
                     securedOnboardProcessService.onboard(onboardProcessParameters);
-                    if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
-                        return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS));
+                    if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
+                        return new RedirectView(onboardState.getRedirectUrlAfterCallback().concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS));
                     } else {
                         return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS), true);
                     }
                 } catch (BusinessException e) {
                     log.error("There was an error during the onboard process. Could not handle the request.", e);
-                    if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+                    if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
                         return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE));
                     } else {
                         return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE), true);
@@ -146,7 +146,7 @@ public class CallbackController implements UnsecuredApiController {
                 }
             } else {
                 log.error("There was an error during the onboard process. Could not handle the request. The error was '{}'", error);
-                if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+                if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
                     return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE));
                 } else {
                     return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE), true);
