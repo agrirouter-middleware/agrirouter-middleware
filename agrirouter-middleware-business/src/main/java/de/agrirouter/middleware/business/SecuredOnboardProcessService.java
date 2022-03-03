@@ -17,6 +17,7 @@ import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationServ
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -63,14 +64,21 @@ public class SecuredOnboardProcessService {
      * @param application The application.
      * @return The URL to authorize the application against the AR.
      */
-    public String generateAuthorizationUrl(Application application, String externalEndpointId) {
+    public String generateAuthorizationUrl(Application application, String externalEndpointId, String redirectUrl) {
         if (null == application.getApplicationType() || application.getApplicationType().equals(de.agrirouter.middleware.domain.enums.ApplicationType.COMMUNICATION_UNIT)) {
             throw new BusinessException(ErrorMessageFactory.applicationDoesNotSupportSecuredOnboarding());
         } else {
             final var parameters = new AuthorizationRequestParameters();
             parameters.setApplicationId(application.getApplicationId());
             parameters.setResponseType(SecuredOnboardingResponseType.ONBOARD);
-            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId()));
+            var applicationSettingsRedirectUrl = application.getApplicationSettings().getRedirectUrl();
+            final String redirectUrlToUse;
+            if (StringUtils.isNotBlank(redirectUrl)) {
+                redirectUrlToUse = redirectUrl;
+            } else {
+                redirectUrlToUse = applicationSettingsRedirectUrl;
+            }
+            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), redirectUrlToUse));
             return authorizationRequestService.getAuthorizationRequestURL(parameters);
         }
     }

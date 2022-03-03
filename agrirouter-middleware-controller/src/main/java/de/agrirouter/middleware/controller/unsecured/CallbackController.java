@@ -131,14 +131,14 @@ public class CallbackController implements UnsecuredApiController {
                 onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
                 try {
                     securedOnboardProcessService.onboard(onboardProcessParameters);
-                    if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
-                        return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS));
+                    if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
+                        return new RedirectView(onboardState.getRedirectUrlAfterCallback().concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS));
                     } else {
                         return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS), true);
                     }
                 } catch (BusinessException e) {
                     log.error("There was an error during the onboard process. Could not handle the request.", e);
-                    if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+                    if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
                         return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE));
                     } else {
                         return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE), true);
@@ -146,7 +146,7 @@ public class CallbackController implements UnsecuredApiController {
                 }
             } else {
                 log.error("There was an error during the onboard process. Could not handle the request. The error was '{}'", error);
-                if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+                if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
                     return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE));
                 } else {
                     return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE), true);
