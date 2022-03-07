@@ -21,8 +21,8 @@ import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParam
 import de.agrirouter.middleware.persistence.DeviceDescriptionRepository;
 import de.agrirouter.middleware.persistence.DeviceRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import de.saschadoemer.iso11783.ClientName;
-import de.saschadoemer.iso11783.ClientNameDecoder;
+import de.saschadoemer.iso11783.clientname.ClientName;
+import de.saschadoemer.iso11783.clientname.ClientNameDecoder;
 import efdi.GrpcEfdi;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;

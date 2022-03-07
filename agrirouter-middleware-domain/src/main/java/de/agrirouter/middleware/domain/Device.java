@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.domain;
 
-import de.saschadoemer.iso11783.ClientName;
+import de.saschadoemer.iso11783.clientname.ClientName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

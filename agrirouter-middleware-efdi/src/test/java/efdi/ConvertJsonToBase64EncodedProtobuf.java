@@ -2,8 +2,8 @@ package efdi;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
-import de.saschadoemer.iso11783.ClientName;
-import de.saschadoemer.iso11783.ClientNameDecoder;
+import de.saschadoemer.iso11783.clientname.ClientName;
+import de.saschadoemer.iso11783.clientname.ClientNameDecoder;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

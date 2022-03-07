@@ -2,7 +2,6 @@ package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodePushNotificationService;
 import com.dke.data.agrirouter.api.service.parameters.MessageConfirmationParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.MessageConfirmationServiceImpl;
