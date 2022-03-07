@@ -5,8 +5,6 @@ package de.agrirouter.middleware.domain.enums;
  */
 public enum ApplicationType {
 
-    COMMUNICATION_UNIT,
-
     FARMING_SOFTWARE,
 
     TELEMETRY_PLATFORM
