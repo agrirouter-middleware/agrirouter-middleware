@@ -239,9 +239,9 @@ public class TimeLogService {
         teamSetContextIds.forEach(teamSetContextId -> {
             final List<TimeLog> timeLogs;
             if (searchTimeLogPeriodsParameters.shouldFilterByTime()) {
-                timeLogs = timeLogRepository.findAllByTeamSetContextIdAndTimestampBetween(teamSetContextId, searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault());
+                timeLogs = timeLogRepository.findForTeamSetContextIdAndTimestampBetween(teamSetContextId, searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault());
             } else {
-                timeLogs = timeLogRepository.findAllByTeamSetContextId(teamSetContextId);
+                timeLogs = timeLogRepository.findForTeamSetContextId(teamSetContextId);
             }
             segmentedTimeLogs.put(teamSetContextId, timeLogs);
         });

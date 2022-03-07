@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>de.saschadoemer.iso-11783</groupId>
-            <artifactId>client-name-decoder</artifactId>
+            <artifactId>toolsuite</artifactId>
         </dependency>
     </dependencies>
 

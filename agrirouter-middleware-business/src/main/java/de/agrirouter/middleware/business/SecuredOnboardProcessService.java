@@ -65,7 +65,7 @@ public class SecuredOnboardProcessService {
      * @return The URL to authorize the application against the AR.
      */
     public String generateAuthorizationUrl(Application application, String externalEndpointId, String redirectUrl) {
-        if (null == application.getApplicationType() || application.getApplicationType().equals(de.agrirouter.middleware.domain.enums.ApplicationType.COMMUNICATION_UNIT)) {
+        if (null == application.getApplicationType()) {
             throw new BusinessException(ErrorMessageFactory.applicationDoesNotSupportSecuredOnboarding());
         } else {
             final var parameters = new AuthorizationRequestParameters();

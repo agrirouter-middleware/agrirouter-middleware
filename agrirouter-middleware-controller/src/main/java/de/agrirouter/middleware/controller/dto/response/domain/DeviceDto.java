@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
-import de.saschadoemer.iso11783.ClientName;
+import de.saschadoemer.iso11783.clientname.ClientName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.ToString;
