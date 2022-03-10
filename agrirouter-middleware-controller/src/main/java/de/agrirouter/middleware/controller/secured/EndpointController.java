@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * Controller to manage applications.
@@ -240,7 +241,7 @@ public class EndpointController implements SecuredApiController {
             final var messageRecipientDtos = endpoint.getMessageRecipients()
                     .stream()
                     .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
-                    .toList();
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
