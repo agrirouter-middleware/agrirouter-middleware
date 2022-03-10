@@ -46,35 +46,37 @@ public class MessageHandlingCallback implements MqttCallback {
             final var fetchMessageResponse = new Gson().fromJson(new String(mqttMessage.getPayload()), FetchMessageResponse.class);
             final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
             switch (decodedMessageResponse.getResponseEnvelope().getType()) {
-                case ACK, ACK_WITH_MESSAGES, ACK_WITH_FAILURE -> {
+                case ACK:
+                case ACK_WITH_MESSAGES:
+                case ACK_WITH_FAILURE: {
                     LOGGER.trace("This was a message acknowledgement.");
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
-                case PUSH_NOTIFICATION -> {
+                case PUSH_NOTIFICATION: {
                     LOGGER.trace("This was a push notification.");
                     applicationEventPublisher.publishEvent(new PushMessageEvent(this, fetchMessageResponse));
                 }
-                case ACK_FOR_FEED_MESSAGE -> {
+                case ACK_FOR_FEED_MESSAGE: {
                     LOGGER.trace("This was a query result for a message query.");
                     applicationEventPublisher.publishEvent(new MessageQueryResultEvent(this, fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
-                case ACK_FOR_FEED_HEADER_LIST -> {
+                case ACK_FOR_FEED_HEADER_LIST: {
                     LOGGER.trace("This was a query result for a message header query that is used.");
                     applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
-                case CLOUD_REGISTRATIONS -> {
+                case CLOUD_REGISTRATIONS: {
                     LOGGER.trace("This was a cloud registration.");
                     applicationEventPublisher.publishEvent(new CloudRegistrationEvent(this, decodedMessageResponse.getResponseEnvelope().getApplicationMessageId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
-                case ENDPOINTS_LISTING -> {
-                        LOGGER.trace("This was an endpoint listing.");
+                case ENDPOINTS_LISTING: {
+                    LOGGER.trace("This was an endpoint listing.");
                     applicationEventPublisher.publishEvent(new UpdateRecipientsForEndpointEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
-                default -> {
+                default: {
                     LOGGER.trace("This was a unknown message.");
                     applicationEventPublisher.publishEvent(new UnknownMessageEvent(this, fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
