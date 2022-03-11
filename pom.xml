@@ -33,8 +33,8 @@
     <properties>
         <project.build.finalName>agrirouter-middleware</project.build.finalName>
 
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.encoding>UTF-8</project.encoding>
 
         <springdoc-openapi-ui.version>1.6.5</springdoc-openapi-ui.version>

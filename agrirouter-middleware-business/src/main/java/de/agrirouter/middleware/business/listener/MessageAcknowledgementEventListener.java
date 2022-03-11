@@ -3,6 +3,7 @@ package de.agrirouter.middleware.business.listener;
 import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
+import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
@@ -58,10 +59,7 @@ public class MessageAcknowledgementEventListener {
             final var messageWaitingForAcknowledgement = optionalMessageWaitingForAcknowledgement.get();
             final var decodedMessageResponse = messageAcknowledgementEvent.getDecodedMessageResponse();
             switch (decodedMessageResponse.getResponseEnvelope().getType()) {
-                case ACK:
-                case ACK_FOR_FEED_MESSAGE:
-                case ACK_FOR_FEED_HEADER_LIST:
-                case CLOUD_REGISTRATIONS: {
+                case ACK, ACK_FOR_FEED_MESSAGE, ACK_FOR_FEED_HEADER_LIST, CLOUD_REGISTRATIONS -> {
                     handleSuccessMessage(messageWaitingForAcknowledgement);
                     if (SystemMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, messageWaitingForAcknowledgement.getAgrirouterEndpointId()));
@@ -70,7 +68,7 @@ public class MessageAcknowledgementEventListener {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
                 }
-                case ACK_WITH_MESSAGES: {
+                case ACK_WITH_MESSAGES -> {
                     handleSuccessMessageAndUpdateWarnings(decodedMessageResponse, messageWaitingForAcknowledgement);
                     if (SystemMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, messageWaitingForAcknowledgement.getAgrirouterEndpointId()));
@@ -79,7 +77,7 @@ public class MessageAcknowledgementEventListener {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
                 }
-                case ACK_WITH_FAILURE: {
+                case ACK_WITH_FAILURE -> {
                     handleErrorMessage(decodedMessageResponse, messageWaitingForAcknowledgement);
                     final var messages = decodeMessageService.decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails());
                     final var message = messages.getMessages(0);

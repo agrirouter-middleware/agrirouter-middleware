@@ -70,7 +70,7 @@ public class CreateEndpointStatusHelper {
         final var messageRecipients = endpoint.getMessageRecipients()
                 .stream()
                 .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
-                .collect(Collectors.toList());
+                .toList();
         endpointWithStatusDto.setMessageRecipients(messageRecipients);
         return endpointWithStatusDto;
     }
