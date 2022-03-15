@@ -6,4 +6,5 @@ package de.agrirouter.middleware.api;
 public class Routes {
     public static final String ONBOARD_PROCESS_RESULT = "onboard-process-result";
     public static final String HOME = "home";
+    public static final String SECURED_API_PATH = "/secured/api";
 }

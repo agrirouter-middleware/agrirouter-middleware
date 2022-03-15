@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.controller.CommonController;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,6 +20,6 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 )
 interface SecuredApiController extends CommonController {
 
-    String API_PREFIX = "/secured/api";
+    String API_PREFIX = Routes.SECURED_API_PATH;
 
 }
