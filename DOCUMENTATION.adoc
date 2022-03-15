@@ -72,3 +72,40 @@ Otherwise, the priority for redirect urls is as follows:
 3. Default redirect page within the middleware
 
 After you created you own endpoint with your chosen `externalEndpointId`, the `externalEndpointId` is everything you need to send data and fetch messages from the agrirouter©.
+
+== Profiles
+
+There are three main profiles, the `dev` profile, the `qa` profile and the `prod` profile. The profiles define which log level is set or which job intervals are configured.You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable. 
+
+In addition there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or 
+enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`. Those profiles can be set in addtion to the main profiles. 
+
+=== DEV
+
+`-Dspring.profiles.active=dev`
+
+Running the middleware in DEV mode with access to the QA environment of the agrirouter©.
+
+=== QA
+
+`-Dspring.profiles.active=qa`
+
+Running the middleware in QA mode with access to the QA environment of the agrirouter©.
+
+=== PROD
+
+`-Dspring.profiles.active=prod`
+
+Running the middleware in PROD mode with access to the QA environment of the agrirouter©.
+
+=== Maintenance
+
+`-Dspring.profiles.active=qa, maintenance`
+
+Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
+
+=== agrirouter© PROD environment access
+
+`-Dspring.profiles.active=qa, maintenance, connect-agrirouter-prod`
+
+Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©. This mode injects a production environment with spefic URLs for the agrirouter©.

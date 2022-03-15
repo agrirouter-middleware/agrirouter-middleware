@@ -18,7 +18,6 @@ import static de.agrirouter.middleware.api.Routes.SECURED_API_PATH;
  * Security configuration.
  */
 @Configuration
-@Profile({"local", "dev", "qa"})
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
