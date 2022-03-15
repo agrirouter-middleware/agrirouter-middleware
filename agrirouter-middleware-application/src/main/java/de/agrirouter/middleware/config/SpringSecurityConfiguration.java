@@ -16,7 +16,6 @@ import java.util.Arrays;
  * Security configuration.
  */
 @Configuration
-@Profile({"dev", "qa"})
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
