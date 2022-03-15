@@ -75,9 +75,20 @@ After you created you own endpoint with your chosen `externalEndpointId`, the `e
 
 == Profiles
 
-There are two main profiles, the `qa` profile and the `prod` profile. The profiles define which instance of the agrirouter© is used, which log level is set or which job intervals are configured.
+There are two main profiles, the `qa` profile and the `prod` profile. The profiles which log level is set or which job intervals are configured.
 You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable. 
-In addition there is a third profile which activates the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile. 
+In addition there are other profiles which activates the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or 
+which enables the access to the PROD environment of the agrirouter© = the profile `connect-agrirouter-prod`. 
+
+=== DEV
+
+`-Dspring.profiles.active=dev`
+
+Running the middleware in DEV mode with access to the QA environment of the agrirouter©.
+
+`-Dspring.profiles.active=dev,connect-agrirouter-prod`
+
+Running the middleware in DEV mode with access to the PROD environment of the agrirouter©.
 
 === QA
 
@@ -85,18 +96,12 @@ In addition there is a third profile which activates the maintenance mode to acc
 
 Running the middleware with access to the QA environment of the agrirouter©.
 
-=== PROD
+`-Dspring.profiles.active=qa,connect-agrirouter-prod`
 
-`-Dspring.profiles.active=prod`
-
-Running the middleware with access to the PROD environment of the agrirouter©.
+Running the middleware in QA mode with access to the PROD environment of the agrirouter©.
 
 === Maintenance
 
 `-Dspring.profiles.active=qa, maintenance`
 
 Running the middleware in maintenance mode with access to the QA environment of the agrirouter©.
-
-`-Dspring.profiles.active=prod, maintenance`
-
-Running the middleware in maintenance mode with access to the PROD environment of the agrirouter©.
