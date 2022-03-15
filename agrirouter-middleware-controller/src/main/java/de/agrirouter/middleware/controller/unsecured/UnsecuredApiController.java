@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.unsecured;
 
+import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.controller.CommonController;
 
 /**
@@ -7,6 +8,6 @@ import de.agrirouter.middleware.controller.CommonController;
  */
 interface UnsecuredApiController extends CommonController {
 
-    String API_PREFIX = "/unsecured/api";
+    String API_PREFIX = Routes.UNSECURED_API_PATH;
 
 }
