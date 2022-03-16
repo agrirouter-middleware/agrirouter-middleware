@@ -126,6 +126,7 @@
             </dependency>
 
 
+            <!-- SWAGGER / OPENAPI -->
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
@@ -149,16 +150,34 @@
                 <groupId>com.agrirouter.api</groupId>
                 <artifactId>agrirouter-sdk-java-api</artifactId>
                 <version>${agrirouter-sdk-java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.agrirouter.api</groupId>
                 <artifactId>agrirouter-sdk-java-impl</artifactId>
                 <version>${agrirouter-sdk-java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.agrirouter.api</groupId>
                 <artifactId>agrirouter-sdk-java-convenience</artifactId>
                 <version>${agrirouter-sdk-java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.agrirouter.proto</groupId>
