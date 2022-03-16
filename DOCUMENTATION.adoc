@@ -4,6 +4,19 @@
 :toc-title:
 :toclevels: 4
 
+== How to authenticate the requests?
+
+The endpoints of the middleware are secured by HTTP basic authentication. You have to use the *ID of the tenant* and the corresponding *access token* to authenticate. 
+
+image::documentation/tenant_log_entry.png[logentry]
+
+[IMPORTANT] 
+.Default tenant generation on startup
+==== 
+During the first startup of the middleware, a default tenant is generated and printed on level INFO within the log file. 
+You have to store the credentials at a safe place to authenticate again.
+====
+
 == How to integrate the middleware in your project?
 
 If you have a running instance, the integration is quite easy.
