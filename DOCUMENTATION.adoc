@@ -100,12 +100,12 @@ Running the middleware in PROD mode with access to the QA environment of the agr
 
 === Maintenance
 
-`-Dspring.profiles.active=qa, maintenance`
+`-Dspring.profiles.active=qa,maintenance`
 
 Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
 
 === agrirouter© PROD environment access
 
-`-Dspring.profiles.active=qa, maintenance, connect-agrirouter-prod`
+`-Dspring.profiles.active=qa,maintenance,connect-agrirouter-prod`
 
 Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©. This mode injects a production environment with spefic URLs for the agrirouter©.
