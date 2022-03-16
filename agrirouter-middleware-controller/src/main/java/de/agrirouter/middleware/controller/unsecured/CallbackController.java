@@ -4,7 +4,6 @@ package de.agrirouter.middleware.controller.unsecured;
 import com.dke.data.agrirouter.api.service.onboard.secured.AuthorizationRequestService;
 import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.SecuredOnboardProcessService;
 import de.agrirouter.middleware.business.global.OnboardStateContainer;
@@ -22,15 +21,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 /**
  * Callback for the secured onboard process.
@@ -39,8 +35,8 @@ import java.net.URI;
 @RestController
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/callback")
 @Tag(
-    name = "agrirouter© callback",
-    description = "The callback for the agrirouter. This callback has to be referenced within the newly created application."
+        name = "agrirouter© callback",
+        description = "The callback for the agrirouter. This callback has to be referenced within the newly created application."
 )
 public class CallbackController implements UnsecuredApiController {
 
@@ -68,56 +64,56 @@ public class CallbackController implements UnsecuredApiController {
      */
     @GetMapping
     @Operation(
-        operationId = "callback.callback",
-        description = "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
-        responses = {
-            @ApiResponse(
-                responseCode = "302",
-                description = "In case of a successful response, the callback redirects to an internal page to show " +
-                    "the result of the onboard process.",
-                content = @Content(
-                    schema = @Schema(
-                        hidden = true
+            operationId = "callback.callback",
+            description = "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "302",
+                            description = "In case of a successful response, the callback redirects to an internal page to show " +
+                                    "the result of the onboard process.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            hidden = true
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
                     ),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                )
-            ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "In case of a business exception.",
-                content = @Content(
-                    schema = @Schema(
-                        implementation = ErrorResponse.class
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
                     ),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                )
-            ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "In case of a parameter validation exception.",
-                content = @Content(
-                    schema = @Schema(
-                        implementation = ParameterValidationProblemResponse.class
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
                     ),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                )
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "In case of an unknown error.",
-                content = @Content(
-                    schema = @Schema(
-                        implementation = ErrorResponse.class
-                    ),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                )
-            )
-        }
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
     )
     public RedirectView callback(@Parameter(description = "The state to identify the request internally.", required =
-        true) @RequestParam(value = "state") String state,
+            true) @RequestParam(value = "state") String state,
                                  @Parameter(description = "Token containing the information for the onboard process, " +
-                                     "generated by the agrirouter.") @RequestParam(value = "token", required = false) String token,
+                                         "generated by the agrirouter.") @RequestParam(value = "token", required = false) String token,
                                  @Parameter(description = "Signature from the agrirouter, used for validation.") @RequestParam(value = "signature", required = false) String signature,
                                  @Parameter(description = "Error information, in case the onboard process failed.") @RequestParam(value = "error", required = false) String error) {
         final var optionalOnboardState = onboardStateContainer.pop(state);
@@ -128,7 +124,7 @@ public class CallbackController implements UnsecuredApiController {
                 // FIXME Check the signature of the AR.
                 log.debug("Checking for state >>> {}", state);
                 log.debug("Proceeding callback for the onboard process of the following application [{}]",
-                    onboardState.getInternalApplicationId());
+                        onboardState.getInternalApplicationId());
                 final var authorizationResponseToken = authorizationRequestService.decodeToken(token);
                 log.trace("Decoded the token >>> {}", authorizationResponseToken);
                 final var onboardProcessParameters = new OnboardProcessParameters();
@@ -157,7 +153,7 @@ public class CallbackController implements UnsecuredApiController {
     private RedirectView redirect(OnboardStateContainer.OnboardState onboardState, Application application, OnboardProcessResult result) {
         if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
             return redirectToExternalResultUrl(result, onboardState.getRedirectUrlAfterCallback());
-        } else if(StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+        } else if (StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
             return redirectToExternalResultUrl(result, application.getApplicationSettings().getRedirectUrl());
         } else {
             return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + result), true);
@@ -166,10 +162,9 @@ public class CallbackController implements UnsecuredApiController {
 
     private RedirectView redirectToExternalResultUrl(OnboardProcessResult result, String externalRedirectUrl) {
         String redirectUrl = UriComponentsBuilder
-            .fromUriString(externalRedirectUrl)
-            .queryParam("onboardProcessResult", result)
-            .build().toUriString();
-
+                .fromUriString(externalRedirectUrl)
+                .queryParam("onboardProcessResult", result)
+                .build().toUriString();
         return new RedirectView(redirectUrl);
     }
 }
