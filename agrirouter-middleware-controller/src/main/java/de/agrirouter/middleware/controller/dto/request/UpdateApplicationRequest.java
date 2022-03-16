@@ -10,60 +10,39 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * The request body for the application registration request.
+ * The request body for the update application request.
  */
 @Getter
 @Setter
 @ToString
-@Schema(description = "The request body to register a application within the middleware.")
-public class ApplicationRegistrationRequest {
+@Schema(description = "The request body to update an existing application within the middleware.")
+public class UpdateApplicationRequest {
+
+    /**
+     * The internal ID of the application.
+     */
+    @NotNull
+    @NotBlank
+    @Schema(description = "The internal ID of the application.")
+    private String internalApplicationId;
 
     /**
      * The name of the application.
      */
-    @NotNull
-    @NotBlank
     @Schema(description = "The name of the application.")
     private String name;
 
     /**
-     * The ID of the application.
-     */
-    @NotNull
-    @NotBlank
-    @Schema(description = "The ID of the application.")
-    private String applicationId;
-
-    /**
-     * The version of the application. Each agriouter version creates a new application in the middleware.
-     */
-    @NotNull
-    @NotBlank
-    @Schema(description = "The version of the application. Each agriouter version creates a new application in the middleware.")
-    private String versionId;
-
-    /**
      * The private key of the application.
      */
-    @NotNull
-    @NotBlank
     @Schema(description = "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform.")
     private String privateKey;
 
     /**
      * The public key of the application.
      */
-    @NotNull
-    @NotBlank
     @Schema(description = "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform.")
     private String publicKey;
-
-    /**
-     * The type of the application.
-     */
-    @NotNull
-    @Schema(description = "The type of the application.", required = true)
-    private ApplicationType applicationType;
 
     /**
      * The redirect URL for the application.
