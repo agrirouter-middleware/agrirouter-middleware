@@ -7,6 +7,7 @@ import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.controller.dto.request.AddRouterDeviceRequest;
 import de.agrirouter.middleware.controller.dto.request.AddSupportedTechnicalMessageTypeRequest;
 import de.agrirouter.middleware.controller.dto.request.ApplicationRegistrationRequest;
+import de.agrirouter.middleware.controller.dto.request.UpdateApplicationRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.ApplicationDto;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithChildrenDto;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -138,6 +140,95 @@ public class ApplicationController implements SecuredApiController {
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
+    }
+
+    /**
+     * Update an existing application.
+     *
+     * @param updateApplicationRequest The application to update.
+     * @return HTTP 200 after update.
+     */
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            operationId = "application.update",
+            description = "update an existing application within the middleware.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The application has been updated successfully.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = UpdateApplicationResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<RegisterApplicationResponse> update(Principal principal,
+                                                              @Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
+                                                              @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+
+        final var existingApplication = applicationService.find(updateApplicationRequest.getInternalApplicationId());
+
+        if (StringUtils.isNotBlank(updateApplicationRequest.getName())) {
+            existingApplication.setName(updateApplicationRequest.getName());
+        }
+
+        if (StringUtils.isNotBlank(updateApplicationRequest.getPublicKey())) {
+            final var publicKey = new String(Base64.getDecoder().decode(updateApplicationRequest.getPublicKey()));
+            existingApplication.setPublicKey(publicKey);
+        }
+
+        if (StringUtils.isNotBlank(updateApplicationRequest.getPrivateKey())) {
+            final var privateKey = new String(Base64.getDecoder().decode(updateApplicationRequest.getPrivateKey()));
+            existingApplication.setPrivateKey(privateKey);
+        }
+
+        if (StringUtils.isNotBlank(updateApplicationRequest.getRedirectUrl())) {
+            final var applicationSettings = new ApplicationSettings();
+            applicationSettings.setRedirectUrl(updateApplicationRequest.getRedirectUrl());
+            existingApplication.setApplicationSettings(applicationSettings);
+        }
+
+        applicationService.update(principal, existingApplication);
+
+        final var applicationDto = new ApplicationDto();
+        modelMapper.map(existingApplication, applicationDto);
+        return ResponseEntity.status(HttpStatus.OK).body(new RegisterApplicationResponse(applicationDto));
     }
 
     /**

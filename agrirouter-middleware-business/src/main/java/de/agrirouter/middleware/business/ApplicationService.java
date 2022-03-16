@@ -44,7 +44,7 @@ public class ApplicationService {
     }
 
     /**
-     * Delegate.
+     * Saving an application.
      *
      * @param principal   Authentication token.
      * @param application The application to save.
@@ -63,6 +63,18 @@ public class ApplicationService {
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(principal.getName()));
         }
+    }
+
+
+    /**
+     * Update the existing application.
+     *
+     * @param principal   Authentication token.
+     * @param application The application to update.
+     */
+    public void update(Principal principal, Application application) {
+        applicationRepository.save(application);
+        businessLogService.applicationUpdated(application);
     }
 
     /**
@@ -100,7 +112,6 @@ public class ApplicationService {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
     }
-
 
     /**
      * Find an application.
