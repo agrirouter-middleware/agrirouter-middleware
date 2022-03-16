@@ -12,11 +12,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import javax.ws.rs.HttpMethod;
 import java.util.Arrays;
 
+import static de.agrirouter.middleware.api.Routes.SECURED_API_PATH;
+
 /**
  * Security configuration.
  */
 @Configuration
-@Profile({"local", "dev", "qa"})
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
@@ -42,7 +43,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     return configuration;
                 }).and()
                 .authorizeRequests()
-                .antMatchers("/private/api", "/private/api/**").authenticated()
+                .antMatchers(SECURED_API_PATH, SECURED_API_PATH + "/**").authenticated()
                 .anyRequest().permitAll()
                 .and().httpBasic();
     }

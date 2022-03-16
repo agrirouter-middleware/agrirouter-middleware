@@ -37,6 +37,20 @@ public class BusinessLogEventFactory {
     }
 
     /**
+     * An application was updated.
+     *
+     * @param application -
+     * @return -
+     */
+    public BusinessLogEvent applicationUpdated(Application application) {
+        return new BusinessLogEventBuilder()
+                .application(application)
+                .type(BusinessLogEventType.APPLICATION_UPDATED)
+                .message("The application version '%s' for the application with the id '%s' was updated.", application.getApplicationId(), application.getVersionId())
+                .build();
+    }
+
+    /**
      * Technical message types are updates.
      *
      * @param application                    -

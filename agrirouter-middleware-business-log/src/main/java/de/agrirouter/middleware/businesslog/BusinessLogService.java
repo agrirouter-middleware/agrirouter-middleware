@@ -52,6 +52,15 @@ public class BusinessLogService {
     }
 
     /**
+     * An application was saved.
+     */
+    @Async
+    public void applicationUpdated(Application application) {
+        final var businessLogEvent = businessLogEventFactory.applicationUpdated(application);
+        handleBusinessLogEvent(businessLogEvent);
+    }
+
+    /**
      * Technical message types are updates.
      *
      * @param application                    -

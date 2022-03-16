@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
- * The internal configuration for the agrirouter connection.
+ * The internal configuration for the agrirouter© connection.
  */
 @Configuration
 public class AgrirouterConfiguration {

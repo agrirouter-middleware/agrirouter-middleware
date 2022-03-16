@@ -43,7 +43,7 @@ public class EndpointStatusUpdateEventListener {
      */
     @EventListener
     public void updateEndpointStatus(EndpointStatusUpdateEvent endpointStatusUpdateEvent) {
-        LOGGER.debug("Saving and confirming the messages from the query '{}'.", endpointStatusUpdateEvent.getAgrirouterEndpointId());
+        LOGGER.debug("Update the endpoint status for the following AR endpoint '{}'.", endpointStatusUpdateEvent.getAgrirouterEndpointId());
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointStatusUpdateEvent.getAgrirouterEndpointId());
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();

@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.DeviceService;
 import de.agrirouter.middleware.business.TimeLogService;
@@ -14,6 +15,7 @@ import de.agrirouter.middleware.controller.dto.request.SearchTelemetryDataReques
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishTimeLogDataRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.DeviceDto;
+import de.agrirouter.middleware.controller.dto.response.domain.timelog.RawTimeLogDataDto;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.TimeLogWithRawDataDto;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodDto;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodDtosForDevice;
@@ -30,6 +32,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -88,10 +91,20 @@ public class TelemetryDataController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -109,7 +122,11 @@ public class TelemetryDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<RegisterMachineResponse> registerMachine(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                                                   @Parameter(description = "The request the information to register a machine.", required = true) @Valid @RequestBody RegisterMachineRequest registerMachineRequest) {
+                                                                   @Parameter(description = "The request the information to register a machine.", required = true) @Valid @RequestBody RegisterMachineRequest registerMachineRequest,
+                                                                   @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var registerMachineParameters = new RegisterMachineParameters();
         registerMachineParameters.setExternalEndpointId(externalEndpointId);
         registerMachineParameters.setBase64EncodedDeviceDescription(registerMachineRequest.getBase64EncodedDeviceDescription());
@@ -140,10 +157,20 @@ public class TelemetryDataController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -162,7 +189,11 @@ public class TelemetryDataController implements SecuredApiController {
     )
     public ResponseEntity<Void> publish(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                         @Parameter(description = "The team set context ID.", required = true) @PathVariable String teamSetContextId,
-                                        @Parameter(description = "The request body containing all necessary information to publish a time log.", required = true) @Valid @RequestBody PublishTimeLogDataRequest publishTimeLogDataRequest) {
+                                        @Parameter(description = "The request body containing all necessary information to publish a time log.", required = true) @Valid @RequestBody PublishTimeLogDataRequest publishTimeLogDataRequest,
+                                        @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         publishTimeLogDataRequest.getBase64EncodedMessages().forEach(base64EncodedTimeLog -> {
                     final var publishTimeLogParameters = new PublishTimeLogParameters();
                     publishTimeLogParameters.setExternalEndpointId(externalEndpointId);
@@ -196,10 +227,20 @@ public class TelemetryDataController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -216,7 +257,11 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<SearchMachineResponse> searchMachines(@Parameter(description = "The request for searching for machines.", required = true) @Valid @RequestBody SearchMachinesRequest searchMachinesRequest) {
+    public ResponseEntity<SearchMachineResponse> searchMachines(@Parameter(description = "The request for searching for machines.", required = true) @Valid @RequestBody SearchMachinesRequest searchMachinesRequest,
+                                                                @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var searchMachineParameters = new SearchMachinesParameters();
         modelMapper.map(searchMachinesRequest, searchMachineParameters);
         final var devices = deviceService.search(searchMachineParameters);
@@ -256,10 +301,20 @@ public class TelemetryDataController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -276,7 +331,11 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<TimeLogPeriodDtosForDeviceResponse> searchTelemetryDataTimePeriods(@Parameter(description = "The request with all necessary information to search for the time log periods.", required = true) @Valid @RequestBody SearchTelemetryDataPeriodsRequest searchTelemetryDataPeriodsRequest) {
+    public ResponseEntity<TimeLogPeriodDtosForDeviceResponse> searchTelemetryDataTimePeriods(@Parameter(description = "The request with all necessary information to search for the time log periods.", required = true) @Valid @RequestBody SearchTelemetryDataPeriodsRequest searchTelemetryDataPeriodsRequest,
+                                                                                             @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var searchTimeLogPeriodsParameters = modelMapper.map(searchTelemetryDataPeriodsRequest, SearchTimeLogPeriodsParameters.class);
         final var timeLogPeriodsForDevices = timeLogService.searchTimeLogPeriods(searchTimeLogPeriodsParameters);
         final var timeLogPeriodDtosForDevices = new ArrayList<TimeLogPeriodDtosForDevice>();
@@ -337,10 +396,20 @@ public class TelemetryDataController implements SecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -357,10 +426,79 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<TimeLogSearchResponse> searchTelemetryDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest) {
+    public ResponseEntity<TimeLogSearchResponse> searchTelemetryDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
+                                                                             @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var messagesForTimeLogPeriodParameters = modelMapper.map(searchTelemetryDataRequest, MessagesForTimeLogPeriodParameters.class);
         final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
         final var timeLogsWithRawData = messages.stream().map(timeLog -> modelMapper.map(timeLog, TimeLogWithRawDataDto.class)).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(new TimeLogSearchResponse(timeLogsWithRawData.size(), timeLogsWithRawData));
+    }
+
+    /**
+     * Search for the time logs with the machine data and time log period data.
+     *
+     * @param searchTelemetryDataRequest -
+     * @return -
+     */
+    @PostMapping(
+            value = "/search/time-logs/raw",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "telemetry-data.search-raw-time-logs",
+            description = "Search for the raw time logs with the machine data and time log period data.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The response containing all time logs.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<RawTimeLogSearchResponse> searchTelemetryRawDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
+                                                                                   @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        final var messagesForTimeLogPeriodParameters = modelMapper.map(searchTelemetryDataRequest, MessagesForTimeLogPeriodParameters.class);
+        final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
+        final var rawTimeLogs = messages.stream().map(timeLog -> modelMapper.map(timeLog, RawTimeLogDataDto.class)).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(new RawTimeLogSearchResponse(rawTimeLogs.size(), rawTimeLogs));
     }
 }

@@ -4,11 +4,13 @@ package de.agrirouter.middleware.controller.unsecured;
 import com.dke.data.agrirouter.api.service.onboard.secured.AuthorizationRequestService;
 import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.SecuredOnboardProcessService;
 import de.agrirouter.middleware.business.global.OnboardStateContainer;
 import de.agrirouter.middleware.business.parameters.OnboardProcessParameters;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import de.agrirouter.middleware.controller.dto.response.enums.OnboardProcessResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,7 +35,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @RestController
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/callback")
 @Tag(
-        name = "agrirouter callback",
+        name = "agrirouter© callback",
         description = "The callback for the agrirouter. This callback has to be referenced within the newly created application."
 )
 public class CallbackController implements UnsecuredApiController {
@@ -62,7 +65,7 @@ public class CallbackController implements UnsecuredApiController {
     @GetMapping
     @Operation(
             operationId = "callback.callback",
-            description = "The callback for the onboard process. Used by the agrirouter to send the onboard process data.",
+            description = "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
             responses = {
                     @ApiResponse(
                             responseCode = "302",
@@ -76,10 +79,20 @@ public class CallbackController implements UnsecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -118,14 +131,14 @@ public class CallbackController implements UnsecuredApiController {
                 onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
                 try {
                     securedOnboardProcessService.onboard(onboardProcessParameters);
-                    if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
-                        return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS));
+                    if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
+                        return new RedirectView(onboardState.getRedirectUrlAfterCallback().concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS));
                     } else {
                         return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.SUCCESS), true);
                     }
                 } catch (BusinessException e) {
                     log.error("There was an error during the onboard process. Could not handle the request.", e);
-                    if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+                    if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
                         return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE));
                     } else {
                         return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE), true);
@@ -133,7 +146,7 @@ public class CallbackController implements UnsecuredApiController {
                 }
             } else {
                 log.error("There was an error during the onboard process. Could not handle the request. The error was '{}'", error);
-                if (null != application.getApplicationSettings() && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+                if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
                     return new RedirectView(application.getApplicationSettings().getRedirectUrl().concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE));
                 } else {
                     return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + OnboardProcessResult.FAILURE), true);

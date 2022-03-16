@@ -1,7 +1,9 @@
 package de.agrirouter.middleware.controller.unsecured;
 
+import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,10 +61,20 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -78,7 +91,11 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<?> resendCapabilitiesAndSubscriptions(@Parameter(description = "The internal endpoint ID.", required = true) @PathVariable String internalEndpointId) {
+    public ResponseEntity<?> resendCapabilitiesAndSubscriptions(@Parameter(description = "The internal endpoint ID.", required = true) @PathVariable String internalEndpointId,
+                                                                @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         endpointService.resendCapabilities(internalEndpointId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -104,7 +121,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class

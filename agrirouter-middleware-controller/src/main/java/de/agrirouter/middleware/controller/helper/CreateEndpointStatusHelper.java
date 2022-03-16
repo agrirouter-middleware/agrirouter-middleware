@@ -2,10 +2,7 @@ package de.agrirouter.middleware.controller.helper;
 
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
-import de.agrirouter.middleware.controller.dto.response.domain.ConnectionErrorDto;
-import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
-import de.agrirouter.middleware.controller.dto.response.domain.LogEntryDto;
-import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingForAcknowledgementDto;
+import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import org.modelmapper.ModelMapper;
@@ -69,6 +66,12 @@ public class CreateEndpointStatusHelper {
                 .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
                 .collect(Collectors.toList());
         endpointWithStatusDto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
+
+        final var messageRecipients = endpoint.getMessageRecipients()
+                .stream()
+                .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
+                .toList();
+        endpointWithStatusDto.setMessageRecipients(messageRecipients);
         return endpointWithStatusDto;
     }
 

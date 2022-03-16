@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Set;
+
 /**
  * Parameter class to fetch messages for a time log period.e
  */
@@ -36,6 +38,11 @@ public class MessagesForTimeLogPeriodParameters {
      * The end of the time interval.
      */
     private Long sendTo;
+
+    /**
+     * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
+     */
+    private Set<Integer> ddisToList;
 
     /**
      * Should be filtered by time?
@@ -72,5 +79,4 @@ public class MessagesForTimeLogPeriodParameters {
     public long getSendToOrDefault() {
         return null != sendTo ? sendTo : Long.MAX_VALUE;
     }
-
 }

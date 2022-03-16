@@ -27,11 +27,11 @@ public class ApplicationRegistrationRequest {
     private String name;
 
     /**
-     * The name of the application.
+     * The ID of the application.
      */
     @NotNull
     @NotBlank
-    @Schema(description = "The name of the application.")
+    @Schema(description = "The ID of the application.")
     private String applicationId;
 
     /**
@@ -45,12 +45,16 @@ public class ApplicationRegistrationRequest {
     /**
      * The private key of the application.
      */
+    @NotNull
+    @NotBlank
     @Schema(description = "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform.")
     private String privateKey;
 
     /**
      * The public key of the application.
      */
+    @NotNull
+    @NotBlank
     @Schema(description = "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform.")
     private String publicKey;
 

@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business.scheduled;
 
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.parameters.MessageQueryParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.MessageHeaderQueryServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -19,11 +18,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Scheduled fetching and confirming of messages.
+ * Scheduled status logging for each endpoint.
  */
 @Component
 public class ScheduledStatusLogging {
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledStatusLogging.class);
 
@@ -40,7 +38,7 @@ public class ScheduledStatusLogging {
     }
 
     /**
-     * Schedule the connection check in a cyclic manner.
+     * Schedule the status logging in a cyclic manner.
      */
     @Scheduled(cron = "${app.scheduled.status-logging}")
     public void scheduledStatusLogging() {

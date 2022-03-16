@@ -1,10 +1,10 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Agrirouter Middleware",
-    "description": "Middleware to access the agrirouter using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter within a custom database.",
+    "title": "Agrirouter© Middleware",
+    "description": "Middleware to access the agrirouter© using a 'smaller' API. The middleware will handle the connection for all endpoints and fetches / stores messages from the agrirouter© within a custom database.",
     "contact": {
-      "name": "Agrirouter Middleware",
+      "name": "Agrirouter© Middleware",
       "url": "https://github.com/agrirouter-middleware"
     },
     "license": {
@@ -14,6 +14,14 @@
     "version": "1.0.0"
   },
   "tags": [
+    {
+      "name": "agrirouter© callback",
+      "description": "The callback for the agrirouter. This callback has to be referenced within the newly created application."
+    },
+    {
+      "name": "non telemetry data management",
+      "description": "Operations for non telemetry data management, i.e. publish images, task data or documents to the agrirouter."
+    },
     {
       "name": "application management",
       "description": "Operations for the application management, i.e. register, add supported technical message types and status checks."
@@ -37,10 +45,6 @@
     {
       "name": "maintenance",
       "description": "Maintenance operations for internal usage. Do NOT use this profile in production."
-    },
-    {
-      "name": "agrirouter callback",
-      "description": "The callback for the agrirouter. This callback has to be referenced within the newly created application."
     }
   ],
   "paths": {
@@ -70,11 +74,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -118,7 +122,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -138,6 +142,116 @@
             }
           }
         }
+      }
+    },
+    "/secured/api/application": {
+      "put": {
+        "tags": [
+          "application management"
+        ],
+        "description": "update an existing application within the middleware.",
+        "operationId": "application.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateApplicationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The application has been updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "application management"
+        ],
+        "description": "Register an application within the middleware.",
+        "operationId": "application.register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The application has been registered and was created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
       }
     },
     "/secured/api/application/supported-technical-message-types/{applicationId}": {
@@ -173,11 +287,11 @@
             "description": "In case the supported technical message types were added."
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -233,11 +347,11 @@
             "description": "In case the router device was added."
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -289,11 +403,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -311,7 +425,7 @@
         }
       }
     },
-    "/secured/apitelemetry-platform/{endpointId}/virtual": {
+    "/secured/api/telemetry-platform/{endpointId}/virtual": {
       "post": {
         "tags": [
           "telemetry platform management"
@@ -347,11 +461,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -408,11 +522,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -460,11 +574,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -512,11 +626,63 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-data/search/time-logs/raw": {
+      "post": {
+        "tags": [
+          "telemetry data management"
+        ],
+        "description": "Search for the raw time logs with the machine data and time log period data.",
+        "operationId": "telemetry-data.search-raw-time-logs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The response containing all time logs.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -564,11 +730,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -631,11 +797,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -703,11 +869,326 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/video/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish video files for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-video",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishVideoDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/taskdata/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish a task data file for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-taskdata",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/shape/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish a shape file for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-shape",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/pdf/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish PDF files for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-PDF",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishNonTelemetryDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/non-telemetry-data/publish/image/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Publish image files for an existing endpoint.",
+        "operationId": "non-telemetry-data.publish-image",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishImageDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Response if the message was published successfully.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -755,67 +1236,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/api/application": {
-      "post": {
-        "tags": [
-          "application management"
-        ],
-        "description": "Register an application within the middleware.",
-        "operationId": "application.register",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApplicationRegistrationRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "The application has been registered and was created successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterApplicationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -863,6 +1288,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "redirectUrl",
+            "in": "query",
+            "description": "The redirect URL for this onboard request.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -873,7 +1307,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -914,11 +1348,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -961,6 +1395,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "redirectUrl",
+            "in": "query",
+            "description": "The redirect URL for this onboard request.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -971,11 +1414,11 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a parameter validation exception.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
                 }
               }
             }
@@ -996,9 +1439,9 @@
     "/unsecured/api/callback": {
       "get": {
         "tags": [
-          "agrirouter callback"
+          "agrirouter© callback"
         ],
-        "description": "The callback for the onboard process. Used by the agrirouter to send the onboard process data.",
+        "description": "The callback for the onboard process. Used by the agrirouter© to send the onboard process data.",
         "operationId": "callback.callback",
         "parameters": [
           {
@@ -1046,6 +1489,68 @@
             }
           },
           "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/secured/api/endpoint/recipients/{externalEndpointId}": {
+      "get": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the recipients of an existing endpoint.",
+        "operationId": "endpoint.recipients",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reponse with all the recipients available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointRecipientsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "In case that the endpoint was not found.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointRecipientsResponse"
+                }
+              }
+            }
+          },
+          "400": {
             "description": "In case of an business exception.",
             "content": {
               "application/json": {
@@ -1065,7 +1570,68 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/health/{externalEndpointId}": {
+      "get": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the health status of an existing endpoint.",
+        "operationId": "endpoint.health",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The endpoint is connected and is able to communicate."
+          },
+          "404": {
+            "description": "In case that the endpoint was not found."
+          },
+          "400": {
+            "description": "In case of an business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "In case the endpoint is currently not connected."
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
       }
     },
     "/secured/api/application/{applicationId}": {
@@ -1098,7 +1664,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1155,7 +1721,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1212,7 +1778,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1258,60 +1824,7 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "In case of an unknown error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "secured-api": []
-          }
-        ]
-      }
-    },
-    "/secured/apitelemetry-platform/{externalEndpointId}": {
-      "delete": {
-        "tags": [
-          "telemetry platform management"
-        ],
-        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
-        "operationId": "telemetry-platform.revoke-process",
-        "parameters": [
-          {
-            "name": "externalEndpointId",
-            "in": "path",
-            "description": "The external endpoint id.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The revoke process was successful.",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1364,7 +1877,60 @@
             }
           },
           "400": {
-            "description": "In case of an business exception.",
+            "description": "In case of a business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/telemetry-platform/{externalEndpointId}": {
+      "delete": {
+        "tags": [
+          "telemetry platform management"
+        ],
+        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
+        "operationId": "telemetry-platform.revoke-process",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The revoke process was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a business exception.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1413,6 +1979,126 @@
         },
         "description": "Generic error response to map the internal errors and provide clean API description."
       },
+      "ObjectError": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "defaultMessage": {
+            "type": "string"
+          },
+          "objectName": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "description": "The validation errors."
+      },
+      "ParameterValidationProblemResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "The validation errors.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectError"
+            }
+          }
+        },
+        "description": "Generic error response to map parameter validation errors and provide clean API description without publishing internals."
+      },
+      "ApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The technical ID of the entity.",
+            "format": "int64"
+          },
+          "version": {
+            "type": "integer",
+            "description": "The version of the entity.",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "The agrirouter© ID of the application."
+          },
+          "internalApplicationId": {
+            "type": "string",
+            "description": "The internal ID of the application."
+          },
+          "versionId": {
+            "type": "string",
+            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+          }
+        },
+        "description": "A container holding the basic representation of an application."
+      },
+      "UpdateApplicationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "application": {
+            "$ref": "#/components/schemas/ApplicationDto"
+          }
+        },
+        "description": "The response after an application has been successfully updated."
+      },
+      "UpdateApplicationRequest": {
+        "required": [
+          "internalApplicationId"
+        ],
+        "type": "object",
+        "properties": {
+          "internalApplicationId": {
+            "type": "string",
+            "description": "The internal ID of the application."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+          },
+          "publicKey": {
+            "type": "string",
+            "description": "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "The redirect URL for the application. To configure a custom redirect URL that matches the location of the service."
+          }
+        },
+        "description": "The request parameters to update the existing application."
+      },
       "AddSupportedTechnicalMessageTypeRequest": {
         "required": [
           "supportedTechnicalMessageTypes"
@@ -1436,21 +2122,7 @@
             "type": "string",
             "description": "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.",
             "enum": [
-              "EMPTY",
-              "DKE_CLOUD_ONBOARD_ENDPOINTS",
-              "DKE_CLOUD_OFFBOARD_ENDPOINTS",
-              "DKE_CAPABILITIES",
-              "DKE_SUBSCRIPTION",
-              "DKE_LIST_ENDPOINTS",
-              "DKE_LIST_ENDPOINTS_UNFILTERED",
-              "DKE_FEED_CONFIRM",
-              "DKE_FEED_DELETE",
-              "DKE_FEED_MESSAGE_QUERY",
-              "DKE_FEED_HEADER_QUERY",
-              "DKE_OTHER",
               "ISO_11783_TASKDATA_ZIP",
-              "ISO_11783_DEVICE_DESCRIPTION",
-              "ISO_11783_TIME_LOG",
               "SHP_SHAPE_ZIP",
               "DOC_PDF",
               "IMG_JPEG",
@@ -1460,8 +2132,8 @@
               "VID_MP4",
               "VID_WMV",
               "GPS_INFO",
-              "TESTING_PURPOSE_INVALID",
-              "TEST_OTHER"
+              "ISO_11783_DEVICE_DESCRIPTION",
+              "ISO_11783_TIME_LOG"
             ]
           },
           "direction": {
@@ -1673,6 +2345,16 @@
             "type": "integer",
             "description": "The end of the time interval.",
             "format": "int64"
+          },
+          "ddisToList": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
+            "items": {
+              "type": "integer",
+              "description": "The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.",
+              "format": "int32"
+            }
           }
         },
         "description": "The request with all necessary information to search for the telemetry data (time logs)."
@@ -1747,6 +2429,100 @@
         },
         "description": "The request body containing all necessary information to publish a time log."
       },
+      "PublishNonTelemetryDataMessageTuple": {
+        "required": [
+          "fileName",
+          "messageContent"
+        ],
+        "type": "object",
+        "properties": {
+          "messageContent": {
+            "type": "string",
+            "description": "The Base64 encoded message content."
+          },
+          "fileName": {
+            "type": "string",
+            "description": "The name of the file."
+          },
+          "recipients": {
+            "type": "array",
+            "description": "The recipients for direct sending. If there is a recipient, the file will not be published.",
+            "items": {
+              "type": "string",
+              "description": "The recipients for direct sending. If there is a recipient, the file will not be published."
+            }
+          }
+        },
+        "description": "Internal class to encapsulate the message tuples."
+      },
+      "PublishVideoDataRequest": {
+        "required": [
+          "messageTuples",
+          "videoType"
+        ],
+        "type": "object",
+        "properties": {
+          "messageTuples": {
+            "type": "array",
+            "description": "The message tuples.",
+            "items": {
+              "$ref": "#/components/schemas/PublishNonTelemetryDataMessageTuple"
+            }
+          },
+          "videoType": {
+            "type": "string",
+            "description": "The video type, used to map the specific agrirouter© message type.",
+            "enum": [
+              "AVI",
+              "MP4",
+              "WMV"
+            ]
+          }
+        },
+        "description": "The request body containing all necessary information to publish video files."
+      },
+      "PublishNonTelemetryDataRequest": {
+        "required": [
+          "messageTuples"
+        ],
+        "type": "object",
+        "properties": {
+          "messageTuples": {
+            "type": "array",
+            "description": "The message tuples.",
+            "items": {
+              "$ref": "#/components/schemas/PublishNonTelemetryDataMessageTuple"
+            }
+          }
+        },
+        "description": "The request body containing all necessary information to publish PDF files."
+      },
+      "PublishImageDataRequest": {
+        "required": [
+          "imageType",
+          "messageTuples"
+        ],
+        "type": "object",
+        "properties": {
+          "messageTuples": {
+            "type": "array",
+            "description": "The message tuples.",
+            "items": {
+              "$ref": "#/components/schemas/PublishNonTelemetryDataMessageTuple"
+            }
+          },
+          "imageType": {
+            "type": "string",
+            "description": "The image type, used to map the specific agrirouter© message type.",
+            "enum": [
+              "JPEG",
+              "PNG",
+              "BMP"
+            ]
+          }
+        },
+        "description": "The request body containing all necessary information to publish image files."
+      },
       "EndpointStatusRequest": {
         "required": [
           "externalEndpointIds"
@@ -1763,38 +2539,6 @@
           }
         },
         "description": "The to search for one or multiple endpoints."
-      },
-      "ApplicationDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The technical ID of the entity.",
-            "format": "int64"
-          },
-          "version": {
-            "type": "string",
-            "description": "The version of the entity.",
-            "format": "date-time"
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the application."
-          },
-          "applicationId": {
-            "type": "string",
-            "description": "The agrirouter ID of the application."
-          },
-          "internalApplicationId": {
-            "type": "string",
-            "description": "The internal ID of the application."
-          },
-          "versionId": {
-            "type": "string",
-            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
-          }
-        },
-        "description": "A container holding the basic representation of an application."
       },
       "RegisterApplicationResponse": {
         "type": "object",
@@ -1815,6 +2559,8 @@
           "applicationId",
           "applicationType",
           "name",
+          "privateKey",
+          "publicKey",
           "versionId"
         ],
         "type": "object",
@@ -1825,7 +2571,7 @@
           },
           "applicationId": {
             "type": "string",
-            "description": "The name of the application."
+            "description": "The ID of the application."
           },
           "versionId": {
             "type": "string",
@@ -1843,7 +2589,6 @@
             "type": "string",
             "description": "The type of the application.",
             "enum": [
-              "COMMUNICATION_UNIT",
               "FARMING_SOFTWARE",
               "TELEMETRY_PLATFORM"
             ]
@@ -1886,6 +2631,48 @@
           }
         },
         "description": "Representation of a tenant within the middleware."
+      },
+      "EndpointRecipientsResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "messageRecipients": {
+            "type": "array",
+            "description": "The message recipients for this endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/MessageRecipientDto"
+            }
+          }
+        },
+        "description": "The response when asking for the recipients of an endpoint."
+      },
+      "MessageRecipientDto": {
+        "type": "object",
+        "properties": {
+          "agrirouterEndpointId": {
+            "type": "string"
+          },
+          "endpointName": {
+            "type": "string"
+          },
+          "endpointType": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "technicalMessageType": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          }
+        },
+        "description": "The status of an endpoint."
       },
       "FindApplicationResponse": {
         "type": "object",
@@ -2009,9 +2796,9 @@
             "format": "int64"
           },
           "version": {
-            "type": "string",
+            "type": "integer",
             "description": "The version of the entity.",
-            "format": "date-time"
+            "format": "int32"
           },
           "name": {
             "type": "string",
@@ -2019,7 +2806,7 @@
           },
           "applicationId": {
             "type": "string",
-            "description": "The agrirouter ID of the application."
+            "description": "The agrirouter© ID of the application."
           },
           "internalApplicationId": {
             "type": "string",
@@ -2094,11 +2881,6 @@
       "EndpointWithStatusDto": {
         "type": "object",
         "properties": {
-          "version": {
-            "type": "string",
-            "description": "The version of the endpoint.",
-            "format": "date-time"
-          },
           "agrirouterEndpointId": {
             "type": "string",
             "description": "The ID of an endpoint."
@@ -2164,6 +2946,13 @@
             "description": "The messages currently waiting for ACK.",
             "items": {
               "$ref": "#/components/schemas/MessageWaitingForAcknowledgementDto"
+            }
+          },
+          "messageRecipients": {
+            "type": "array",
+            "description": "The message recipients for this endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/MessageRecipientDto"
             }
           }
         },

@@ -3,6 +3,7 @@ package de.agrirouter.middleware.controller.unsecured;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.SecuredOnboardProcessService;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
+import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,10 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
@@ -39,7 +37,9 @@ public class FarmingSoftwareController implements UnsecuredApiController {
     /**
      * Create an authorization URL for the secured onboard process.
      *
-     * @param applicationId The id of the application.
+     * @param applicationId      The id of the application.
+     * @param externalEndpointId The id of the endpoint.
+     * @param redirectUrl        The redirect URL.
      * @return HTTP 200 with the URL.
      */
     @GetMapping("/{applicationId}/{externalEndpointId}")
@@ -56,10 +56,20 @@ public class FarmingSoftwareController implements UnsecuredApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "In case of an business exception.",
+                            description = "In case of a business exception.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
@@ -76,9 +86,11 @@ public class FarmingSoftwareController implements UnsecuredApiController {
                     )
             }
     )
-    public RedirectView onboardFarmingSoftware(@Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId, @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public RedirectView onboardFarmingSoftware(@Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                               @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+                                               @Parameter(description = "The redirect URL for this onboard request.") @RequestParam(name = "redirectUrl", required = false) String redirectUrl) {
         final var application = applicationService.find(applicationId);
-        final var redirectUrl = securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId);
-        return new RedirectView(redirectUrl);
+        final var url = securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId, redirectUrl);
+        return new RedirectView(url);
     }
 }

@@ -26,7 +26,7 @@ public class ApplicationWithEndpointStatusDto {
      * The version of the entity.
      */
     @Schema(description = "The version of the entity.")
-    private LocalDateTime version;
+    private int version;
 
     /**
      * The name of the application.
@@ -35,9 +35,9 @@ public class ApplicationWithEndpointStatusDto {
     private String name;
 
     /**
-     * The agrirouter ID of the application.
+     * The agrirouter© ID of the application.
      */
-    @Schema(description = "The agrirouter ID of the application.")
+    @Schema(description = "The agrirouter© ID of the application.")
     private String applicationId;
 
     /**

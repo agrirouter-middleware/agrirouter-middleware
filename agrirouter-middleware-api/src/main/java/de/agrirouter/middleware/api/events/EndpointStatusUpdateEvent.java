@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationEvent;
 public class EndpointStatusUpdateEvent extends ApplicationEvent {
 
     /**
-     * The agrirouter ID of the endpoint.
+     * The agrirouter© ID of the endpoint.
      */
     private final String agrirouterEndpointId;
 

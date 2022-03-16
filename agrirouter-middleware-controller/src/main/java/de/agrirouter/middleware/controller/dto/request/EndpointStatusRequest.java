@@ -23,7 +23,6 @@ public class EndpointStatusRequest {
      * The IDs of the endpoints.
      */
     @NotNull
-    @NotBlank
     @NotEmpty
     @Schema(description = "The list of external endpoint IDs.")
     private List<String> externalEndpointIds;

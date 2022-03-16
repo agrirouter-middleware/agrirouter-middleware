@@ -12,3 +12,4 @@ app:
     connection-check: "0 */5 * * * *"
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
     status-logging: "0 */5 * * * *"
+    recipient-query: "0 */5 * * * *"
