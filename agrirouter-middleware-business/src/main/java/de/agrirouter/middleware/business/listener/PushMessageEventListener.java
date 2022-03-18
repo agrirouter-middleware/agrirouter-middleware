@@ -138,8 +138,7 @@ public class PushMessageEventListener {
         }
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
-            timeLogService.save(contentMessage
-            );
+            timeLogService.save(contentMessage);
             businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
     }

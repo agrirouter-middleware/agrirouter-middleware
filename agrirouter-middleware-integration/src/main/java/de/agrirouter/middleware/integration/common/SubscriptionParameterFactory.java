@@ -32,6 +32,7 @@ public final class SubscriptionParameterFactory {
         application.getSupportedTechnicalMessageTypes().forEach(supportedTechnicalMessageType -> {
             SetSubscriptionParameters.Subscription subscription = new SetSubscriptionParameters.Subscription();
             subscription.setTechnicalMessageType(supportedTechnicalMessageType.getTechnicalMessageType());
+            subscription.setPosition(true);
             if (null == application.getApplicationSettings() || application.getApplicationSettings().getDdiCombinationsToSubscribeFor().isEmpty()) {
                 LOGGER.debug("The application did not define any DDIs, therefore the whole range from DDI 0 to 600 is subscribed.");
                 subscription.setDdis(IntStream.rangeClosed(0, 600).boxed().collect(Collectors.toList()));
@@ -41,8 +42,7 @@ public final class SubscriptionParameterFactory {
                 application.getApplicationSettings().getDdiCombinationsToSubscribeFor()
                         .forEach(ddiCombinationToSubscribeFor -> ddis.addAll(IntStream
                                 .rangeClosed(ddiCombinationToSubscribeFor.getStart(), ddiCombinationToSubscribeFor.getEnd())
-                                .boxed()
-                                .collect(Collectors.toList())));
+                                .boxed().toList()));
                 LOGGER.trace("Adding the following DDIs as subscription.");
                 LOGGER.trace(ArrayUtils.toString(ddis));
                 subscription.setDdis(ddis);
