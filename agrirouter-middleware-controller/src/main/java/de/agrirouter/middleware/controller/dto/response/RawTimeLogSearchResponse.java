@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.controller.dto.response;
 
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.RawTimeLogDataDto;
-import de.agrirouter.middleware.controller.dto.response.domain.timelog.TimeLogWithRawDataDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

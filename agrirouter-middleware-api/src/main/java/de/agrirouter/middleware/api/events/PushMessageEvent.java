@@ -19,5 +19,5 @@ public class PushMessageEvent extends ApplicationEvent {
         super(source);
         this.fetchMessageResponse = fetchMessageResponse;
     }
-    
+
 }

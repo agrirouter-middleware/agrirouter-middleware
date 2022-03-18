@@ -6,14 +6,16 @@
 
 == How to authenticate the requests?
 
-The endpoints of the middleware are secured by HTTP basic authentication. You have to use the *ID of the tenant* and the corresponding *access token* to authenticate. 
+The endpoints of the middleware are secured by HTTP basic authentication.
+You have to use the *ID of the tenant* and the corresponding *access token* to authenticate.
 
 image::documentation/tenant_log_entry.png[logentry]
 
-[IMPORTANT] 
+[IMPORTANT]
 .Default tenant generation on startup
-==== 
-During the first startup of the middleware, a default tenant is generated and printed on level INFO within the log file. 
+
+====
+During the first startup of the middleware, a default tenant is generated and printed on level INFO within the log file.
 You have to store the credentials at a safe place to authenticate again.
 ====
 
@@ -88,10 +90,11 @@ After you created you own endpoint with your chosen `externalEndpointId`, the `e
 
 == Profiles
 
-There are three main profiles, the `dev` profile, the `qa` profile and the `prod` profile. The profiles define which log level is set or which job intervals are configured.You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable. 
+There are three main profiles, the `dev` profile, the `qa` profile and the `prod` profile.
+The profiles define which log level is set or which job intervals are configured.You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable.
 
-In addition there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or 
-enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`. Those profiles can be set in addtion to the main profiles. 
+In addition there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`.
+Those profiles can be set in addtion to the main profiles.
 
 === DEV
 
@@ -121,4 +124,5 @@ Running the middleware in QA and in maintenance mode with access to the QA envir
 
 `-Dspring.profiles.active=qa,maintenance,connect-agrirouter-prod`
 
-Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©. This mode injects a production environment with spefic URLs for the agrirouter©.
+Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
+This mode injects a production environment with spefic URLs for the agrirouter©.

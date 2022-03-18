@@ -18,7 +18,7 @@ public class OnboardProcessResultController implements UnsecuredApiController {
      *
      * @return Navigation to a specific page, therefore this is no container.
      */
-    @GetMapping(UnsecuredApiController.API_PREFIX +"/onboard-process-result")
+    @GetMapping(UnsecuredApiController.API_PREFIX + "/onboard-process-result")
     @Operation(hidden = true)
     public String onboardProcessResult(@RequestParam("onboardProcessResult") OnboardProcessResult onboardProcessResult, Model model) {
         model.addAttribute("onboardProcessResult", onboardProcessResult);

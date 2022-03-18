@@ -2,7 +2,6 @@ package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.parameters.CloudOffboardingParameters;
 import com.dke.data.agrirouter.convenience.decode.DecodeCloudOnboardingResponsesService;
 import com.dke.data.agrirouter.impl.messaging.mqtt.CloudOffboardingServiceImpl;

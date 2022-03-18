@@ -2,7 +2,6 @@ package de.agrirouter.middleware.business.listener;
 
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.RouterDeviceAddedEvent;
-import de.agrirouter.middleware.integration.EndpointIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import org.slf4j.Logger;

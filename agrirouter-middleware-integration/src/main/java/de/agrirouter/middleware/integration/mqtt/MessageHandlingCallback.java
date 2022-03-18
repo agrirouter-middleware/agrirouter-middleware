@@ -70,7 +70,7 @@ public class MessageHandlingCallback implements MqttCallback {
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
                 case ENDPOINTS_LISTING -> {
-                        LOGGER.trace("This was an endpoint listing.");
+                    LOGGER.trace("This was an endpoint listing.");
                     applicationEventPublisher.publishEvent(new UpdateRecipientsForEndpointEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }

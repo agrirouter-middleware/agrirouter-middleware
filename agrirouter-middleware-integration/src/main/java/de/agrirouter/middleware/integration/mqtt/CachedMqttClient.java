@@ -1,11 +1,9 @@
 package de.agrirouter.middleware.integration.mqtt;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.Value;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 

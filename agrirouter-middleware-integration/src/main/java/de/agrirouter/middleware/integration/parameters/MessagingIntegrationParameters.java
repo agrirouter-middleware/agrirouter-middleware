@@ -2,13 +2,11 @@ package de.agrirouter.middleware.integration.parameters;
 
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
-import de.agrirouter.middleware.domain.Endpoint;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Messaging parameters for sending and publishing messages.

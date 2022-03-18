@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.api.events;
 
 import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

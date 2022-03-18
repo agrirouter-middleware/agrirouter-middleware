@@ -2,7 +2,6 @@ package de.agrirouter.middleware.api.events;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * This event is thrown if a dedicated endpoint should be disabled.

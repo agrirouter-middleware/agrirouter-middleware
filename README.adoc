@@ -15,11 +15,12 @@ In addition, the agrirouter© middleware provides simple data conversion from IS
 
 == Current status
 
-image::https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml/badge.svg[Status badge, link="https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml"]
+image::https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml/badge.svg[Status badge,link="https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml"]
 
 == The Partners
 
-The project would not have been possible without strong partners for the idea and the development. The following companies have taken an active part during the development of the agrirouter© middleware.
+The project would not have been possible without strong partners for the idea and the development.
+The following companies have taken an active part during the development of the agrirouter© middleware.
 
 image::partners/krone.png[krone,175,role="left]
 
@@ -38,19 +39,26 @@ Using an agile development process the middleware was developed in 2021/2022 and
 
 image::partners/agrirouter.svg[lmis,175,role="left]
 
-Without the https://my-agrirouter.com[agrirouter] there would not have been such a project. The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
+Without the https://my-agrirouter.com[agrirouter] there would not have been such a project.
+The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
 
 == How Does It Work?
 
-The agrirouter© middleware is an abstraction to the well-known interface of the https://my-agrirouter.com[agrirouter]. The agrirouter© middleware uses the interface of the agrirouter© and provides an easy way to manage applications and endpoints, send and receive messages or handle the connection to the agrirouter.
+The agrirouter© middleware is an abstraction to the well-known interface of the https://my-agrirouter.com[agrirouter].
+The agrirouter© middleware uses the interface of the agrirouter© and provides an easy way to manage applications and endpoints, send and receive messages or handle the connection to the agrirouter.
 
 image::system-overview.svg[agrirouter© middleware overview]
 
-The agrirouter© middleware provides a REST interface for endpoint management, sending messages and retrieving messages. On the other hand the connection to the agrirouter© is based on the faster MQTT protocol to have live telemetry data with real push notifications. The messages from the agrirouter© are fetched, confirmed and stored within an internal database. There is no need to implement the business process on your own.
+The agrirouter© middleware provides a REST interface for endpoint management, sending messages and retrieving messages.
+On the other hand the connection to the agrirouter© is based on the faster MQTT protocol to have live telemetry data with real push notifications.
+The messages from the agrirouter© are fetched, confirmed and stored within an internal database.
+There is no need to implement the business process on your own.
 
 === Interface Documentation
 
-The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project. Do you need more than a OpenAPI documentation? Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
+The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project.
+Do you need more than a OpenAPI documentation?
+Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
 
 == Release-Management
 

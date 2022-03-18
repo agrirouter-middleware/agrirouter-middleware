@@ -5,8 +5,6 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.BusinessLogEventType;
 import de.agrirouter.middleware.domain.log.BusinessLogEvent;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Builder for the business log events.
  */
