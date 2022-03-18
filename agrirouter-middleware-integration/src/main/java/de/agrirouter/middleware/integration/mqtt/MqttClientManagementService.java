@@ -73,7 +73,7 @@ public class MqttClientManagementService {
                     cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
                     return Optional.of(mqttClient);
                 } catch (Exception e) {
-                    cachedMqttClient.getConnectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connection the client, the error message was '%s'.", e.getMessage())));
+                    cachedMqttClient.getConnectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
                     cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
                     disableEndpointIFNecessary(cachedMqttClient);
                 }
