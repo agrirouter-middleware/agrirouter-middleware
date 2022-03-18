@@ -86,7 +86,7 @@ public class TimeLogService {
     }
 
     /**
-     * Save a device description received from the AR.
+     * Save a time log received from the AR.
      *
      * @param contentMessage -
      */
@@ -134,7 +134,7 @@ public class TimeLogService {
      * Convert the given device description into a JSON document.
      *
      * @param timeLog -
-     * @return -
+     * @return A document to save in the database.
      */
     public Optional<Document> convert(GrpcEfdi.TimeLog timeLog) {
         try {
