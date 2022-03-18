@@ -1851,13 +1851,13 @@
         ]
       }
     },
-    "/secured/apifarming-software/{externalEndpointId}": {
+    "/secured/api/telemetry-platform/{externalEndpointId}": {
       "delete": {
         "tags": [
-          "farming software management"
+          "telemetry platform management"
         ],
-        "description": "Revoke a farming software from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
-        "operationId": "farming-software.revoke",
+        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
+        "operationId": "telemetry-platform.revoke-process",
         "parameters": [
           {
             "name": "externalEndpointId",
@@ -1904,13 +1904,13 @@
         ]
       }
     },
-    "/secured/api/telemetry-platform/{externalEndpointId}": {
+    "/secured/api/farming-software/{externalEndpointId}": {
       "delete": {
         "tags": [
-          "telemetry platform management"
+          "farming software management"
         ],
-        "description": "Revoke a telemetry platform from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
-        "operationId": "telemetry-platform.revoke-process",
+        "description": "Revoke a farming software from the middleware and remove all of its data, incl. virtual endpoints, messages, logs, etc.",
+        "operationId": "farming-software.revoke",
         "parameters": [
           {
             "name": "externalEndpointId",
