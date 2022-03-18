@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;

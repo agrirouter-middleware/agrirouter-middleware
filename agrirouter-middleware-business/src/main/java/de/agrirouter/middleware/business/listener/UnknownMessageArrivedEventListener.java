@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service to handle the unknown message events.
@@ -38,7 +37,7 @@ public class UnknownMessageArrivedEventListener {
      * @param unknownMessageArrivedEvent -
      */
     @EventListener
-    
+
     public void unknownMessageArrived(UnknownMessageEvent unknownMessageArrivedEvent) {
         LOGGER.debug("There has been an unknown message that has to be handled.");
         final var optional = endpointRepository.findByAgrirouterEndpointId(unknownMessageArrivedEvent.getFetchMessageResponse().getSensorAlternateId());

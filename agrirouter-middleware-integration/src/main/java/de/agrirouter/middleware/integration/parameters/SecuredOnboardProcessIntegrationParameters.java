@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.integration.parameters;
 
-import de.agrirouter.middleware.domain.Application;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

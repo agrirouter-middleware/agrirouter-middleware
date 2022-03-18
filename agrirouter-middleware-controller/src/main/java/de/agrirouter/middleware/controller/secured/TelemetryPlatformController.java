@@ -1,7 +1,9 @@
 package de.agrirouter.middleware.controller.secured;
 
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
-import de.agrirouter.middleware.business.*;
+import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.VirtualOffboardProcessService;
+import de.agrirouter.middleware.business.VirtualOnboardProcessService;
 import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParameters;
 import de.agrirouter.middleware.business.parameters.VirtualOnboardProcessParameters;
 import de.agrirouter.middleware.controller.dto.request.OnboardVirtualEndpointRequest;

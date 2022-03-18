@@ -2,7 +2,9 @@ package de.agrirouter.middleware.controller.dto.response;
 
 import de.agrirouter.middleware.controller.dto.response.domain.ApplicationDto;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.Value;
 
 /**
  * Response class for better API design.

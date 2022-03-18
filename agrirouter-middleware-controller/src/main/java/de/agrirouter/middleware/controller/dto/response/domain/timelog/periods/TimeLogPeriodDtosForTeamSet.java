@@ -9,7 +9,7 @@ import lombok.ToString;
  */
 @Data
 @ToString
-@Schema(description ="All time log periods for a team set.")
+@Schema(description = "All time log periods for a team set.")
 public class TimeLogPeriodDtosForTeamSet {
 
     /**

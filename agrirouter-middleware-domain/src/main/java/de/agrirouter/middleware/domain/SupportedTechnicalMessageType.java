@@ -2,7 +2,6 @@ package de.agrirouter.middleware.domain;
 
 import agrirouter.request.payload.endpoint.Capabilities.CapabilitySpecification.Direction;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

@@ -3,10 +3,8 @@ package de.agrirouter.middleware.integration;
 import agrirouter.commons.MessageOuterClass;
 import agrirouter.request.Request;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
-import com.dke.data.agrirouter.api.service.messaging.SendMessageService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageService;
 import com.dke.data.agrirouter.api.service.parameters.MessageHeaderParameters;
-import com.dke.data.agrirouter.api.service.parameters.MessageParameterTuple;
 import com.dke.data.agrirouter.api.service.parameters.PayloadParameters;
 import com.dke.data.agrirouter.api.service.parameters.SendMessageParameters;
 import com.dke.data.agrirouter.impl.common.MessageIdService;
@@ -27,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Messaging service for sending or publishing messages.

@@ -3,7 +3,6 @@ package de.agrirouter.middleware.business.listener;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.mqtt.SetSubscriptionService;
 import com.dke.data.agrirouter.api.service.parameters.SetSubscriptionParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SetSubscriptionServiceImpl;

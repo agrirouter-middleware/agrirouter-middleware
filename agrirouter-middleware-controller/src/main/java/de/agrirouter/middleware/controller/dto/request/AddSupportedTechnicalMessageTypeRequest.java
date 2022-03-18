@@ -2,7 +2,6 @@ package de.agrirouter.middleware.controller.dto.request;
 
 import agrirouter.request.payload.endpoint.Capabilities;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;

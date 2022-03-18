@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business.scheduled;
 
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.dke.data.agrirouter.api.service.messaging.mqtt.MessageQueryService;
 import com.dke.data.agrirouter.api.service.parameters.MessageQueryParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.MessageQueryServiceImpl;

@@ -1,14 +1,11 @@
 package de.agrirouter.middleware.domain;
 
-import com.dke.data.agrirouter.api.enums.Gateway;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * Connection details for a router device.
