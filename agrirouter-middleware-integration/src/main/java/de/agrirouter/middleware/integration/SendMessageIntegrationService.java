@@ -65,7 +65,7 @@ public class SendMessageIntegrationService {
             final var messageHeaderParameters = createMessageHeaderParameters(messagingIntegrationParameters, onboardingResponse);
             final var payloadParameters = createPayloadParameters(messagingIntegrationParameters);
 
-            final var messageParameterTuples = encodeMessageService.chunkAndEncode(messageHeaderParameters, payloadParameters, onboardingResponse);
+            final var messageParameterTuples = encodeMessageService.chunkAndBase64EncodeEachChunk(messageHeaderParameters, payloadParameters, onboardingResponse);
             final var encodedMessages = encodeMessageService.encode(messageParameterTuples);
 
             final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
