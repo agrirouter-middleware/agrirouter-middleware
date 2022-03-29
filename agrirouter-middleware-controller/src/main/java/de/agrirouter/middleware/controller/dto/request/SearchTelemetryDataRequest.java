@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.dto.request;
 
+import com.dke.data.agrirouter.impl.common.UtcTimeService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,14 +44,14 @@ public class SearchTelemetryDataRequest {
     /**
      * The beginning of the time interval.
      */
-    @Schema(description = "The beginning of the time interval.")
-    private Long sendFrom;
+    @Schema(description = "The beginning of the time interval. Default value would be 4 weeks ago.")
+    private Long sendFrom = UtcTimeService.inThePast(UtcTimeService.FOUR_WEEKS_AGO).toEpochSecond();
 
     /**
      * The end of the time interval.
      */
     @Schema(description = "The end of the time interval.")
-    private Long sendTo;
+    private Long sendTo = UtcTimeService.now().toEpochSecond();
 
     /**
      * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
