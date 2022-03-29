@@ -4,11 +4,13 @@ import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
+import de.agrirouter.middleware.controller.dto.request.SearchFilesRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishImageDataRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishNonTelemetryDataRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishVideoDataRequest;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
+import de.agrirouter.middleware.controller.dto.response.SearchFilesResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -398,6 +400,69 @@ public class NonTelemetryDataController implements SecuredApiController {
                 }
         );
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Publish documents for a given endpoint.
+     *
+     * @param externalEndpointId       -
+     * @param searchFileHeadersRequest -
+     * @param errors                   -
+     * @return -
+     */
+    @PostMapping(
+            value = "/search/{externalEndpointId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "non-telemetry-data.search",
+            description = "Search for files for an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Response containing the results for the search.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<SearchFilesResponse> search(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+                                                      @Parameter(description = "The request body containing all necessary information to search for files.", required = true) @Valid @RequestBody SearchFilesRequest searchFileHeadersRequest,
+                                                      @Parameter(hidden = true) Errors errors) {
+
+        final var searchFilesResponse = new SearchFilesResponse();
+        return ResponseEntity.ok(searchFilesResponse);
     }
 
 }
