@@ -51,10 +51,12 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
     @Query("select c.contentMessageMetadata from ContentMessage c " +
             "where c.agrirouterEndpointId = :agrirouterEndpointId " +
             "and c.contentMessageMetadata.technicalMessageType in :technicalMessageTypes " +
+            "and c.contentMessageMetadata.technicalMessageType not in :technicalMessageTypesThatAreNotAllowed " +
             "and c.contentMessageMetadata.timestamp >= :searchFrom " +
             "and c.contentMessageMetadata.timestamp <= :searchTo")
     List<ContentMessageMetadata> findMetadata(@Param("agrirouterEndpointId") String agrirouterEndpointId,
                                               @Param("technicalMessageTypes") List<String> technicalMessageTypes,
+                                              @Param("technicalMessageTypesThatAreNotAllowed") List<String> technicalMessageTypesThatAreNotAllowed,
                                               @Param("searchFrom") long searchFrom,
                                               @Param("searchTo") long searchTo);
 
@@ -68,9 +70,11 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
      */
     @Query("select c.contentMessageMetadata from ContentMessage c " +
             "where c.agrirouterEndpointId = :agrirouterEndpointId " +
+            "and c.contentMessageMetadata.technicalMessageType not in :technicalMessageTypesThatAreNotAllowed " +
             "and c.contentMessageMetadata.timestamp >= :searchFrom " +
             "and c.contentMessageMetadata.timestamp <= :searchTo")
     List<ContentMessageMetadata> findMetadata(@Param("agrirouterEndpointId") String agrirouterEndpointId,
+                                              @Param("technicalMessageTypesThatAreNotAllowed") List<String> technicalMessageTypesThatAreNotAllowed,
                                               @Param("searchFrom") long searchFrom,
                                               @Param("searchTo") long searchTo);
 }

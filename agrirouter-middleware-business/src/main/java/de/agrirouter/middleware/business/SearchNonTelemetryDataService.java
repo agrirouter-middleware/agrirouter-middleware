@@ -46,11 +46,13 @@ public class SearchNonTelemetryDataService {
             if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
                 contentMessageMetadata = contentMessageRepository.findMetadata(optionalEndpoint.get().getAgrirouterEndpointId(),
                         searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(ContentMessageType::getKey).toList(),
+                        List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
                 log.debug("Found {} content messages in total.", contentMessageMetadata.size());
             } else {
                 contentMessageMetadata = contentMessageRepository.findMetadata(optionalEndpoint.get().getAgrirouterEndpointId(),
+                        List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
             }

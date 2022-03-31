@@ -470,6 +470,9 @@ public class NonTelemetryDataController implements SecuredApiController {
     public ResponseEntity<SearchFilesResponse> search(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                       @Parameter(description = "The request body containing all necessary information to search for file headers.", required = true) @Valid @RequestBody SearchFilesRequest searchFilesRequest,
                                                       @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
         final var searchNonTelemetryDataParameters = modelMapper.map(searchFilesRequest, SearchNonTelemetryDataParameters.class);
         searchNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
         final var contentMessageMetadata = searchNonTelemetryDataService.search(searchNonTelemetryDataParameters);
@@ -479,7 +482,7 @@ public class NonTelemetryDataController implements SecuredApiController {
     }
 
     /**
-     * Publish documents for a given endpoint.
+     * Download message content from a content message. This only applies to "non-telemetry-data".
      *
      * @param externalEndpointId -
      * @param messageId          -
