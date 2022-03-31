@@ -19,14 +19,9 @@ import java.util.Set;
 public class SearchFilesRequest {
 
     /**
-     * Search for headers only. Enabled by default.
-     */
-    boolean headersOnly = true;
-
-    /**
      * Filter for dedicated content message types.
      */
-    Set<ContentMessageType> contentMessageTypes;
+    Set<ContentMessageType> technicalMessageTypes;
 
     /**
      * The beginning of the time interval.
