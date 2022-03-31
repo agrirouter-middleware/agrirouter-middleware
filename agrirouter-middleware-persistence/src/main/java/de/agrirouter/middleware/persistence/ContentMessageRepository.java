@@ -28,7 +28,16 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
      * @param messageId            -
      * @return -
      */
-    Optional<ContentMessage> findByAgrirouterEndpointIdAndContentMessageMetadataMessageId(String agrirouterEndpointId, String messageId);
+    Optional<ContentMessage> findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(String agrirouterEndpointId, String messageId);
+
+    /**
+     * Find all messages for the given endpoint and chunk context ID.
+     *
+     * @param agrirouterEndpointId -
+     * @param chunkContextId       -
+     * @return -
+     */
+    List<ContentMessage> findByAgrirouterEndpointIdAndContentMessageMetadataChunkContextId(String agrirouterEndpointId, String chunkContextId);
 
     /**
      * Search for existing content messages.

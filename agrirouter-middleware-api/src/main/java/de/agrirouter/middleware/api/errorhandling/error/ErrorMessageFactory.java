@@ -111,4 +111,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage parameterValidationProblem() {
         return new ErrorMessage(ErrorKey.PARAMETER_VALIDATION_PROBLEM, "There was an error while validating the parameters for the request.");
     }
+
+    public static ErrorMessage couldNotAssembleChunks() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_ASSEMBLE_CHUNKS, "Could not assemble the chunks for the message, the chunk context ID is invalid or there was a problem while merging the chunks.");
+    }
 }

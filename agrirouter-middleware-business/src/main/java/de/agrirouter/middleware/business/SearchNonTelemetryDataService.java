@@ -11,10 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Service to handle business operations round about searching non telemetry data.
@@ -66,17 +65,23 @@ public class SearchNonTelemetryDataService {
     private List<ContentMessageMetadata> flattenContentMessageMetadata(List<ContentMessageMetadata> contentMessageMetadata) {
         final var flattenedContentMessageMetadata = new ArrayList<ContentMessageMetadata>();
         final var alreadyProcessedChunkContextIds = new HashSet<String>();
+        final var alreadyProcessedMessageIds = new HashSet<String>();
         contentMessageMetadata.forEach(cmm -> {
-            if (StringUtils.isBlank(cmm.getChunkContextId())) {
-                log.debug("This is a single message without a chunking context, therefore we put this one directly into the result.");
-                flattenedContentMessageMetadata.add(cmm);
+            if (alreadyProcessedMessageIds.contains(cmm.getMessageId())) {
+                log.debug("The message ID '{}' was already processed, therefore skipping the message.", cmm.getMessageId());
             } else {
-                if (alreadyProcessedChunkContextIds.contains(cmm.getChunkContextId())) {
-                    log.debug("Skipping already existing content message metadata.");
-                } else {
-                    alreadyProcessedChunkContextIds.add(cmm.getChunkContextId());
+                if (StringUtils.isBlank(cmm.getChunkContextId())) {
+                    log.debug("This is a single message without a chunking context, therefore we put this one directly into the result.");
                     flattenedContentMessageMetadata.add(cmm);
+                } else {
+                    if (alreadyProcessedChunkContextIds.contains(cmm.getChunkContextId())) {
+                        log.debug("Skipping already existing content message metadata.");
+                    } else {
+                        alreadyProcessedChunkContextIds.add(cmm.getChunkContextId());
+                        flattenedContentMessageMetadata.add(cmm);
+                    }
                 }
+                alreadyProcessedMessageIds.add(cmm.getMessageId());
             }
         });
         return flattenedContentMessageMetadata;
@@ -90,29 +95,50 @@ public class SearchNonTelemetryDataService {
      * @return -
      */
     public byte[] downloadAsByteArray(String externalEndpointId, String messageId) {
-        final var base64EncodedMessageContent = download(externalEndpointId, messageId);
-        return Base64.getDecoder().decode(base64EncodedMessageContent);
+        return download(externalEndpointId, messageId);
     }
 
     private byte[] download(String externalEndpointId, String messageId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
-            final var optionalContentMessage = contentMessageRepository.findByAgrirouterEndpointIdAndContentMessageMetadataMessageId(optionalEndpoint.get().getAgrirouterEndpointId(), messageId);
+            final var optionalContentMessage = contentMessageRepository.findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(optionalEndpoint.get().getAgrirouterEndpointId(), messageId);
             if (optionalContentMessage.isPresent()) {
                 final var contentMessage = optionalContentMessage.get();
                 if (contentMessage.getContentMessageMetadata().getTotalChunks() > 1) {
                     log.debug("Looks like we have multiple chunks for the content message. Assembling the message content first. There are {} chunks in total.", contentMessage.getContentMessageMetadata().getTotalChunks());
-                    // FIXME
-                    throw new RuntimeException("Not yet implemented.");
+                    return assembleChunkedMessageContent(optionalEndpoint.get().getAgrirouterEndpointId(), contentMessage.getContentMessageMetadata().getChunkContextId());
                 } else {
                     log.debug("This is a single message, therefore returning the content 'as it is'.");
-                    return contentMessage.getMessageContent();
+                    return Base64.getDecoder().decode(contentMessage.getMessageContent());
                 }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
             }
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+    }
+
+    private byte[] assembleChunkedMessageContent(String agrirouterEndpointId, String chunkContextId) {
+        if (StringUtils.isBlank(chunkContextId)) {
+            throw new BusinessException(ErrorMessageFactory.couldNotAssembleChunks());
+        } else {
+            final var contentMessages = contentMessageRepository.findByAgrirouterEndpointIdAndContentMessageMetadataChunkContextId(agrirouterEndpointId, chunkContextId);
+            try (var stream = new ByteArrayOutputStream()) {
+                contentMessages.stream()
+                        .sorted(Comparator.comparingLong(o -> o.getContentMessageMetadata().getCurrentChunk()))
+                        .map(cm -> Base64.getDecoder().decode(cm.getMessageContent()))
+                        .forEach(mc -> {
+                            try {
+                                stream.write(mc);
+                            } catch (IOException e) {
+                                throw new BusinessException(ErrorMessageFactory.couldNotAssembleChunks());
+                            }
+                        });
+                return stream.toByteArray();
+            } catch (Exception e) {
+                throw new BusinessException(ErrorMessageFactory.couldNotAssembleChunks());
+            }
         }
     }
 }
