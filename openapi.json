@@ -896,6 +896,69 @@
         ]
       }
     },
+    "/secured/api/non-telemetry-data/search/{externalEndpointId}": {
+      "post": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Search for file headers for an existing endpoint.",
+        "operationId": "non-telemetry-data.search-headers",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchFilesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Response containing the results for the search.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
     "/secured/api/non-telemetry-data/publish/video/{externalEndpointId}": {
       "post": {
         "tags": [
@@ -1509,6 +1572,68 @@
             }
           }
         }
+      }
+    },
+    "/secured/api/non-telemetry-data/download/{externalEndpointId}/{messageId}": {
+      "get": {
+        "tags": [
+          "non telemetry data management"
+        ],
+        "description": "Download a file for an existing endpoint.",
+        "operationId": "non-telemetry-data.download",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageId",
+            "in": "path",
+            "description": "The ID of the message.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response containing the result.",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "400": {
+            "description": "In case of a business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
       }
     },
     "/secured/api/endpoint/recipients/{externalEndpointId}": {
@@ -2428,6 +2553,43 @@
           }
         },
         "description": "The request body containing all necessary information to publish a time log."
+      },
+      "SearchFilesRequest": {
+        "type": "object",
+        "properties": {
+          "technicalMessageTypes": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ISO_11783_TASKDATA_ZIP",
+                "SHP_SHAPE_ZIP",
+                "DOC_PDF",
+                "IMG_JPEG",
+                "IMG_PNG",
+                "IMG_BMP",
+                "VID_AVI",
+                "VID_MP4",
+                "VID_WMV",
+                "GPS_INFO",
+                "ISO_11783_DEVICE_DESCRIPTION",
+                "ISO_11783_TIME_LOG"
+              ]
+            }
+          },
+          "sendFrom": {
+            "type": "integer",
+            "description": "The beginning of the time interval. Default value would be 4 weeks ago.",
+            "format": "int64"
+          },
+          "sendTo": {
+            "type": "integer",
+            "description": "The end of the time interval.",
+            "format": "int64"
+          }
+        },
+        "description": "The request body containing all necessary information to search for file headers."
       },
       "PublishNonTelemetryDataMessageTuple": {
         "required": [
