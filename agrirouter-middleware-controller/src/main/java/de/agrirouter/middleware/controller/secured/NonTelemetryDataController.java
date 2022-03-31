@@ -478,4 +478,54 @@ public class NonTelemetryDataController implements SecuredApiController {
         return ResponseEntity.ok(searchFilesResponse);
     }
 
+    /**
+     * Publish documents for a given endpoint.
+     *
+     * @param externalEndpointId -
+     * @param messageId          -
+     * @return -
+     */
+    @GetMapping(
+            value = "/download/{externalEndpointId}/{messageId}",
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
+    )
+    @Operation(
+            operationId = "non-telemetry-data.download",
+            description = "Download a file for an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Response containing the result.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public @ResponseBody
+    byte[] download(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+                    @Parameter(description = "The ID of the message.", required = true) @PathVariable String messageId) {
+        return searchNonTelemetryDataService.downloadAsByteArray(externalEndpointId, messageId);
+    }
+
 }

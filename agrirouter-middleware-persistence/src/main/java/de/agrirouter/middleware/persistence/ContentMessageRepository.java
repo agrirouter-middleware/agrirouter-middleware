@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository to access the content messages.
@@ -21,7 +22,22 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
     void deleteAllByAgrirouterEndpointId(String agrirouterEndpointId);
 
     /**
+     * Find a content message for the given endpoint.
+     *
+     * @param agrirouterEndpointId -
+     * @param messageId            -
+     * @return -
+     */
+    Optional<ContentMessage> findByAgrirouterEndpointIdAndContentMessageMetadataMessageId(String agrirouterEndpointId, String messageId);
+
+    /**
      * Search for existing content messages.
+     *
+     * @param agrirouterEndpointId  -
+     * @param technicalMessageTypes -
+     * @param searchFrom            -
+     * @param searchTo              -
+     * @return -
      */
     @Query("select c.contentMessageMetadata from ContentMessage c " +
             "where c.agrirouterEndpointId = :agrirouterEndpointId " +
@@ -35,6 +51,11 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
 
     /**
      * Search for existing content messages.
+     *
+     * @param agrirouterEndpointId -
+     * @param searchFrom           -
+     * @param searchTo             -
+     * @return -
      */
     @Query("select c.contentMessageMetadata from ContentMessage c " +
             "where c.agrirouterEndpointId = :agrirouterEndpointId " +

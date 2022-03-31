@@ -24,10 +24,6 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.COULD_NOT_CONNECT_MQTT_CLIENT, String.format("Could not connect the MQTT client for the given endpoint with the ID '%s'.", agrirouterEndpointId));
     }
 
-    public static ErrorMessage couldNotDisconnectMqttClient(String agrirouterEndpointId) {
-        return new ErrorMessage(ErrorKey.COULD_NOT_DISCONNECT_MQTT_CLIENT, String.format("Could not disconnect the MQTT client for the given endpoint with the ID '%s'.", agrirouterEndpointId));
-    }
-
     public static ErrorMessage couldNotParseOnboardResponse() {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_ONBOARD_RESPONSE, "Could not parse onboard response from JSON.");
     }
@@ -36,16 +32,16 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.ENDPOINT_NOT_FOUND, "Could not find endpoint by the given ID.");
     }
 
+    public static ErrorMessage couldNotFindContentMessage() {
+        return new ErrorMessage(ErrorKey.CONTENT_MESSAGE_NOT_FOUND, "Could not find the content message by the given ID.");
+    }
+
     public static ErrorMessage couldNotFindMessageWaitingForAcknowledgement(String messageId) {
         return new ErrorMessage(ErrorKey.COULD_NOT_FIND_MESSAGE_WAITING_FOR_ACKNOWLEDGEMENT, String.format("Could not find message with message id '%s' waiting for acknowledgement.", messageId));
     }
 
     public static ErrorMessage middlewareDoesNotSupportGateway(String gatewayId) {
         return new ErrorMessage(ErrorKey.MIDDLEWARE_DOES_NOT_SUPPORT_GATEWAY, String.format("The middleware does not support the gateway with the ID '%s'.", gatewayId));
-    }
-
-    public static ErrorMessage couldNotParsePushMessage() {
-        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_PUSH_MESSAGE, "Could not parse push message.");
     }
 
     public static ErrorMessage invalidParameterForAction(String... names) {
@@ -98,10 +94,6 @@ public final class ErrorMessageFactory {
 
     public static ErrorMessage couldnotFindTeamSet(String teamSetContextId) {
         return new ErrorMessage(ErrorKey.COULD_NOT_FIND_TEAM_SET, String.format("Could not find the team set with the id '%s'.", teamSetContextId));
-    }
-
-    public static ErrorMessage unsupportedProtocol() {
-        return new ErrorMessage(ErrorKey.UNSUPPORTED_PROTOCOL, "Unsupported protocol for the connection.");
     }
 
     public static ErrorMessage switchingAccountsWhenReonboardingIsNotAllowed() {

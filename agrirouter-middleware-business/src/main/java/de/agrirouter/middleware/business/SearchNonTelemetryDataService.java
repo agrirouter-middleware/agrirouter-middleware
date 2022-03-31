@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 
@@ -81,4 +82,37 @@ public class SearchNonTelemetryDataService {
         return flattenedContentMessageMetadata;
     }
 
+    /**
+     * Download the file as byte array. The base64 encoded message content will be decoded.
+     *
+     * @param externalEndpointId -
+     * @param messageId          -
+     * @return -
+     */
+    public byte[] downloadAsByteArray(String externalEndpointId, String messageId) {
+        final var base64EncodedMessageContent = download(externalEndpointId, messageId);
+        return Base64.getDecoder().decode(base64EncodedMessageContent);
+    }
+
+    private byte[] download(String externalEndpointId, String messageId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var optionalContentMessage = contentMessageRepository.findByAgrirouterEndpointIdAndContentMessageMetadataMessageId(optionalEndpoint.get().getAgrirouterEndpointId(), messageId);
+            if (optionalContentMessage.isPresent()) {
+                final var contentMessage = optionalContentMessage.get();
+                if (contentMessage.getContentMessageMetadata().getTotalChunks() > 1) {
+                    log.debug("Looks like we have multiple chunks for the content message. Assembling the message content first. There are {} chunks in total.", contentMessage.getContentMessageMetadata().getTotalChunks());
+                    // FIXME
+                    throw new RuntimeException("Not yet implemented.");
+                } else {
+                    log.debug("This is a single message, therefore returning the content 'as it is'.");
+                    return contentMessage.getMessageContent();
+                }
+            } else {
+                throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
+            }
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+    }
 }
