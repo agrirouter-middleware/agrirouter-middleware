@@ -108,8 +108,6 @@ public class MessageAcknowledgementEventListener {
             final var endpoint = optional.get();
             if (decodedMessageResponse.getResponseEnvelope().getResponseCode() >= 400) {
                 endpointService.updateWarnings(endpoint, decodedMessageResponse);
-            } else {
-                endpointService.updateInformation(endpoint, decodedMessageResponse);
             }
         } else {
             LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());

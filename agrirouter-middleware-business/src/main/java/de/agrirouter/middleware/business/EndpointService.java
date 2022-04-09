@@ -9,7 +9,6 @@ import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import de.agrirouter.middleware.domain.log.Error;
-import de.agrirouter.middleware.domain.log.Information;
 import de.agrirouter.middleware.domain.log.Warning;
 import de.agrirouter.middleware.integration.EndpointIntegrationService;
 import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
@@ -38,7 +37,6 @@ public class EndpointService {
     private final BusinessLogService businessLogService;
     private final ErrorRepository errorRepository;
     private final WarningRepository warningRepository;
-    private final InformationRepository informationRepository;
     private final EndpointIntegrationService endpointIntegrationService;
     private final ApplicationRepository applicationRepository;
     private final MqttClientManagementService mqttClientManagementService;
@@ -54,7 +52,6 @@ public class EndpointService {
                            BusinessLogService businessLogService,
                            ErrorRepository errorRepository,
                            WarningRepository warningRepository,
-                           InformationRepository informationRepository,
                            EndpointIntegrationService endpointIntegrationService,
                            ApplicationRepository applicationRepository,
                            MqttClientManagementService mqttClientManagementService,
@@ -68,7 +65,6 @@ public class EndpointService {
         this.businessLogService = businessLogService;
         this.errorRepository = errorRepository;
         this.warningRepository = warningRepository;
-        this.informationRepository = informationRepository;
         this.endpointIntegrationService = endpointIntegrationService;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
@@ -78,21 +74,6 @@ public class EndpointService {
         this.revokeProcessIntegrationService = revokeProcessIntegrationService;
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.timeLogRepository = timeLogRepository;
-    }
-
-    /**
-     * Find an endpoint by its internal ID.
-     *
-     * @param externalEndpointId -
-     * @return -
-     */
-    public Endpoint findByExternalEndpointIdAndIgnoreDisabled(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            return optionalEndpoint.get();
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
-        }
     }
 
     /**
@@ -133,26 +114,6 @@ public class EndpointService {
         warning.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         warning.setEndpoint(endpoint);
         warningRepository.save(warning);
-    }
-
-
-    /**
-     * Updating information messages based on the decoded message.
-     *
-     * @param endpoint       -
-     * @param decodedMessage -
-     */
-    public void updateInformation(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
-        final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
-        final var message = messages.getMessages(0);
-        final var information = new Information();
-        information.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
-        information.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
-        information.setMessageId(decodedMessage.getResponseEnvelope().getMessageId());
-        information.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
-        information.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
-        information.setEndpoint(endpoint);
-        informationRepository.save(information);
     }
 
     /**
@@ -224,7 +185,6 @@ public class EndpointService {
         LOGGER.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
-        informationRepository.deleteAllByEndpoint(endpoint);
 
         LOGGER.debug("Remove device descriptions.");
         deviceDescriptionRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
