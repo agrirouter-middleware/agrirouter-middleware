@@ -18,7 +18,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.MessageQueryResultEvent;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.Endpoint;
@@ -57,7 +56,6 @@ public class MessageQueryResultEventListener {
     private final TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository;
     private final ContentMessageRepository contentMessageRepository;
     private final TaskDataTimeLogService taskDataTimeLogService;
-    private final BusinessLogService businessLogService;
     private final DeviceDescriptionService deviceDescriptionService;
 
     public MessageQueryResultEventListener(MqttClientManagementService mqttClientManagementService,
@@ -68,7 +66,6 @@ public class MessageQueryResultEventListener {
                                            TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository,
                                            ContentMessageRepository contentMessageRepository,
                                            TaskDataTimeLogService taskDataTimeLogService,
-                                           BusinessLogService businessLogService,
                                            DeviceDescriptionService deviceDescriptionService) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointRepository = endpointRepository;
@@ -78,7 +75,6 @@ public class MessageQueryResultEventListener {
         this.taskDataTimeLogContainerRepository = taskDataTimeLogContainerRepository;
         this.contentMessageRepository = contentMessageRepository;
         this.taskDataTimeLogService = taskDataTimeLogService;
-        this.businessLogService = businessLogService;
         this.deviceDescriptionService = deviceDescriptionService;
     }
 
@@ -108,22 +104,18 @@ public class MessageQueryResultEventListener {
             contentMessage.setMessageContent(message.toByteArray());
             contentMessage.setContentMessageMetadata(contentMessageMetadata);
             contentMessageRepository.save(contentMessage);
-            businessLogService.persistContentMessage(receiverId, technicalMessageType);
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
                 final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
                 taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
-                businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
                 deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
-                businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
                 timeLogService.save(contentMessage);
-                businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
             }
         } catch (BusinessException e) {
             LOGGER.error("An internal business exception occurred.", e);
@@ -159,7 +151,6 @@ public class MessageQueryResultEventListener {
                 messageWaitingForAcknowledgement.setMessageId(messageId);
                 messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
                 messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-                businessLogService.confirmMessages(endpoint);
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
@@ -197,7 +188,6 @@ public class MessageQueryResultEventListener {
                 messageWaitingForAcknowledgement.setMessageId(messageId);
                 messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_DELETE.getKey());
                 messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-                businessLogService.deleteMessages(endpoint);
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
@@ -255,7 +245,6 @@ public class MessageQueryResultEventListener {
         messageWaitingForAcknowledgement.setMessageId(messageId);
         messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_MESSAGE_QUERY.getKey());
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-        businessLogService.fetchAndConfirmExistingMessages(endpoint);
     }
 
     @SuppressWarnings("DuplicatedCode")

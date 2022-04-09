@@ -6,7 +6,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ResendCapabilitiesForApplicationEvent;
 import de.agrirouter.middleware.api.events.RouterDeviceAddedEvent;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.*;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.TenantRepository;
@@ -30,16 +29,13 @@ public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final TenantRepository tenantRepository;
-    private final BusinessLogService businessLogService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               TenantRepository tenantRepository,
-                              BusinessLogService businessLogService,
                               ApplicationEventPublisher applicationEventPublisher) {
         this.applicationRepository = applicationRepository;
         this.tenantRepository = tenantRepository;
-        this.businessLogService = businessLogService;
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
@@ -59,7 +55,6 @@ public class ApplicationService {
             application.setTenant(optionalTenant.get());
             application.setInternalApplicationId(IdFactory.applicationId());
             applicationRepository.save(application);
-            businessLogService.applicationSaved(application);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(principal.getName()));
         }
@@ -69,12 +64,10 @@ public class ApplicationService {
     /**
      * Update the existing application.
      *
-     * @param principal   Authentication token.
      * @param application The application to update.
      */
-    public void update(Principal principal, Application application) {
+    public void update(Application application) {
         applicationRepository.save(application);
-        businessLogService.applicationUpdated(application);
     }
 
     /**
@@ -91,7 +84,6 @@ public class ApplicationService {
             application.setSupportedTechnicalMessageTypes(supportedTechnicalMessageTypes);
             final var savedApplication = applicationRepository.save(application);
             applicationEventPublisher.publishEvent(new ResendCapabilitiesForApplicationEvent(this, savedApplication.getInternalApplicationId()));
-            businessLogService.technicalMessageTypesUpdated(application, supportedTechnicalMessageTypes);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
@@ -176,7 +168,6 @@ public class ApplicationService {
             application.getApplicationSettings().setRouterDevice(routerDevice);
             final var savedApplication = applicationRepository.save(application);
             applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
-            businessLogService.routerDeviceAdded(application);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }

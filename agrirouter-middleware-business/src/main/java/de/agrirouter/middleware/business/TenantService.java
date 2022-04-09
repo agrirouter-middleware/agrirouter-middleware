@@ -5,7 +5,6 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.dto.TenantRegistrationResult;
 import de.agrirouter.middleware.business.security.TenantPrincipal;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Tenant;
 import de.agrirouter.middleware.persistence.TenantRepository;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -33,14 +32,11 @@ public class TenantService implements UserDetailsService {
 
     private final TenantRepository tenantRepository;
     private final PasswordEncoder passwordEncoder;
-    private final BusinessLogService businessLogService;
 
     public TenantService(TenantRepository tenantRepository,
-                         PasswordEncoder passwordEncoder,
-                         BusinessLogService businessLogService) {
+                         PasswordEncoder passwordEncoder) {
         this.tenantRepository = tenantRepository;
         this.passwordEncoder = passwordEncoder;
-        this.businessLogService = businessLogService;
     }
 
     /**
@@ -105,7 +101,6 @@ public class TenantService implements UserDetailsService {
                 tenant.setAccessToken(passwordEncoder.encode(accessToken));
                 tenant.setTenantId(tenantId);
                 final var t = tenantRepository.save(tenant);
-                businessLogService.tenantCreated(t);
                 TenantRegistrationResult tenantRegistrationResult = new TenantRegistrationResult();
                 tenantRegistrationResult.setTenantId(t.getTenantId());
                 tenantRegistrationResult.setAccessToken(accessToken);

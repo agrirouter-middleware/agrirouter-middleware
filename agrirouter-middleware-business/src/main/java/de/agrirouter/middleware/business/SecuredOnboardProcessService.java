@@ -10,7 +10,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.business.global.OnboardStateContainer;
 import de.agrirouter.middleware.business.parameters.OnboardProcessParameters;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
@@ -36,7 +35,6 @@ public class SecuredOnboardProcessService {
     private final EndpointRepository endpointRepository;
     private final SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService;
     private final ApplicationRepository applicationRepository;
-    private final BusinessLogService businessLogService;
     private final EndpointService endpointService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -45,7 +43,6 @@ public class SecuredOnboardProcessService {
                                         EndpointRepository endpointRepository,
                                         SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService,
                                         ApplicationRepository applicationRepository,
-                                        BusinessLogService businessLogService,
                                         EndpointService endpointService,
                                         ApplicationEventPublisher applicationEventPublisher) {
         this.authorizationRequestService = authorizationRequestService;
@@ -53,7 +50,6 @@ public class SecuredOnboardProcessService {
         this.endpointRepository = endpointRepository;
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
         this.applicationRepository = applicationRepository;
-        this.businessLogService = businessLogService;
         this.endpointService = endpointService;
         this.applicationEventPublisher = applicationEventPublisher;
     }
@@ -118,7 +114,6 @@ public class SecuredOnboardProcessService {
                         endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
                         endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                         endpointRepository.save(endpoint);
-                        businessLogService.onboardEndpointAgain(endpoint);
                         endpointService.sendCapabilities(application, endpoint);
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
                     }
@@ -142,7 +137,6 @@ public class SecuredOnboardProcessService {
                     endpointRepository.save(endpoint);
                     application.getEndpoints().add(endpoint);
                     applicationRepository.save(application);
-                    businessLogService.onboardEndpoint(endpoint);
                     endpointService.sendCapabilities(application, endpoint);
                     applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
                 }

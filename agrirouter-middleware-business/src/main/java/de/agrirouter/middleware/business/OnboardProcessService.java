@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.parameters.OnboardProcessParameters;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.OnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.OnboardProcessIntegrationParameters;
@@ -25,18 +24,15 @@ public class OnboardProcessService {
 
     private final EndpointRepository endpointRepository;
     private final OnboardProcessIntegrationService onboardProcessIntegrationService;
-    private final BusinessLogService businessLogService;
     private final ApplicationRepository applicationRepository;
     private final EndpointService endpointService;
 
     public OnboardProcessService(EndpointRepository endpointRepository,
                                  OnboardProcessIntegrationService onboardProcessIntegrationService,
-                                 BusinessLogService businessLogService,
                                  ApplicationRepository applicationRepository,
                                  EndpointService endpointService) {
         this.endpointRepository = endpointRepository;
         this.onboardProcessIntegrationService = onboardProcessIntegrationService;
-        this.businessLogService = businessLogService;
         this.applicationRepository = applicationRepository;
         this.endpointService = endpointService;
     }
@@ -65,7 +61,6 @@ public class OnboardProcessService {
 
                     endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
                     endpointRepository.save(endpoint);
-                    businessLogService.onboardEndpointAgain(endpoint);
                     endpointService.sendCapabilities(application, endpoint);
                 } else {
                     LOGGER.debug("Create a new endpoint, since the endpoint does not exist in the database.");
@@ -84,7 +79,6 @@ public class OnboardProcessService {
                     endpointRepository.save(endpoint);
                     application.getEndpoints().add(endpoint);
                     applicationRepository.save(application);
-                    businessLogService.onboardEndpoint(endpoint);
                     endpointService.sendCapabilities(application, endpoint);
                 }
             } else {

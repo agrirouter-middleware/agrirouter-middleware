@@ -4,7 +4,6 @@ import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -34,7 +33,6 @@ public class EndpointService {
 
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
-    private final BusinessLogService businessLogService;
     private final ErrorRepository errorRepository;
     private final WarningRepository warningRepository;
     private final EndpointIntegrationService endpointIntegrationService;
@@ -42,14 +40,12 @@ public class EndpointService {
     private final MqttClientManagementService mqttClientManagementService;
     private final ContentMessageRepository contentMessageRepository;
     private final UnprocessedMessageRepository unprocessedMessageRepository;
-    private final BusinessLogEventRepository businessLogEventRepository;
     private final RevokeProcessIntegrationService revokeProcessIntegrationService;
     private final DeviceDescriptionRepository deviceDescriptionRepository;
     private final TimeLogRepository timeLogRepository;
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
-                           BusinessLogService businessLogService,
                            ErrorRepository errorRepository,
                            WarningRepository warningRepository,
                            EndpointIntegrationService endpointIntegrationService,
@@ -57,12 +53,10 @@ public class EndpointService {
                            MqttClientManagementService mqttClientManagementService,
                            ContentMessageRepository contentMessageRepository,
                            UnprocessedMessageRepository unprocessedMessageRepository,
-                           BusinessLogEventRepository businessLogEventRepository,
                            RevokeProcessIntegrationService revokeProcessIntegrationService,
                            DeviceDescriptionRepository deviceDescriptionRepository, TimeLogRepository timeLogRepository) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
-        this.businessLogService = businessLogService;
         this.errorRepository = errorRepository;
         this.warningRepository = warningRepository;
         this.endpointIntegrationService = endpointIntegrationService;
@@ -70,7 +64,6 @@ public class EndpointService {
         this.mqttClientManagementService = mqttClientManagementService;
         this.contentMessageRepository = contentMessageRepository;
         this.unprocessedMessageRepository = unprocessedMessageRepository;
-        this.businessLogEventRepository = businessLogEventRepository;
         this.revokeProcessIntegrationService = revokeProcessIntegrationService;
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.timeLogRepository = timeLogRepository;
@@ -130,7 +123,6 @@ public class EndpointService {
             LOGGER.warn("The endpoint with the AR id '{}' was deactivated.", endpoint.getAgrirouterEndpointId());
             endpoint.setDeactivated(true);
             endpointRepository.save(endpoint);
-            businessLogService.endpointDeactivated(endpoint);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
@@ -179,9 +171,6 @@ public class EndpointService {
         LOGGER.debug("Remove the content messages for the endpoint.");
         contentMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
-        LOGGER.debug("Remove all business log events.");
-        businessLogEventRepository.deleteAllByEndpoint(endpoint);
-
         LOGGER.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
@@ -205,7 +194,6 @@ public class EndpointService {
             final var optionalApplication = applicationRepository.findByEndpointsContains(optionalEndpoint.get());
             if (optionalApplication.isPresent()) {
                 sendCapabilities(optionalApplication.get(), optionalEndpoint.get());
-                businessLogService.resendCapabilities(optionalEndpoint.get());
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
             }
@@ -222,7 +210,6 @@ public class EndpointService {
      */
     public void sendCapabilities(Application application, Endpoint endpoint) {
         endpointIntegrationService.sendCapabilities(application, endpoint);
-        businessLogService.sendCapabilities(endpoint);
     }
 
     /**

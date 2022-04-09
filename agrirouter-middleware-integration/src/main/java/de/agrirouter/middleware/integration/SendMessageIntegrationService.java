@@ -12,7 +12,6 @@ import com.dke.data.agrirouter.impl.messaging.SequenceNumberService;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SendMessageServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -36,24 +35,21 @@ public class SendMessageIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final EncodeMessageService encodeMessageService;
-    private final BusinessLogService businessLogService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final EndpointRepository endpointRepository;
 
     public SendMessageIntegrationService(MqttClientManagementService mqttClientManagementService,
                                          EncodeMessageService encodeMessageService,
-                                         BusinessLogService businessLogService,
                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                          EndpointRepository endpointRepository) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.encodeMessageService = encodeMessageService;
-        this.businessLogService = businessLogService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.endpointRepository = endpointRepository;
     }
 
     /**
-     * Publish a message. If the recipients are set also, the sending mode will be only direct sending, you have to decice between publishing and direct sending.
+     * Publish a message. If the recipients are set also, the sending mode will be only direct sending, you have to decide between publishing and direct sending.
      *
      * @param messagingIntegrationParameters -
      */
@@ -78,7 +74,6 @@ public class SendMessageIntegrationService {
             sendMessageParameters.setEncodedMessages(encodedMessages);
             sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.getTeamSetContextId());
             sendMessageService.send(sendMessageParameters);
-            businessLogService.publishMessage(endpoint, messagingIntegrationParameters.getTechnicalMessageType());
 
             LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();

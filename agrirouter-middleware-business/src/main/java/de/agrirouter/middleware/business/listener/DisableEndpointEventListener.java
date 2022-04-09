@@ -3,7 +3,6 @@ package de.agrirouter.middleware.business.listener;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.DeactivateEndpointEvent;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,9 @@ public class DisableEndpointEventListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DisableEndpointEventListener.class);
 
     private final EndpointRepository endpointRepository;
-    private final BusinessLogService businessLogService;
 
-    public DisableEndpointEventListener(EndpointRepository endpointRepository,
-                                        BusinessLogService businessLogService) {
+    public DisableEndpointEventListener(EndpointRepository endpointRepository) {
         this.endpointRepository = endpointRepository;
-        this.businessLogService = businessLogService;
     }
 
     /**
@@ -55,7 +51,6 @@ public class DisableEndpointEventListener {
             LOGGER.warn("The endpoint with the id '{}' was deactivated.", endpoint.getAgrirouterEndpointId());
             endpoint.setDeactivated(true);
             endpointRepository.save(endpoint);
-            businessLogService.endpointDeactivated(endpoint);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }

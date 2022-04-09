@@ -7,7 +7,6 @@ import com.dke.data.agrirouter.impl.messaging.mqtt.MessageQueryServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.SaveAndConfirmExistingMessagesEvent;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -32,16 +31,13 @@ public class SaveAndConfirmExistingMessagesEventListener {
     private final EndpointRepository endpointRepository;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
-    private final BusinessLogService businessLogService;
 
     public SaveAndConfirmExistingMessagesEventListener(EndpointRepository endpointRepository,
                                                        MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                                       MqttClientManagementService mqttClientManagementService,
-                                                       BusinessLogService businessLogService) {
+                                                       MqttClientManagementService mqttClientManagementService) {
         this.endpointRepository = endpointRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.businessLogService = businessLogService;
     }
 
     /**
@@ -89,7 +85,6 @@ public class SaveAndConfirmExistingMessagesEventListener {
         messageWaitingForAcknowledgement.setMessageId(messageId);
         messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_MESSAGE_QUERY.getKey());
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-        businessLogService.fetchAndConfirmExistingMessages(endpoint);
     }
 
 

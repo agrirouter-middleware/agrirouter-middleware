@@ -10,7 +10,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.business.parameters.CreateDeviceDescriptionParameters;
 import de.agrirouter.middleware.business.parameters.RegisterMachineParameters;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.Device;
 import de.agrirouter.middleware.domain.DeviceDescription;
@@ -50,18 +49,15 @@ public class DeviceDescriptionService {
     private final DeviceDescriptionRepository deviceDescriptionRepository;
     private final EndpointRepository endpointRepository;
     private final DeviceRepository deviceRepository;
-    private final BusinessLogService businessLogService;
     private final SendMessageIntegrationService sendMessageIntegrationService;
 
     public DeviceDescriptionService(DeviceDescriptionRepository deviceDescriptionRepository,
                                     EndpointRepository endpointRepository,
                                     DeviceRepository deviceRepository,
-                                    BusinessLogService businessLogService,
                                     SendMessageIntegrationService sendMessageIntegrationService) {
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.endpointRepository = endpointRepository;
         this.deviceRepository = deviceRepository;
-        this.businessLogService = businessLogService;
         this.sendMessageIntegrationService = sendMessageIntegrationService;
     }
 
@@ -149,7 +145,6 @@ public class DeviceDescriptionService {
                             }
                             device.getDeviceDescriptions().add(deviceDescription);
                             deviceRepository.save(device);
-                            businessLogService.deviceUpdated(endpoint, device.getClientName().getManufacturerCode(), device.getSerialNumber());
                         }, () -> {
                             LOGGER.debug("There has been no device found, creating new device.");
                             final var device = new Device();
@@ -160,7 +155,6 @@ public class DeviceDescriptionService {
                             device.setSerialNumber(d.getDeviceSerialNumber());
                             device.getDeviceDescriptions().add(deviceDescription);
                             deviceRepository.save(device);
-                            businessLogService.deviceCreated(endpoint, device.getClientName().getManufacturerCode(), device.getSerialNumber());
                         });
                     }, () -> LOGGER.error("Could not decode client name. Device will not be created."));
                 });
@@ -300,7 +294,6 @@ public class DeviceDescriptionService {
         final var optionalDevice = deviceDescriptionRepository.findByTeamSetContextId(activateDeviceEvent.getTeamSetContextId());
         if (optionalDevice.isPresent()) {
             activateDevice(activateDeviceEvent.getTeamSetContextId());
-            businessLogService.deviceActivated(activateDeviceEvent.getTeamSetContextId());
         } else {
             LOGGER.error(ErrorMessageFactory.couldNotFindDevice().asLogMessage());
         }
@@ -319,7 +312,6 @@ public class DeviceDescriptionService {
             final var deviceDescription = optionalDeviceDescription.get();
             deviceDescription.setDeactivated(false);
             deviceDescriptionRepository.save(deviceDescription);
-            businessLogService.deviceActivated(teamSetContextId);
         } else {
             LOGGER.error(ErrorMessageFactory.couldNotFindDevice().asLogMessage());
         }

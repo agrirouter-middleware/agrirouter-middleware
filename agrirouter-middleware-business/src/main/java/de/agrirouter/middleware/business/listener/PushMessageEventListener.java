@@ -11,7 +11,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.PushMessageEvent;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.taskdata.TaskDataTimeLogContainer;
@@ -48,7 +47,6 @@ public class PushMessageEventListener {
     private final DeviceDescriptionService deviceDescriptionService;
     private final ContentMessageRepository contentMessageRepository;
     private final TaskDataTimeLogService taskDataTimeLogService;
-    private final BusinessLogService businessLogService;
 
     public PushMessageEventListener(MqttClientManagementService mqttClientManagementService,
                                     EndpointRepository endpointRepository,
@@ -58,8 +56,7 @@ public class PushMessageEventListener {
                                     TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository,
                                     DeviceDescriptionService deviceDescriptionService,
                                     ContentMessageRepository contentMessageRepository,
-                                    TaskDataTimeLogService taskDataTimeLogService,
-                                    BusinessLogService businessLogService) {
+                                    TaskDataTimeLogService taskDataTimeLogService) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointRepository = endpointRepository;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -69,7 +66,6 @@ public class PushMessageEventListener {
         this.deviceDescriptionService = deviceDescriptionService;
         this.contentMessageRepository = contentMessageRepository;
         this.taskDataTimeLogService = taskDataTimeLogService;
-        this.businessLogService = businessLogService;
     }
 
     /**
@@ -124,22 +120,18 @@ public class PushMessageEventListener {
         contentMessage.setMessageContent(message.toByteArray());
         contentMessage.setContentMessageMetadata(contentMessageMetadata);
         contentMessageRepository.save(contentMessage);
-        businessLogService.persistContentMessage(receiverId, technicalMessageType);
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
             final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
             taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
-            businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
             deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
-            businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage);
-            businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
     }
 
@@ -172,7 +164,6 @@ public class PushMessageEventListener {
                 messageWaitingForAcknowledgement.setMessageId(messageId);
                 messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
                 messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-                businessLogService.confirmMessages(endpoint);
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }

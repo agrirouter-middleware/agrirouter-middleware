@@ -11,7 +11,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.CloudRegistrationEvent;
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.business.EndpointService;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import de.agrirouter.middleware.integration.EndpointIntegrationService;
@@ -47,7 +46,6 @@ public class CloudRegistrationEventListener {
     private final EndpointIntegrationService endpointIntegrationService;
     private final MqttClientManagementService mqttClientManagementService;
     private final DecodeCloudOnboardingResponsesService decodeCloudOnboardingResponsesService;
-    private final BusinessLogService businessLogService;
     private final EndpointService endpointService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer;
@@ -58,7 +56,6 @@ public class CloudRegistrationEventListener {
                                           EndpointIntegrationService endpointIntegrationService,
                                           MqttClientManagementService mqttClientManagementService,
                                           DecodeCloudOnboardingResponsesService decodeCloudOnboardingResponsesService,
-                                          BusinessLogService businessLogService,
                                           EndpointService endpointService,
                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                           VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer,
@@ -68,7 +65,6 @@ public class CloudRegistrationEventListener {
         this.endpointIntegrationService = endpointIntegrationService;
         this.mqttClientManagementService = mqttClientManagementService;
         this.decodeCloudOnboardingResponsesService = decodeCloudOnboardingResponsesService;
-        this.businessLogService = businessLogService;
         this.endpointService = endpointService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
@@ -156,7 +152,6 @@ public class CloudRegistrationEventListener {
                         endpointRepository.save(endpoint);
                         application.getEndpoints().add(virtualEndpoint);
                         applicationRepository.save(application);
-                        businessLogService.onboardVirtualEndpoint(endpoint);
                         endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId(), null));
                     });

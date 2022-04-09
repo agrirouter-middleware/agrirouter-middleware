@@ -9,7 +9,6 @@ import com.dke.data.agrirouter.impl.messaging.mqtt.SetSubscriptionServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
@@ -40,23 +39,20 @@ public class UpdateSubscriptionsForEndpointEventListener {
     private final ApplicationRepository applicationRepository;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
-    private final BusinessLogService businessLogService;
 
     public UpdateSubscriptionsForEndpointEventListener(EndpointRepository endpointRepository,
                                                        ApplicationRepository applicationRepository,
                                                        MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                                       MqttClientManagementService mqttClientManagementService,
-                                                       BusinessLogService businessLogService) {
+                                                       MqttClientManagementService mqttClientManagementService) {
         this.endpointRepository = endpointRepository;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.businessLogService = businessLogService;
     }
 
 
     /**
-     * Handle the event for the update of the subscriptions after the capabilties were received and the AR did send an ACK.
+     * Handle the event for the update of the subscriptions after the capabilities were received and the AR did send an ACK.
      *
      * @param updateSubscriptionsForEndpointEvent -
      */
@@ -114,7 +110,6 @@ public class UpdateSubscriptionsForEndpointEventListener {
                             .map(String::valueOf)
                             .collect(Collectors.joining(","))))
                     .collect(Collectors.joining(",")), endpoint.getExternalEndpointId()));
-            businessLogService.sendSubscriptions(endpoint, subscriptions);
         } else {
             LOGGER.error(ErrorMessageFactory.middlewareDoesNotSupportGateway(onboardingResponse.getConnectionCriteria().getGatewayId()).asLogMessage());
         }
