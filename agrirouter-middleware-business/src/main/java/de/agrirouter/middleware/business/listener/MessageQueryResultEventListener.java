@@ -16,6 +16,8 @@ import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.MessageQueryResultEvent;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
 import de.agrirouter.middleware.domain.ContentMessage;
@@ -29,8 +31,7 @@ import de.agrirouter.middleware.isoxml.TaskDataTimeLogService;
 import de.agrirouter.middleware.persistence.ContentMessageRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import de.agrirouter.middleware.persistence.TaskDataTimeLogContainerRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -40,13 +41,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
+
 /**
  * Confirm messages from the AR.
  */
+@Slf4j
 @Service
 public class MessageQueryResultEventListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageQueryResultEventListener.class);
 
     private final MqttClientManagementService mqttClientManagementService;
     private final EndpointRepository endpointRepository;
@@ -57,6 +59,7 @@ public class MessageQueryResultEventListener {
     private final ContentMessageRepository contentMessageRepository;
     private final TaskDataTimeLogService taskDataTimeLogService;
     private final DeviceDescriptionService deviceDescriptionService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public MessageQueryResultEventListener(MqttClientManagementService mqttClientManagementService,
                                            EndpointRepository endpointRepository,
@@ -66,7 +69,8 @@ public class MessageQueryResultEventListener {
                                            TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository,
                                            ContentMessageRepository contentMessageRepository,
                                            TaskDataTimeLogService taskDataTimeLogService,
-                                           DeviceDescriptionService deviceDescriptionService) {
+                                           DeviceDescriptionService deviceDescriptionService,
+                                           BusinessOperationLogService businessOperationLogService) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointRepository = endpointRepository;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -76,6 +80,7 @@ public class MessageQueryResultEventListener {
         this.contentMessageRepository = contentMessageRepository;
         this.taskDataTimeLogService = taskDataTimeLogService;
         this.deviceDescriptionService = deviceDescriptionService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -85,8 +90,9 @@ public class MessageQueryResultEventListener {
      */
     @EventListener
     public void handleConfirmMessages(MessageQueryResultEvent messageQueryResultEvent) {
-        LOGGER.debug("Incoming event for message confirmation.");
+        log.debug("Incoming event for message confirmation.");
         saveAndConfirmMessages(messageQueryResultEvent.getFetchMessageResponse());
+        businessOperationLogService.log(new EndpointLogInformation(NA, messageQueryResultEvent.getFetchMessageResponse().getSensorAlternateId()), "Confirming pending messages that where not fetched earlier..");
     }
 
     /**
@@ -118,7 +124,7 @@ public class MessageQueryResultEventListener {
                 timeLogService.save(contentMessage);
             }
         } catch (BusinessException e) {
-            LOGGER.error("An internal business exception occurred.", e);
+            log.error("An internal business exception occurred.", e);
         }
     }
 
@@ -129,9 +135,9 @@ public class MessageQueryResultEventListener {
      * @param messageIds The IDs of the messages to confirm.
      */
     public void confirmMessages(String endpointId, Set<String> messageIds) {
-        LOGGER.debug("Confirming {} messages for the endpoint '{}'.", messageIds.size(), endpointId);
+        log.debug("Confirming {} messages for the endpoint '{}'.", messageIds.size(), endpointId);
         if (!messageIds.isEmpty()) {
-            LOGGER.trace("Message IDs >>> {}", messageIds);
+            log.trace("Message IDs >>> {}", messageIds);
             final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointId);
             if (optionalEndpoint.isPresent()) {
                 final var endpoint = optionalEndpoint.get();
@@ -145,7 +151,7 @@ public class MessageQueryResultEventListener {
                 messageConfirmationParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
                 final var messageId = messageConfirmationService.send(messageConfirmationParameters);
 
-                LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
                 MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
                 messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
                 messageWaitingForAcknowledgement.setMessageId(messageId);
@@ -155,7 +161,7 @@ public class MessageQueryResultEventListener {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
         } else {
-            LOGGER.debug("No messages to confirm, therefore skipping confirmation.");
+            log.debug("No messages to confirm, therefore skipping confirmation.");
         }
     }
 
@@ -166,8 +172,8 @@ public class MessageQueryResultEventListener {
      * @param messageIds The IDs of the messages to confirm.
      */
     public void deleteMessages(String endpointId, Set<String> messageIds) {
-        LOGGER.debug("Delete the messages for the endpoint '{}'.", endpointId);
-        LOGGER.trace("Message IDs >>> {}", messageIds);
+        log.debug("Delete the messages for the endpoint '{}'.", endpointId);
+        log.trace("Message IDs >>> {}", messageIds);
         if (!messageIds.isEmpty()) {
             final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointId);
             if (optionalEndpoint.isPresent()) {
@@ -182,7 +188,7 @@ public class MessageQueryResultEventListener {
                 deleteMessageParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
                 final var messageId = deleteMessageService.send(deleteMessageParameters);
 
-                LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
                 MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
                 messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
                 messageWaitingForAcknowledgement.setMessageId(messageId);
@@ -192,7 +198,7 @@ public class MessageQueryResultEventListener {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
         } else {
-            LOGGER.debug("No messages to confirm, therefore skipping confirmation.");
+            log.debug("No messages to confirm, therefore skipping confirmation.");
         }
     }
 
@@ -202,7 +208,7 @@ public class MessageQueryResultEventListener {
      * @param fetchMessageResponse The message response to handle.
      */
     private void saveAndConfirmMessages(FetchMessageResponse fetchMessageResponse) {
-        LOGGER.debug("Saving and confirming the messages from the query '{}'.", fetchMessageResponse.getSensorAlternateId());
+        log.debug("Saving and confirming the messages from the query '{}'.", fetchMessageResponse.getSensorAlternateId());
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(fetchMessageResponse.getSensorAlternateId());
         final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
         final var messageQueryResponse = new MessageQueryServiceImpl(null)
@@ -217,17 +223,17 @@ public class MessageQueryResultEventListener {
             final var endpoint = optionalEndpoint.get();
             confirmMessages(receiverId, messageIds);
             if (messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery() > messageQueryResponse.getQueryMetrics().getMaxCountRestriction()) {
-                LOGGER.debug("There are {} messages in total, the current count restriction is {}. Sending out another event to fetch the messages.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery(), messageQueryResponse.getQueryMetrics().getMaxCountRestriction());
+                log.debug("There are {} messages in total, the current count restriction is {}. Sending out another event to fetch the messages.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery(), messageQueryResponse.getQueryMetrics().getMaxCountRestriction());
                 fetchAndConfirmExistingMessages(endpoint);
             }
         } else {
-            LOGGER.warn("The endpoint was not found in the database, the message was deleted but not saved.");
+            log.warn("The endpoint was not found in the database, the message was deleted but not saved.");
             deleteMessages(receiverId, messageIds);
         }
     }
 
     private void fetchAndConfirmExistingMessages(Endpoint endpoint) {
-        LOGGER.debug("Fetching and confirming additional existing messages for endpoint '{}'.", endpoint.getExternalEndpointId());
+        log.debug("Fetching and confirming additional existing messages for endpoint '{}'.", endpoint.getExternalEndpointId());
         final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
         if (iMqttClient.isEmpty()) {
             throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()));
@@ -239,7 +245,7 @@ public class MessageQueryResultEventListener {
         parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
         final var messageId = messageQueryService.send(parameters);
 
-        LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
         messageWaitingForAcknowledgement.setMessageId(messageId);

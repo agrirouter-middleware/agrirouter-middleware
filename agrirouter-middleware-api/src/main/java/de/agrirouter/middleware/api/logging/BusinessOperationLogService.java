@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BusinessOperationLogService {
 
+    public static final String NA = "N/A";
+
     /**
      * Log a business operation.
      *
