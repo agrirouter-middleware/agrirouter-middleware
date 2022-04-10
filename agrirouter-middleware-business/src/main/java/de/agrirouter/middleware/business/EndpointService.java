@@ -4,6 +4,8 @@ import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -14,8 +16,7 @@ import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +27,9 @@ import java.util.Optional;
 /**
  * Business operations regarding the endpoints.
  */
+@Slf4j
 @Service
 public class EndpointService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointService.class);
 
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
@@ -43,6 +43,7 @@ public class EndpointService {
     private final RevokeProcessIntegrationService revokeProcessIntegrationService;
     private final DeviceDescriptionRepository deviceDescriptionRepository;
     private final TimeLogRepository timeLogRepository;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
@@ -54,7 +55,9 @@ public class EndpointService {
                            ContentMessageRepository contentMessageRepository,
                            UnprocessedMessageRepository unprocessedMessageRepository,
                            RevokeProcessIntegrationService revokeProcessIntegrationService,
-                           DeviceDescriptionRepository deviceDescriptionRepository, TimeLogRepository timeLogRepository) {
+                           DeviceDescriptionRepository deviceDescriptionRepository,
+                           TimeLogRepository timeLogRepository,
+                           BusinessOperationLogService businessOperationLogService) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
         this.errorRepository = errorRepository;
@@ -67,6 +70,7 @@ public class EndpointService {
         this.revokeProcessIntegrationService = revokeProcessIntegrationService;
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.timeLogRepository = timeLogRepository;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -78,7 +82,7 @@ public class EndpointService {
     public void updateErrors(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        LOGGER.debug("Update status of the endpoint.");
+        log.debug("Update status of the endpoint.");
         final var error = new Error();
         error.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         error.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -87,6 +91,7 @@ public class EndpointService {
         error.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         error.setEndpoint(endpoint);
         errorRepository.save(error);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
     }
 
     /**
@@ -98,7 +103,7 @@ public class EndpointService {
     public void updateWarnings(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        LOGGER.debug("Update status of the endpoint.");
+        log.debug("Update status of the endpoint.");
         final var warning = new Warning();
         warning.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         warning.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -107,6 +112,7 @@ public class EndpointService {
         warning.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         warning.setEndpoint(endpoint);
         warningRepository.save(warning);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
     }
 
     /**
@@ -119,10 +125,11 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            LOGGER.warn("The endpoint with the id '{}' was deactivated.", endpoint.getExternalEndpointId());
-            LOGGER.warn("The endpoint with the AR id '{}' was deactivated.", endpoint.getAgrirouterEndpointId());
+            log.warn("The endpoint with the id '{}' was deactivated.", endpoint.getExternalEndpointId());
+            log.warn("The endpoint with the AR id '{}' was deactivated.", endpoint.getAgrirouterEndpointId());
             endpoint.setDeactivated(true);
             endpointRepository.save(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deactivated.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
@@ -136,7 +143,9 @@ public class EndpointService {
     public void deleteEndpointDataFromTheMiddlewareByAgrirouterId(String agrirouterEndpointId) {
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
         if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
             deleteEndpointData(optionalEndpoint.get().getExternalEndpointId());
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
@@ -151,12 +160,14 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            LOGGER.debug("Disconnect the endpoint.");
+            log.debug("Disconnect the endpoint.");
             mqttClientManagementService.disconnect(optionalEndpoint.get().asOnboardingResponse());
-            LOGGER.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
+            log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
             endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
             deleteEndpointData(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
             endpointRepository.delete(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
@@ -165,20 +176,20 @@ public class EndpointService {
     private void deleteEndpointData(Endpoint endpoint) {
         final var sensorAlternateId = endpoint.asOnboardingResponse().getSensorAlternateId();
 
-        LOGGER.debug("Remove all unprocessed messages.");
+        log.debug("Remove all unprocessed messages.");
         unprocessedMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
-        LOGGER.debug("Remove the content messages for the endpoint.");
+        log.debug("Remove the content messages for the endpoint.");
         contentMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
-        LOGGER.debug("Remove all errors, warnings and information.");
+        log.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
 
-        LOGGER.debug("Remove device descriptions.");
+        log.debug("Remove device descriptions.");
         deviceDescriptionRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
 
-        LOGGER.debug("Remove time logs.");
+        log.debug("Remove time logs.");
         timeLogRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
     }
 
@@ -191,9 +202,11 @@ public class EndpointService {
     public void resendCapabilities(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
             final var optionalApplication = applicationRepository.findByEndpointsContains(optionalEndpoint.get());
             if (optionalApplication.isPresent()) {
-                sendCapabilities(optionalApplication.get(), optionalEndpoint.get());
+                sendCapabilities(optionalApplication.get(), endpoint);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Capabilities were resent.");
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
             }
@@ -210,6 +223,7 @@ public class EndpointService {
      */
     public void sendCapabilities(Application application, Endpoint endpoint) {
         endpointIntegrationService.sendCapabilities(application, endpoint);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Capabilities were sent.");
     }
 
     /**
@@ -273,7 +287,7 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            LOGGER.debug("Deactivate the endpoint to avoid race conditions.");
+            log.debug("Deactivate the endpoint to avoid race conditions.");
             endpoint.setDeactivated(true);
             endpointRepository.save(endpoint);
             endpoint.getConnectedVirtualEndpoints().forEach(vcu -> {
@@ -285,6 +299,7 @@ public class EndpointService {
                 if (optionalApplication.isPresent()) {
                     final var application = optionalApplication.get();
                     revokeProcessIntegrationService.revoke(application, endpoint);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was revoked.");
                     deleteEndpointData(externalEndpointId);
                 } else {
                     throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
