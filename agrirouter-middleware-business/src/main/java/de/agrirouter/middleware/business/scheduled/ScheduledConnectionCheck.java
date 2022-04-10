@@ -2,28 +2,31 @@ package de.agrirouter.middleware.business.scheduled;
 
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
  * Scheduled fetching and confirming of messages.
  */
+@Slf4j
 @Component
 public class ScheduledConnectionCheck {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledConnectionCheck.class);
-
     private final EndpointRepository endpointRepository;
     private final MqttClientManagementService mqttClientManagementService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public ScheduledConnectionCheck(EndpointRepository endpointRepository,
-                                    MqttClientManagementService mqttClientManagementService) {
+                                    MqttClientManagementService mqttClientManagementService,
+                                    BusinessOperationLogService businessOperationLogService) {
         this.endpointRepository = endpointRepository;
         this.mqttClientManagementService = mqttClientManagementService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -31,7 +34,7 @@ public class ScheduledConnectionCheck {
      */
     @Scheduled(cron = "${app.scheduled.connection-check}")
     public void connectionCheck() {
-        LOGGER.debug("Scheduled connection check.");
+        log.debug("Scheduled connection check.");
         endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
             try {
                 final var onboardingResponse = endpoint.asOnboardingResponse();
@@ -41,12 +44,13 @@ public class ScheduledConnectionCheck {
                 }
                 final var existingiMqttClient = iMqttClient.get();
                 if (existingiMqttClient.isConnected()) {
-                    LOGGER.debug("Scheduled connection check for MQTT client '{}' was successful.", existingiMqttClient.getClientId());
+                    log.debug("Scheduled connection check for MQTT client '{}' was successful.", existingiMqttClient.getClientId());
                 } else {
-                    LOGGER.warn("Scheduled connection check for MQTT client '{}' has FAILED.", existingiMqttClient.getClientId());
+                    log.warn("Scheduled connection check for MQTT client '{}' has FAILED.", existingiMqttClient.getClientId());
                 }
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled connection check was successful.");
             } catch (BusinessException e) {
-                LOGGER.error("Could not perform connection check for the endpoint '{}' since there was a business exception.", endpoint.getExternalEndpointId(), e);
+                log.error("Could not perform connection check for the endpoint '{}' since there was a business exception.", endpoint.getExternalEndpointId(), e);
             }
         });
     }

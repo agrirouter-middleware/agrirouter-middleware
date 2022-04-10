@@ -68,7 +68,6 @@ public class TimeLogService {
      */
     public void publish(PublishTimeLogParameters publishTimeLogParameters) {
         deviceDescriptionService.resendDeviceDescriptionIfNecessary(publishTimeLogParameters.getTeamSetContextId());
-
         final var messagingIntegrationParameters = new MessagingIntegrationParameters();
         messagingIntegrationParameters.setExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
         messagingIntegrationParameters.setTeamSetContextId(publishTimeLogParameters.getTeamSetContextId());
