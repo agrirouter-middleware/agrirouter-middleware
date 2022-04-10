@@ -84,7 +84,7 @@ public class OnboardProcessService {
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "The endpoint was created.");
                     application.getEndpoints().add(endpoint);
                     applicationRepository.save(application);
-                    businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "The application was updated.");
+                    businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "The endpoint was added to the application.");
                     endpointService.sendCapabilities(application, endpoint);
                 }
             } else {
