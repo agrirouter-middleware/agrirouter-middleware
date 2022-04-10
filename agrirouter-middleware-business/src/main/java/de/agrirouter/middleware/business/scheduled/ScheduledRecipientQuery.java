@@ -6,41 +6,44 @@ import com.dke.data.agrirouter.api.service.parameters.ListEndpointsParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.ListEndpointsServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
  * Scheduled fetching of possible recipients.
  */
+@Slf4j
 @Component
 public class ScheduledRecipientQuery {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledRecipientQuery.class);
 
     private final EndpointRepository endpointRepository;
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public ScheduledRecipientQuery(EndpointRepository endpointRepository,
                                    MqttClientManagementService mqttClientManagementService,
-                                   MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
+                                   MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
+                                   BusinessOperationLogService businessOperationLogService) {
         this.endpointRepository = endpointRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
      * Schedule the recipient checking in a cyclic manner.
      */
-    @Scheduled(cron = "${app.scheduled.status-logging}")
+    @Scheduled(cron = "${app.scheduled.recipient-query}")
     public void scheduledStatusLogging() {
-        LOGGER.debug("Scheduled recipient checking for all endpoints.");
+        log.debug("Scheduled recipient checking for all endpoints.");
         endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
             final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
             if (iMqttClient.isEmpty()) {
@@ -53,8 +56,9 @@ public class ScheduledRecipientQuery {
             parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
             parameters.setUnfilteredList(false);
             final var messageId = listEndpointsService.send(parameters);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled recipient query for the endpoint.");
 
-            LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+            log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
             messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageId);
