@@ -7,11 +7,10 @@ import de.agrirouter.middleware.business.dto.TenantRegistrationResult;
 import de.agrirouter.middleware.business.security.TenantPrincipal;
 import de.agrirouter.middleware.domain.Tenant;
 import de.agrirouter.middleware.persistence.TenantRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,10 +23,10 @@ import java.util.List;
 /**
  * Handle all business requests regarding the tenant.
  */
+@Slf4j
 @Service
 public class TenantService implements UserDetailsService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
     public static final int DEFAULT_ACCESS_TOKEN_LENGTH = 32;
 
     private final TenantRepository tenantRepository;
@@ -40,7 +39,7 @@ public class TenantService implements UserDetailsService {
     }
 
     /**
-     *
+     * Initialize the default tenant.
      */
     @PostConstruct
     protected void generateDefaultTenant() {
@@ -52,30 +51,30 @@ public class TenantService implements UserDetailsService {
             final var accessToken = generateAccessToken(DEFAULT_ACCESS_TOKEN_LENGTH);
             tenant.setAccessToken(passwordEncoder.encode(accessToken));
             tenantRepository.save(tenant);
-            LOGGER.info("#######################################################################################################################################################");
-            LOGGER.info("#");
-            LOGGER.info("# Generated default tenant!");
-            LOGGER.info("# Tenant ID: {}", tenant.getTenantId());
-            LOGGER.info("# Name: {}", tenant.getName());
-            LOGGER.info("# Access token: {}", accessToken);
-            LOGGER.info("#");
-            LOGGER.info("# NOTE");
-            LOGGER.info("# The password for the default tenant is stored as hash, therefore it will be printed only (!) THIS (!) time and never again.");
-            LOGGER.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
-            LOGGER.info("#######################################################################################################################################################");
+            log.info("#######################################################################################################################################################");
+            log.info("#");
+            log.info("# Generated default tenant!");
+            log.info("# Tenant ID: {}", tenant.getTenantId());
+            log.info("# Name: {}", tenant.getName());
+            log.info("# Access token: {}", accessToken);
+            log.info("#");
+            log.info("# NOTE");
+            log.info("# The password for the default tenant is stored as hash, therefore it will be printed only (!) THIS (!) time and never again.");
+            log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
+            log.info("#######################################################################################################################################################");
         } else {
             final var generatedTenant = tenantRepository.findTenantByGeneratedTenantIsTrue();
-            LOGGER.info("#######################################################################################################################################################");
-            LOGGER.info("#");
-            LOGGER.info("# Generated default tenant!");
+            log.info("#######################################################################################################################################################");
+            log.info("#");
+            log.info("# Generated default tenant!");
             //noinspection OptionalGetWithoutIsPresent
-            LOGGER.info("# Tenant ID: {}", generatedTenant.get().getTenantId());
-            LOGGER.info("# Name: {}", generatedTenant.get().getName());
-            LOGGER.info("#");
-            LOGGER.info("# NOTE");
-            LOGGER.info("# The password for the default tenant is stored as hash, therefore it will be printed only during setup.");
-            LOGGER.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
-            LOGGER.info("#######################################################################################################################################################");
+            log.info("# Tenant ID: {}", generatedTenant.get().getTenantId());
+            log.info("# Name: {}", generatedTenant.get().getName());
+            log.info("#");
+            log.info("# NOTE");
+            log.info("# The password for the default tenant is stored as hash, therefore it will be printed only during setup.");
+            log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
+            log.info("#######################################################################################################################################################");
         }
     }
 
@@ -104,6 +103,16 @@ public class TenantService implements UserDetailsService {
                 TenantRegistrationResult tenantRegistrationResult = new TenantRegistrationResult();
                 tenantRegistrationResult.setTenantId(t.getTenantId());
                 tenantRegistrationResult.setAccessToken(accessToken);
+                log.info("#######################################################################################################################################################");
+                log.info("#");
+                log.info("# A new tenant was registered!");
+                log.info("# Tenant ID: {}", tenant.getTenantId());
+                log.info("# Name: {}", tenant.getName());
+                log.info("#");
+                log.info("# NOTE");
+                log.info("# The password for the tenant is stored as hash, therefore it will be printed only during setup.");
+                log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
+                log.info("#######################################################################################################################################################");
                 return tenantRegistrationResult;
             }
         }
