@@ -9,6 +9,8 @@ import com.dke.data.agrirouter.impl.messaging.mqtt.SetSubscriptionServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
@@ -17,8 +19,7 @@ import de.agrirouter.middleware.integration.common.SubscriptionParameterFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,41 +31,43 @@ import java.util.stream.Collectors;
 /**
  * Service for endpoint maintenance.
  */
+@Slf4j
 @Service
 public class UpdateSubscriptionsForEndpointEventListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateSubscriptionsForEndpointEventListener.class);
 
     private final EndpointRepository endpointRepository;
     private final ApplicationRepository applicationRepository;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public UpdateSubscriptionsForEndpointEventListener(EndpointRepository endpointRepository,
                                                        ApplicationRepository applicationRepository,
                                                        MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                                       MqttClientManagementService mqttClientManagementService) {
+                                                       MqttClientManagementService mqttClientManagementService,
+                                                       BusinessOperationLogService businessOperationLogService) {
         this.endpointRepository = endpointRepository;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
+        this.businessOperationLogService = businessOperationLogService;
     }
-
 
     /**
      * Handle the event for the update of the subscriptions after the capabilities were received and the AR did send an ACK.
      *
      * @param updateSubscriptionsForEndpointEvent -
      */
-    @EventListener
     @Transactional
+    @EventListener
     public void updateSubscriptionsForEndpoint(UpdateSubscriptionsForEndpointEvent updateSubscriptionsForEndpointEvent) {
-        LOGGER.debug("Update subscriptions.");
+        log.debug("Update subscriptions.");
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(updateSubscriptionsForEndpointEvent.getInternalEndpointId());
         if (optionalEndpoint.isPresent()) {
             resendSubscriptions(optionalEndpoint.get().getExternalEndpointId());
+            businessOperationLogService.log(new EndpointLogInformation(optionalEndpoint.get().getExternalEndpointId(), optionalEndpoint.get().getAgrirouterEndpointId()), "Subscriptions updated.");
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
         }
     }
 
@@ -82,10 +85,10 @@ public class UpdateSubscriptionsForEndpointEventListener {
                 final var application = optionalApplication.get();
                 sendSubscriptions(application, endpoint);
             } else {
-                LOGGER.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
+                log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
             }
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
         }
     }
 
@@ -96,13 +99,13 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param endpoint    The endpoint.
      */
     private void sendSubscriptions(Application application, Endpoint endpoint) {
-        LOGGER.debug("Update the subscriptions for the endpoint with the id '{}'.", endpoint.getId());
+        log.debug("Update the subscriptions for the endpoint with the id '{}'.", endpoint.getId());
         final var onboardingResponse = endpoint.asOnboardingResponse();
         if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
-            LOGGER.debug("Handling MQTT onboard response updates.");
+            log.debug("Handling MQTT onboard response updates.");
             final var subscriptions = SubscriptionParameterFactory.create(application);
             enableSubscriptions(onboardingResponse, subscriptions);
-            LOGGER.debug(String.format("The following subscriptions [%s] for the endpoint with the id '%s' are send.", subscriptions
+            log.debug(String.format("The following subscriptions [%s] for the endpoint with the id '%s' are send.", subscriptions
                     .stream()
                     .filter(subscription -> null != subscription.getTechnicalMessageType())
                     .map(subscription -> String.format("{%s,(%s)}", Objects.requireNonNull(subscription.getTechnicalMessageType()).getKey(), subscription.getDdis()
@@ -111,7 +114,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
                             .collect(Collectors.joining(","))))
                     .collect(Collectors.joining(",")), endpoint.getExternalEndpointId()));
         } else {
-            LOGGER.error(ErrorMessageFactory.middlewareDoesNotSupportGateway(onboardingResponse.getConnectionCriteria().getGatewayId()).asLogMessage());
+            log.error(ErrorMessageFactory.middlewareDoesNotSupportGateway(onboardingResponse.getConnectionCriteria().getGatewayId()).asLogMessage());
         }
     }
 
@@ -122,7 +125,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param subscriptions      The subscriptions.
      */
     private void enableSubscriptions(OnboardingResponse onboardingResponse, List<SetSubscriptionParameters.Subscription> subscriptions) {
-        LOGGER.debug("Enable the subscriptions for the endpoint with the id '{}'.", onboardingResponse.getSensorAlternateId());
+        log.debug("Enable the subscriptions for the endpoint with the id '{}'.", onboardingResponse.getSensorAlternateId());
         SetSubscriptionParameters parameters = new SetSubscriptionParameters();
         parameters.setOnboardingResponse(onboardingResponse);
         parameters.setSubscriptions(subscriptions);
@@ -133,7 +136,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         SetSubscriptionService setSubscriptionService = new SetSubscriptionServiceImpl(iMqttClient.get());
         final var messageId = setSubscriptionService.send(parameters);
 
-        LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
