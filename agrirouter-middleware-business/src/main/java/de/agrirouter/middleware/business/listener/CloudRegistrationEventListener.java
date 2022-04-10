@@ -10,6 +10,8 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.CloudRegistrationEvent;
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -21,8 +23,7 @@ import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -31,15 +32,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * Integration service to handle the onboard requests.
  */
+@Slf4j
 @Service
 public class CloudRegistrationEventListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudRegistrationEventListener.class);
 
     private final ApplicationRepository applicationRepository;
     private final EndpointRepository endpointRepository;
@@ -50,6 +51,7 @@ public class CloudRegistrationEventListener {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public CloudRegistrationEventListener(ApplicationRepository applicationRepository,
                                           EndpointRepository endpointRepository,
@@ -59,7 +61,8 @@ public class CloudRegistrationEventListener {
                                           EndpointService endpointService,
                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                           VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer,
-                                          ApplicationEventPublisher applicationEventPublisher) {
+                                          ApplicationEventPublisher applicationEventPublisher,
+                                          BusinessOperationLogService businessOperationLogService) {
         this.applicationRepository = applicationRepository;
         this.endpointRepository = endpointRepository;
         this.endpointIntegrationService = endpointIntegrationService;
@@ -69,6 +72,7 @@ public class CloudRegistrationEventListener {
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -88,9 +92,11 @@ public class CloudRegistrationEventListener {
         final var parameters = new CloudOffboardingParameters();
         parameters.setOnboardingResponse(onboardingResponse);
         parameters.setEndpointIds(getEndpointIds(virtualOffboardProcessIntegrationParameters));
+
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Offboarding the following endpoints {}", String.join(" ,", Objects.requireNonNull(parameters.getEndpointIds())));
         final var messageId = cloudOffboardingService.send(parameters);
 
-        LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
@@ -113,7 +119,7 @@ public class CloudRegistrationEventListener {
     private void checkWhetherTheEndpointIsVirtualOrNot(String endpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndEndpointType(endpointId, EndpointType.VIRTUAL);
         if (optionalEndpoint.isEmpty()) {
-            LOGGER.error(ErrorMessageFactory.couldNotFindVirtualEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindVirtualEndpoint().asLogMessage());
         }
     }
 
@@ -125,9 +131,9 @@ public class CloudRegistrationEventListener {
     @EventListener
     @Transactional
     public void onboardVirtualEndpoint(CloudRegistrationEvent cloudRegistrationEvent) {
-        LOGGER.debug("Incoming event for cloud registration.");
+        log.debug("Incoming event for cloud registration.");
         final var fetchMessageResponse = cloudRegistrationEvent.getFetchMessageResponse();
-        LOGGER.debug("Find the corresponding endpoint with the ID '{}' for the cloud registration.", fetchMessageResponse.getSensorAlternateId());
+        log.debug("Find the corresponding endpoint with the ID '{}' for the cloud registration.", fetchMessageResponse.getSensorAlternateId());
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(fetchMessageResponse.getSensorAlternateId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var endpoint = optionalEndpoint.get();
@@ -139,7 +145,8 @@ public class CloudRegistrationEventListener {
                     final var onboardState = optionalOnboardState.get();
                     final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), endpoint.asOnboardingResponse());
                     cloudOnboardResponses.forEach(cloudOnboardResponse -> {
-                        LOGGER.debug("Saving the following cloud onboard response to the database >>> {}", cloudOnboardResponse);
+                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Onboard process of the following virtual endpoint was successful >>> {}", cloudOnboardResponse.getSensorAlternateId());
+                        log.debug("Saving the following cloud onboard response to the database >>> {}", cloudOnboardResponse);
                         var virtualEndpoint = new Endpoint();
                         virtualEndpoint.setAgrirouterEndpointId(cloudOnboardResponse.getSensorAlternateId());
                         virtualEndpoint.setExternalEndpointId(onboardState.getExternalEndpointId());
@@ -156,7 +163,7 @@ public class CloudRegistrationEventListener {
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId(), null));
                     });
                 } else {
-                    LOGGER.warn("Since the state for the message ID '{}' has not been found the endpoints are removed from the AR to avoid problems.", cloudRegistrationEvent.getApplicationMessageId());
+                    log.warn("Since the state for the message ID '{}' has not been found the endpoints are removed from the AR to avoid problems.", cloudRegistrationEvent.getApplicationMessageId());
                     final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters();
                     offboardVirtualEndpointParameters.setEndpoint(endpoint);
                     final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), endpoint.asOnboardingResponse());
@@ -165,10 +172,10 @@ public class CloudRegistrationEventListener {
                     offboard(offboardVirtualEndpointParameters);
                 }
             } else {
-                LOGGER.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
+                log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
             }
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
         }
     }
 }
