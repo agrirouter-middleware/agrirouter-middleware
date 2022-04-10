@@ -92,7 +92,7 @@ public class MessageQueryResultEventListener {
     public void handleConfirmMessages(MessageQueryResultEvent messageQueryResultEvent) {
         log.debug("Incoming event for message confirmation.");
         saveAndConfirmMessages(messageQueryResultEvent.getFetchMessageResponse());
-        businessOperationLogService.log(new EndpointLogInformation(NA, messageQueryResultEvent.getFetchMessageResponse().getSensorAlternateId()), "Confirming pending messages that where not fetched earlier..");
+        businessOperationLogService.log(new EndpointLogInformation(NA, messageQueryResultEvent.getFetchMessageResponse().getSensorAlternateId()), "Confirming pending messages that where not fetched earlier.");
     }
 
     /**
