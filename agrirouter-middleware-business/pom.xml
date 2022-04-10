@@ -25,10 +25,6 @@
             <artifactId>agrirouter-middleware-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
-            <artifactId>agrirouter-middleware-business-log</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
