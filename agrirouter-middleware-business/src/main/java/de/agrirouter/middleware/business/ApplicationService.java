@@ -5,12 +5,13 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ResendCapabilitiesForApplicationEvent;
 import de.agrirouter.middleware.api.events.RouterDeviceAddedEvent;
+import de.agrirouter.middleware.api.logging.ApplicationLogInformation;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.domain.*;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.TenantRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -22,21 +23,23 @@ import java.util.Set;
 /**
  * Encapsulate all asynchronous business actions for applications.
  */
+@Slf4j
 @Service
 public class ApplicationService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
 
     private final ApplicationRepository applicationRepository;
     private final TenantRepository tenantRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               TenantRepository tenantRepository,
-                              ApplicationEventPublisher applicationEventPublisher) {
+                              ApplicationEventPublisher applicationEventPublisher,
+                              BusinessOperationLogService businessOperationLogService) {
         this.applicationRepository = applicationRepository;
         this.tenantRepository = tenantRepository;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -55,11 +58,11 @@ public class ApplicationService {
             application.setTenant(optionalTenant.get());
             application.setInternalApplicationId(IdFactory.applicationId());
             applicationRepository.save(application);
+            businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application created.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(principal.getName()));
         }
     }
-
 
     /**
      * Update the existing application.
@@ -68,6 +71,7 @@ public class ApplicationService {
      */
     public void update(Application application) {
         applicationRepository.save(application);
+        businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application updated.");
     }
 
     /**
@@ -84,6 +88,7 @@ public class ApplicationService {
             application.setSupportedTechnicalMessageTypes(supportedTechnicalMessageTypes);
             final var savedApplication = applicationRepository.save(application);
             applicationEventPublisher.publishEvent(new ResendCapabilitiesForApplicationEvent(this, savedApplication.getInternalApplicationId()));
+            businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Supported technical message types defined.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
@@ -162,11 +167,12 @@ public class ApplicationService {
             connectionCriteria.setPort(addRouterDeviceParameters.getPort());
             routerDevice.setConnectionCriteria(connectionCriteria);
             if (null == application.getApplicationSettings()) {
-                LOGGER.debug("The current application did not have application settings, therefore creating new ones.");
+                log.debug("The current application did not have application settings, therefore creating new ones.");
                 application.setApplicationSettings(new ApplicationSettings());
             }
             application.getApplicationSettings().setRouterDevice(routerDevice);
             final var savedApplication = applicationRepository.save(application);
+            businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Added router device to the application.");
             applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());

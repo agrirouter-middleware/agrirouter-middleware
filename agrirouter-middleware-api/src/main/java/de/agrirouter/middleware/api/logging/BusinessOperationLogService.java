@@ -27,4 +27,19 @@ public class BusinessOperationLogService {
         log.info(enhancedMessage, objects);
     }
 
+    /**
+     * Log a business operation.
+     *
+     * @param applicationLogInformation -
+     * @param message                   -
+     * @param objects                   -
+     */
+    public void log(ApplicationLogInformation applicationLogInformation, String message, Object... objects) {
+        final var enhancedMessage = String.format("[iid: '%s'][aid: '%s'] %s",
+                applicationLogInformation.internalApplicationId(),
+                applicationLogInformation.agrirouterApplicationId(),
+                message);
+        log.info(enhancedMessage, objects);
+    }
+
 }
