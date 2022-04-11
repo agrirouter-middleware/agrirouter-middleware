@@ -126,3 +126,23 @@ Running the middleware in QA and in maintenance mode with access to the QA envir
 
 Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
 This mode injects a production environment with spefic URLs for the agrirouter©.
+
+== Logging
+
+Each of the profiles defines the log level based on SLF4J. The following information is available:
+
+=== Business operations
+
+Each changing business operation is logged with the log level "TRACE". The log contains the following information:
+
+* ID of the endpoint (`externalEndpointId` [eid] and `agriroputerEndpointId` [aid]).
+* ID of the application (`internalApplicationId` [iid] `applicationId` [aid]).
+* Log message for the business operation.
+
+=== Trace of business operations
+
+There is an aspect for business operations that logs with the log level "TRACE". The log contains the following information:
+
+* Name of the method that is called.
+* Parameters and parameter values of the method.
+* Execution time of the method.
