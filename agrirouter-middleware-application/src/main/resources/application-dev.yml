@@ -1,9 +1,9 @@
 logging:
   level:
     root: info
-    org.hibernate.SQL: trace
-    org.hibernate.type.descriptor.sql: trace
-    org.springframework.web.filter.CommonsRequestLoggingFilter: trace
+    org.hibernate.SQL: off
+    org.hibernate.type.descriptor.sql: off
+    org.springframework.web.filter.CommonsRequestLoggingFilter: off
     de.agrirouter.middleware: trace
     com.dke.data.agrirouter: off
 

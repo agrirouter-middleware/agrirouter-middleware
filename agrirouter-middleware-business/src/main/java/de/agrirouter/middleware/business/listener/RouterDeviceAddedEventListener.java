@@ -2,28 +2,31 @@ package de.agrirouter.middleware.business.listener;
 
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.RouterDeviceAddedEvent;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 /**
  * Service for application maintenance.
  */
+@Slf4j
 @Service
 public class RouterDeviceAddedEventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RouterDeviceAddedEventListener.class);
-
     private final ApplicationRepository applicationRepository;
     private final MqttClientManagementService mqttClientManagementService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public RouterDeviceAddedEventListener(ApplicationRepository applicationRepository,
-                                          MqttClientManagementService mqttClientManagementService) {
+                                          MqttClientManagementService mqttClientManagementService,
+                                          BusinessOperationLogService businessOperationLogService) {
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -37,14 +40,20 @@ public class RouterDeviceAddedEventListener {
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
             if (application.usesRouterDevice()) {
-                application.getEndpoints().forEach(endpoint -> endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true))));
-                LOGGER.debug("Forcefully disconnect existing clients to prepare the usage of the router device.");
-                application.getEndpoints().forEach(endpoint -> mqttClientManagementService.disconnect(endpoint.asOnboardingResponse(true)));
+                application.getEndpoints().forEach(endpoint -> {
+                    endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Update endpoint information. The endpoint is now using the router device.");
+                });
+                log.debug("Forcefully disconnect existing clients to prepare the usage of the router device.");
+                application.getEndpoints().forEach(endpoint -> {
+                    mqttClientManagementService.disconnect(endpoint.asOnboardingResponse(true));
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Disconnect endpoint to force usage of the router device.");
+                });
             } else {
-                LOGGER.error(ErrorMessageFactory.missingRouterDeviceForApplication().asLogMessage());
+                log.error(ErrorMessageFactory.missingRouterDeviceForApplication().asLogMessage());
             }
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
         }
     }
 }

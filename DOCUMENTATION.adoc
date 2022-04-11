@@ -48,7 +48,7 @@ So please save them to a keystore, a notepad or something else.
 
 === Register an application within the middleware
 
-After finishing the configuration within the agrirotuer© you are ready to setup your application within the middleware.
+After finishing the configuration within the agrirouter© you are ready to set up your application within the middleware.
 There is a dedicated endpoint to register a new application, please see the Swagger documentation of the middleware to have all the details.
 
 === Define the capabilities of the application
@@ -93,8 +93,8 @@ After you created you own endpoint with your chosen `externalEndpointId`, the `e
 There are three main profiles, the `dev` profile, the `qa` profile and the `prod` profile.
 The profiles define which log level is set or which job intervals are configured.You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable.
 
-In addition there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`.
-Those profiles can be set in addtion to the main profiles.
+In addition, there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`.
+Those profiles can be set in addition to the main profiles.
 
 === DEV
 
@@ -125,4 +125,24 @@ Running the middleware in QA and in maintenance mode with access to the QA envir
 `-Dspring.profiles.active=qa,maintenance,connect-agrirouter-prod`
 
 Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
-This mode injects a production environment with spefic URLs for the agrirouter©.
+This mode injects a production environment with specific URLs for the agrirouter©.
+
+== Logging
+
+Each of the profiles defines the log level based on SLF4J. The following information is available:
+
+=== Business operations
+
+Each changing business operation is logged with the log level "TRACE". The log contains the following information:
+
+* ID of the endpoint (`externalEndpointId` [eid] and `agriroputerEndpointId` [aid]).
+* ID of the application (`internalApplicationId` [iid] `applicationId` [aid]).
+* Log message for the business operation.
+
+=== Trace of business operations
+
+There is an aspect for business operations that logs with the log level "TRACE". The log contains the following information:
+
+* Name of the method that is called.
+* Parameters and parameter values of the method.
+* Execution time of the method.

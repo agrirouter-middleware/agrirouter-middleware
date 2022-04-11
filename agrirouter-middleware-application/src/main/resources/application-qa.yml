@@ -3,7 +3,7 @@ logging:
     root: warn
     org.hibernate.SQL: off
     org.hibernate.type.descriptor.sql: off
-    org.springframework.web.filter.CommonsRequestLoggingFilter: trace
+    org.springframework.web.filter.CommonsRequestLoggingFilter: off
     de.agrirouter.middleware: trace
     com.dke.data.agrirouter: off
 

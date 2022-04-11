@@ -27,7 +27,6 @@
         <module>agrirouter-middleware-efdi</module>
         <module>agrirouter-middleware-persistence-search</module>
         <module>agrirouter-middleware-isoxml</module>
-        <module>agrirouter-middleware-business-log</module>
     </modules>
 
     <properties>
@@ -119,12 +118,6 @@
                 <artifactId>agrirouter-middleware-isoxml</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>de.krone.agrirouter</groupId>
-                <artifactId>agrirouter-middleware-business-log</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
 
             <!-- SWAGGER / OPENAPI -->
             <dependency>
@@ -277,6 +270,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
     </dependencies>
 

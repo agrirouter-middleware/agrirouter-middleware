@@ -1,12 +1,16 @@
 package de.agrirouter.middleware.business;
 
 import com.google.protobuf.ByteString;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.stereotype.Service;
+
+import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
 
 /**
  * Service to handle business operations round about publishing non telemetry data.
@@ -16,9 +20,12 @@ import org.springframework.stereotype.Service;
 public class PublishNonTelemetryDataService {
 
     private final SendMessageIntegrationService sendMessageIntegrationService;
+    private final BusinessOperationLogService businessOperationLogService;
 
-    public PublishNonTelemetryDataService(SendMessageIntegrationService sendMessageIntegrationService) {
+    public PublishNonTelemetryDataService(SendMessageIntegrationService sendMessageIntegrationService,
+                                          BusinessOperationLogService businessOperationLogService) {
         this.sendMessageIntegrationService = sendMessageIntegrationService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -34,6 +41,7 @@ public class PublishNonTelemetryDataService {
         messagingIntegrationParameters.setFilename(publishNonTelemetryDataParameters.getFilename());
         messagingIntegrationParameters.setRecipients(publishNonTelemetryDataParameters.getRecipients());
         sendMessageIntegrationService.publish(messagingIntegrationParameters);
+        businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
     }
 
     private ByteString asByteString(String base64EncodedMessageContent) {

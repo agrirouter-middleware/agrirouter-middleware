@@ -2,6 +2,8 @@ package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParameters;
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import de.agrirouter.middleware.integration.VirtualOffboardProcessIntegrationService;
@@ -23,13 +25,16 @@ public class VirtualOffboardProcessService {
     private final EndpointRepository endpointRepository;
     private final VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService;
     private final EndpointService endpointService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public VirtualOffboardProcessService(EndpointRepository endpointRepository,
                                          VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService,
-                                         EndpointService endpointService) {
+                                         EndpointService endpointService,
+                                         BusinessOperationLogService businessOperationLogService) {
         this.endpointRepository = endpointRepository;
         this.virtualOffboardProcessIntegrationService = virtualOffboardProcessIntegrationService;
         this.endpointService = endpointService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -48,6 +53,7 @@ public class VirtualOffboardProcessService {
             offboardVirtualEndpointParameters.setEndpoint(endpoint);
             offboardVirtualEndpointParameters.setEndpointIds(getEndpointIds(virtualOffboardProcessParameters));
             virtualOffboardProcessIntegrationService.offboard(offboardVirtualEndpointParameters);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Virtual endpoint was removed from the AR.");
             offboardVirtualEndpointParameters.getEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());

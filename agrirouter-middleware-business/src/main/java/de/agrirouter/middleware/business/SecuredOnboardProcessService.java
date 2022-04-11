@@ -8,54 +8,54 @@ import com.google.gson.Gson;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
+import de.agrirouter.middleware.api.logging.ApplicationLogInformation;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.global.OnboardStateContainer;
 import de.agrirouter.middleware.business.parameters.OnboardProcessParameters;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /**
  * The service for the onboard process.
  */
+@Slf4j
 @Service
 public class SecuredOnboardProcessService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecuredOnboardProcessService.class);
 
     private final AuthorizationRequestService authorizationRequestService;
     private final OnboardStateContainer onboardStateContainer;
     private final EndpointRepository endpointRepository;
     private final SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService;
     private final ApplicationRepository applicationRepository;
-    private final BusinessLogService businessLogService;
     private final EndpointService endpointService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
                                         EndpointRepository endpointRepository,
                                         SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService,
                                         ApplicationRepository applicationRepository,
-                                        BusinessLogService businessLogService,
                                         EndpointService endpointService,
-                                        ApplicationEventPublisher applicationEventPublisher) {
+                                        ApplicationEventPublisher applicationEventPublisher,
+                                        BusinessOperationLogService businessOperationLogService) {
         this.authorizationRequestService = authorizationRequestService;
         this.onboardStateContainer = onboardStateContainer;
         this.endpointRepository = endpointRepository;
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
         this.applicationRepository = applicationRepository;
-        this.businessLogService = businessLogService;
         this.endpointService = endpointService;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -95,7 +95,7 @@ public class SecuredOnboardProcessService {
                 final var existingEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(onboardProcessParameters.getExternalEndpointId());
                 final var application = optionalApplication.get();
                 if (existingEndpoint.isPresent()) {
-                    LOGGER.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
+                    log.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
                     final var endpoint = existingEndpoint.get();
 
                     if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
@@ -114,16 +114,16 @@ public class SecuredOnboardProcessService {
                         endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
                         endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
 
-                        LOGGER.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
+                        log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
                         endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
                         endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                         endpointRepository.save(endpoint);
-                        businessLogService.onboardEndpointAgain(endpoint);
+                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Endpoint was updated.");
                         endpointService.sendCapabilities(application, endpoint);
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
                     }
                 } else {
-                    LOGGER.debug("Create a new endpoint, since the endpoint does not exist in the database.");
+                    log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
                     final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters();
                     securedOnboardProcessIntegrationParameters.setExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
                     securedOnboardProcessIntegrationParameters.setApplicationId(application.getApplicationId());
@@ -140,9 +140,10 @@ public class SecuredOnboardProcessService {
                     endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
                     endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
                     endpointRepository.save(endpoint);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Endpoint was created.");
                     application.getEndpoints().add(endpoint);
                     applicationRepository.save(application);
-                    businessLogService.onboardEndpoint(endpoint);
+                    businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(),application.getApplicationId()),"The endpoint was added to the application.");
                     endpointService.sendCapabilities(application, endpoint);
                     applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
                 }
@@ -150,7 +151,7 @@ public class SecuredOnboardProcessService {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
             }
         } catch (OnboardingException e) {
-            LOGGER.error("[{}] {}", ErrorMessageFactory.onboardRequestFailed().getKey(), ErrorMessageFactory.onboardRequestFailed().getMessage());
+            log.error("[{}] {}", ErrorMessageFactory.onboardRequestFailed().getKey(), ErrorMessageFactory.onboardRequestFailed().getMessage());
             throw new BusinessException(ErrorMessageFactory.onboardRequestFailed(), e);
         }
     }

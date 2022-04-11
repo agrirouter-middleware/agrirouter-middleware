@@ -195,8 +195,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<RegisterApplicationResponse> update(Principal principal,
-                                                              @Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
+    public ResponseEntity<RegisterApplicationResponse> update(@Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
                                                               @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -224,7 +223,7 @@ public class ApplicationController implements SecuredApiController {
             existingApplication.setApplicationSettings(applicationSettings);
         }
 
-        applicationService.update(principal, existingApplication);
+        applicationService.update(existingApplication);
 
         final var applicationDto = new ApplicationDto();
         modelMapper.map(existingApplication, applicationDto);

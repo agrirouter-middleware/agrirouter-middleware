@@ -13,8 +13,7 @@ import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -22,10 +21,9 @@ import org.springframework.stereotype.Component;
 /**
  * Service to handle the message acknowledgement events.
  */
+@Slf4j
 @Component
 public class MessageAcknowledgementEventListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageAcknowledgementEventListener.class);
 
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final EndpointRepository endpointRepository;
@@ -52,7 +50,7 @@ public class MessageAcknowledgementEventListener {
      */
     @EventListener
     public void handle(MessageAcknowledgementEvent messageAcknowledgementEvent) {
-        LOGGER.debug("Handling the message acknowledgement event.");
+        log.debug("Handling the message acknowledgement event.");
         final var optionalMessageWaitingForAcknowledgement = messageWaitingForAcknowledgementService.findByMessageId(messageAcknowledgementEvent.getDecodedMessageResponse().getResponseEnvelope().getApplicationMessageId());
         if (optionalMessageWaitingForAcknowledgement.isPresent()) {
             final var messageWaitingForAcknowledgement = optionalMessageWaitingForAcknowledgement.get();
@@ -81,49 +79,47 @@ public class MessageAcknowledgementEventListener {
                     final var messages = decodeMessageService.decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails());
                     final var message = messages.getMessages(0);
                     if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType()) && message.getMessageCode().equals("VAL_000004")) {
-                        LOGGER.debug("Looks like there are no recipients for the device description. But the AR received the device description and it was valid. Trigger activation.");
+                        log.debug("Looks like there are no recipients for the device description. But the AR received the device description and it was valid. Trigger activation.");
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
                 }
             }
             messageWaitingForAcknowledgementService.delete(messageWaitingForAcknowledgement);
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindMessageWaitingForAcknowledgement(messageAcknowledgementEvent.getDecodedMessageResponse().getResponseEnvelope().getApplicationMessageId()).asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindMessageWaitingForAcknowledgement(messageAcknowledgementEvent.getDecodedMessageResponse().getResponseEnvelope().getApplicationMessageId()).asLogMessage());
         }
 
     }
 
     private void handleSuccessMessage(MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
-        LOGGER.debug("Since the message had a successful ACK, nothing to do right now. The message waiting for ACK was deleted.");
+        log.debug("Since the message had a successful ACK, nothing to do right now. The message waiting for ACK was deleted.");
         final var optional = endpointRepository.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
         if (optional.isEmpty()) {
-            LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
         }
     }
 
     private void handleSuccessMessageAndUpdateWarnings(DecodeMessageResponse decodedMessageResponse, MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
-        LOGGER.debug("Since the message had a ACK with messages, either the warning or the information is updated. The message waiting for ACK was deleted.");
+        log.debug("Since the message had a ACK with messages, either the warning or the information is updated. The message waiting for ACK was deleted.");
         final var optional = endpointRepository.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
         if (optional.isPresent()) {
             final var endpoint = optional.get();
             if (decodedMessageResponse.getResponseEnvelope().getResponseCode() >= 400) {
                 endpointService.updateWarnings(endpoint, decodedMessageResponse);
-            } else {
-                endpointService.updateInformation(endpoint, decodedMessageResponse);
             }
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
         }
     }
 
     private void handleErrorMessage(DecodeMessageResponse decodedMessageResponse, MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
-        LOGGER.debug("Since the message had a ACK with failure, the errors are updated. The message waiting for ACK was deleted.");
+        log.debug("Since the message had a ACK with failure, the errors are updated. The message waiting for ACK was deleted.");
         final var optional = endpointRepository.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
         if (optional.isPresent()) {
             final var endpoint = optional.get();
             endpointService.updateErrors(endpoint, decodedMessageResponse);
         } else {
-            LOGGER.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
         }
     }
 

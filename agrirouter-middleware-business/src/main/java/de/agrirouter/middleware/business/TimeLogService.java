@@ -6,6 +6,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.cache.TimeLogPeriodSearchCache;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriod;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriods;
@@ -31,6 +33,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
+
 /**
  * Service to handle business operations round about the device descriptions.
  */
@@ -46,19 +50,22 @@ public class TimeLogService {
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final DeviceService deviceService;
     private final TimeLogPeriodSearchCache timeLogPeriodSearchCache;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public TimeLogService(TimeLogRepository timeLogRepository,
                           EndpointRepository endpointRepository,
                           DeviceDescriptionService deviceDescriptionService,
                           SendMessageIntegrationService sendMessageIntegrationService,
                           DeviceService deviceService,
-                          TimeLogPeriodSearchCache timeLogPeriodSearchCache) {
+                          TimeLogPeriodSearchCache timeLogPeriodSearchCache,
+                          BusinessOperationLogService businessOperationLogService) {
         this.timeLogRepository = timeLogRepository;
         this.endpointRepository = endpointRepository;
         this.deviceDescriptionService = deviceDescriptionService;
         this.sendMessageIntegrationService = sendMessageIntegrationService;
         this.deviceService = deviceService;
         this.timeLogPeriodSearchCache = timeLogPeriodSearchCache;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -68,13 +75,13 @@ public class TimeLogService {
      */
     public void publish(PublishTimeLogParameters publishTimeLogParameters) {
         deviceDescriptionService.resendDeviceDescriptionIfNecessary(publishTimeLogParameters.getTeamSetContextId());
-
         final var messagingIntegrationParameters = new MessagingIntegrationParameters();
         messagingIntegrationParameters.setExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
         messagingIntegrationParameters.setTeamSetContextId(publishTimeLogParameters.getTeamSetContextId());
         messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_TIME_LOG);
         messagingIntegrationParameters.setMessage(asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()));
         sendMessageIntegrationService.publish(messagingIntegrationParameters);
+        businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
     }
 
     private ByteString asByteString(String base64EncodedTimeLog) {
@@ -107,6 +114,7 @@ public class TimeLogService {
                 timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
                 timeLog.setDocument(optionalDocument.get());
                 timeLogRepository.save(timeLog);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(),endpoint.getAgrirouterEndpointId()), "Time log has been received and saved.");
             } else {
                 log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
             }

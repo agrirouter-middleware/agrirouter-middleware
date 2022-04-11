@@ -9,9 +9,10 @@ import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.PushMessageEvent;
+import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
+import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.taskdata.TaskDataTimeLogContainer;
@@ -22,8 +23,7 @@ import de.agrirouter.middleware.isoxml.TaskDataTimeLogService;
 import de.agrirouter.middleware.persistence.ContentMessageRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import de.agrirouter.middleware.persistence.TaskDataTimeLogContainerRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -31,13 +31,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
+
 /**
  * Confirm messages from the AR.
  */
+@Slf4j
 @Service
 public class PushMessageEventListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PushMessageEventListener.class);
 
     private final MqttClientManagementService mqttClientManagementService;
     private final EndpointRepository endpointRepository;
@@ -48,7 +49,7 @@ public class PushMessageEventListener {
     private final DeviceDescriptionService deviceDescriptionService;
     private final ContentMessageRepository contentMessageRepository;
     private final TaskDataTimeLogService taskDataTimeLogService;
-    private final BusinessLogService businessLogService;
+    private final BusinessOperationLogService businessOperationLogService;
 
     public PushMessageEventListener(MqttClientManagementService mqttClientManagementService,
                                     EndpointRepository endpointRepository,
@@ -59,7 +60,7 @@ public class PushMessageEventListener {
                                     DeviceDescriptionService deviceDescriptionService,
                                     ContentMessageRepository contentMessageRepository,
                                     TaskDataTimeLogService taskDataTimeLogService,
-                                    BusinessLogService businessLogService) {
+                                    BusinessOperationLogService businessOperationLogService) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointRepository = endpointRepository;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -69,7 +70,7 @@ public class PushMessageEventListener {
         this.deviceDescriptionService = deviceDescriptionService;
         this.contentMessageRepository = contentMessageRepository;
         this.taskDataTimeLogService = taskDataTimeLogService;
-        this.businessLogService = businessLogService;
+        this.businessOperationLogService = businessOperationLogService;
     }
 
     /**
@@ -78,9 +79,8 @@ public class PushMessageEventListener {
      * @param pushMessageArrivedEvent -
      */
     @EventListener
-
     public void pushMessageArrived(PushMessageEvent pushMessageArrivedEvent) {
-        LOGGER.debug("There has been an push notification that has to be handled.");
+        log.debug("There has been an push notification that has to be handled.");
         var pushNotification = decodePushNotificationService.decode(pushMessageArrivedEvent.getFetchMessageResponse().getCommand().getMessage());
         final var messageIdsToConfirm = new HashSet<String>();
         final var receiverId = pushNotification.getMessages(0).getHeader().getReceiverId();
@@ -89,6 +89,7 @@ public class PushMessageEventListener {
             messageIdsToConfirm.add(feedMessage.getHeader().getMessageId());
         });
         confirmMessages(receiverId, messageIdsToConfirm);
+        businessOperationLogService.log(new EndpointLogInformation(NA, pushMessageArrivedEvent.getFetchMessageResponse().getSensorAlternateId()), "Confirming push message that has arrived.");
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -124,23 +125,20 @@ public class PushMessageEventListener {
         contentMessage.setMessageContent(message.toByteArray());
         contentMessage.setContentMessageMetadata(contentMessageMetadata);
         contentMessageRepository.save(contentMessage);
-        businessLogService.persistContentMessage(receiverId, technicalMessageType);
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
             final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
             taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
-            businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
             deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
-            businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
 
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage);
-            businessLogService.persistContentMessageInDocumentStorage(receiverId, technicalMessageType);
         }
+        businessOperationLogService.log(new EndpointLogInformation(NA, receiverId),"Save content message.");
     }
 
     /**
@@ -150,8 +148,8 @@ public class PushMessageEventListener {
      * @param messageIds The IDs of the messages to confirm.
      */
     private void confirmMessages(String endpointId, Set<String> messageIds) {
-        LOGGER.debug("Confirming the messages for the endpoint '{}'.", endpointId);
-        LOGGER.trace("Message IDs >>> {}", messageIds);
+        log.debug("Confirming the messages for the endpoint '{}'.", endpointId);
+        log.trace("Message IDs >>> {}", messageIds);
         if (!messageIds.isEmpty()) {
             final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointId);
             if (optionalEndpoint.isPresent()) {
@@ -166,18 +164,18 @@ public class PushMessageEventListener {
                 messageConfirmationParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
                 final var messageId = messageConfirmationService.send(messageConfirmationParameters);
 
-                LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
                 MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
                 messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
                 messageWaitingForAcknowledgement.setMessageId(messageId);
                 messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
                 messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-                businessLogService.confirmMessages(endpoint);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Confirm content message.");
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
         } else {
-            LOGGER.debug("No messages to confirm, therefore skipping confirmation.");
+            log.debug("No messages to confirm, therefore skipping confirmation.");
         }
     }
 

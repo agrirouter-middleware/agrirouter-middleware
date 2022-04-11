@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class OnboardProcessIntegrationService {
 
-
     private final OnboardingService onboardingService;
 
     public OnboardProcessIntegrationService(OnboardingService onboardingService) {

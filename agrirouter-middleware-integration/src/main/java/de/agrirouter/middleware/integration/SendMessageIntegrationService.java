@@ -12,13 +12,13 @@ import com.dke.data.agrirouter.impl.messaging.SequenceNumberService;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SendMessageServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
-import de.agrirouter.middleware.businesslog.BusinessLogService;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.EndpointRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,31 +29,27 @@ import java.util.ArrayList;
 /**
  * Messaging service for sending or publishing messages.
  */
+@Slf4j
 @Service
 public class SendMessageIntegrationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendMessageIntegrationService.class);
-
     private final MqttClientManagementService mqttClientManagementService;
     private final EncodeMessageService encodeMessageService;
-    private final BusinessLogService businessLogService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final EndpointRepository endpointRepository;
 
     public SendMessageIntegrationService(MqttClientManagementService mqttClientManagementService,
                                          EncodeMessageService encodeMessageService,
-                                         BusinessLogService businessLogService,
                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                          EndpointRepository endpointRepository) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.encodeMessageService = encodeMessageService;
-        this.businessLogService = businessLogService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.endpointRepository = endpointRepository;
     }
 
     /**
-     * Publish a message. If the recipients are set also, the sending mode will be only direct sending, you have to decice between publishing and direct sending.
+     * Publish a message. If the recipients are set also, the sending mode will be only direct sending, you have to decide between publishing and direct sending.
      *
      * @param messagingIntegrationParameters -
      */
@@ -78,9 +74,8 @@ public class SendMessageIntegrationService {
             sendMessageParameters.setEncodedMessages(encodedMessages);
             sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.getTeamSetContextId());
             sendMessageService.send(sendMessageParameters);
-            businessLogService.publishMessage(endpoint, messagingIntegrationParameters.getTechnicalMessageType());
 
-            LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
+            log.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
             messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageHeaderParameters.getApplicationMessageId());
