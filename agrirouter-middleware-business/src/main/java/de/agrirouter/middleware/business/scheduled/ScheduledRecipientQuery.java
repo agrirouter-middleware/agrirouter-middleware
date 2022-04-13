@@ -4,7 +4,6 @@ import agrirouter.request.payload.account.Endpoints;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.parameters.ListEndpointsParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.ListEndpointsServiceImpl;
-import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
@@ -47,23 +46,24 @@ public class ScheduledRecipientQuery {
         endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
             final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
             if (iMqttClient.isEmpty()) {
-                throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()));
-            }
-            final var listEndpointsService = new ListEndpointsServiceImpl(iMqttClient.get());
-            final var parameters = new ListEndpointsParameters();
-            parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-            parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.SEND);
-            parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
-            parameters.setUnfilteredList(false);
-            final var messageId = listEndpointsService.send(parameters);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled recipient query for the endpoint.");
+                log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
+            } else {
+                final var listEndpointsService = new ListEndpointsServiceImpl(iMqttClient.get());
+                final var parameters = new ListEndpointsParameters();
+                parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+                parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.SEND);
+                parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
+                parameters.setUnfilteredList(false);
+                final var messageId = listEndpointsService.send(parameters);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled recipient query for the endpoint.");
 
-            log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-            MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-            messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-            messageWaitingForAcknowledgement.setMessageId(messageId);
-            messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_LIST_ENDPOINTS.getKey());
-            messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+                messageWaitingForAcknowledgement.setMessageId(messageId);
+                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_LIST_ENDPOINTS.getKey());
+                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+            }
         });
     }
 }

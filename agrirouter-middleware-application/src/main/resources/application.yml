@@ -38,7 +38,7 @@ app:
   scheduled:
     connection-check: "0 */1 * * * *"
     fetching-and-confirming-existing-messages: "0 */5 * * * *"
-    status-logging: "0 */1 * * * *"
-    recipient-query: "0 */1 * * * *"
+    status-logging: "0 */5 * * * *"
+    recipient-query: "0 */5 * * * *"
   branding:
     favicon: "/img/favicon.ico"

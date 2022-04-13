@@ -92,7 +92,7 @@ public class SecuredOnboardProcessService {
         try {
             final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(onboardProcessParameters.getInternalApplicationId(), onboardProcessParameters.getTenantId());
             if (optionalApplication.isPresent()) {
-                final var existingEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(onboardProcessParameters.getExternalEndpointId());
+                final var existingEndpoint = endpointRepository.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
                 final var application = optionalApplication.get();
                 if (existingEndpoint.isPresent()) {
                     log.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
@@ -117,6 +117,7 @@ public class SecuredOnboardProcessService {
                         log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
                         endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
                         endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
+                        endpoint.setDeactivated(false);
                         endpointRepository.save(endpoint);
                         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Endpoint was updated.");
                         endpointService.sendCapabilities(application, endpoint);

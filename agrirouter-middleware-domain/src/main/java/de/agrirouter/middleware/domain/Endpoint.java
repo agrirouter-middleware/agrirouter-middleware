@@ -123,4 +123,12 @@ public class Endpoint extends BaseEntity {
         }
     }
 
+    /**
+     * Checks whether the endpoint is a healthy at the moment.
+     *
+     * @return -
+     */
+    public boolean isHealthy() {
+        return !isDeactivated() && getEndpointStatus() != null && getEndpointStatus().getConnectionState().isConnected();
+    }
 }

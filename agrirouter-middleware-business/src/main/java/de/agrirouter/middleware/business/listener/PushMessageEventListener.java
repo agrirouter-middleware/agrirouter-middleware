@@ -138,7 +138,7 @@ public class PushMessageEventListener {
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage);
         }
-        businessOperationLogService.log(new EndpointLogInformation(NA, receiverId),"Save content message.");
+        businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Save content message.");
     }
 
     /**
@@ -156,21 +156,23 @@ public class PushMessageEventListener {
                 final var endpoint = optionalEndpoint.get();
                 final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
                 if (iMqttClient.isEmpty()) {
-                    throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()));
-                }
-                final var messageConfirmationService = new MessageConfirmationServiceImpl(iMqttClient.get());
-                final var messageConfirmationParameters = new MessageConfirmationParameters();
-                messageConfirmationParameters.setMessageIds(new ArrayList<>(messageIds));
-                messageConfirmationParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-                final var messageId = messageConfirmationService.send(messageConfirmationParameters);
+                    log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
+                } else {
 
-                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
-                messageWaitingForAcknowledgement.setMessageId(messageId);
-                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
-                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Confirm content message.");
+                    final var messageConfirmationService = new MessageConfirmationServiceImpl(iMqttClient.get());
+                    final var messageConfirmationParameters = new MessageConfirmationParameters();
+                    messageConfirmationParameters.setMessageIds(new ArrayList<>(messageIds));
+                    messageConfirmationParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+                    final var messageId = messageConfirmationService.send(messageConfirmationParameters);
+
+                    log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                    MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
+                    messageWaitingForAcknowledgement.setMessageId(messageId);
+                    messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
+                    messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Confirm content message.");
+                }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }

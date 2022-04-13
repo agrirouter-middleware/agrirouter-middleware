@@ -116,26 +116,6 @@ public class EndpointService {
     }
 
     /**
-     * Disable an endpoint manually and do not increase the threshold.
-     *
-     * @param externalEndpointId -
-     */
-    @Async
-    public void deactivateEndpointButDoNotIncreaseThreshold(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            log.warn("The endpoint with the id '{}' was deactivated.", endpoint.getExternalEndpointId());
-            log.warn("The endpoint with the AR id '{}' was deactivated.", endpoint.getAgrirouterEndpointId());
-            endpoint.setDeactivated(true);
-            endpointRepository.save(endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deactivated.");
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
-        }
-    }
-
-    /**
      * Delete the endpoint and remove all the data.
      *
      * @param agrirouterEndpointId -

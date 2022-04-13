@@ -23,12 +23,6 @@ public abstract class BaseEntity implements Serializable {
     private long id;
 
     /**
-     * Version of the entity
-     */
-    @Version
-    private int version;
-
-    /**
      * The last update.
      */
     private LocalDateTime lastUpdate;

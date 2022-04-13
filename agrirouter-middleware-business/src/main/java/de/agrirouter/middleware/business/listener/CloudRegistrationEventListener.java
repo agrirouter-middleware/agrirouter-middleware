@@ -86,24 +86,25 @@ public class CloudRegistrationEventListener {
         final var onboardingResponse = endpoint.asOnboardingResponse();
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
         if (iMqttClient.isEmpty()) {
-            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
+            log.error(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()).asLogMessage());
+        }else {
+            final var cloudOffboardingService = new CloudOffboardingServiceImpl(iMqttClient.get());
+            final var parameters = new CloudOffboardingParameters();
+            parameters.setOnboardingResponse(onboardingResponse);
+            parameters.setEndpointIds(getEndpointIds(virtualOffboardProcessIntegrationParameters));
+
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Offboarding the following endpoints {}", String.join(" ,", Objects.requireNonNull(parameters.getEndpointIds())));
+            final var messageId = cloudOffboardingService.send(parameters);
+
+            log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+            MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+            messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+            messageWaitingForAcknowledgement.setMessageId(messageId);
+            messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
+            messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+
+            virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(endpointService::deleteEndpointData);
         }
-        final var cloudOffboardingService = new CloudOffboardingServiceImpl(iMqttClient.get());
-        final var parameters = new CloudOffboardingParameters();
-        parameters.setOnboardingResponse(onboardingResponse);
-        parameters.setEndpointIds(getEndpointIds(virtualOffboardProcessIntegrationParameters));
-
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Offboarding the following endpoints {}", String.join(" ,", Objects.requireNonNull(parameters.getEndpointIds())));
-        final var messageId = cloudOffboardingService.send(parameters);
-
-        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-        MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-        messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
-        messageWaitingForAcknowledgement.setMessageId(messageId);
-        messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
-        messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-
-        virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(endpointService::deleteEndpointData);
     }
 
     private List<String> getEndpointIds(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
