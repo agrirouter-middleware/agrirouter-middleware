@@ -173,8 +173,7 @@ public class EndpointController implements SecuredApiController {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            final var connected = endpoint.getEndpointStatus().getConnectionState().isConnected();
-            if (connected) {
+            if (endpoint.isHealthy()) {
                 return ResponseEntity.status(HttpStatus.OK).build();
             } else {
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();

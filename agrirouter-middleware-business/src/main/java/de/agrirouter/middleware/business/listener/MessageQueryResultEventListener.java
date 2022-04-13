@@ -144,20 +144,21 @@ public class MessageQueryResultEventListener {
                 final var endpoint = optionalEndpoint.get();
                 final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
                 if (iMqttClient.isEmpty()) {
-                    throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()));
-                }
-                final var messageConfirmationService = new MessageConfirmationServiceImpl(iMqttClient.get());
-                final var messageConfirmationParameters = new MessageConfirmationParameters();
-                messageConfirmationParameters.setMessageIds(new ArrayList<>(messageIds));
-                messageConfirmationParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-                final var messageId = messageConfirmationService.send(messageConfirmationParameters);
+                    log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
+                } else {
+                    final var messageConfirmationService = new MessageConfirmationServiceImpl(iMqttClient.get());
+                    final var messageConfirmationParameters = new MessageConfirmationParameters();
+                    messageConfirmationParameters.setMessageIds(new ArrayList<>(messageIds));
+                    messageConfirmationParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+                    final var messageId = messageConfirmationService.send(messageConfirmationParameters);
 
-                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                messageWaitingForAcknowledgement.setAgrirouterEndpointId(agrirouterEndpointId);
-                messageWaitingForAcknowledgement.setMessageId(messageId);
-                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
-                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                    log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                    MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(agrirouterEndpointId);
+                    messageWaitingForAcknowledgement.setMessageId(messageId);
+                    messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
+                    messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
@@ -182,20 +183,21 @@ public class MessageQueryResultEventListener {
                 final var endpoint = optionalEndpoint.get();
                 final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
                 if (iMqttClient.isEmpty()) {
-                    throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()));
-                }
-                final var deleteMessageService = new DeleteMessageServiceImpl(iMqttClient.get());
-                final var deleteMessageParameters = new DeleteMessageParameters();
-                deleteMessageParameters.setMessageIds(new ArrayList<>(messageIds));
-                deleteMessageParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-                final var messageId = deleteMessageService.send(deleteMessageParameters);
+                    log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
+                } else {
+                    final var deleteMessageService = new DeleteMessageServiceImpl(iMqttClient.get());
+                    final var deleteMessageParameters = new DeleteMessageParameters();
+                    deleteMessageParameters.setMessageIds(new ArrayList<>(messageIds));
+                    deleteMessageParameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+                    final var messageId = deleteMessageService.send(deleteMessageParameters);
 
-                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                messageWaitingForAcknowledgement.setAgrirouterEndpointId(agrirouterEndpointId);
-                messageWaitingForAcknowledgement.setMessageId(messageId);
-                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_DELETE.getKey());
-                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                    log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                    MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(agrirouterEndpointId);
+                    messageWaitingForAcknowledgement.setMessageId(messageId);
+                    messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_DELETE.getKey());
+                    messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
@@ -245,21 +247,22 @@ public class MessageQueryResultEventListener {
         log.debug("Fetching and confirming additional existing messages for endpoint '{}'.", endpoint.getExternalEndpointId());
         final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
         if (iMqttClient.isEmpty()) {
-            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()));
-        }
-        MessageQueryService messageQueryService = new MessageQueryServiceImpl(iMqttClient.get());
-        final var parameters = new MessageQueryParameters();
-        parameters.setSentFromInSeconds(Instant.now().minus(28, ChronoUnit.DAYS).getEpochSecond());
-        parameters.setSentToInSeconds(Instant.now().getEpochSecond());
-        parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-        final var messageId = messageQueryService.send(parameters);
+            log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
+        } else {
+            MessageQueryService messageQueryService = new MessageQueryServiceImpl(iMqttClient.get());
+            final var parameters = new MessageQueryParameters();
+            parameters.setSentFromInSeconds(Instant.now().minus(28, ChronoUnit.DAYS).getEpochSecond());
+            parameters.setSentToInSeconds(Instant.now().getEpochSecond());
+            parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+            final var messageId = messageQueryService.send(parameters);
 
-        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-        MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-        messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-        messageWaitingForAcknowledgement.setMessageId(messageId);
-        messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_MESSAGE_QUERY.getKey());
-        messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+            log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+            MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+            messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+            messageWaitingForAcknowledgement.setMessageId(messageId);
+            messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_MESSAGE_QUERY.getKey());
+            messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+        }
     }
 
     @SuppressWarnings("DuplicatedCode")

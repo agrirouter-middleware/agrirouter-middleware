@@ -1,12 +1,13 @@
 package de.agrirouter.middleware.business.scheduled;
 
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,16 +18,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduledConnectionCheck {
 
-    private final EndpointRepository endpointRepository;
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final ApplicationRepository applicationRepository;
+    private final EndpointRepository endpointRepository;
 
-    public ScheduledConnectionCheck(EndpointRepository endpointRepository,
-                                    MqttClientManagementService mqttClientManagementService,
-                                    BusinessOperationLogService businessOperationLogService) {
-        this.endpointRepository = endpointRepository;
+    public ScheduledConnectionCheck(MqttClientManagementService mqttClientManagementService,
+                                    BusinessOperationLogService businessOperationLogService,
+                                    ApplicationRepository applicationRepository,
+                                    EndpointRepository endpointRepository) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.businessOperationLogService = businessOperationLogService;
+        this.applicationRepository = applicationRepository;
+        this.endpointRepository = endpointRepository;
     }
 
     /**
@@ -35,23 +39,52 @@ public class ScheduledConnectionCheck {
     @Scheduled(cron = "${app.scheduled.connection-check}")
     public void connectionCheck() {
         log.debug("Scheduled connection check.");
-        endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
+        applicationRepository.findAll().forEach(application -> application.getEndpoints().forEach(endpoint -> {
+            log.debug("Activating endpoint {} for the connection check.", endpoint.getExternalEndpointId());
+            endpoint.setDeactivated(false);
             try {
                 final var onboardingResponse = endpoint.asOnboardingResponse();
                 final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
                 if (iMqttClient.isEmpty()) {
-                    throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
-                }
-                final var existingiMqttClient = iMqttClient.get();
-                if (existingiMqttClient.isConnected()) {
-                    log.debug("Scheduled connection check for MQTT client '{}' was successful.", existingiMqttClient.getClientId());
+                    log.warn("Deactivating endpoint {}.", endpoint.getExternalEndpointId());
+                    log.warn("Scheduled connection check for endpoint '{}' has FAILED.", endpoint.getExternalEndpointId());
+                    endpoint.setDeactivated(true);
+                    if(!application.usesRouterDevice()) {
+                        mqttClientManagementService.disconnect(onboardingResponse);
+                    }
                 } else {
-                    log.warn("Scheduled connection check for MQTT client '{}' has FAILED.", existingiMqttClient.getClientId());
+                    final var mqttClient = iMqttClient.get();
+                    if (mqttClient.isConnected()) {
+                        mqttClient.unsubscribe(onboardingResponse.getConnectionCriteria().getCommands());
+                        mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
+                        log.debug("Scheduled connection check for MQTT client '{}' was successful.", mqttClient.getClientId());
+                    } else {
+                        log.warn("Deactivating endpoint {}.", endpoint.getExternalEndpointId());
+                        log.warn("Scheduled connection check for MQTT client '{}' has FAILED.", mqttClient.getClientId());
+                        endpoint.setDeactivated(true);
+                        if(!application.usesRouterDevice()) {
+                            mqttClientManagementService.disconnect(onboardingResponse);
+                        }
+                        log.warn("Scheduled connection check for MQTT client '{}' has FAILED.", mqttClient.getClientId());
+                    }
                 }
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled connection check was successful.");
-            } catch (BusinessException e) {
-                log.error("Could not perform connection check for the endpoint '{}' since there was a business exception.", endpoint.getExternalEndpointId(), e);
+            } catch (BusinessException | MqttException e) {
+                endpoint.setDeactivated(true);
+                if(!application.usesRouterDevice()) {
+                    mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
+                }
+                log.error("Could not perform connection check for the endpoint '{}' since there was an exception.", endpoint.getExternalEndpointId(), e);
             }
-        });
+            if (endpoint.isDeactivated()) {
+                log.warn("Removing connection for endpoint {}.", endpoint.getExternalEndpointId());
+                if(!application.usesRouterDevice()) {
+                    mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
+                }
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled connection check was _NOT_ successful. The endpoint was deactivated to reduce error messages.");
+            } else {
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled connection check was successful.");
+            }
+            endpointRepository.save(endpoint);
+        }));
     }
 }
