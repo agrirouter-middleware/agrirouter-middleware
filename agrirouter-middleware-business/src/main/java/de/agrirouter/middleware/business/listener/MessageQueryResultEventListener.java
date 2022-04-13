@@ -131,14 +131,15 @@ public class MessageQueryResultEventListener {
     /**
      * Confirm pending messages for the endpoint.
      *
-     * @param endpointId The ID of the endpoint.
-     * @param messageIds The IDs of the messages to confirm.
+     * @param agrirouterEndpointId The ID of the endpoint.
+     * @param messageIds           The IDs of the messages to confirm.
      */
-    public void confirmMessages(String endpointId, Set<String> messageIds) {
-        log.debug("Confirming {} messages for the endpoint '{}'.", messageIds.size(), endpointId);
+    private void confirmMessages(String agrirouterEndpointId, Set<String> messageIds) {
+        log.debug("Confirming {} messages for the endpoint '{}'.", messageIds.size(), agrirouterEndpointId);
+        log.trace("Message IDs >>> {}", messageIds);
+        businessOperationLogService.log(new EndpointLogInformation(NA, agrirouterEndpointId), "Confirm messages with the following IDs >>> {} ", messageIds);
         if (!messageIds.isEmpty()) {
-            log.trace("Message IDs >>> {}", messageIds);
-            final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointId);
+            final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
             if (optionalEndpoint.isPresent()) {
                 final var endpoint = optionalEndpoint.get();
                 final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
@@ -153,7 +154,7 @@ public class MessageQueryResultEventListener {
 
                     log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
                     MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(agrirouterEndpointId);
                     messageWaitingForAcknowledgement.setMessageId(messageId);
                     messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_CONFIRM.getKey());
                     messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
@@ -169,14 +170,15 @@ public class MessageQueryResultEventListener {
     /**
      * Delete pending messages for the endpoint.
      *
-     * @param endpointId The ID of the endpoint.
-     * @param messageIds The IDs of the messages to confirm.
+     * @param agrirouterEndpointId The ID of the endpoint.
+     * @param messageIds           The IDs of the messages to confirm.
      */
-    public void deleteMessages(String endpointId, Set<String> messageIds) {
-        log.debug("Delete the messages for the endpoint '{}'.", endpointId);
+    private void deleteMessages(String agrirouterEndpointId, Set<String> messageIds) {
+        log.debug("Delete the messages for the endpoint '{}'.", agrirouterEndpointId);
         log.trace("Message IDs >>> {}", messageIds);
+        businessOperationLogService.log(new EndpointLogInformation(NA, agrirouterEndpointId), "Delete messages with the following IDs >>> {} ", messageIds);
         if (!messageIds.isEmpty()) {
-            final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointId);
+            final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
             if (optionalEndpoint.isPresent()) {
                 final var endpoint = optionalEndpoint.get();
                 final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
@@ -191,7 +193,7 @@ public class MessageQueryResultEventListener {
 
                     log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
                     MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpointId);
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(agrirouterEndpointId);
                     messageWaitingForAcknowledgement.setMessageId(messageId);
                     messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_DELETE.getKey());
                     messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
@@ -200,7 +202,7 @@ public class MessageQueryResultEventListener {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
         } else {
-            log.debug("No messages to confirm, therefore skipping confirmation.");
+            log.debug("No messages to delete, therefore skipping method call.");
         }
     }
 
@@ -210,27 +212,34 @@ public class MessageQueryResultEventListener {
      * @param fetchMessageResponse The message response to handle.
      */
     private void saveAndConfirmMessages(FetchMessageResponse fetchMessageResponse) {
-        log.debug("Saving and confirming the messages from the query '{}'.", fetchMessageResponse.getSensorAlternateId());
+        log.debug("Saving and confirming the messages from the query for the endpoint '{}'.", fetchMessageResponse.getSensorAlternateId());
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(fetchMessageResponse.getSensorAlternateId());
         final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
         final var messageQueryResponse = new MessageQueryServiceImpl(null)
                 .decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails().getValue());
+        log.debug("There are {} messages for this query.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
+        log.debug("There are {} messages in this response.", messageQueryResponse.getMessagesCount());
+        log.debug("This is page {} of {} for the query.", messageQueryResponse.getPage().getNumber(), messageQueryResponse.getPage().getTotal());
         final var messageIds = new HashSet<String>();
-        final var receiverId = fetchMessageResponse.getSensorAlternateId();
+        final var agrirouterEndpointId = fetchMessageResponse.getSensorAlternateId();
         messageQueryResponse.getMessagesList().forEach(feedMessage -> {
             saveContentMessage(feedMessage);
             messageIds.add(feedMessage.getHeader().getMessageId());
         });
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            confirmMessages(receiverId, messageIds);
+            final var nrOfMessagesWithinTheInbox = endpoint.getEndpointStatus().getNrOfMessagesWithinTheInbox();
+            if (nrOfMessagesWithinTheInbox > messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery()) {
+                log.warn("The number of messages within the inbox (last status update was {}) is higher than the number of messages in the query. This is not expected. There are {} messages in the inbox and {} messages in the query.", endpoint.getEndpointStatus().getLastUpdate(), nrOfMessagesWithinTheInbox, messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
+            }
+            confirmMessages(agrirouterEndpointId, messageIds);
             if (messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery() > messageQueryResponse.getQueryMetrics().getMaxCountRestriction()) {
                 log.debug("There are {} messages in total, the current count restriction is {}. Sending out another event to fetch the messages.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery(), messageQueryResponse.getQueryMetrics().getMaxCountRestriction());
                 fetchAndConfirmExistingMessages(endpoint);
             }
         } else {
             log.warn("The endpoint was not found in the database, the message was deleted but not saved.");
-            deleteMessages(receiverId, messageIds);
+            deleteMessages(agrirouterEndpointId, messageIds);
         }
     }
 
