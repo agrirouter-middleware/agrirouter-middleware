@@ -29,7 +29,7 @@ logging:
     org.hibernate.type.descriptor.sql: off
     org.springframework.web.filter.CommonsRequestLoggingFilter: off
     de.agrirouter.middleware: trace
-    com.dke.data.agrirouter: off
+    com.dke.data.agrirouter: trace
 
 app:
   fetch-messages:

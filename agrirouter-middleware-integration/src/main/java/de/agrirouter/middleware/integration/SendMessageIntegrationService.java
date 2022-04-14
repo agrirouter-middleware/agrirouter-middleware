@@ -116,7 +116,6 @@ public class SendMessageIntegrationService {
             messageHeaderParameters.setTeamSetContextId(messagingIntegrationParameters.getTeamSetContextId());
         }
 
-        // FIXME Add chunking.
         return messageHeaderParameters;
     }
 

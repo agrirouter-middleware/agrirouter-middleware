@@ -38,7 +38,7 @@
 
         <springdoc-openapi-ui.version>1.6.5</springdoc-openapi-ui.version>
         <mariadb-java-client.version>3.0.3</mariadb-java-client.version>
-        <agrirouter-sdk-java.version>2.1.0</agrirouter-sdk-java.version>
+        <agrirouter-sdk-java.version>2.1.2</agrirouter-sdk-java.version>
         <querydsl.version>5.0.0</querydsl.version>
         <swagger-annotations.version>2.1.2</swagger-annotations.version>
         <protobuf-java.version>4.0.0-rc-2</protobuf-java.version>

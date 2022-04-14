@@ -4,7 +4,7 @@ logging:
 
 app:
   scheduled:
-    connection-check: "0 */5 * * * *"
+    connection-check: "0 */30 * * * *"
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
-    status-logging: "0 */5 * * * *"
-    recipient-query: "0 */5 * * * *"
+    status-logging: "0 */15 * * * *"
+    recipient-query: "0 */30 * * * *"
