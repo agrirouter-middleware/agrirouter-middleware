@@ -52,3 +52,25 @@ Creating the docker image is straight-forward.
 * Build and install all the dependencies via `mvn clean install`.
 * Run `spring-boot:build-image` to create the docker image within the module `agrirouter-middleware-application`.
 * Run `docker run -it -p8080:8080 agrirouter-middleware-application:1.0-SNAPSHOT` to run the container locally.
+
+### Running the whole stack using docker-compose
+
+You can run the whole required stack, including Mongo and MariaDB, using docker-compose.
+
+* copy `.env.example` to `.env` (or run `./prepare-env.sh`, which sets secure passwords)
+* edit `.env`:
+  * set `GITHUB_USER` and `GITHUB_TOKEN` to credentials from Github, the token only needs `read:packages` rights
+  * set all fields marked as "required" (not needed if `prepare-env` has been used)
+* run (one of) the following commands:
+  * `docker-compose build`: builds the agrirouter-middleware sourcecode and packs it into a docker image
+  * `docker-compose up [-d]`: creates and starts all containers (agrirouter middleware, mongo and mysql) [in detached mode]
+  * `docker-compose stop`: stops the running containers
+  * `docker-compose down [-v]`: removes all containers, but keeps the volumes which hold the data [unless -v is specified]
+  * `docker-compose logs [-f]`: print the accumulated logs from all containers [and follow the output]
+
+After the initializaition of the databases is complete (the middleware container will restart multiple times
+because the database is not available yet) and all containers are up, you can extract the generated tenant credentials from the logs:
+
+```
+docker-compose logs middleware | grep "Generated default" -B 2 -A 8
+```
