@@ -59,14 +59,14 @@ There is no need to implement the business process on your own.
 The agrirouter© middleware is ready for certification. What does this mean? By using the agrirouter© middleware you are ready to speed up the certification process, 
 since most of the requirements are already fulfilled by the middleware. To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
 
-|
-[cols="1,1"]
+[cols="1,1,1"]
 |===
 |Certification criteria |Status |Comment 
 
 |Onboarding
 |READY
 |The agrirouter© middleware covers the whole onboarding process. You only need to integrate a button to call one of the endpoints and add the status checking. After this you are ready to go.
+
 |===
 
 
