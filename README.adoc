@@ -64,7 +64,7 @@ since most of the requirements are already fulfilled by the middleware. To get a
 |Certification criteria |Status |Comment 
 
 |Onboarding
-|immage::readme/thumb_up.png
+|image::readme/thumb_up.png
 |The agrirouter© middleware covers the whole onboarding process. You only need to integrate a button to call one of the endpoints and add the status checking. After this you are ready to go.
 
 |===
