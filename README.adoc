@@ -13,7 +13,7 @@ The agrirouter© middleware is an additional layer of abstraction and provides a
 The agrirouter© middleware manages the connections and fetches messages from the agrirouter, based on the technical messages types registered.
 In addition, the agrirouter© middleware provides simple data conversion from ISOXML TaskData to EFDI Telemetry Data and provides searching operations for DDIs and other parts of the specification.
 
-== Current status
+== Current Status
 
 image::https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml/badge.svg[Status badge,link="https://github.com/agrirouter-middleware/agrirouter-middleware/actions/workflows/status_badge.yml"]
 
@@ -42,6 +42,19 @@ image::partners/agrirouter.svg[lmis,175,role="left]
 Without the https://my-agrirouter.com[agrirouter] there would not have been such a project.
 The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
 
+== Functional Documentation
+
+The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project.
+Do you need more than a OpenAPI documentation?
+Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
+
+== Want To Try It?
+
+The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose. All you need to do is to send a request using the https://www.lmis.de/connectivity-service-for-agrirouter/[contact form] on the website.
+The hosting on the QA environment is free and won't be charged. If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
+
+In addition the project has a easy to use Docker compose script, a rapid solution for local development. 
+
 == How Does It Work?
 
 The agrirouter© middleware is an abstraction to the well-known interface of the https://my-agrirouter.com[agrirouter].
@@ -54,11 +67,72 @@ On the other hand the connection to the agrirouter© is based on the faster MQTT
 The messages from the agrirouter© are fetched, confirmed and stored within an internal database.
 There is no need to implement the business process on your own.
 
-=== Interface Documentation
+== Why Should You Use It?
 
-The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project.
-Do you need more than a OpenAPI documentation?
-Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
+The agrirouter© middleware is ready for certification. What does this mean? By using the agrirouter© middleware you are ready to speed up the certification process, 
+since most of the requirements are already fulfilled by the middleware. To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
+
+[cols="1,1,1"]
+|===
+|Certification criteria |Status |Comment 
+
+|Secured Onboarding
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware covers the whole onboarding process. You only need to integrate a button to call one of the endpoints and add the status checking. After this you are ready to go.
+
+|Authorization
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware ships customizable redirect pages and everything you need to connect to the agrirouter© and pass the certiciation.
+
+|Verfication
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware verifies the response from the agrirouter© and adds that extra bit of security.
+
+|Revoking
+a|image::readme/thumb_up.png[ready,25,role="left]
+|If the user wants to disconnect the endpoint, the agrirouter© brings all you need to add this functionality.
+
+|Using / Updating router devices
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware is ready to use router devices and provides an easy way to update the router device.
+
+|VCU onboarding / offboarding
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Using the agrirouter© middleware to run your telemetry platform you are able to register your maschines as virtual endpoints.
+
+|agrirouter© commands
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Since the agrirouter© middleware is based on the agrirouter© SDKs, all the commands are supported and implemented.
+
+|Chunking
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Chunking is necessary for all formats that transport "non-telemetry" data (ISOXML, SHAPE, images, videos, ...) and the agrirouter© middleware is capable of it.
+
+|Encoding
+a|image::readme/thumb_up.png[ready,25,role="left]
+|All messages are encoded correctly, therefore no need to worry.
+
+|Message adressing
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware supports direct adressing as well as publishing of messages.
+
+|Merging chunks
+a|image::readme/thumb_up.png[ready,25,role="left]
+|All messages are fetched from the agrirouter© and can be downloaded even if they are chunked.
+
+|Push notifications
+a|image::readme/thumb_up.png[ready,25,role="left]
+|By default, the agrirouter© middleware uses push notifications to receive messages directly from the agrirouter©. If one of the push notifications has been missed, there is a scheduled job to fetch pending messages.
+
+|Clean you feed
+a|image::readme/thumb_up.png[ready,25,role="left]
+|With the agrirouter© you can rely on a solid mechanism to fetch all messages from the agrirouter©. Nothing will be lost.
+
+|Error handling
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Errors from the agrirouter© will be transformed into speaking business errors (if necessary).
+
+|===
 
 == Release-Management
 
