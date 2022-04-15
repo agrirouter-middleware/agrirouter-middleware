@@ -42,13 +42,13 @@ image::partners/agrirouter.svg[lmis,175,role="left]
 Without the https://my-agrirouter.com[agrirouter] there would not have been such a project.
 The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
 
-=== Functional Documentation
+== Functional Documentation
 
 The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project.
 Do you need more than a OpenAPI documentation?
 Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
 
-=== Want To Try It?
+== Want To Try It?
 
 The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose. All you need to do is to send a request using the https://www.lmis.de/connectivity-service-for-agrirouter/[contact form] on the website.
 The hosting on the QA environment is free and won't be charged. If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
@@ -67,7 +67,7 @@ On the other hand the connection to the agrirouter© is based on the faster MQTT
 The messages from the agrirouter© are fetched, confirmed and stored within an internal database.
 There is no need to implement the business process on your own.
 
-=== Why Should You Use It?
+== Why Should You Use It?
 
 The agrirouter© middleware is ready for certification. What does this mean? By using the agrirouter© middleware you are ready to speed up the certification process, 
 since most of the requirements are already fulfilled by the middleware. To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
