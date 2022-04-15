@@ -48,6 +48,13 @@ The agrirouter© middleware is documented using the OpenAPI standard, you can fi
 Do you need more than a OpenAPI documentation?
 Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
 
+=== Want To Try It?
+
+The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose. All you need to do is to send a request using the https://www.lmis.de/connectivity-service-for-agrirouter/[contact form] on the website.
+The hosting on the QA environment is free and won't be charged. If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
+
+In addition the project has a easy to use Docker compose script, a rapid solution for local development. 
+
 == How Does It Work?
 
 The agrirouter© middleware is an abstraction to the well-known interface of the https://my-agrirouter.com[agrirouter].
