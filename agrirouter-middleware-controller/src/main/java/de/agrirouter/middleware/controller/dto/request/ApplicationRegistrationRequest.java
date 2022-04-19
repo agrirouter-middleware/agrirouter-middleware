@@ -35,11 +35,11 @@ public class ApplicationRegistrationRequest {
     private String applicationId;
 
     /**
-     * The version of the application. Each agriouter version creates a new application in the middleware.
+     * The version of the application. Each agrirouter© version creates a new application in the middleware.
      */
     @NotNull
     @NotBlank
-    @Schema(description = "The version of the application. Each agriouter version creates a new application in the middleware.")
+    @Schema(description = "The version of the application. Each agrirouter© version creates a new application in the middleware.")
     private String versionId;
 
     /**

@@ -38,7 +38,7 @@ public class Application extends BaseEntity {
     private String applicationId;
 
     /**
-     * The version of the application. Each agriouter version creates a new application in the middleware.
+     * The version of the application. Each agrirouter© version creates a new application in the middleware.
      */
     @Column(length = 36, nullable = false, unique = true)
     private String versionId;

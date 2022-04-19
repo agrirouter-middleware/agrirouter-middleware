@@ -22,12 +22,6 @@ public class ApplicationWithEndpointStatusDto {
     private long id;
 
     /**
-     * The version of the entity.
-     */
-    @Schema(description = "The version of the entity.")
-    private int version;
-
-    /**
      * The name of the application.
      */
     @Schema(description = "The name of the application.")
@@ -46,9 +40,9 @@ public class ApplicationWithEndpointStatusDto {
     private String internalApplicationId;
 
     /**
-     * The version of the application. Each agriouter version creates a new application in the middleware.
+     * The version of the application. Each agrirouter© version creates a new application in the middleware.
      */
-    @Schema(description = "The version of the application. Each agriouter version creates a new application in the middleware.")
+    @Schema(description = "The version of the application. Each agrirouter© version creates a new application in the middleware.")
     private String versionId;
 
     /**
