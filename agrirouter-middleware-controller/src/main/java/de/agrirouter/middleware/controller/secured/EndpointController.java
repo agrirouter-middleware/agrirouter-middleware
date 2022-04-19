@@ -3,11 +3,9 @@ package de.agrirouter.middleware.controller.secured;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.controller.dto.request.EndpointHealthStatusRequest;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
-import de.agrirouter.middleware.controller.dto.response.EndpointRecipientsResponse;
-import de.agrirouter.middleware.controller.dto.response.EndpointStatusResponse;
-import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
-import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
+import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
 import de.agrirouter.middleware.controller.dto.response.domain.MessageRecipientDto;
 import de.agrirouter.middleware.controller.helper.CreateEndpointStatusHelper;
@@ -27,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Controller to manage applications.
@@ -182,6 +181,74 @@ public class EndpointController implements SecuredApiController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    /**
+     * Fetch the health status for an endpoint. This is the more common way to have a quick health check for the endpoint.
+     *
+     * @return -
+     */
+    @PostMapping(
+            value = "/health",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "endpoint.health-for-multiple",
+            description = "Fetch the health status of multiple existing endpoints.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "A wrapper object with a status for each of the given IDs.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = EndpointHealthStatusResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<EndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest, @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        Map<String, HttpStatus> endpointStatus = new HashMap<>();
+        endpointHealthStatusRequest.getExternalEndpointIds().forEach(externalEndpointId -> {
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+            if (optionalEndpoint.isPresent()) {
+                final var endpoint = optionalEndpoint.get();
+                if (endpoint.isHealthy()) {
+                    endpointStatus.put(externalEndpointId, HttpStatus.OK);
+                } else {
+                    endpointStatus.put(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE);
+                }
+            } else {
+                endpointStatus.put(externalEndpointId, HttpStatus.NOT_FOUND);
+            }
+        });
+        return ResponseEntity.ok(new EndpointHealthStatusResponse(endpointStatus));
+    }
+
 
     /**
      * Fetch the recipients for an endpoint.
