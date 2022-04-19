@@ -2176,7 +2176,7 @@
           },
           "versionId": {
             "type": "string",
-            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+            "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
           }
         },
         "description": "A container holding the basic representation of an application."
@@ -2737,7 +2737,7 @@
           },
           "versionId": {
             "type": "string",
-            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+            "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
           },
           "privateKey": {
             "type": "string",
@@ -2976,7 +2976,7 @@
           },
           "versionId": {
             "type": "string",
-            "description": "The version of the application. Each agriouter version creates a new application in the middleware."
+            "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
           },
           "endpointsWithStatus": {
             "type": "array",
