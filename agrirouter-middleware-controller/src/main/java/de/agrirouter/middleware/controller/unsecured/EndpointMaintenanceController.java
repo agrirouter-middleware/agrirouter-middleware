@@ -91,11 +91,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<?> resendCapabilitiesAndSubscriptions(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
-                                                                @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
+    public ResponseEntity<?> resendCapabilitiesAndSubscriptions(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resendCapabilities(externalEndpointId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
