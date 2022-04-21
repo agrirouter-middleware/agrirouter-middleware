@@ -12,11 +12,11 @@ public class SaveAndConfirmExistingMessagesEvent extends ApplicationEvent {
     /**
      * The ID of the endpoint to save and confirm the messages for.
      */
-    private final String internalEndpointId;
+    private final String externalEndpointId;
 
-    public SaveAndConfirmExistingMessagesEvent(Object source, String internalEndpointId) {
+    public SaveAndConfirmExistingMessagesEvent(Object source, String externalEndpointId) {
         super(source);
-        this.internalEndpointId = internalEndpointId;
+        this.externalEndpointId = externalEndpointId;
     }
 
 }

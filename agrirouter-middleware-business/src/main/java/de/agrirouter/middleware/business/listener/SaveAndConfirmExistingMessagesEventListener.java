@@ -48,8 +48,8 @@ public class SaveAndConfirmExistingMessagesEventListener {
      */
     @EventListener
     public void handleSaveAndConfirmExistingMessagesEvent(SaveAndConfirmExistingMessagesEvent saveAndConfirmExistingMessagesEvent) {
-        log.debug("Fetching and confirm existing messages for endpoint '{}'.", saveAndConfirmExistingMessagesEvent.getInternalEndpointId());
-        fetchAndConfirmExistingMessages(saveAndConfirmExistingMessagesEvent.getInternalEndpointId());
+        log.debug("Fetching and confirm existing messages for endpoint '{}'.", saveAndConfirmExistingMessagesEvent.getExternalEndpointId());
+        fetchAndConfirmExistingMessages(saveAndConfirmExistingMessagesEvent.getExternalEndpointId());
     }
 
     /**
