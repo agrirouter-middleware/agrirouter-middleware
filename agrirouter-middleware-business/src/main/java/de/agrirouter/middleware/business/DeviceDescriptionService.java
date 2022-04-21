@@ -190,6 +190,7 @@ public class DeviceDescriptionService {
         try {
             return Optional.ofNullable(GrpcEfdi.ISO11783_TaskData.parseFrom(ByteString.copyFrom(bytesString)));
         } catch (InvalidProtocolBufferException e) {
+            log.error("Could not parse device description.", e);
             return Optional.empty();
         }
     }
@@ -204,6 +205,7 @@ public class DeviceDescriptionService {
         try {
             return Optional.ofNullable(GrpcEfdi.ISO11783_TaskData.parseFrom(ByteString.copyFrom(deviceDescription)));
         } catch (InvalidProtocolBufferException e) {
+            log.error("Could not parse device description.", e);
             return Optional.empty();
         }
     }
@@ -327,7 +329,7 @@ public class DeviceDescriptionService {
     }
 
     /**
-     * Look up and resend the device descriptiuon if needed.
+     * Look up and resend the device description if needed.
      *
      * @param teamSetContextId -
      */
