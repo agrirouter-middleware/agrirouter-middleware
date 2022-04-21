@@ -62,7 +62,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
     @EventListener
     public void updateSubscriptionsForEndpoint(UpdateSubscriptionsForEndpointEvent updateSubscriptionsForEndpointEvent) {
         log.debug("Update subscriptions.");
-        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(updateSubscriptionsForEndpointEvent.getInternalEndpointId());
+        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(updateSubscriptionsForEndpointEvent.getAgrirouterEndpointId());
         if (optionalEndpoint.isPresent()) {
             resendSubscriptions(optionalEndpoint.get().getExternalEndpointId());
             businessOperationLogService.log(new EndpointLogInformation(optionalEndpoint.get().getExternalEndpointId(), optionalEndpoint.get().getAgrirouterEndpointId()), "Subscriptions updated.");
