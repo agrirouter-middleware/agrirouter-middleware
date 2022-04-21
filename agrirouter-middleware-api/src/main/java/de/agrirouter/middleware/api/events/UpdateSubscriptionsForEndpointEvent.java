@@ -12,11 +12,11 @@ public class UpdateSubscriptionsForEndpointEvent extends ApplicationEvent {
     /**
      * The ID of the endpoint to update the subscriptions for.
      */
-    private final String internalEndpointId;
+    private final String agrirouterEndpointId;
 
-    public UpdateSubscriptionsForEndpointEvent(Object source, String internalEndpointId) {
+    public UpdateSubscriptionsForEndpointEvent(Object source, String agrirouterEndpointId) {
         super(source);
-        this.internalEndpointId = internalEndpointId;
+        this.agrirouterEndpointId = agrirouterEndpointId;
     }
 
 }
