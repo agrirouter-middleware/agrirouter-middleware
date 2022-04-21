@@ -46,7 +46,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
      * @return HTTP 201 after completion.
      */
     @PutMapping(
-            "/resend/capabilities-and-subscriptions/{internalEndpointId}"
+            "/resend/capabilities-and-subscriptions/{externalEndpointId}"
     )
     @Operation(
             operationId = "maintenance.resend-capabilities",
@@ -91,12 +91,12 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<?> resendCapabilitiesAndSubscriptions(@Parameter(description = "The internal endpoint ID.", required = true) @PathVariable String internalEndpointId,
+    public ResponseEntity<?> resendCapabilitiesAndSubscriptions(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                                 @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
-        endpointService.resendCapabilities(internalEndpointId);
+        endpointService.resendCapabilities(externalEndpointId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
