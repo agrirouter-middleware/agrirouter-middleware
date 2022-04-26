@@ -21,6 +21,6 @@ public class EndpointHealthStatusResponse extends Response {
      * The status for each of the endpoints.
      */
     @Schema(description = "The status for each of the endpoints. This would be either a HTTP 200, if the endpoint is connected, a HTTP 503 if the endpoints has some problems or a HTTP 404 otherwise.")
-    Map<String, HttpStatus> endpointStatus;
+    Map<String, Integer> endpointStatus;
 
 }
