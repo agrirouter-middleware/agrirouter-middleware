@@ -179,6 +179,7 @@ public class EndpointService {
      * @param externalEndpointId The internal ID of the endpoint.
      */
     @Async
+    @Transactional
     public void resendCapabilities(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
