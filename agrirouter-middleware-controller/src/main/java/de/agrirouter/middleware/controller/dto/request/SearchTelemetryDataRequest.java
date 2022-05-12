@@ -36,12 +36,6 @@ public class SearchTelemetryDataRequest {
     private String teamSetContextId;
 
     /**
-     * The ID of the time log period.
-     */
-    @Schema(description = "The ID of the time log period.")
-    private String timeLogPeriodId;
-
-    /**
      * The beginning of the time interval.
      */
     @Schema(description = "The beginning of the time interval. Default value would be 4 weeks ago.")

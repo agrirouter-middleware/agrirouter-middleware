@@ -25,11 +25,6 @@ public class MessagesForTimeLogPeriodParameters {
     private String teamSetContextId;
 
     /**
-     * The ID of the time log period.
-     */
-    private String timeLogPeriodId;
-
-    /**
      * The beginning of the time interval.
      */
     private Long sendFrom;
@@ -43,15 +38,6 @@ public class MessagesForTimeLogPeriodParameters {
      * The DDIs to list, if null or empty all DDIs will be listed and no filter will be applied.
      */
     private Set<Integer> ddisToList;
-
-    /**
-     * Should be filtered by time?
-     *
-     * @return -
-     */
-    public boolean shouldSearchInASpecificTimePeriod() {
-        return null != timeLogPeriodId;
-    }
 
     /**
      * Should be filtered by time?

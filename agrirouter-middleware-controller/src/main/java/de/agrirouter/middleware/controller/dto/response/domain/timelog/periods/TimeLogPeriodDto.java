@@ -15,12 +15,6 @@ import java.time.Instant;
 public class TimeLogPeriodDto {
 
     /**
-     * The internal ID to reference the search results.
-     */
-    @Schema(description = "The internal ID to reference the search results.")
-    private String id;
-
-    /**
      * Begin of the period.
      */
     @Schema(description = "Begin of the period.")
