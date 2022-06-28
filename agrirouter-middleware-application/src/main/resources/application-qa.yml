@@ -13,3 +13,4 @@ app:
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
     status-logging: "0 */5 * * * *"
     recipient-query: "0 */5 * * * *"
+    empty-message-cache: "0 */15 * * * *"

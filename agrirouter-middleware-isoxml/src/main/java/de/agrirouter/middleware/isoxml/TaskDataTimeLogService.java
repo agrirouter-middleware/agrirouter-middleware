@@ -5,8 +5,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.isoxml.domain.Constants;
 import de.agrirouter.middleware.isoxml.domain.TimeStart;
 import de.agrirouter.middleware.isoxml.reader.ByteValueReader;
-import de.krone.agrirouter.middleware.isoxml.PTN;
-import de.krone.agrirouter.middleware.isoxml.TIM;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -50,7 +50,7 @@
                     </sources>
                     <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
                     <clearOutputDir>false</clearOutputDir>
-                    <packageName>de.krone.agrirouter.middleware.isoxml</packageName>
+                    <packageName>de.agrirouter.middleware.isoxml</packageName>
                 </configuration>
             </plugin>
         </plugins>

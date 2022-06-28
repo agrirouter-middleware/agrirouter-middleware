@@ -34,6 +34,11 @@
       "name": "app.branding.favicon",
       "type": "java.lang.String",
       "description": "An url to a favicon. Can be a relative or an absolute url. Default is the agrirouter© middleware icon."
+    },
+        {
+      "name": "app.scheduled.empty-message-cache",
+      "type": "java.lang.String",
+      "description": "The interval for the empty message cache, has to be a valid CRON expression."
     }
   ]
 }
