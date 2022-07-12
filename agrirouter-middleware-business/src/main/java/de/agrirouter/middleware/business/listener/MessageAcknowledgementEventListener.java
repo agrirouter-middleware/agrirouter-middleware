@@ -9,6 +9,7 @@ import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.events.MessageAcknowledgementEvent;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -31,16 +32,20 @@ public class MessageAcknowledgementEventListener {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
 
+    private final MessageCache messageCache;
+
     public MessageAcknowledgementEventListener(MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                EndpointRepository endpointRepository,
                                                EndpointService endpointService,
                                                ApplicationEventPublisher applicationEventPublisher,
-                                               DecodeMessageService decodeMessageService) {
+                                               DecodeMessageService decodeMessageService,
+                                               MessageCache messageCache) {
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.endpointRepository = endpointRepository;
         this.endpointService = endpointService;
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
+        this.messageCache = messageCache;
     }
 
     /**

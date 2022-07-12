@@ -1,9 +1,7 @@
 package de.agrirouter.middleware.business.parameters;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,6 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class PublishNonTelemetryDataParameters {
 
     /**
