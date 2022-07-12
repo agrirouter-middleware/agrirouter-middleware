@@ -8,7 +8,6 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.business.cache.TimeLogPeriodSearchCache;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriod;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriods;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriodsForDevice;
@@ -49,7 +48,6 @@ public class TimeLogService {
     private final DeviceDescriptionService deviceDescriptionService;
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final DeviceService deviceService;
-    private final TimeLogPeriodSearchCache timeLogPeriodSearchCache;
     private final BusinessOperationLogService businessOperationLogService;
 
     public TimeLogService(TimeLogRepository timeLogRepository,
@@ -57,14 +55,12 @@ public class TimeLogService {
                           DeviceDescriptionService deviceDescriptionService,
                           SendMessageIntegrationService sendMessageIntegrationService,
                           DeviceService deviceService,
-                          TimeLogPeriodSearchCache timeLogPeriodSearchCache,
                           BusinessOperationLogService businessOperationLogService) {
         this.timeLogRepository = timeLogRepository;
         this.endpointRepository = endpointRepository;
         this.deviceDescriptionService = deviceDescriptionService;
         this.sendMessageIntegrationService = sendMessageIntegrationService;
         this.deviceService = deviceService;
-        this.timeLogPeriodSearchCache = timeLogPeriodSearchCache;
         this.businessOperationLogService = businessOperationLogService;
     }
 
@@ -114,7 +110,7 @@ public class TimeLogService {
                 timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
                 timeLog.setDocument(optionalDocument.get());
                 timeLogRepository.save(timeLog);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(),endpoint.getAgrirouterEndpointId()), "Time log has been received and saved.");
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Time log has been received and saved.");
             } else {
                 log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
             }
@@ -166,35 +162,26 @@ public class TimeLogService {
      * @return The list of time logs.
      */
     public List<TimeLog> getMessagesForTimeLogPeriod(MessagesForTimeLogPeriodParameters messagesForTimeLogPeriodParameters) {
-        List<TimeLog> timelogs;
-        if (messagesForTimeLogPeriodParameters.shouldSearchInASpecificTimePeriod()) {
-            final var messageIds = timeLogPeriodSearchCache.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters.getInternalDeviceId(), messagesForTimeLogPeriodParameters.getTeamSetContextId(), messagesForTimeLogPeriodParameters.getTimeLogPeriodId());
-            if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
-                timelogs = timeLogRepository.findAllByMessageIdInAndTimestampBetween(messageIds, messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
-            } else {
-                timelogs = timeLogRepository.findAllByMessageIdIn(messageIds);
-            }
-        } else {
-            if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
-                timelogs = timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
-            } else {
-                log.warn("This would have been a search over all time logs, this causes an exception, since there has to be either a filter for period or a filter for time.");
-                throw new BusinessException(ErrorMessageFactory.missingFilterCriteriaForTimeLogSearch());
-            }
-        }
-        if (null != messagesForTimeLogPeriodParameters.getDdisToList() && !messagesForTimeLogPeriodParameters.getDdisToList().isEmpty()) {
-            timelogs.forEach(timeLog -> {
-                final var document = timeLog.getDocument();
-                final var timeEntries = document.getList("time", Document.class);
-                timeEntries.forEach(timeEntry -> {
-                    final var dataLogValues = timeEntry.getList("dataLogValue", Document.class);
-                    final var filteredDataLogValues = dataLogValues.stream().filter(d -> messagesForTimeLogPeriodParameters.getDdisToList().contains(d.getInteger("processDataDdi"))).toList();
-                    timeEntry.put("dataLogValue", filteredDataLogValues);
+        List<TimeLog> timeLogs;
+        if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
+            timeLogs = timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
+            if (null != messagesForTimeLogPeriodParameters.getDdisToList() && !messagesForTimeLogPeriodParameters.getDdisToList().isEmpty()) {
+                timeLogs.forEach(timeLog -> {
+                    final var document = timeLog.getDocument();
+                    final var timeEntries = document.getList("time", Document.class);
+                    timeEntries.forEach(timeEntry -> {
+                        final var dataLogValues = timeEntry.getList("dataLogValue", Document.class);
+                        final var filteredDataLogValues = dataLogValues.stream().filter(d -> messagesForTimeLogPeriodParameters.getDdisToList().contains(d.getInteger("processDataDdi"))).toList();
+                        timeEntry.put("dataLogValue", filteredDataLogValues);
+                    });
+                    document.put("time", timeEntries);
                 });
-                document.put("time", timeEntries);
-            });
+            }
+            return timeLogs;
+        } else {
+            log.warn("This would have been a search over all time logs, this causes an exception, since there has to be either a filter for period or a filter for time.");
+            throw new BusinessException(ErrorMessageFactory.missingFilterCriteriaForTimeLogSearch());
         }
-        return timelogs;
     }
 
     /**

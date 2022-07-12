@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:5.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=changeit
+      - MONGO_INITDB_DATABASE=agriroutermiddleware
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+    restart: unless-stopped
+
+  mysql:
+    image: mariadb:10.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeit
+      - MYSQL_DATABASE=agriroutermiddleware
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=changeit
+    volumes: 
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  mongo_data: {}
+  mysql_data: {}

@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="maintenance" />
+    <envs>
+      <env name="MONGODB_HOST" value="localhost" />
+      <env name="MONGODB_PASSWORD" value="changeit" />
+      <env name="MONGODB_PORT" value="27017" />
+      <env name="MONGODB_SCHEMA" value="agriroutermiddleware" />
+      <env name="MONGODB_USER" value="mongouser" />
+      <env name="MYSQL_HOST" value="localhost" />
+      <env name="MYSQL_PASSWORD" value="changeit" />
+      <env name="MYSQL_PORT" value="3306" />
+      <env name="MYSQL_SCHEMA" value="agriroutermiddleware" />
+      <env name="MYSQL_USER" value="mysqluser" />
+    </envs>
+    <module name="agrirouter-middleware-application" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="de.agrirouter.middleware.Main" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

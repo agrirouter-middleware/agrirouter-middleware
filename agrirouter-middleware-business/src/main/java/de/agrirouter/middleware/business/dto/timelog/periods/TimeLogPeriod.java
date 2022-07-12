@@ -12,11 +12,6 @@ import java.util.UUID;
 public class TimeLogPeriod {
 
     /**
-     * The internal ID to reference the search results.
-     */
-    private final String id;
-
-    /**
      * Begin of the period.
      */
     private final long begin;
@@ -37,7 +32,6 @@ public class TimeLogPeriod {
     private final Set<String> messageIds;
 
     public TimeLogPeriod(long begin, long end, int nrOfTimeLogs, Set<String> messageIds) {
-        id = UUID.randomUUID().toString();
         this.begin = begin;
         this.end = end;
         this.nrOfTimeLogs = nrOfTimeLogs;
