@@ -41,9 +41,61 @@
     {
       "name": "telemetry platform management",
       "description": "Operations for telemetry platform management, i.e. onboard process for (virtual) endpoints or revoking endpoints."
+    },
+    {
+      "name": "maintenance",
+      "description": "Maintenance operations for internal usage. Do NOT use this profile in production."
     }
   ],
   "paths": {
+    "/unsecured/api/maintenance/endpoint/resend/capabilities-and-subscriptions/{externalEndpointId}": {
+      "put": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Resend the capabilities and subscriptions for the endpoint.",
+        "operationId": "maintenance.resend-capabilities",
+        "parameters": [
+          {
+            "name": "externalEndpointId",
+            "in": "path",
+            "description": "The external endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "In case the operation was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/secured/api/application": {
       "put": {
         "tags": [
@@ -272,6 +324,57 @@
             "secured-api": []
           }
         ]
+      }
+    },
+    "/unsecured/api/maintenance/tenant/register": {
+      "post": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Register a new tenant within the middleware. Can be skipped if you only use the default tenant.",
+        "operationId": "maintenance.tenant.register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "In case the tenant was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/secured/api/telemetry-platform/{endpointId}/virtual": {
@@ -1297,6 +1400,47 @@
         }
       }
     },
+    "/unsecured/api/maintenance/tenant/": {
+      "get": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Find all tenants within the middleware.",
+        "operationId": "maintenance.tenant.find-all",
+        "responses": {
+          "200": {
+            "description": "In case there are tenants.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindTenantResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/unsecured/api/farming-software/{applicationId}/{externalEndpointId}": {
       "get": {
         "tags": [
@@ -1949,47 +2093,6 @@
   },
   "components": {
     "schemas": {
-      "ApplicationDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The technical ID of the entity.",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the application."
-          },
-          "applicationId": {
-            "type": "string",
-            "description": "The agrirouter© ID of the application."
-          },
-          "internalApplicationId": {
-            "type": "string",
-            "description": "The internal ID of the application."
-          },
-          "versionId": {
-            "type": "string",
-            "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
-          }
-        },
-        "description": "A container holding the basic representation of an application."
-      },
-      "UpdateApplicationResponse": {
-        "type": "object",
-        "properties": {
-          "timestamp": {
-            "type": "string",
-            "description": "The timestamp (UTC) of the response.",
-            "format": "date-time"
-          },
-          "application": {
-            "$ref": "#/components/schemas/ApplicationDto"
-          }
-        },
-        "description": "The response after an application has been successfully updated."
-      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -2053,6 +2156,47 @@
           }
         },
         "description": "Generic error response to map parameter validation errors and provide clean API description without publishing internals."
+      },
+      "ApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The technical ID of the entity.",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the application."
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "The agrirouter© ID of the application."
+          },
+          "internalApplicationId": {
+            "type": "string",
+            "description": "The internal ID of the application."
+          },
+          "versionId": {
+            "type": "string",
+            "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
+          }
+        },
+        "description": "A container holding the basic representation of an application."
+      },
+      "UpdateApplicationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "application": {
+            "$ref": "#/components/schemas/ApplicationDto"
+          }
+        },
+        "description": "The response after an application has been successfully updated."
       },
       "UpdateApplicationRequest": {
         "required": [
@@ -2216,6 +2360,38 @@
         },
         "description": "A router device from the AR."
       },
+      "TenantRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "tenantId": {
+            "type": "string",
+            "description": "Internal ID of the tenant."
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Access token for API usage. Will be shown only once, therefore better save this one."
+          }
+        },
+        "description": "The response after the tenant was registered."
+      },
+      "TenantRegistrationRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant, has to be unique."
+          }
+        },
+        "description": "The request holding information to register a new tenant."
+      },
       "OnboardVirtualEndpointRequest": {
         "required": [
           "endpointName",
@@ -2283,10 +2459,6 @@
           "teamSetContextId": {
             "type": "string",
             "description": "The team set context ID."
-          },
-          "timeLogPeriodId": {
-            "type": "string",
-            "description": "The ID of the time log period."
           },
           "sendFrom": {
             "type": "integer",
@@ -2622,6 +2794,38 @@
           }
         },
         "description": "The request parameters to register an application."
+      },
+      "FindTenantResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "tenants": {
+            "type": "array",
+            "description": "The tenants found for the request.",
+            "items": {
+              "$ref": "#/components/schemas/TenantDto"
+            }
+          }
+        },
+        "description": "The response when searching for tenants."
+      },
+      "TenantDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "description": "Internal ID of the tenant."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant."
+          }
+        },
+        "description": "Representation of a tenant within the middleware."
       },
       "EndpointRecipientsResponse": {
         "type": "object",
