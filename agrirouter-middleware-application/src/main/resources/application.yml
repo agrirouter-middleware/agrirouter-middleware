@@ -43,3 +43,6 @@ app:
     empty-message-cache: "0 */15 * * * *"
   branding:
     favicon: "/img/favicon.ico"
+  cache:
+    transient-message-cache:
+      time-to-live-in-seconds: 300

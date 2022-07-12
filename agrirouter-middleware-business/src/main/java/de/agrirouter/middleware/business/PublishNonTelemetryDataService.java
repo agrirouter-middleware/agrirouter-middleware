@@ -5,14 +5,11 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
-import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
 
@@ -56,7 +53,7 @@ public class PublishNonTelemetryDataService {
             sendMessageIntegrationService.publish(messagingIntegrationParameters);
             businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
         } else {
-            log.warn("Could not publish data. No connection to endpoint.");
+            log.warn("Could not publish data. No connection to agrirouter©.");
             log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
             cacheNonTelemetryMessage(publishNonTelemetryDataParameters);
             businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");

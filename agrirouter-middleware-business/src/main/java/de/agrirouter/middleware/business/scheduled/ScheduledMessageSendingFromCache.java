@@ -18,7 +18,9 @@ public class ScheduledMessageSendingFromCache {
         this.messageCache = messageCache;
     }
 
-
+    /**
+     * Send messages from cache.
+     */
     @Scheduled(cron = "${app.scheduled.empty-message-cache}")
     public void sendMessagesFromCache(){
         log.info("Sending messages from cache.");

@@ -9,7 +9,6 @@ import java.util.List;
  */
 public interface MessageCache {
 
-
     /**
      * Save message to the internal cache.
      *
@@ -25,5 +24,10 @@ public interface MessageCache {
      * Send all messages in the cache.
      */
     void sendMessages();
+
+    /**
+     * Removing all messages.
+     */
+    void clear();
 
 }
