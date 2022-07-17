@@ -68,11 +68,7 @@ public class PublishNonTelemetryDataService {
     private void cacheNonTelemetryMessage(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         log.info("Message saved to cache. Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
         log.info("Message: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
-        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(),
-                publishNonTelemetryDataParameters.getBase64EncodedMessageContent(),
-                publishNonTelemetryDataParameters.getFilename(),
-                publishNonTelemetryDataParameters.getRecipients(),
-                publishNonTelemetryDataParameters.getContentMessageType());
+        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(),publishNonTelemetryDataParameters);
     }
 
     private boolean checkConnectionForEndpoint(String externalEndpointId) {

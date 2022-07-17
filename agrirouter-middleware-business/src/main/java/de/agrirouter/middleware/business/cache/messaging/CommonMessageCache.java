@@ -1,13 +1,11 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Cache for messages.
@@ -32,14 +30,7 @@ abstract class CommonMessageCache implements MessageCache {
                 log.debug("Message cache entry expired. Skipping.");
             } else {
                 log.debug("Sending message from cache.");
-                PublishNonTelemetryDataParameters publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters(
-                        messageCacheEntry.externalEndpointId,
-                        messageCacheEntry.base64EncodedMessageContent,
-                        messageCacheEntry.contentMessageType,
-                        messageCacheEntry.filename,
-                        messageCacheEntry.recipients
-                );
-                publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
+                publishNonTelemetryDataService.publish(messageCacheEntry.publishNonTelemetryDataParameters);
             }
         }
     }
@@ -55,20 +46,14 @@ abstract class CommonMessageCache implements MessageCache {
     /**
      * Cache entry.
      *
-     * @param externalEndpointId          The external endpoint ID.
-     * @param base64EncodedMessageContent The base64 encoded message content.
-     * @param filename                    The filename.
-     * @param recipients                  The recipients.
-     * @param contentMessageType          The content message type.
-     * @param createdAt                   The time when the cache entry was created.
-     * @param ttl                         The time to live in seconds.
+     * @param externalEndpointId                The external endpoint ID.
+     * @param publishNonTelemetryDataParameters Parameters for publishing non telemetry data.
+     * @param createdAt                         The time when the cache entry was created.
+     * @param ttl                               The time to live in seconds.
      */
     public record MessageCacheEntry(
             String externalEndpointId,
-            String base64EncodedMessageContent,
-            String filename,
-            List<String> recipients,
-            ContentMessageType contentMessageType,
+            PublishNonTelemetryDataParameters publishNonTelemetryDataParameters,
             long createdAt,
             long ttl
     ) {

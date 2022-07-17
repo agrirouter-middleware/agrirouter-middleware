@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 
 import java.util.List;
 
@@ -13,12 +14,9 @@ public interface MessageCache {
      * Save message to the internal cache.
      *
      * @param externalEndpointId          External endpoint ID.
-     * @param base64EncodedMessageContent Base64 encoded message content.
-     * @param filename                    Name of the file.
-     * @param recipients                  List of recipients.
-     * @param contentMessageType          Content message type.
+     * @param publishNonTelemetryDataParameters Parameters for publishing non telemetry data.
      */
-    void put(String externalEndpointId, String base64EncodedMessageContent, String filename, List<String> recipients, ContentMessageType contentMessageType);
+    void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters);
 
     /**
      * Send all messages in the cache.
