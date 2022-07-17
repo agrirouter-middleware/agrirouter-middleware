@@ -10,6 +10,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.cache.registration.TransientMachineRegistrationCache;
 import de.agrirouter.middleware.business.parameters.CreateDeviceDescriptionParameters;
 import de.agrirouter.middleware.business.parameters.RegisterMachineParameters;
 import de.agrirouter.middleware.domain.ContentMessage;
@@ -52,16 +53,20 @@ public class DeviceDescriptionService {
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
 
+    private final TransientMachineRegistrationCache machineRegistrationCache;
+
     public DeviceDescriptionService(DeviceDescriptionRepository deviceDescriptionRepository,
                                     EndpointRepository endpointRepository,
                                     DeviceRepository deviceRepository,
                                     SendMessageIntegrationService sendMessageIntegrationService,
-                                    BusinessOperationLogService businessOperationLogService) {
+                                    BusinessOperationLogService businessOperationLogService,
+                                    TransientMachineRegistrationCache machineRegistrationCache) {
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.endpointRepository = endpointRepository;
         this.deviceRepository = deviceRepository;
         this.sendMessageIntegrationService = sendMessageIntegrationService;
         this.businessOperationLogService = businessOperationLogService;
+        this.machineRegistrationCache = machineRegistrationCache;
     }
 
     /**
@@ -257,19 +262,30 @@ public class DeviceDescriptionService {
         }
     }
 
+
     /**
      * Register a machine and return the dedicated team set context ID.
      *
-     * @param registerMachineParameters -
+     * @param registerMachineParameters The parameters for the registration.
      * @return -
      */
     public String registerMachine(RegisterMachineParameters registerMachineParameters) {
+        return registerMachine(IdFactory.teamSetContextId(), registerMachineParameters);
+    }
+
+    /**
+     * Register a machine and return the dedicated team set context ID.
+     *
+     * @param teamSetContextId          The team set context ID.
+     * @param registerMachineParameters The parameters for the registration.
+     * @return -
+     */
+    private String registerMachine(String teamSetContextId, RegisterMachineParameters registerMachineParameters) {
         log.debug("Register machine and return a team set context ID for the device description.");
         final var optionalISO11783TaskData = parse(registerMachineParameters.getBase64EncodedDeviceDescription());
         if (optionalISO11783TaskData.isPresent()) {
             final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(registerMachineParameters.getExternalEndpointId());
             if (optionalEndpoint.isPresent()) {
-                final var teamSetContextId = IdFactory.teamSetContextId();
                 final var endpoint = optionalEndpoint.get();
                 final var createDeviceDescriptionParameters = new CreateDeviceDescriptionParameters();
                 createDeviceDescriptionParameters.setBase64EncodedDeviceDescription(registerMachineParameters.getBase64EncodedDeviceDescription());
@@ -285,7 +301,9 @@ public class DeviceDescriptionService {
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
                 return teamSetContextId;
             } else {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+                log.debug("No endpoint found for the given external endpoint ID. Caching the device description. This could be the case if the virtual endpoint is not yet created.");
+                machineRegistrationCache.put(registerMachineParameters.getExternalEndpointId(), teamSetContextId, registerMachineParameters);
+                return teamSetContextId;
             }
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotParseDeviceDescription());
@@ -354,4 +372,15 @@ public class DeviceDescriptionService {
         }
     }
 
+    /**
+     * Checks if there is a cached device description for the given external endpoint ID and sends it to the agrirouter. Could be the case if sending the device description was faster than the virtual endpoint was created.
+     *
+     * @param externalEndpointId The external endpoint ID of the virtual endpoint.
+     */
+    public void checkAndSendCachedDeviceDescription(String externalEndpointId) {
+        machineRegistrationCache.pop(externalEndpointId).ifPresent(ce -> {
+            log.debug("Sending the cached device description for the virtual endpoint '{}' to the agrirouter.", externalEndpointId);
+            registerMachine(ce.teamSetContextId(), ce.registerMachineParameters());
+        });
+    }
 }

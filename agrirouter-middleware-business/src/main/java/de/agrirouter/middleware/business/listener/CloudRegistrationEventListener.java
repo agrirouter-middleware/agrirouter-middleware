@@ -6,12 +6,12 @@ import com.dke.data.agrirouter.api.service.parameters.CloudOffboardingParameters
 import com.dke.data.agrirouter.convenience.decode.DecodeCloudOnboardingResponsesService;
 import com.dke.data.agrirouter.impl.messaging.mqtt.CloudOffboardingServiceImpl;
 import com.google.gson.Gson;
-import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.CloudRegistrationEvent;
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -53,6 +53,8 @@ public class CloudRegistrationEventListener {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
 
+    private final DeviceDescriptionService deviceDescriptionService;
+
     public CloudRegistrationEventListener(ApplicationRepository applicationRepository,
                                           EndpointRepository endpointRepository,
                                           EndpointIntegrationService endpointIntegrationService,
@@ -62,7 +64,8 @@ public class CloudRegistrationEventListener {
                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                           VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer,
                                           ApplicationEventPublisher applicationEventPublisher,
-                                          BusinessOperationLogService businessOperationLogService) {
+                                          BusinessOperationLogService businessOperationLogService,
+                                          DeviceDescriptionService deviceDescriptionService) {
         this.applicationRepository = applicationRepository;
         this.endpointRepository = endpointRepository;
         this.endpointIntegrationService = endpointIntegrationService;
@@ -73,6 +76,7 @@ public class CloudRegistrationEventListener {
         this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
         this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
+        this.deviceDescriptionService = deviceDescriptionService;
     }
 
     /**
@@ -87,7 +91,7 @@ public class CloudRegistrationEventListener {
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
         if (iMqttClient.isEmpty()) {
             log.error(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()).asLogMessage());
-        }else {
+        } else {
             final var cloudOffboardingService = new CloudOffboardingServiceImpl(iMqttClient.get());
             final var parameters = new CloudOffboardingParameters();
             parameters.setOnboardingResponse(onboardingResponse);
@@ -161,6 +165,7 @@ public class CloudRegistrationEventListener {
                         application.getEndpoints().add(virtualEndpoint);
                         applicationRepository.save(application);
                         endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
+                        deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId(), null));
                     });
                 } else {

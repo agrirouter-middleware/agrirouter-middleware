@@ -1,7 +1,7 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
+import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,15 +36,12 @@ public class TransientMessageCache extends CommonMessageCache {
     }
 
     @Override
-    public void put(String externalEndpointId, String base64EncodedMessageContent, String filename, List<String> recipients, ContentMessageType contentMessageType) {
+    public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         log.info("Saving message to cache.");
         log.trace("External endpoint ID: {}", externalEndpointId);
-        log.trace("Base64 encoded message content: {}", base64EncodedMessageContent);
+        log.trace("Base64 encoded message content: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
         messageCache.put(externalEndpointId, new MessageCacheEntry(externalEndpointId,
-                base64EncodedMessageContent,
-                filename,
-                recipients,
-                contentMessageType,
+                publishNonTelemetryDataParameters,
                 Instant.now().getEpochSecond(),
                 timeToLiveInSeconds));
     }
