@@ -46,3 +46,5 @@ app:
   cache:
     transient-message-cache:
       time-to-live-in-seconds: 300
+    transient-machine-registration-cache:
+      time-to-live-in-seconds: 300
