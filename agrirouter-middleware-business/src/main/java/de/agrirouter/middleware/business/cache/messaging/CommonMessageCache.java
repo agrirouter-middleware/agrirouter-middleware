@@ -1,8 +1,9 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
+import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -13,10 +14,10 @@ import java.util.Collection;
 @Slf4j
 abstract class CommonMessageCache implements MessageCache {
 
-    private final PublishNonTelemetryDataService publishNonTelemetryDataService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    protected CommonMessageCache(PublishNonTelemetryDataService publishNonTelemetryDataService) {
-        this.publishNonTelemetryDataService = publishNonTelemetryDataService;
+    protected CommonMessageCache(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
@@ -30,7 +31,7 @@ abstract class CommonMessageCache implements MessageCache {
                 log.debug("Message cache entry expired. Skipping.");
             } else {
                 log.debug("Sending message from cache.");
-                publishNonTelemetryDataService.publish(messageCacheEntry.publishNonTelemetryDataParameters);
+                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.publishNonTelemetryDataParameters));
             }
         }
     }
