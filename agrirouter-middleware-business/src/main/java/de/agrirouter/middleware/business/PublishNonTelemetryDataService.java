@@ -4,11 +4,13 @@ import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
+import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
@@ -42,6 +44,7 @@ public class PublishNonTelemetryDataService {
      *
      * @param publishNonTelemetryDataParameters -
      */
+    @EventListener(ResendMessageCacheEntryEvent.class)
     public void publish(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         if (checkConnectionForEndpoint(publishNonTelemetryDataParameters.getExternalEndpointId())) {
             final var messagingIntegrationParameters = new MessagingIntegrationParameters();
@@ -68,7 +71,7 @@ public class PublishNonTelemetryDataService {
     private void cacheNonTelemetryMessage(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         log.info("Message saved to cache. Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
         log.info("Message: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
-        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(),publishNonTelemetryDataParameters);
+        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), publishNonTelemetryDataParameters);
     }
 
     private boolean checkConnectionForEndpoint(String externalEndpointId) {

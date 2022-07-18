@@ -1,9 +1,9 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -31,8 +31,8 @@ public class TransientMessageCache extends CommonMessageCache {
      */
     private final Map<String, MessageCacheEntry> messageCache = new HashMap<>();
 
-    public TransientMessageCache(PublishNonTelemetryDataService publishNonTelemetryDataService) {
-        super(publishNonTelemetryDataService);
+    public TransientMessageCache(ApplicationEventPublisher applicationEventPublisher) {
+        super(applicationEventPublisher);
     }
 
     @Override
