@@ -22,4 +22,10 @@ public class RegisterMachineParameters {
      */
     private String externalEndpointId;
 
+    /**
+     * The custom team set context ID, in case you want to define it by your own. If the field is empty, a unique ID will be generated.
+     */
+    private String customTeamSetContextId;
+
+
 }
