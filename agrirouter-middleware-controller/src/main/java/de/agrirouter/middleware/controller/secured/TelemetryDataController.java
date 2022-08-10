@@ -130,6 +130,7 @@ public class TelemetryDataController implements SecuredApiController {
         final var registerMachineParameters = new RegisterMachineParameters();
         registerMachineParameters.setExternalEndpointId(externalEndpointId);
         registerMachineParameters.setBase64EncodedDeviceDescription(registerMachineRequest.getBase64EncodedDeviceDescription());
+        registerMachineParameters.setCustomTeamSetContextId(registerMachineRequest.getCustomTeamSetContextId());
         final var teamSetContextId = deviceDescriptionService.registerMachine(registerMachineParameters);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMachineResponse(teamSetContextId));
     }

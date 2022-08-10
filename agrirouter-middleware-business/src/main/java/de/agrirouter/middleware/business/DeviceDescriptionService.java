@@ -270,7 +270,14 @@ public class DeviceDescriptionService {
      * @return -
      */
     public String registerMachine(RegisterMachineParameters registerMachineParameters) {
-        return registerMachine(IdFactory.teamSetContextId(), registerMachineParameters);
+        String teamSetContextId;
+        if (StringUtils.isBlank(registerMachineParameters.getCustomTeamSetContextId())) {
+            log.debug("The custom team set context ID is empty, using the new one.");
+            teamSetContextId = IdFactory.teamSetContextId();
+        } else {
+            teamSetContextId = registerMachineParameters.getCustomTeamSetContextId();
+        }
+        return registerMachine(teamSetContextId, registerMachineParameters);
     }
 
     /**
