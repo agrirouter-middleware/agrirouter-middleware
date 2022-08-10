@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class CustomExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomExceptionHandler.class);
-    private static final ErrorResponse UNKNOWN_ERROR = new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "This was an unknown error, please file an issue and see the logs for more details.");
 
     /**
      * Handling all the internal exceptions.
@@ -41,7 +40,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler({RuntimeException.class, Exception.class})
     public ResponseEntity<ErrorResponse> handle(RuntimeException runtimeException) {
         LOGGER.error("A unknown exception occurred.", runtimeException);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(UNKNOWN_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "This was an unknown error, please file an issue and see the logs for more details."));
     }
 
 
