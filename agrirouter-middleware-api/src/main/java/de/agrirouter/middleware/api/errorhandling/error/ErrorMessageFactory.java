@@ -115,4 +115,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage couldNotAssembleChunks() {
         return new ErrorMessage(ErrorKey.COULD_NOT_ASSEMBLE_CHUNKS, "Could not assemble the chunks for the message, the chunk context ID is invalid or there was a problem while merging the chunks.");
     }
+
+    public static ErrorMessage teamSetContextIdAlreadyInUse(String teamSetContextId) {
+        return new ErrorMessage(ErrorKey.TEAM_SET_CONTEXT_ID_ALREADY_IN_USE, String.format("The team set context ID '%s' is already in use.", teamSetContextId));
+    }
 }

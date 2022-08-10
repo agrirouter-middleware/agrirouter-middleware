@@ -276,8 +276,16 @@ public class DeviceDescriptionService {
             teamSetContextId = IdFactory.teamSetContextId();
         } else {
             teamSetContextId = registerMachineParameters.getCustomTeamSetContextId();
+            checkIfTheTeamSetContextIdIsAlreadyInUse(teamSetContextId);
         }
         return registerMachine(teamSetContextId, registerMachineParameters);
+    }
+
+    private void checkIfTheTeamSetContextIdIsAlreadyInUse(String teamSetContextId) {
+        final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
+        if (optionalDeviceDescription.isPresent()) {
+            throw new BusinessException(ErrorMessageFactory.teamSetContextIdAlreadyInUse(teamSetContextId));
+        }
     }
 
     /**
