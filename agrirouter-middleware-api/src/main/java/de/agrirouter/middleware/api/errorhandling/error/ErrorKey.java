@@ -6,7 +6,6 @@ package de.agrirouter.middleware.api.errorhandling.error;
 public enum ErrorKey {
 
     ERR_("ERR_"),
-
     APPLICATION_NOT_FOUND(ERR_ + "00001"),
     ONBOARD_REQUEST_FAILED(ERR_ + "00002"),
     COULD_NOT_CONNECT_MQTT_CLIENT(ERR_ + "00003"),
@@ -36,6 +35,7 @@ public enum ErrorKey {
     PARAMETER_VALIDATION_PROBLEM(ERR_ + "00027"),
     CONTENT_MESSAGE_NOT_FOUND(ERR_ + "00028"),
     COULD_NOT_ASSEMBLE_CHUNKS(ERR_ + "00029"),
+    TEAM_SET_CONTEXT_ID_ALREADY_IN_USE(ERR_ + "00030"),
     UNKNOWN_ERROR(ERR_ + "101010");
 
     private final String key;
