@@ -3,6 +3,7 @@ package de.agrirouter.middleware.persistence;
 import de.agrirouter.middleware.domain.DeviceDescription;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,7 +14,7 @@ public interface DeviceDescriptionRepository extends MongoRepository<DeviceDescr
     /**
      * Search for an existing device description by its ID.
      *
-     * @param teamSetContextId -
+     * @param teamSetContextId The ID of the device description to search for.
      * @return -
      */
     Optional<DeviceDescription> findByTeamSetContextId(String teamSetContextId);
@@ -21,8 +22,14 @@ public interface DeviceDescriptionRepository extends MongoRepository<DeviceDescr
     /**
      * Delete all device descriptions by agrirouter© ID.
      *
-     * @param agrirouterEndpointId -
+     * @param agrirouterEndpointId The agrirouter© endpoint ID.
      */
     void deleteAllByAgrirouterEndpointId(String agrirouterEndpointId);
 
+    /**
+     * Remove all device descriptions by team set context ID.
+     *
+     * @param duplicateTeamSetContextIds The team set context IDs to remove.
+     */
+    void deleteAllByTeamSetContextIdIn(List<String> duplicateTeamSetContextIds);
 }
