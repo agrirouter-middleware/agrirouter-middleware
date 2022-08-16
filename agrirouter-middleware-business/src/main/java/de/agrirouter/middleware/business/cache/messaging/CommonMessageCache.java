@@ -36,6 +36,12 @@ abstract class CommonMessageCache implements MessageCache {
         }
     }
 
+    @Override
+    public long countCurrentMessageCacheEntries(String externalEndpointId) {
+        return getCurrentMessageCacheEntries().stream()
+                .filter(messageCacheEntry -> messageCacheEntry.externalEndpointId.equals(externalEndpointId)).count();
+    }
+
     /**
      * Get all messages in the cache.
      *

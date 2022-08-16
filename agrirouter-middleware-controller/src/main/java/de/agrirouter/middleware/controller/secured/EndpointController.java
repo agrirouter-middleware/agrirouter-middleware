@@ -3,6 +3,7 @@ package de.agrirouter.middleware.controller.secured;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.controller.dto.request.EndpointHealthStatusRequest;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
@@ -43,14 +44,18 @@ public class EndpointController implements SecuredApiController {
     private final ModelMapper modelMapper;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
 
+    private final MessageCache messageCache;
+
     public EndpointController(ApplicationService applicationService,
                               EndpointService endpointService,
                               ModelMapper modelMapper,
-                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
+                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
+                              MessageCache messageCache) {
         this.applicationService = applicationService;
         this.endpointService = endpointService;
         this.modelMapper = modelMapper;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
+        this.messageCache = messageCache;
     }
 
     /**
@@ -115,7 +120,7 @@ public class EndpointController implements SecuredApiController {
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, EndpointWithStatusDto>();
         endpoints.forEach(endpoint -> {
-            final var endpointWithStatusDto = CreateEndpointStatusHelper.map(modelMapper, endpointService, applicationService, messageWaitingForAcknowledgementService, endpoint);
+            final var endpointWithStatusDto = CreateEndpointStatusHelper.map(modelMapper, endpointService, applicationService, messageWaitingForAcknowledgementService, messageCache, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
