@@ -276,16 +276,26 @@ public class DeviceDescriptionService {
             teamSetContextId = IdFactory.teamSetContextId();
         } else {
             teamSetContextId = registerMachineParameters.getCustomTeamSetContextId();
-            checkIfTheTeamSetContextIdIsAlreadyInUse(teamSetContextId);
+            checkIfTheTeamSetContextIdIsAlreadyInUse(teamSetContextId, registerMachineParameters.getBase64EncodedDeviceDescription());
         }
         return registerMachine(teamSetContextId, registerMachineParameters);
     }
 
-    private void checkIfTheTeamSetContextIdIsAlreadyInUse(String teamSetContextId) {
+    private void checkIfTheTeamSetContextIdIsAlreadyInUse(String teamSetContextId, String newDeviceDescription) {
         final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
         if (optionalDeviceDescription.isPresent()) {
-            throw new BusinessException(ErrorMessageFactory.teamSetContextIdAlreadyInUse(teamSetContextId));
+            String existingDeviceDescription = optionalDeviceDescription.get().getBase64EncodedDeviceDescription();
+            if (checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(newDeviceDescription, existingDeviceDescription)) {
+                log.debug("The new device description is the same as the existing one, using the existing one and discarding the new one.");
+            } else {
+                throw new BusinessException(ErrorMessageFactory.teamSetContextIdAlreadyInUse(teamSetContextId));
+            }
         }
+    }
+
+    private boolean checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(String newDeviceDescription, String existingDeviceDescription) {
+        log.debug("Comparing the new device description with the existing one based on their base 64 representation.");
+        return StringUtils.equals(newDeviceDescription, existingDeviceDescription);
     }
 
     /**
