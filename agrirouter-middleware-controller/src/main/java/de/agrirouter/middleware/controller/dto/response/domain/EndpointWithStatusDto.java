@@ -94,6 +94,12 @@ public class EndpointWithStatusDto {
     private List<MessageWaitingForAcknowledgementDto> messagesWaitingForAck;
 
     /**
+     * Number of messages that are currently cached.
+     */
+    @Schema(description = "Nr. of messages that are cached.")
+    private long nrOfMessagesCached;
+
+    /**
      * The message recipients for this endpoint.
      */
     @Schema(description = "The message recipients for this endpoint.")

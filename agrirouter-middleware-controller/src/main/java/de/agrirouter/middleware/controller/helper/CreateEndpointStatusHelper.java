@@ -2,6 +2,7 @@ package de.agrirouter.middleware.controller.helper;
 
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -27,7 +28,12 @@ public class CreateEndpointStatusHelper {
      * @param endpoint                                -
      * @return -
      */
-    public static EndpointWithStatusDto map(ModelMapper modelMapper, EndpointService endpointService, ApplicationService applicationService, MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService, Endpoint endpoint) {
+    public static EndpointWithStatusDto map(ModelMapper modelMapper,
+                                            EndpointService endpointService,
+                                            ApplicationService applicationService,
+                                            MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
+                                            MessageCache messageCache,
+                                            Endpoint endpoint) {
         final var endpointWithStatusDto = new EndpointWithStatusDto();
         modelMapper.map(endpoint, endpointWithStatusDto);
         final var errors = new ArrayList<LogEntryDto>();
@@ -66,6 +72,8 @@ public class CreateEndpointStatusHelper {
                 .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
                 .collect(Collectors.toList());
         endpointWithStatusDto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
+
+        endpointWithStatusDto.setNrOfMessagesCached(messageCache.countCurrentMessageCacheEntries(endpoint.getAgrirouterEndpointId()));
 
         final var messageRecipients = endpoint.getMessageRecipients()
                 .stream()
