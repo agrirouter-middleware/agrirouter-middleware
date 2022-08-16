@@ -4,7 +4,7 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.type.descriptor.sql: off
     org.springframework.web.filter.CommonsRequestLoggingFilter: off
-    de.agrirouter.middleware: trace
+    de.agrirouter.middleware: info
     com.dke.data.agrirouter: off
 
 app:
