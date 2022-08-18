@@ -23,13 +23,11 @@ public class EndpointStatusHelper {
      *
      * @param modelMapper                             -
      * @param applicationService                      -
-     * @param messageWaitingForAcknowledgementService -
      * @param endpoint                                -
      * @return -
      */
     public static EndpointWithStatusDto mapEndpointStatus(ModelMapper modelMapper,
                                                           ApplicationService applicationService,
-                                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                           MessageCache messageCache,
                                                           Endpoint endpoint) {
         final var dto = new EndpointWithStatusDto();
@@ -42,13 +40,6 @@ public class EndpointStatusHelper {
             dto.setApplicationId(application.getApplicationId());
             dto.setVersionId(application.getVersionId());
         }
-        final var messagesWaitingForAcknowledgement = messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
-                .stream()
-                .map(messageWaitingForAcknowledgement -> modelMapper.map(messageWaitingForAcknowledgement, MessageWaitingForAcknowledgementDto.class))
-                .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
-                .collect(Collectors.toList());
-        dto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
-
         dto.setNrOfMessagesCached(messageCache.countCurrentMessageCacheEntries(endpoint.getAgrirouterEndpointId()));
 
         return dto;
@@ -129,6 +120,27 @@ public class EndpointStatusHelper {
         dto.setErrors(errors);
 
         dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        return dto;
+    }
+
+    /**
+     * Map the missing acknowledgements.
+     *
+     * @param modelMapper                             -
+     * @param messageWaitingForAcknowledgementService -
+     * @param endpoint                                -
+     * @return -
+     */
+    public static MissingAcknowledgementsDto mapMissingAcknowledgements(ModelMapper modelMapper, MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService, Endpoint endpoint) {
+        final var dto = new MissingAcknowledgementsDto();
+        modelMapper.map(endpoint, dto);
+
+        final var messagesWaitingForAcknowledgement = messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
+                .stream()
+                .map(messageWaitingForAcknowledgement -> modelMapper.map(messageWaitingForAcknowledgement, MessageWaitingForAcknowledgementDto.class))
+                .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
+                .collect(Collectors.toList());
+        dto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
         return dto;
     }
 }

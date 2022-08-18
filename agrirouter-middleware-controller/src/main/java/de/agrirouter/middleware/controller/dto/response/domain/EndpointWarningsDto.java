@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@Schema(description = "The connection status of an endpoint.")
+@Schema(description = "The warnings of an endpoint.")
 public class EndpointWarningsDto extends CommonEndpointStatusDto {
 
     /**

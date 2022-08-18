@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
  * DTO.
  */
@@ -68,12 +66,6 @@ public class EndpointWithStatusDto {
      */
     @Schema(description = "The current status of the endpoint.")
     private EndpointStatusDto endpointStatus;
-
-    /**
-     * The messages currently waiting for ACK.
-     */
-    @Schema(description = "The messages currently waiting for ACK.")
-    private List<MessageWaitingForAcknowledgementDto> messagesWaitingForAck;
 
     /**
      * Number of messages that are currently cached.

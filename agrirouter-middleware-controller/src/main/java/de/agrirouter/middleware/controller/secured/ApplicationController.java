@@ -16,7 +16,6 @@ import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.ApplicationSettings;
 import de.agrirouter.middleware.domain.SupportedTechnicalMessageType;
-import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,17 +46,14 @@ import java.util.*;
 public class ApplicationController implements SecuredApiController {
 
     private final ApplicationService applicationService;
-    private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final ModelMapper modelMapper;
 
     private final MessageCache messageCache;
 
     public ApplicationController(ApplicationService applicationService,
-                                 MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                  ModelMapper modelMapper,
                                  MessageCache messageCache) {
         this.applicationService = applicationService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.modelMapper = modelMapper;
         this.messageCache = messageCache;
     }
@@ -485,7 +481,7 @@ public class ApplicationController implements SecuredApiController {
         applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
         application.getEndpoints()
                 .stream()
-                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageWaitingForAcknowledgementService, messageCache, endpoint))
+                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageCache, endpoint))
                 .forEach(endpointWithStatusDto -> applicationStatusResponse.getEndpointsWithStatus().add(endpointWithStatusDto));
         return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }

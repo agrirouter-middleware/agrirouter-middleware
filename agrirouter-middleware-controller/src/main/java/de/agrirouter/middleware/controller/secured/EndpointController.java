@@ -119,7 +119,7 @@ public class EndpointController implements SecuredApiController {
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, EndpointWithStatusDto>();
         endpoints.forEach(endpoint -> {
-            final var endpointWithStatusDto = EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageWaitingForAcknowledgementService, messageCache, endpoint);
+            final var endpointWithStatusDto = EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageCache, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
@@ -261,6 +261,13 @@ public class EndpointController implements SecuredApiController {
         return ResponseEntity.ok(new EndpointWarningsResponse(mappedEndpoints));
     }
 
+    /**
+     * Fetch the errors for the endpoint.
+     *
+     * @param endpointStatusRequest -
+     * @param errors                -
+     * @return -
+     */
     @PostMapping(
             value = "/status/errors",
             produces = MediaType.APPLICATION_JSON_VALUE,
@@ -321,6 +328,75 @@ public class EndpointController implements SecuredApiController {
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointErrorsResponse(mappedEndpoints));
+    }
+
+    /**
+     * Fetch the missing ACKs.
+     *
+     * @param endpointStatusRequest -
+     * @param errors                -
+     * @return -
+     */
+    @PostMapping(
+            value = "/status/missing-acknowledgements",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "endpoint.status.missing-acknowledgements",
+            description = "Fetch the missing acknowledgements of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The status information for this endpoint.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<MissingAcknowledgementsResponse> missingAcknowledgements(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                                   @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
+        final var mappedEndpoints = new HashMap<String, MissingAcknowledgementsDto>();
+        endpoints.forEach(endpoint -> {
+            final var endpointWithStatusDto = EndpointStatusHelper.mapMissingAcknowledgements(modelMapper, messageWaitingForAcknowledgementService, endpoint);
+            mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
+        });
+        return ResponseEntity.ok(new MissingAcknowledgementsResponse(mappedEndpoints));
     }
 
     /**
@@ -467,7 +543,7 @@ public class EndpointController implements SecuredApiController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Reponse with all the recipients available.",
+                            description = "Response with all the recipients available.",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = EndpointRecipientsResponse.class
