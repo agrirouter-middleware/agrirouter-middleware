@@ -52,13 +52,6 @@ public class EndpointStatusHelper {
             warnings.add(logEntryDto);
         });
         dto.setWarnings(warnings);
-        final var connectionErrors = new ArrayList<ConnectionErrorDto>();
-        endpointService.getConnectionState(endpoint).getConnectionErrors().forEach(connectionError -> {
-            final var connectionErrorDto = new ConnectionErrorDto();
-            modelMapper.map(connectionError, connectionErrorDto);
-            connectionErrors.add(connectionErrorDto);
-        });
-        dto.setConnectionErrors(connectionErrors);
         final var optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();

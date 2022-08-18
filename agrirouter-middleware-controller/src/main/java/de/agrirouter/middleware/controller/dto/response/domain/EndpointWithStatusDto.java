@@ -82,12 +82,6 @@ public class EndpointWithStatusDto {
     private List<LogEntryDto> warnings;
 
     /**
-     * The detailed error messages with timestamps.
-     */
-    @Schema(description = "The detailed error messages with timestamps.")
-    private List<ConnectionErrorDto> connectionErrors;
-
-    /**
      * The messages currently waiting for ACK.
      */
     @Schema(description = "The messages currently waiting for ACK.")
