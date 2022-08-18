@@ -12,12 +12,12 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(description = "The connection status of an endpoint.")
-public class EndpointConnectionStatusDto extends CommonEndpointStatusDto {
+public class EndpointWarningsDto extends CommonEndpointStatusDto {
 
     /**
-     * The detailed error messages with timestamps.
+     * The detailed warnings messages with timestamps.
      */
-    @Schema(description = "The detailed error messages with timestamps.")
-    private List<ConnectionErrorDto> connectionErrors;
+    @Schema(description = "The detailed warnings with timestamps.")
+    private List<LogEntryDto> warnings;
 
 }

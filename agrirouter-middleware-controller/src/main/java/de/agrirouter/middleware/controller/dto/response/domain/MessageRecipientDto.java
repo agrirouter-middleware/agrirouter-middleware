@@ -1,14 +1,14 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * One of the message recipients for the endpoint.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The status of an endpoint.")
 public class MessageRecipientDto {
 

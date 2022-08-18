@@ -1,14 +1,14 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * DTO.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "A container holding the basic representation of an application.")
 public class ApplicationDto {
 

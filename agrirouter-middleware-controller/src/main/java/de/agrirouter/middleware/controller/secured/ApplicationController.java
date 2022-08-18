@@ -11,6 +11,7 @@ import de.agrirouter.middleware.controller.dto.request.ApplicationRegistrationRe
 import de.agrirouter.middleware.controller.dto.request.UpdateApplicationRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.ApplicationDto;
+import de.agrirouter.middleware.controller.dto.response.domain.ApplicationWithEndpointStatusDto;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithChildrenDto;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.domain.Application;

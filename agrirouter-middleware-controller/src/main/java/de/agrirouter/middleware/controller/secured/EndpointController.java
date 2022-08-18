@@ -8,6 +8,7 @@ import de.agrirouter.middleware.controller.dto.request.EndpointHealthStatusReque
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointConnectionStatusDto;
+import de.agrirouter.middleware.controller.dto.response.domain.EndpointWarningsDto;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
 import de.agrirouter.middleware.controller.dto.response.domain.MessageRecipientDto;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
@@ -182,7 +183,7 @@ public class EndpointController implements SecuredApiController {
             }
     )
     public ResponseEntity<EndpointConnectionStatusResponse> connectionStatus(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                         @Parameter(hidden = true) Errors errors) {
+                                                                             @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -193,6 +194,74 @@ public class EndpointController implements SecuredApiController {
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointConnectionStatusResponse(mappedEndpoints));
+    }
+
+    /**
+     * Check the warnings for the given IDs of the endpoint.
+     *
+     * @param endpointStatusRequest The request containing the IDs of the endpoints.
+     * @return HTTP 200 with the data of the endpoint or an HTTP 400 with an error message.
+     */
+    @PostMapping(
+            value = "/status/warnings",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "endpoint.status.warnings",
+            description = "Fetch the warnings of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The status information for this endpoint.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<EndpointWarningsResponse> warnings(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                             @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
+        final var mappedEndpoints = new HashMap<String, EndpointWarningsDto>();
+        endpoints.forEach(endpoint -> {
+            final var endpointWithStatusDto = EndpointStatusHelper.mapWarnings(modelMapper, endpointService, endpoint);
+            mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
+        });
+        return ResponseEntity.ok(new EndpointWarningsResponse(mappedEndpoints));
     }
 
     /**

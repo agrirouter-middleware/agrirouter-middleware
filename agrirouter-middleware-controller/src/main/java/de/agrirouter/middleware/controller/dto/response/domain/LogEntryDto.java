@@ -1,16 +1,16 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
 /**
  * DTO.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "A log entry for the endpoint.")
 public class LogEntryDto {
 

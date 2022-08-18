@@ -44,14 +44,6 @@ public class EndpointStatusHelper {
             errors.add(logEntryDto);
         });
         dto.setErrors(errors);
-        final var warnings = new ArrayList<LogEntryDto>();
-        endpointService.getWarnings(endpoint).forEach(warning -> {
-            final var logEntryDto = new LogEntryDto();
-            modelMapper.map(warning, logEntryDto);
-            logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(warning.getTimestamp())));
-            warnings.add(logEntryDto);
-        });
-        dto.setWarnings(warnings);
         final var optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
@@ -79,9 +71,9 @@ public class EndpointStatusHelper {
     /**
      * Map the endpoint to the dedicated DTO.
      *
-     * @param modelMapper                             -
-     * @param endpointService                         -
-     * @param endpoint                                -
+     * @param modelMapper     -
+     * @param endpointService -
+     * @param endpoint        -
      * @return -
      */
     public static EndpointConnectionStatusDto mapConnectionStatus(ModelMapper modelMapper,
@@ -102,4 +94,29 @@ public class EndpointStatusHelper {
         return dto;
     }
 
+    /**
+     * Map the endpoint to the dedicated DTO.
+     *
+     * @param modelMapper     -
+     * @param endpointService -
+     * @param endpoint        -
+     * @return -
+     */
+    public static EndpointWarningsDto mapWarnings(ModelMapper modelMapper, EndpointService endpointService, Endpoint endpoint) {
+
+        final var dto = new EndpointWarningsDto();
+        modelMapper.map(endpoint, dto);
+
+        final var warnings = new ArrayList<LogEntryDto>();
+        endpointService.getWarnings(endpoint).forEach(warning -> {
+            final var logEntryDto = new LogEntryDto();
+            modelMapper.map(warning, logEntryDto);
+            logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(warning.getTimestamp())));
+            warnings.add(logEntryDto);
+        });
+        dto.setWarnings(warnings);
+
+        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        return dto;
+    }
 }

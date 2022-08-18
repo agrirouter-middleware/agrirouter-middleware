@@ -1,14 +1,15 @@
 package de.agrirouter.middleware.controller.dto.response.domain.timelog.periods;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
+
 
 /**
  * Telemetry data, stored in the document storage.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "Telemetry data, stored in the document storage.")
 public class TimeLogDto {
 

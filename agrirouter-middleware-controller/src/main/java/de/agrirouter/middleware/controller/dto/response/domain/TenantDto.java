@@ -1,14 +1,14 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * DTO for listing all tenants.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "Representation of a tenant within the middleware.")
 public class TenantDto {
 

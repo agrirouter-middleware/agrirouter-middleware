@@ -1,16 +1,16 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 /**
  * The status of an endpoint.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The connection status of an endpoint.")
 public class EndpointStatusDto {
 

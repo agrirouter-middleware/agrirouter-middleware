@@ -1,8 +1,8 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.Map;
@@ -10,8 +10,8 @@ import java.util.Map;
 /**
  * A message waiting for ACK.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The message waiting for acknowledgement from the agrirouter.")
 public class MessageWaitingForAcknowledgementDto {
 

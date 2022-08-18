@@ -2,16 +2,16 @@ package de.agrirouter.middleware.controller.dto.response.domain.timelog.periods;
 
 import de.agrirouter.middleware.controller.dto.response.domain.DeviceDto;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 /**
  * All time log periods for a team set.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "Container holding all time log periods for a team set.")
 public class TimeLogPeriodDtosForDevice {
 
