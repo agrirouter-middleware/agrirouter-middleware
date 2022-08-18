@@ -12,7 +12,7 @@ import de.agrirouter.middleware.controller.dto.request.UpdateApplicationRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.ApplicationDto;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithChildrenDto;
-import de.agrirouter.middleware.controller.helper.CreateEndpointStatusHelper;
+import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.ApplicationSettings;
 import de.agrirouter.middleware.domain.SupportedTechnicalMessageType;
@@ -488,7 +488,7 @@ public class ApplicationController implements SecuredApiController {
         applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
         application.getEndpoints()
                 .stream()
-                .map(endpoint -> CreateEndpointStatusHelper.map(modelMapper, endpointService, applicationService, messageWaitingForAcknowledgementService,messageCache, endpoint))
+                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, endpointService, applicationService, messageWaitingForAcknowledgementService,messageCache, endpoint))
                 .forEach(endpointWithStatusDto -> applicationStatusResponse.getEndpointsWithStatus().add(endpointWithStatusDto));
         return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }

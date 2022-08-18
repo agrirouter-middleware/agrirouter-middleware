@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Helper to create the endpoint status.
  */
-public class CreateEndpointStatusHelper {
+public class EndpointStatusHelper {
 
     /**
      * Map the endpoint to the dedicated DTO.
@@ -28,14 +28,14 @@ public class CreateEndpointStatusHelper {
      * @param endpoint                                -
      * @return -
      */
-    public static EndpointWithStatusDto map(ModelMapper modelMapper,
-                                            EndpointService endpointService,
-                                            ApplicationService applicationService,
-                                            MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                            MessageCache messageCache,
-                                            Endpoint endpoint) {
-        final var endpointWithStatusDto = new EndpointWithStatusDto();
-        modelMapper.map(endpoint, endpointWithStatusDto);
+    public static EndpointWithStatusDto mapEndpointStatus(ModelMapper modelMapper,
+                                                          EndpointService endpointService,
+                                                          ApplicationService applicationService,
+                                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
+                                                          MessageCache messageCache,
+                                                          Endpoint endpoint) {
+        final var dto = new EndpointWithStatusDto();
+        modelMapper.map(endpoint, dto);
         final var errors = new ArrayList<LogEntryDto>();
         endpointService.getErrors(endpoint).forEach(error -> {
             final var logEntryDto = new LogEntryDto();
@@ -43,7 +43,7 @@ public class CreateEndpointStatusHelper {
             logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(error.getTimestamp())));
             errors.add(logEntryDto);
         });
-        endpointWithStatusDto.setErrors(errors);
+        dto.setErrors(errors);
         final var warnings = new ArrayList<LogEntryDto>();
         endpointService.getWarnings(endpoint).forEach(warning -> {
             final var logEntryDto = new LogEntryDto();
@@ -51,36 +51,62 @@ public class CreateEndpointStatusHelper {
             logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(warning.getTimestamp())));
             warnings.add(logEntryDto);
         });
-        endpointWithStatusDto.setWarnings(warnings);
+        dto.setWarnings(warnings);
         final var connectionErrors = new ArrayList<ConnectionErrorDto>();
         endpointService.getConnectionState(endpoint).getConnectionErrors().forEach(connectionError -> {
             final var connectionErrorDto = new ConnectionErrorDto();
             modelMapper.map(connectionError, connectionErrorDto);
             connectionErrors.add(connectionErrorDto);
         });
-        endpointWithStatusDto.setConnectionErrors(connectionErrors);
+        dto.setConnectionErrors(connectionErrors);
         final var optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
-            endpointWithStatusDto.setInternalApplicationId(application.getInternalApplicationId());
-            endpointWithStatusDto.setApplicationId(application.getApplicationId());
-            endpointWithStatusDto.setVersionId(application.getVersionId());
+            dto.setInternalApplicationId(application.getInternalApplicationId());
+            dto.setApplicationId(application.getApplicationId());
+            dto.setVersionId(application.getVersionId());
         }
         final var messagesWaitingForAcknowledgement = messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
                 .stream()
                 .map(messageWaitingForAcknowledgement -> modelMapper.map(messageWaitingForAcknowledgement, MessageWaitingForAcknowledgementDto.class))
                 .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
                 .collect(Collectors.toList());
-        endpointWithStatusDto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
+        dto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
 
-        endpointWithStatusDto.setNrOfMessagesCached(messageCache.countCurrentMessageCacheEntries(endpoint.getAgrirouterEndpointId()));
+        dto.setNrOfMessagesCached(messageCache.countCurrentMessageCacheEntries(endpoint.getAgrirouterEndpointId()));
 
         final var messageRecipients = endpoint.getMessageRecipients()
                 .stream()
                 .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
                 .toList();
-        endpointWithStatusDto.setMessageRecipients(messageRecipients);
-        return endpointWithStatusDto;
+        dto.setMessageRecipients(messageRecipients);
+        return dto;
+    }
+
+    /**
+     * Map the endpoint to the dedicated DTO.
+     *
+     * @param modelMapper                             -
+     * @param endpointService                         -
+     * @param endpoint                                -
+     * @return -
+     */
+    public static EndpointConnectionStatusDto mapConnectionStatus(ModelMapper modelMapper,
+                                                                  EndpointService endpointService,
+                                                                  Endpoint endpoint) {
+        final var dto = new EndpointConnectionStatusDto();
+        modelMapper.map(endpoint, dto);
+
+        final var connectionErrors = new ArrayList<ConnectionErrorDto>();
+        endpointService.getConnectionState(endpoint).getConnectionErrors().forEach(connectionError -> {
+            final var connectionErrorDto = new ConnectionErrorDto();
+            modelMapper.map(connectionError, connectionErrorDto);
+            connectionErrors.add(connectionErrorDto);
+        });
+        dto.setConnectionErrors(connectionErrors);
+
+        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        return dto;
     }
 
 }
