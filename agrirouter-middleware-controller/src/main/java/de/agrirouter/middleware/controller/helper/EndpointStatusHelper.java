@@ -119,4 +119,30 @@ public class EndpointStatusHelper {
         dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
         return dto;
     }
+
+    /**
+     * MAp the endpoint to the dedicated DTO.
+     *
+     * @param modelMapper     -
+     * @param endpointService -
+     * @param endpoint        -
+     * @return -
+     */
+    public static EndpointErrorsDto mapErrors(ModelMapper modelMapper, EndpointService endpointService, Endpoint endpoint) {
+
+        final var dto = new EndpointErrorsDto();
+        modelMapper.map(endpoint, dto);
+
+        final var errors = new ArrayList<LogEntryDto>();
+        endpointService.getErrors(endpoint).forEach(error -> {
+            final var logEntryDto = new LogEntryDto();
+            modelMapper.map(error, logEntryDto);
+            logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(error.getTimestamp())));
+            errors.add(logEntryDto);
+        });
+        dto.setErrors(errors);
+
+        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        return dto;
+    }
 }
