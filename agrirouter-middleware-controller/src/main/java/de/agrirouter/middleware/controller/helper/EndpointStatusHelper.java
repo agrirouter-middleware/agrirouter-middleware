@@ -22,32 +22,23 @@ public class EndpointStatusHelper {
      * Map the endpoint to the dedicated DTO.
      *
      * @param modelMapper                             -
-     * @param endpointService                         -
      * @param applicationService                      -
      * @param messageWaitingForAcknowledgementService -
      * @param endpoint                                -
      * @return -
      */
     public static EndpointWithStatusDto mapEndpointStatus(ModelMapper modelMapper,
-                                                          EndpointService endpointService,
                                                           ApplicationService applicationService,
                                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                           MessageCache messageCache,
                                                           Endpoint endpoint) {
         final var dto = new EndpointWithStatusDto();
         modelMapper.map(endpoint, dto);
-        final var errors = new ArrayList<LogEntryDto>();
-        endpointService.getErrors(endpoint).forEach(error -> {
-            final var logEntryDto = new LogEntryDto();
-            modelMapper.map(error, logEntryDto);
-            logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(error.getTimestamp())));
-            errors.add(logEntryDto);
-        });
-        dto.setErrors(errors);
         final var optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
-            dto.setInternalApplicationId(application.getInternalApplicationId());
+            dto.
+                    setInternalApplicationId(application.getInternalApplicationId());
             dto.setApplicationId(application.getApplicationId());
             dto.setVersionId(application.getVersionId());
         }
@@ -60,11 +51,6 @@ public class EndpointStatusHelper {
 
         dto.setNrOfMessagesCached(messageCache.countCurrentMessageCacheEntries(endpoint.getAgrirouterEndpointId()));
 
-        final var messageRecipients = endpoint.getMessageRecipients()
-                .stream()
-                .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
-                .toList();
-        dto.setMessageRecipients(messageRecipients);
         return dto;
     }
 

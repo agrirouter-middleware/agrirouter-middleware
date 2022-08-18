@@ -70,12 +70,6 @@ public class EndpointWithStatusDto {
     private EndpointStatusDto endpointStatus;
 
     /**
-     * The errors for the endpoint.
-     */
-    @Schema(description = "The errors for the endpoint.")
-    private List<LogEntryDto> errors;
-
-    /**
      * The messages currently waiting for ACK.
      */
     @Schema(description = "The messages currently waiting for ACK.")
@@ -86,11 +80,5 @@ public class EndpointWithStatusDto {
      */
     @Schema(description = "Nr. of messages that are cached.")
     private long nrOfMessagesCached;
-
-    /**
-     * The message recipients for this endpoint.
-     */
-    @Schema(description = "The message recipients for this endpoint.")
-    private List<MessageRecipientDto> messageRecipients;
 
 }

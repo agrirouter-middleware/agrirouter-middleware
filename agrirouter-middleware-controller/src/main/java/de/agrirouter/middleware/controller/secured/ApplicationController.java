@@ -2,7 +2,6 @@ package de.agrirouter.middleware.controller.secured;
 
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
-import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.controller.dto.request.AddRouterDeviceRequest;
@@ -48,19 +47,16 @@ import java.util.*;
 public class ApplicationController implements SecuredApiController {
 
     private final ApplicationService applicationService;
-    private final EndpointService endpointService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final ModelMapper modelMapper;
 
     private final MessageCache messageCache;
 
     public ApplicationController(ApplicationService applicationService,
-                                 EndpointService endpointService,
                                  MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                  ModelMapper modelMapper,
                                  MessageCache messageCache) {
         this.applicationService = applicationService;
-        this.endpointService = endpointService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.modelMapper = modelMapper;
         this.messageCache = messageCache;
@@ -489,7 +485,7 @@ public class ApplicationController implements SecuredApiController {
         applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
         application.getEndpoints()
                 .stream()
-                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, endpointService, applicationService, messageWaitingForAcknowledgementService,messageCache, endpoint))
+                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageWaitingForAcknowledgementService, messageCache, endpoint))
                 .forEach(endpointWithStatusDto -> applicationStatusResponse.getEndpointsWithStatus().add(endpointWithStatusDto));
         return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }
