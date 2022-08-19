@@ -3,6 +3,7 @@ package de.agrirouter.middleware.controller.secured;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
+import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.controller.dto.request.AddRouterDeviceRequest;
 import de.agrirouter.middleware.controller.dto.request.AddSupportedTechnicalMessageTypeRequest;
@@ -481,7 +482,7 @@ public class ApplicationController implements SecuredApiController {
         applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
         application.getEndpoints()
                 .stream()
-                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageCache, endpoint))
+                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageCache,messageCache, endpoint))
                 .forEach(endpointWithStatusDto -> applicationStatusResponse.getEndpointsWithStatus().add(endpointWithStatusDto));
         return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }
