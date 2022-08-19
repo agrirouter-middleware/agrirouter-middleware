@@ -6,6 +6,7 @@ import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
+import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import org.modelmapper.ModelMapper;
 
 import java.time.Instant;
@@ -21,9 +22,9 @@ public class EndpointStatusHelper {
     /**
      * Map the endpoint to the dedicated DTO.
      *
-     * @param modelMapper                             -
-     * @param applicationService                      -
-     * @param endpoint                                -
+     * @param modelMapper        -
+     * @param applicationService -
+     * @param endpoint           -
      * @return -
      */
     public static EndpointWithStatusDto mapEndpointStatus(ModelMapper modelMapper,
@@ -141,6 +142,21 @@ public class EndpointStatusHelper {
                 .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
                 .collect(Collectors.toList());
         dto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
+        return dto;
+    }
+
+    /**
+     * Map the technical connection status.
+     *
+     * @param modelMapper                 -
+     * @param mqttClientManagementService -
+     * @param endpoint                    -
+     * @return -
+     */
+    public static TechnicalConnectionStateDto mapTechnicalConnectionState(ModelMapper modelMapper, MqttClientManagementService mqttClientManagementService, Endpoint endpoint) {
+        final var dto = new TechnicalConnectionStateDto();
+        modelMapper.map(endpoint, dto);
+        dto.setTechnicalConnectionState(mqttClientManagementService.getTechnicalState(endpoint.asOnboardingResponse()));
         return dto;
     }
 }

@@ -10,6 +10,7 @@ import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
+import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,16 +46,20 @@ public class EndpointController implements SecuredApiController {
 
     private final MessageCache messageCache;
 
+    private final MqttClientManagementService mqttClientManagementService;
+
     public EndpointController(ApplicationService applicationService,
                               EndpointService endpointService,
                               ModelMapper modelMapper,
                               MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                              MessageCache messageCache) {
+                              MessageCache messageCache,
+                              MqttClientManagementService mqttClientManagementService) {
         this.applicationService = applicationService;
         this.endpointService = endpointService;
         this.modelMapper = modelMapper;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.messageCache = messageCache;
+        this.mqttClientManagementService = mqttClientManagementService;
     }
 
     /**
@@ -397,6 +402,75 @@ public class EndpointController implements SecuredApiController {
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new MissingAcknowledgementsResponse(mappedEndpoints));
+    }
+
+    /**
+     * Fetch the technical connection state.
+     *
+     * @param endpointStatusRequest -
+     * @param errors                -
+     * @return -
+     */
+    @PostMapping(
+            value = "/status/technical-connection-state",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "endpoint.status.technical-connection-state",
+            description = "Fetch the technical connection state of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The status information for this endpoint.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<TechnicalConnectionStateResponse> technicalConnectionState(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                                     @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
+        final var mappedEndpoints = new HashMap<String, TechnicalConnectionStateDto>();
+        endpoints.forEach(endpoint -> {
+            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper, mqttClientManagementService, endpoint);
+            mappedEndpoints.put(endpoint.getExternalEndpointId(), technicalConnectionStateDto);
+        });
+        return ResponseEntity.ok(new TechnicalConnectionStateResponse(mappedEndpoints));
     }
 
     /**
