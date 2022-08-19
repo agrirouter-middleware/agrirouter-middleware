@@ -9,20 +9,16 @@ import java.util.List;
  */
 @Value
 public class TechnicalConnectionState {
-    /**
-     * The client ID that is used for the connection.
-     */
-    String clientId;
-
-    /**
-     * The server URI.
-     */
-    String serverURI;
 
     /**
      * The number of pending delivery tokens.
      */
     int nrOfPendingDeliveryTokens;
+
+    /**
+     * True if the application is using router devices.
+     */
+    boolean usesRouterDevice;
 
     /**
      * The pending delivery tokens.

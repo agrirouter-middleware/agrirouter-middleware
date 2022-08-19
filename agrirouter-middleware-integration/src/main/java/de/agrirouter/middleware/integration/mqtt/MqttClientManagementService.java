@@ -4,6 +4,7 @@ import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttClientService;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
+import de.agrirouter.middleware.domain.Application;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
@@ -115,14 +116,12 @@ public class MqttClientManagementService {
      * @param onboardingResponse -
      * @return -
      */
-    public TechnicalConnectionState getTechnicalState(OnboardingResponse onboardingResponse) {
+    public TechnicalConnectionState getTechnicalState(Application application, OnboardingResponse onboardingResponse) {
         LOGGER.debug("Fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (cachedMqttClient != null) {
             if (cachedMqttClient.getMqttClient().isPresent()) {
                 IMqttClient iMqttClient = cachedMqttClient.getMqttClient().get();
-                final var clientId = iMqttClient.getClientId();
-                final var serverURI = iMqttClient.getServerURI();
                 final var nrOfPendingDeliveryTokens = iMqttClient.getPendingDeliveryTokens().length;
                 final var pendingDeliveryTokens = new ArrayList<PendingDeliveryToken>();
                 Arrays.stream(iMqttClient.getPendingDeliveryTokens()).forEach(token -> {
@@ -138,11 +137,11 @@ public class MqttClientManagementService {
                         LOGGER.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
                     }
                 });
-                return new TechnicalConnectionState(clientId, serverURI, nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.getConnectionErrors());
+                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, application.usesRouterDevice(), pendingDeliveryTokens, cachedMqttClient.getConnectionErrors());
             }
         }
         LOGGER.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-        return new TechnicalConnectionState(null, null, 0, Collections.emptyList(), Collections.emptyList());
+        return new TechnicalConnectionState(0, false, Collections.emptyList(), Collections.emptyList());
     }
 
     /**

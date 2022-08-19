@@ -398,7 +398,7 @@ public class EndpointController implements SecuredApiController {
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, MissingAcknowledgementsDto>();
         endpoints.forEach(endpoint -> {
-            final var endpointWithStatusDto = EndpointStatusHelper.mapMissingAcknowledgements(modelMapper, messageWaitingForAcknowledgementService, endpoint);
+            final var endpointWithStatusDto = EndpointStatusHelper.mapMissingAcknowledgements(modelMapper, endpointService, messageWaitingForAcknowledgementService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new MissingAcknowledgementsResponse(mappedEndpoints));
@@ -467,7 +467,7 @@ public class EndpointController implements SecuredApiController {
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, TechnicalConnectionStateDto>();
         endpoints.forEach(endpoint -> {
-            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper, mqttClientManagementService, endpoint);
+            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper,applicationService, endpointService, mqttClientManagementService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), technicalConnectionStateDto);
         });
         return ResponseEntity.ok(new TechnicalConnectionStateResponse(mappedEndpoints));
