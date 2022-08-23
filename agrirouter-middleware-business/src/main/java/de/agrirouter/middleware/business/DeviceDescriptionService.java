@@ -30,6 +30,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -282,14 +283,22 @@ public class DeviceDescriptionService {
     }
 
     private void checkIfTheTeamSetContextIdIsAlreadyInUse(String teamSetContextId, String newDeviceDescription) {
-        final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
-        if (optionalDeviceDescription.isPresent()) {
-            String existingDeviceDescription = optionalDeviceDescription.get().getBase64EncodedDeviceDescription();
+        DeviceDescription deviceDescription = null;
+        try {
+            deviceDescription = findByTeamSetContextId(teamSetContextId);
+        } catch (BusinessException e) {
+            log.info("The team set context ID is not in use everything fine so far.");
+        }
+
+        if (deviceDescription != null) {
+            String existingDeviceDescription = deviceDescription.getBase64EncodedDeviceDescription();
             if (checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(newDeviceDescription, existingDeviceDescription)) {
                 log.debug("The new device description is the same as the existing one, using the existing one and discarding the new one.");
             } else {
                 throw new BusinessException(ErrorMessageFactory.teamSetContextIdAlreadyInUse(teamSetContextId));
             }
+        } else {
+            log.debug("The team set context ID is not in use everything fine so far.");
         }
     }
 
@@ -342,15 +351,11 @@ public class DeviceDescriptionService {
      */
     @EventListener
     public void activateDevice(ActivateDeviceEvent activateDeviceEvent) {
-        log.debug("Activating device for the team set '{}'.", activateDeviceEvent.getTeamSetContextId());
-        final var optionalDevice = deviceDescriptionRepository.findByTeamSetContextId(activateDeviceEvent.getTeamSetContextId());
-        if (optionalDevice.isPresent()) {
-            final var device = optionalDevice.get();
-            activateDevice(activateDeviceEvent.getTeamSetContextId());
-            businessOperationLogService.log(new EndpointLogInformation(device.getExternalEndpointId(), device.getAgrirouterEndpointId()), "Device has been activated.");
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindDevice().asLogMessage());
-        }
+        String teamSetContextId = activateDeviceEvent.getTeamSetContextId();
+        log.debug("Activating device for the team set '{}'.", teamSetContextId);
+        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
+        activateDevice(teamSetContextId);
+        businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device has been activated.");
     }
 
 
@@ -361,14 +366,9 @@ public class DeviceDescriptionService {
      */
     private void activateDevice(String teamSetContextId) {
         log.debug("Activate the device description for the following team set '{}'.", teamSetContextId);
-        final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
-        if (optionalDeviceDescription.isPresent()) {
-            final var deviceDescription = optionalDeviceDescription.get();
-            deviceDescription.setDeactivated(false);
-            deviceDescriptionRepository.save(deviceDescription);
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindDevice().asLogMessage());
-        }
+        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
+        deviceDescription.setDeactivated(false);
+        deviceDescriptionRepository.save(deviceDescription);
     }
 
     /**
@@ -377,9 +377,14 @@ public class DeviceDescriptionService {
      * @param teamSetContextId -
      */
     public void resendDeviceDescriptionIfNecessary(String teamSetContextId) {
-        final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
-        if (optionalDeviceDescription.isPresent()) {
-            final var deviceDescription = optionalDeviceDescription.get();
+        DeviceDescription deviceDescription = null;
+        try {
+            deviceDescription = findByTeamSetContextId(teamSetContextId);
+        } catch (BusinessException e) {
+            log.info("The team set context ID is not in use everything fine so far.");
+        }
+
+        if (deviceDescription != null) {
             final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
             if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
                 log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
@@ -392,8 +397,6 @@ public class DeviceDescriptionService {
                 businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
                 lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
             }
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
         }
     }
 
@@ -407,5 +410,24 @@ public class DeviceDescriptionService {
             log.debug("Sending the cached device description for the virtual endpoint '{}' to the agrirouter.", externalEndpointId);
             registerMachine(ce.teamSetContextId(), ce.registerMachineParameters());
         });
+    }
+
+    private DeviceDescription findByTeamSetContextId(String teamSetContextId) {
+        try {
+            final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
+            if (optionalDeviceDescription.isPresent()) {
+                return optionalDeviceDescription.get();
+            } else {
+                throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+            }
+        } catch (IncorrectResultSizeDataAccessException e) {
+            log.warn("Looks like we are having duplicates for the team set context id {}. Returning the newest and ignoring the rest.", teamSetContextId);
+            Optional<DeviceDescription> optionalDeviceDescription = deviceDescriptionRepository.findFirstByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
+            if (optionalDeviceDescription.isPresent()) {
+                return optionalDeviceDescription.get();
+            } else {
+                throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+            }
+        }
     }
 }

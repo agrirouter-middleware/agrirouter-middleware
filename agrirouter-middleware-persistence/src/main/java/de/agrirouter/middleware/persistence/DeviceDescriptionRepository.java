@@ -19,6 +19,14 @@ public interface DeviceDescriptionRepository extends MongoRepository<DeviceDescr
     Optional<DeviceDescription> findByTeamSetContextId(String teamSetContextId);
 
     /**
+     * Search for existing device descriptions by its ID.
+     *
+     * @param teamSetContextId The ID of the device description to search for.
+     * @return -
+     */
+    Optional<DeviceDescription> findFirstByTeamSetContextIdOrderByTimestampDesc(String teamSetContextId);
+
+    /**
      * Delete all device descriptions by agrirouter© ID.
      *
      * @param agrirouterEndpointId The agrirouter© endpoint ID.
