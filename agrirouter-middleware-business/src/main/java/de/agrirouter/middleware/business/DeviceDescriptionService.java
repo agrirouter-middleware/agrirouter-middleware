@@ -412,7 +412,7 @@ public class DeviceDescriptionService {
             deviceDescriptions.sort(Comparator.comparing(DeviceDescription::getTimestamp));
             List<DeviceDescription> olderDeviceDescriptions = deviceDescriptions.subList(0, deviceDescriptions.size() - 1);
             log.debug("Removing the older device descriptions for the team set '{}'.", teamSetContextId);
-            deviceDescriptionRepository.delete(olderDeviceDescriptions);
+            deviceDescriptionRepository.deleteAll(olderDeviceDescriptions);
             return deviceDescriptions.get(deviceDescriptions.size() - 1);
         }
     }

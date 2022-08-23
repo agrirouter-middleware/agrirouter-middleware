@@ -34,10 +34,4 @@ public interface DeviceDescriptionRepository extends MongoRepository<DeviceDescr
      */
     void deleteAllByAgrirouterEndpointId(String agrirouterEndpointId);
 
-    /**
-     * Delete all device descriptions from the list.
-     *
-     * @param deviceDescriptions -
-     */
-    void delete(List<DeviceDescription> deviceDescriptions);
 }
