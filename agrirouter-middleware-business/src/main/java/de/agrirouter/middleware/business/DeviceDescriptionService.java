@@ -36,8 +36,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -405,13 +403,13 @@ public class DeviceDescriptionService {
                 throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
             }
         } catch (IncorrectResultSizeDataAccessException e) {
-            log.error("Could not use the device description for the team set '{}' since this was a duplicate. Removing the older ones first and then using the latest one.", teamSetContextId);
-            final var deviceDescriptions = deviceDescriptionRepository.findAllByTeamSetContextId(teamSetContextId);
-            deviceDescriptions.sort(Comparator.comparing(DeviceDescription::getTimestamp));
-            List<DeviceDescription> olderDeviceDescriptions = deviceDescriptions.subList(0, deviceDescriptions.size() - 1);
-            log.debug("Removing the older device descriptions for the team set '{}'.", teamSetContextId);
-            deviceDescriptionRepository.deleteAll(olderDeviceDescriptions);
-            return deviceDescriptions.get(deviceDescriptions.size() - 1);
+            log.warn("Looks like we are having duplicates for the team set context id {}. Returning the newest and ignoring the rest.", teamSetContextId);
+            Optional<DeviceDescription> optionalDeviceDescription = deviceDescriptionRepository.findFirstByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
+            if (optionalDeviceDescription.isPresent()) {
+                return optionalDeviceDescription.get();
+            } else {
+                throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+            }
         }
     }
 }
