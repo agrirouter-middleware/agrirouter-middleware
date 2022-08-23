@@ -377,18 +377,26 @@ public class DeviceDescriptionService {
      * @param teamSetContextId -
      */
     public void resendDeviceDescriptionIfNecessary(String teamSetContextId) {
-        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
-        final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
-        if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
-            log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
-            final var messagingIntegrationParameters = new MessagingIntegrationParameters();
-            messagingIntegrationParameters.setMessage(asByteString(deviceDescription.getBase64EncodedDeviceDescription()));
-            messagingIntegrationParameters.setExternalEndpointId(deviceDescription.getExternalEndpointId());
-            messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
-            messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
-            sendMessageIntegrationService.publish(messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
-            lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
+        DeviceDescription deviceDescription = null;
+        try {
+            deviceDescription = findByTeamSetContextId(teamSetContextId);
+        } catch (BusinessException e) {
+            log.info("The team set context ID is not in use everything fine so far.");
+        }
+
+        if (deviceDescription != null) {
+            final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
+            if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
+                log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
+                final var messagingIntegrationParameters = new MessagingIntegrationParameters();
+                messagingIntegrationParameters.setMessage(asByteString(deviceDescription.getBase64EncodedDeviceDescription()));
+                messagingIntegrationParameters.setExternalEndpointId(deviceDescription.getExternalEndpointId());
+                messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
+                messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
+                sendMessageIntegrationService.publish(messagingIntegrationParameters);
+                businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
+                lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
+            }
         }
     }
 
