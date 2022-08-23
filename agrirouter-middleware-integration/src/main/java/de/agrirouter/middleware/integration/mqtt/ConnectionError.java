@@ -9,5 +9,4 @@ import java.time.Instant;
  * @param errorMessage The error message.
  */
 public record ConnectionError(Instant pointInTime, String errorMessage) {
-
 }

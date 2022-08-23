@@ -16,5 +16,4 @@ import java.util.Optional;
 public record CachedMqttClient(String agrirouterEndpointId, String id,
                                Optional<IMqttClient> mqttClient,
                                List<ConnectionError> connectionErrors) {
-
 }

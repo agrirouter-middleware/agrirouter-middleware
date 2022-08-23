@@ -12,5 +12,4 @@ import java.util.List;
  */
 public record ConnectionState(String clientId, boolean cached, boolean connected,
                               List<ConnectionError> connectionErrors) {
-
 }
