@@ -1,15 +1,15 @@
 package de.agrirouter.middleware.controller.dto.response.domain.timelog;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.Document;
 
 /**
  * The time log with the raw data.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The time log with the raw data.")
 public class TimeLogWithRawDataDto {
 

@@ -1,14 +1,14 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The current state of the connection.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The current status of the connection.")
 public class ConnectionStateDto {
 

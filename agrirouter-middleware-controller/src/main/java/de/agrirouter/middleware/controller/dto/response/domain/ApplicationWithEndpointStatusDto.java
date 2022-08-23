@@ -1,17 +1,16 @@
-package de.agrirouter.middleware.controller.dto.response;
+package de.agrirouter.middleware.controller.dto.response.domain;
 
-import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 /**
  * DTO.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The current status of the application incl. its endpoints.")
 public class ApplicationWithEndpointStatusDto {
 

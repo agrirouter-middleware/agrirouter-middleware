@@ -2,16 +2,16 @@ package de.agrirouter.middleware.controller.dto.response.domain;
 
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 /**
  * The DTO for the representation of an endpoint.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "Representation of an endpoint with all children.")
 public class EndpointWithChildrenDto {
 

@@ -1,14 +1,14 @@
 package de.agrirouter.middleware.controller.dto.response.domain.timelog.periods;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * All time log periods for a team set.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "All time log periods for a team set.")
 public class TimeLogPeriodDtosForTeamSet {
 

@@ -1,16 +1,16 @@
 package de.agrirouter.middleware.controller.dto.response.domain.timelog.periods;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
 /**
  * A dedicated time log period.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "A dedicated time log period.")
 public class TimeLogPeriodDto {
 

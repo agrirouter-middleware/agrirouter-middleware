@@ -2,16 +2,14 @@ package de.agrirouter.middleware.controller.dto.response.domain;
 
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.ToString;
-
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * DTO.
  */
-@Data
-@ToString
+@Getter
+@Setter
 @Schema(description = "The status of an endpoint.")
 public class EndpointWithStatusDto {
 
@@ -70,39 +68,9 @@ public class EndpointWithStatusDto {
     private EndpointStatusDto endpointStatus;
 
     /**
-     * The errors for the endpoint.
-     */
-    @Schema(description = "The errors for the endpoint.")
-    private List<LogEntryDto> errors;
-
-    /**
-     * The warnings for the endpoint.
-     */
-    @Schema(description = "The warnings for the endpoint.")
-    private List<LogEntryDto> warnings;
-
-    /**
-     * The detailed error messages with timestamps.
-     */
-    @Schema(description = "The detailed error messages with timestamps.")
-    private List<ConnectionErrorDto> connectionErrors;
-
-    /**
-     * The messages currently waiting for ACK.
-     */
-    @Schema(description = "The messages currently waiting for ACK.")
-    private List<MessageWaitingForAcknowledgementDto> messagesWaitingForAck;
-
-    /**
      * Number of messages that are currently cached.
      */
     @Schema(description = "Nr. of messages that are cached.")
     private long nrOfMessagesCached;
-
-    /**
-     * The message recipients for this endpoint.
-     */
-    @Schema(description = "The message recipients for this endpoint.")
-    private List<MessageRecipientDto> messageRecipients;
 
 }
