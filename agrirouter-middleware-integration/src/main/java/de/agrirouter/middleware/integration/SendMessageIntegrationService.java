@@ -18,7 +18,6 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +28,10 @@ import java.util.ArrayList;
 /**
  * Messaging service for sending or publishing messages.
  */
-@Slf4j
 @Service
 public class SendMessageIntegrationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SendMessageIntegrationService.class);
 
     private final MqttClientManagementService mqttClientManagementService;
     private final EncodeMessageService encodeMessageService;
@@ -75,7 +75,7 @@ public class SendMessageIntegrationService {
             sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.getTeamSetContextId());
             sendMessageService.send(sendMessageParameters);
 
-            log.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
+            LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
             messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageHeaderParameters.getApplicationMessageId());

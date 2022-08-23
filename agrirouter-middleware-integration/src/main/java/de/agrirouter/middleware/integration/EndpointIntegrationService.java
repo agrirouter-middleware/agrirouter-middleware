@@ -14,7 +14,8 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.common.CapabilityParameterFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,9 +23,10 @@ import java.util.List;
 /**
  * Service for endpoint maintenance.
  */
-@Slf4j
 @Service
 public class EndpointIntegrationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointIntegrationService.class);
 
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
@@ -53,7 +55,7 @@ public class EndpointIntegrationService {
      * @param capabilities       The capabilities.
      */
     public void enableCapabilities(Application application, OnboardingResponse onboardingResponse, List<SetCapabilitiesParameters.CapabilityParameters> capabilities) {
-        log.debug("Enabling capabilities.");
+        LOGGER.debug("Enabling capabilities.");
         SetCapabilitiesParameters parameters = new SetCapabilitiesParameters();
         parameters.setOnboardingResponse(onboardingResponse);
         parameters.setApplicationId(application.getApplicationId());
@@ -68,7 +70,7 @@ public class EndpointIntegrationService {
         SetCapabilityService setCapabilityService = new SetCapabilityServiceImpl(iMqttClient.get());
         final var messageId = setCapabilityService.send(parameters);
 
-        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);

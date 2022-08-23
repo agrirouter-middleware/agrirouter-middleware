@@ -9,7 +9,6 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,10 @@ import org.springframework.stereotype.Service;
 /**
  * Integration service to handle the virtual onboard requests.
  */
-@Slf4j
 @Service
 public class VirtualOffboardProcessIntegrationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualOffboardProcessIntegrationService.class);
 
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
@@ -47,7 +47,7 @@ public class VirtualOffboardProcessIntegrationService {
         parameters.setEndpointIds(virtualOffboardProcessIntegrationParameters.getEndpointIds());
         final var messageId = cloudOffboardingService.send(parameters);
 
-        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
