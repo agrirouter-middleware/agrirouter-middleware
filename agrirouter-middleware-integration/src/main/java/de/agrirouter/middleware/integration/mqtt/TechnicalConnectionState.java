@@ -1,32 +1,17 @@
 package de.agrirouter.middleware.integration.mqtt;
 
-import lombok.Value;
-
 import java.util.List;
 
 /**
  * The state of a connection.
+ *
+ * @param nrOfPendingDeliveryTokens The number of pending delivery tokens.
+ * @param usesRouterDevice          True if the application is using router devices.
+ * @param pendingDeliveryTokens     The pending delivery tokens.
+ * @param connectionErrors          The connection errors.
  */
-@Value
-public class TechnicalConnectionState {
+public record TechnicalConnectionState(int nrOfPendingDeliveryTokens, boolean usesRouterDevice,
+                                       List<PendingDeliveryToken> pendingDeliveryTokens,
+                                       List<ConnectionError> connectionErrors) {
 
-    /**
-     * The number of pending delivery tokens.
-     */
-    int nrOfPendingDeliveryTokens;
-
-    /**
-     * True if the application is using router devices.
-     */
-    boolean usesRouterDevice;
-
-    /**
-     * The pending delivery tokens.
-     */
-    List<PendingDeliveryToken> pendingDeliveryTokens;
-
-    /**
-     * The connection errors.
-     */
-    List<ConnectionError> connectionErrors;
 }

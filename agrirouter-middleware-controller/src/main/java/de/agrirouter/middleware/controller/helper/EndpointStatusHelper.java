@@ -61,7 +61,7 @@ public class EndpointStatusHelper {
         final var dto = new EndpointConnectionStatusDto();
         modelMapper.map(endpoint, dto);
         final var connectionErrors = new ArrayList<ConnectionErrorDto>();
-        endpointService.getConnectionState(endpoint).getConnectionErrors().forEach(connectionError -> {
+        endpointService.getConnectionState(endpoint).connectionErrors().forEach(connectionError -> {
             final var connectionErrorDto = new ConnectionErrorDto();
             modelMapper.map(connectionError, connectionErrorDto);
             connectionErrors.add(connectionErrorDto);

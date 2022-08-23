@@ -1,37 +1,14 @@
 package de.agrirouter.middleware.integration.mqtt;
 
-import lombok.Value;
-
 /**
  * The pending delivery token.
+ *
+ * @param messageId  The message ID.
+ * @param grantedQos The granted QoS.
+ * @param topics     The topics.
+ * @param complete   Is the token already completed?
+ * @param messageQos The QoS.
  */
-@Value
-public class PendingDeliveryToken {
-
-    /**
-     * The message ID.
-     */
-    int messageId;
-
-    /**
-     * The granted QoS.
-     */
-    int[] grantedQos;
-
-    /**
-     * The topics.
-     */
-    String[] topics;
-
-    /**
-     * Is the token already completed?
-     */
-    boolean complete;
-
-    /**
-     * The QoS.
-     */
-    int messageQos;
-
+public record PendingDeliveryToken(int messageId, int[] grantedQos, String[] topics, boolean complete, int messageQos) {
 
 }
