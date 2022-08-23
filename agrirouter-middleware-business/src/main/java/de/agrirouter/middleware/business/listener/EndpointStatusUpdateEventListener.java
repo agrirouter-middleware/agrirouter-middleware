@@ -67,9 +67,9 @@ public class EndpointStatusUpdateEventListener {
                 endpoint.getEndpointStatus().setNrOfMessagesWithinTheInbox(messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Update the number of messages within the inbox.");
             }
-            endpoint.getEndpointStatus().getConnectionState().setCached(connectionState.isCached());
-            endpoint.getEndpointStatus().getConnectionState().setConnected(connectionState.isConnected());
-            endpoint.getEndpointStatus().getConnectionState().setClientId(connectionState.getClientId());
+            endpoint.getEndpointStatus().getConnectionState().setCached(connectionState.cached());
+            endpoint.getEndpointStatus().getConnectionState().setConnected(connectionState.connected());
+            endpoint.getEndpointStatus().getConnectionState().setClientId(connectionState.clientId());
             endpointStatusRepository.save(endpoint.getEndpointStatus());
             endpointRepository.save(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint status information was successfully updated.");

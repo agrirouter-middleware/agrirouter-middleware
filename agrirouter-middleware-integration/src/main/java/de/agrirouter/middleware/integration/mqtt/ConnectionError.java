@@ -1,23 +1,13 @@
 package de.agrirouter.middleware.integration.mqtt;
 
-import lombok.Value;
-
 import java.time.Instant;
 
 /**
  * A single connection error.
+ *
+ * @param pointInTime  The point in time the connection error occured.
+ * @param errorMessage The error message.
  */
-@Value
-public class ConnectionError {
-
-    /**
-     * The point in time the connection error occured.
-     */
-    Instant pointInTime;
-
-    /**
-     * The error message.
-     */
-    String errorMessage;
+public record ConnectionError(Instant pointInTime, String errorMessage) {
 
 }
