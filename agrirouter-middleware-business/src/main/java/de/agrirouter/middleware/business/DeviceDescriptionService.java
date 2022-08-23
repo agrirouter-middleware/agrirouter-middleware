@@ -30,11 +30,14 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -342,15 +345,11 @@ public class DeviceDescriptionService {
      */
     @EventListener
     public void activateDevice(ActivateDeviceEvent activateDeviceEvent) {
-        log.debug("Activating device for the team set '{}'.", activateDeviceEvent.getTeamSetContextId());
-        final var optionalDevice = deviceDescriptionRepository.findByTeamSetContextId(activateDeviceEvent.getTeamSetContextId());
-        if (optionalDevice.isPresent()) {
-            final var device = optionalDevice.get();
-            activateDevice(activateDeviceEvent.getTeamSetContextId());
-            businessOperationLogService.log(new EndpointLogInformation(device.getExternalEndpointId(), device.getAgrirouterEndpointId()), "Device has been activated.");
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindDevice().asLogMessage());
-        }
+        String teamSetContextId = activateDeviceEvent.getTeamSetContextId();
+        log.debug("Activating device for the team set '{}'.", teamSetContextId);
+        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
+        activateDevice(teamSetContextId);
+        businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device has been activated.");
     }
 
 
@@ -361,14 +360,9 @@ public class DeviceDescriptionService {
      */
     private void activateDevice(String teamSetContextId) {
         log.debug("Activate the device description for the following team set '{}'.", teamSetContextId);
-        final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
-        if (optionalDeviceDescription.isPresent()) {
-            final var deviceDescription = optionalDeviceDescription.get();
-            deviceDescription.setDeactivated(false);
-            deviceDescriptionRepository.save(deviceDescription);
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindDevice().asLogMessage());
-        }
+        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
+        deviceDescription.setDeactivated(false);
+        deviceDescriptionRepository.save(deviceDescription);
     }
 
     /**
@@ -377,23 +371,18 @@ public class DeviceDescriptionService {
      * @param teamSetContextId -
      */
     public void resendDeviceDescriptionIfNecessary(String teamSetContextId) {
-        final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
-        if (optionalDeviceDescription.isPresent()) {
-            final var deviceDescription = optionalDeviceDescription.get();
-            final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
-            if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
-                log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
-                final var messagingIntegrationParameters = new MessagingIntegrationParameters();
-                messagingIntegrationParameters.setMessage(asByteString(deviceDescription.getBase64EncodedDeviceDescription()));
-                messagingIntegrationParameters.setExternalEndpointId(deviceDescription.getExternalEndpointId());
-                messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
-                messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
-                sendMessageIntegrationService.publish(messagingIntegrationParameters);
-                businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
-                lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
-            }
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
+        final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
+        if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
+            log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
+            final var messagingIntegrationParameters = new MessagingIntegrationParameters();
+            messagingIntegrationParameters.setMessage(asByteString(deviceDescription.getBase64EncodedDeviceDescription()));
+            messagingIntegrationParameters.setExternalEndpointId(deviceDescription.getExternalEndpointId());
+            messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
+            messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
+            sendMessageIntegrationService.publish(messagingIntegrationParameters);
+            businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
+            lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
         }
     }
 
@@ -407,5 +396,24 @@ public class DeviceDescriptionService {
             log.debug("Sending the cached device description for the virtual endpoint '{}' to the agrirouter.", externalEndpointId);
             registerMachine(ce.teamSetContextId(), ce.registerMachineParameters());
         });
+    }
+
+    private DeviceDescription findByTeamSetContextId(String teamSetContextId) {
+        try {
+            final var optionalDeviceDescription = deviceDescriptionRepository.findByTeamSetContextId(teamSetContextId);
+            if (optionalDeviceDescription.isPresent()) {
+                return optionalDeviceDescription.get();
+            } else {
+                throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+            }
+        } catch (IncorrectResultSizeDataAccessException e) {
+            log.error("Could not use the device description for the team set '{}' since this was a duplicate. Removing the older ones first and then using the latest one.", teamSetContextId);
+            final var deviceDescriptions = deviceDescriptionRepository.findAllByTeamSetContextId(teamSetContextId);
+            deviceDescriptions.sort(Comparator.comparing(DeviceDescription::getTimestamp));
+            List<DeviceDescription> olderDeviceDescriptions = deviceDescriptions.subList(0, deviceDescriptions.size() - 1);
+            log.debug("Removing the older device descriptions for the team set '{}'.", teamSetContextId);
+            deviceDescriptionRepository.delete(olderDeviceDescriptions);
+            return deviceDescriptions.get(deviceDescriptions.size() - 1);
+        }
     }
 }
