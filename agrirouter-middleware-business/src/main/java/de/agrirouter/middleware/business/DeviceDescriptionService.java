@@ -283,12 +283,16 @@ public class DeviceDescriptionService {
     }
 
     private void checkIfTheTeamSetContextIdIsAlreadyInUse(String teamSetContextId, String newDeviceDescription) {
-        final var deviceDescription = findByTeamSetContextId(teamSetContextId);
-        String existingDeviceDescription = deviceDescription.getBase64EncodedDeviceDescription();
-        if (checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(newDeviceDescription, existingDeviceDescription)) {
-            log.debug("The new device description is the same as the existing one, using the existing one and discarding the new one.");
-        } else {
-            throw new BusinessException(ErrorMessageFactory.teamSetContextIdAlreadyInUse(teamSetContextId));
+        try {
+            final var deviceDescription = findByTeamSetContextId(teamSetContextId);
+            String existingDeviceDescription = deviceDescription.getBase64EncodedDeviceDescription();
+            if (checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(newDeviceDescription, existingDeviceDescription)) {
+                log.debug("The new device description is the same as the existing one, using the existing one and discarding the new one.");
+            } else {
+                throw new BusinessException(ErrorMessageFactory.teamSetContextIdAlreadyInUse(teamSetContextId));
+            }
+        } catch (BusinessException e) {
+            log.info("The team set context ID is not in use everything fine so far.");
         }
     }
 
