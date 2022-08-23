@@ -53,7 +53,7 @@ Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation
 The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose. All you need to do is to send a request using the https://www.lmis.de/connectivity-service-for-agrirouter/[contact form] on the website.
 The hosting on the QA environment is free and won't be charged. If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
 
-In addition the project has a easy to use Docker compose script, a rapid solution for local development. 
+In addition, the project has an easy-to-use Docker compose script, a rapid solution for local development.
 
 == How Does It Work?
 
@@ -96,9 +96,9 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 a|image::readme/thumb_up.png[ready,25,role="left]
 |The agrirouter© middleware is ready to use router devices and provides an easy way to update the router device.
 
-|VCU onboarding / offboarding
+|VCU onboarding / off-boarding
 a|image::readme/thumb_up.png[ready,25,role="left]
-|Using the agrirouter© middleware to run your telemetry platform you are able to register your maschines as virtual endpoints.
+|Using the agrirouter© middleware to run your telemetry platform you are able to register your machines as virtual endpoints.
 
 |agrirouter© commands
 a|image::readme/thumb_up.png[ready,25,role="left]
@@ -112,9 +112,9 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 a|image::readme/thumb_up.png[ready,25,role="left]
 |All messages are encoded correctly, therefore no need to worry.
 
-|Message adressing
+|Message addressing
 a|image::readme/thumb_up.png[ready,25,role="left]
-|The agrirouter© middleware supports direct adressing as well as publishing of messages.
+|The agrirouter© middleware supports direct addressing as well as publishing of messages.
 
 |Merging chunks
 a|image::readme/thumb_up.png[ready,25,role="left]
