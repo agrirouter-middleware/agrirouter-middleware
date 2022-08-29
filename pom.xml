@@ -11,7 +11,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>de.krone.agrirouter</groupId>
+    <groupId>de.agrirouter.middleware</groupId>
     <artifactId>agrirouter-middleware</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
@@ -75,47 +75,47 @@
         <dependencies>
             <!-- INTERNAL -->
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-controller</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-persistence</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-persistence-search</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-integration</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-business</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-efdi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.krone.agrirouter</groupId>
+                <groupId>de.agrirouter.middleware</groupId>
                 <artifactId>agrirouter-middleware-isoxml</artifactId>
                 <version>${project.version}</version>
             </dependency>

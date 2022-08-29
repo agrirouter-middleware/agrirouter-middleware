@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>agrirouter-middleware</artifactId>
-        <groupId>de.krone.agrirouter</groupId>
+        <groupId>de.agrirouter.middleware</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -21,15 +21,15 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-business</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-persistence-search</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-api</artifactId>
         </dependency>
         <dependency>
