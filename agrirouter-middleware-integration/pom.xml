@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>agrirouter-middleware</artifactId>
-        <groupId>de.krone.agrirouter</groupId>
-        <version>1.0.0</version>
+        <groupId>de.agrirouter.middleware</groupId>
+        <version>3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,19 +13,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-domain</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-efdi</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-isoxml</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.krone.agrirouter</groupId>
+            <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-persistence</artifactId>
         </dependency>
         <dependency>
