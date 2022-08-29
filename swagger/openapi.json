@@ -1278,6 +1278,266 @@
         ]
       }
     },
+    "/secured/api/endpoint/status/warnings": {
+      "post": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the warnings of an existing endpoint.",
+        "operationId": "endpoint.status.warnings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/status/technical-connection-state": {
+      "post": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the technical connection state of an existing endpoint.",
+        "operationId": "endpoint.status.technical-connection-state",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/status/missing-acknowledgements": {
+      "post": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the missing acknowledgements of an existing endpoint.",
+        "operationId": "endpoint.status.missing-acknowledgements",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/status/errors": {
+      "post": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the errors of an existing endpoint.",
+        "operationId": "endpoint.status.errors",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
+    "/secured/api/endpoint/status/connection": {
+      "post": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the connection status of an existing endpoint.",
+        "operationId": "endpoint.status.connection",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
     "/secured/api/endpoint/health": {
       "post": {
         "tags": [
@@ -1664,7 +1924,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Reponse with all the recipients available.",
+            "description": "Response with all the recipients available.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2529,6 +2789,10 @@
         ],
         "type": "object",
         "properties": {
+          "customTeamSetContextId": {
+            "type": "string",
+            "description": "Your custom team set context ID, in case you want to define it by your own. If the field is empty, a unique ID will be generated."
+          },
           "base64EncodedDeviceDescription": {
             "type": "string",
             "description": "The device description itself, should be Base64 encoded."
@@ -3016,21 +3280,6 @@
         },
         "description": "The current status of the application incl. its endpoints."
       },
-      "ConnectionErrorDto": {
-        "type": "object",
-        "properties": {
-          "pointInTime": {
-            "type": "string",
-            "description": "The point in time the connection error occurred.",
-            "format": "date-time"
-          },
-          "errorMessage": {
-            "type": "string",
-            "description": "The error message."
-          }
-        },
-        "description": "A single connection error, documented for the endpoint."
-      },
       "ConnectionStateDto": {
         "type": "object",
         "properties": {
@@ -3110,107 +3359,13 @@
           "endpointStatus": {
             "$ref": "#/components/schemas/EndpointStatusDto"
           },
-          "errors": {
-            "type": "array",
-            "description": "The errors for the endpoint.",
-            "items": {
-              "$ref": "#/components/schemas/LogEntryDto"
-            }
-          },
-          "warnings": {
-            "type": "array",
-            "description": "The warnings for the endpoint.",
-            "items": {
-              "$ref": "#/components/schemas/LogEntryDto"
-            }
-          },
-          "connectionErrors": {
-            "type": "array",
-            "description": "The detailed error messages with timestamps.",
-            "items": {
-              "$ref": "#/components/schemas/ConnectionErrorDto"
-            }
-          },
-          "messagesWaitingForAck": {
-            "type": "array",
-            "description": "The messages currently waiting for ACK.",
-            "items": {
-              "$ref": "#/components/schemas/MessageWaitingForAcknowledgementDto"
-            }
-          },
-          "messageRecipients": {
-            "type": "array",
-            "description": "The message recipients for this endpoint.",
-            "items": {
-              "$ref": "#/components/schemas/MessageRecipientDto"
-            }
+          "nrOfMessagesCached": {
+            "type": "integer",
+            "description": "Nr. of messages that are cached.",
+            "format": "int64"
           }
         },
         "description": "The status of an endpoint."
-      },
-      "LogEntryDto": {
-        "type": "object",
-        "properties": {
-          "responseCode": {
-            "type": "integer",
-            "description": "The response code.",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string",
-            "description": "The message of the error."
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "The timestamp of the log.",
-            "format": "date-time"
-          },
-          "responseType": {
-            "type": "string",
-            "description": "The type of the response."
-          },
-          "messageId": {
-            "type": "string",
-            "description": "The ID of the message."
-          }
-        },
-        "description": "A log entry for the endpoint."
-      },
-      "MessageWaitingForAcknowledgementDto": {
-        "type": "object",
-        "properties": {
-          "created": {
-            "type": "integer",
-            "description": "The point in time the message has been sent and is waiting.",
-            "format": "int64"
-          },
-          "humanReadableCreated": {
-            "type": "string",
-            "description": "The point in time the message has been sent and is waiting.",
-            "format": "date-time"
-          },
-          "agrirouterEndpointId": {
-            "type": "string",
-            "description": "The endpoint ID."
-          },
-          "messageId": {
-            "type": "string",
-            "description": "The message ID."
-          },
-          "technicalMessageType": {
-            "type": "string",
-            "description": "The type of message waiting for response."
-          },
-          "dynamicProperties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "description": "Dynamic properties for the message waiting for ACK."
-            },
-            "description": "Dynamic properties for the message waiting for ACK."
-          }
-        },
-        "description": "The message waiting for acknowledgement from the agrirouter."
       },
       "RevokeVirtualEndpointRequest": {
         "required": [

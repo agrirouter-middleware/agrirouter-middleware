@@ -50,8 +50,10 @@ Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation
 
 == Want To Try It?
 
-The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose. All you need to do is to send a request using the https://www.lmis.de/connectivity-service-for-agrirouter/[contact form] on the website.
-The hosting on the QA environment is free and won't be charged. If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
+The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose.
+All you need to do is to send a request using the https://www.lmis.de/connectivity-service-for-agrirouter/[contact form] on the website.
+The hosting on the QA environment is free and won't be charged.
+If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
 
 In addition, the project has an easy-to-use Docker compose script, a rapid solution for local development.
 
@@ -69,12 +71,14 @@ There is no need to implement the business process on your own.
 
 == Why Should You Use It?
 
-The agrirouter© middleware is ready for certification. What does this mean? By using the agrirouter© middleware you are ready to speed up the certification process, 
-since most of the requirements are already fulfilled by the middleware. To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
+The agrirouter© middleware is ready for certification.
+What does this mean?
+By using the agrirouter© middleware you are ready to speed up the certification process, since most of the requirements are already fulfilled by the middleware.
+To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
 
 [cols="1,1,1"]
 |===
-|Certification criteria |Status |Comment 
+|Certification criteria |Status |Comment
 
 |Secured Onboarding
 a|image::readme/thumb_up.png[ready,25,role="left]
@@ -136,4 +140,48 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 
 == Release-Management
 
-The release workflow follows the https://docs.microsoft.com/en-us/azure/devops/repos/git/git-branching-guidance?view=azure-devops[Microsoft DevOps Release Model] where a release shows up as a branch in the repository.
+The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
+If there are any manual migrations necessary, the documentation can be found right here.
+
+=== Update your version
+
+==== 2.1.0 to 3.0
+
+There are some breaking changes in release 3.0 and therefore the documentation has been updated.
+
+===== Status codes
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/87[PR 87] there was a change in the way the HTTP status codes are handled.
+The response does not contain a real HTTP status code and no longer the literal.
+Please see the Swagger documentation for more information.
+
+===== Searching for time logs
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/89[PR 89] there was a change regarding the search of time logs.
+The search is now based on the timestamp of the message and searching for an ID is not supported anymore.
+
+The former search query did look like this:
+
+image::documentation/release_3_0/old_search_for_timelogs.png[search for time logs,role="left"]
+
+The new search query looks like this:
+
+image::documentation/release_3_0/new_search_for_timelogs.png[search for time logs,role="left"]
+
+===== Monitoring endpoints
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/103[PR 103] the monitoring for endpoints has been changed.
+This is the main reason why this release is a breaking change.
+If you did not include the monitoring in any of your tools you can now ignore the rest of this section.
+
+The endpoint "status" has been modified and was replaced by several, more detailed endpoints to lower the amount of data transferred during the monitoring.
+The common endpoint "status" is still available, but some details where cut out and moved to specific endpoints.
+Please see the updated Swagger documentation for details.
+
+The former endpoint status did look like this:
+
+image::documentation/release_3_0/old_endpoint_status.png[old endpoint status,role="left]
+
+The new endpoint status looks like this:
+
+image::documentation/release_3_0/new_endpoint_status.png[new endpoint status,role="left]
