@@ -4,11 +4,19 @@ import de.agrirouter.middleware.api.Routes;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * The custom home controller.
+ */
 @Controller
 public class HomeController {
 
+    /**
+     * The home / landing page.
+     *
+     * @return -
+     */
     @GetMapping("/")
-    public String home() {
+    public String navigation() {
         return Routes.HOME;
     }
 

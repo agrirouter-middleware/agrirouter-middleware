@@ -11,6 +11,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import javax.ws.rs.HttpMethod;
 import java.util.Arrays;
 
+import static de.agrirouter.middleware.api.Routes.APPLICATIONS;
 import static de.agrirouter.middleware.api.Routes.SECURED_API_PATH;
 
 /**
@@ -18,6 +19,8 @@ import static de.agrirouter.middleware.api.Routes.SECURED_API_PATH;
  */
 @Configuration
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private static final String WILDCARD = "/**";
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -42,7 +45,10 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     return configuration;
                 }).and()
                 .authorizeRequests()
-                .antMatchers(SECURED_API_PATH, SECURED_API_PATH + "/**").authenticated()
+                .antMatchers(APPLICATIONS,
+                        APPLICATIONS + WILDCARD,
+                        SECURED_API_PATH,
+                        SECURED_API_PATH + WILDCARD).authenticated()
                 .anyRequest().permitAll()
                 .and().httpBasic();
     }
