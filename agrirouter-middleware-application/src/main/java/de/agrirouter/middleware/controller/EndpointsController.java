@@ -39,7 +39,7 @@ public class EndpointsController {
     public String navigation(Principal principal, @RequestParam(value = "internalApplicationId") String internalApplicationId, Model model) {
         List<Endpoint> endpoints = endpointService.findAll(internalApplicationId);
         model.addAttribute("endpoints", endpoints);
-        return Routes.ENDPOINTS;
+        return Routes.UI.ENDPOINTS;
     }
 
     /**
