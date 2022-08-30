@@ -144,6 +144,17 @@ public class MqttClientManagementService {
         return new TechnicalConnectionState(0, false, Collections.emptyList(), Collections.emptyList());
     }
 
+    public int getPendingDeliveryTokens(OnboardingResponse onboardingResponse){
+        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+        if (cachedMqttClient != null) {
+            if (cachedMqttClient.mqttClient().isPresent()) {
+                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                return iMqttClient.getPendingDeliveryTokens().length;
+            }
+        }
+        return 0;
+    }
+
     /**
      * Disconnect an existing connection.
      *
