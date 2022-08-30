@@ -17,6 +17,21 @@
                 <div class="mdl-card__supporting-text">
                     <div class="mdl-grid">
                         <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.overall-status}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left"
+                             th:with="endpointStatus=${@endpointsController.determineOverallStatus(endpoint)}">
+                            <i th:if="${endpointStatus.status.name == 'OK'}" th:title="${endpointStatus.toolTip}"
+                               class="material-icons mdl-color-text--green">sentiment_very_satisfied</i>
+
+                            <i th:if="${endpointStatus.status.name == 'WARNING'}" th:title="${endpointStatus.toolTip}"
+                               class="material-icons mdl-color-text--orange">sentiment_dissatisfied</i>
+
+                            <i th:if="${endpointStatus.status.name == 'ERROR'}" th:title="${endpointStatus.toolTip}"
+                               class="material-icons mdl-color-text--red">sentiment_very_dissatisfied</i>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
                             <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.account-id}"></p>
                         </div>
                         <div class="mdl-cell--8-col mdl-typography--text-left">
@@ -35,6 +50,13 @@
                         </div>
                         <div class="mdl-cell--8-col mdl-typography--text-left">
                             <p th:text="${endpoint.connectedVirtualEndpoints.size}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.messages.nr}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.endpointStatus.nrOfMessagesWithinTheInbox}"></p>
                         </div>
 
                         <div class="mdl-cell--4-col mdl-typography--text-left">
