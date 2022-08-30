@@ -17,7 +17,7 @@ public class HomeController {
      */
     @GetMapping("/")
     public String navigation() {
-        return Routes.HOME;
+        return Routes.UI.HOME;
     }
 
 }

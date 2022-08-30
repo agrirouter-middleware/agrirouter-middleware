@@ -11,8 +11,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import javax.ws.rs.HttpMethod;
 import java.util.Arrays;
 
-import static de.agrirouter.middleware.api.Routes.APPLICATIONS;
 import static de.agrirouter.middleware.api.Routes.SECURED_API_PATH;
+import static de.agrirouter.middleware.api.Routes.UI.APPLICATIONS;
+import static de.agrirouter.middleware.api.Routes.UI.ENDPOINTS;
 
 /**
  * Security configuration.
@@ -47,6 +48,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(APPLICATIONS,
                         APPLICATIONS + WILDCARD,
+                        ENDPOINTS,
+                        ENDPOINTS + WILDCARD,
                         SECURED_API_PATH,
                         SECURED_API_PATH + WILDCARD).authenticated()
                 .anyRequest().permitAll()

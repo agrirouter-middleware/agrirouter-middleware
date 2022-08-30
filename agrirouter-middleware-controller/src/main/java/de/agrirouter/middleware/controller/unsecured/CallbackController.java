@@ -156,7 +156,7 @@ public class CallbackController implements UnsecuredApiController {
         } else if (StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
             return redirectToExternalResultUrl(result, application.getApplicationSettings().getRedirectUrl());
         } else {
-            return new RedirectView(Routes.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + result), true);
+            return new RedirectView(Routes.UI.ONBOARD_PROCESS_RESULT.concat("?onboardProcessResult=" + result), true);
         }
     }
 

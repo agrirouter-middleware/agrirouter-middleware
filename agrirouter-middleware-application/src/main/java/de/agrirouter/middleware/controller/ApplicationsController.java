@@ -31,7 +31,7 @@ public class ApplicationsController {
     public String navigation(Principal principal, Model model) {
         List<Application> applications = applicationService.findAll(principal);
         model.addAttribute("applications", applications);
-        return Routes.APPLICATIONS;
+        return Routes.UI.APPLICATIONS;
     }
 
 }
