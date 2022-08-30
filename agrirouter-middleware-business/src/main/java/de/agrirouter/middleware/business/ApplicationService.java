@@ -136,6 +136,15 @@ public class ApplicationService {
     }
 
     /**
+     * Delegate.
+     *
+     * @return The list of applications.
+     */
+    public List<Application> findAll() {
+        return applicationRepository.findAll();
+    }
+
+    /**
      * Find an application for the given endpoint.
      *
      * @param endpoint -

@@ -1,11 +1,13 @@
 <!DOCTYPE HTML>
 <!--suppress HtmlUnknownAttribute -->
-<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout (title,content)" lang="en">
-<script src="webjars/material-design-lite/1.3.0/material.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout (title,content)" lang="en"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+<script th:src="@{/webjars/material-design-lite/1.3.0/material.min.js}"></script>
 <head>
     <title th:replace="${title}">Layout Title</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="webjars/material-design-lite/1.3.0/material.min.css"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/material-design-lite/1.3.0/material.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/application.css}">
     <link rel="shortcut icon" type="image/png" th:href="${@environment.getProperty('app.branding.favicon')}"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-light_green.min.css"/>
@@ -14,11 +16,22 @@
 <div class="container">
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header color">
         <header class="mdl-layout__header">
-            <div class="mdl-layout__header-row">
-                <span class="mdl-layout-title" th:text="#{layout.title}"></span>
+            <div class="mdl-layout__header-row mdl-typography--text-right">
+                <div class="mdl-layout-spacer"></div>
+                <img class="header-logo-small" th:src="@{/img/agrirouter-middleware-logo.png}" th:alt="#{layout.logo.alt}"/>
             </div>
         </header>
         <div class="mdl-layout__drawer">
+            <nav class="mdl-navigation">
+                <!--suppress HtmlUnknownTarget -->
+                <a class="mdl-navigation__link" href="/" target="_self"
+                   th:text="#{layout.navigation.home}"><i class="material-icons">info</i></a>
+            </nav>
+            <nav class="mdl-navigation">
+                <!--suppress HtmlUnknownTarget -->
+                <a class="mdl-navigation__link" href="/applications/" target="_self"
+                   th:text="#{layout.navigation.applications}"></a>
+            </nav>
             <nav class="mdl-navigation">
                 <!--suppress HtmlUnknownTarget -->
                 <a class="mdl-navigation__link" href="/swagger-ui/index.html" target="_blank"
@@ -27,11 +40,11 @@
         </div>
         <main th:replace="${content}">
         </main>
-        <footer class="mdl-mega-footer">
-            <div class="mdl-mega-footer__bottom-section">
-                <div class="mdl-logo" th:text="#{layout.footer.current-version}"></div>
-                <ul class="mdl-mega-footer__link-list">
-                    <li><a target="_blank" href="https://github.com/agrirouter-middleware/agrirouter-middleware"
+        <footer class="mdl-mini-footer">
+            <div class="mdl-mini-footer__bottom-section">
+                <ul class="mdl-mini-footer__link-list">
+                    <li><!--suppress HtmlUnknownTarget -->
+                        <a target="_blank" href="www.agrirouter-middleware.com"
                            th:text="#{layout.footer.visit-us}"></a></li>
                 </ul>
             </div>
