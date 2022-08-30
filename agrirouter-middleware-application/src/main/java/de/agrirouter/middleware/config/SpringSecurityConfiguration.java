@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.config;
 
+import de.agrirouter.middleware.api.Routes;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,10 +11,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import javax.ws.rs.HttpMethod;
 import java.util.Arrays;
-
-import static de.agrirouter.middleware.api.Routes.SECURED_API_PATH;
-import static de.agrirouter.middleware.api.Routes.UI.APPLICATIONS;
-import static de.agrirouter.middleware.api.Routes.UI.ENDPOINTS;
 
 /**
  * Security configuration.
@@ -46,12 +43,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     return configuration;
                 }).and()
                 .authorizeRequests()
-                .antMatchers(APPLICATIONS,
-                        APPLICATIONS + WILDCARD,
-                        ENDPOINTS,
-                        ENDPOINTS + WILDCARD,
-                        SECURED_API_PATH,
-                        SECURED_API_PATH + WILDCARD).authenticated()
+                .antMatchers(Routes.Secured.APPLICATIONS,
+                        Routes.Secured.APPLICATIONS + WILDCARD,
+                        Routes.Secured.ENDPOINTS,
+                        Routes.Secured.ENDPOINTS + WILDCARD,
+                        Routes.Secured.API_PATH,
+                        Routes.Secured.API_PATH + WILDCARD).authenticated()
                 .anyRequest().permitAll()
                 .and().httpBasic();
     }

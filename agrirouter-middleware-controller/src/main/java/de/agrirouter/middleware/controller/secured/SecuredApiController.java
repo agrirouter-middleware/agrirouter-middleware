@@ -20,6 +20,6 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 )
 interface SecuredApiController extends CommonController {
 
-    String API_PREFIX = Routes.SECURED_API_PATH;
+    String API_PREFIX = Routes.Secured.API_PATH;
 
 }

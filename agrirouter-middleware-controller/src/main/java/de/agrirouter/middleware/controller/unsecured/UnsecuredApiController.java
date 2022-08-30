@@ -8,6 +8,6 @@ import de.agrirouter.middleware.controller.CommonController;
  */
 interface UnsecuredApiController extends CommonController {
 
-    String API_PREFIX = Routes.UNSECURED_API_PATH;
+    String API_PREFIX = Routes.Unsecured.API_PATH;
 
 }
