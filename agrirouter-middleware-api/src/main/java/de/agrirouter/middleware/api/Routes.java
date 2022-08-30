@@ -9,4 +9,5 @@ public class Routes {
     public static final String SECURED_API_PATH = "/secured/api";
     public static final String UNSECURED_API_PATH = "/unsecured/api";
     public static final String APPLICATIONS = "/applications";
+    public static final String ENDPOINTS = "/endpoints";
 }

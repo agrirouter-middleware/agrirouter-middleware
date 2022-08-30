@@ -3,7 +3,6 @@ package de.agrirouter.middleware.persistence;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -70,18 +69,11 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     List<Endpoint> findByExternalEndpointIdIsIn(List<String> endpointIds);
 
     /**
-     * Delete the endpoint using the given endpoint ID.
+     * Finding endpoints by the given internal application ID.
      *
-     * @param externalEndpointId -
+     * @param internalApplicationId The internal ID of the application.
+     * @return The endpoints.
      */
-    @Modifying
-    void deleteEndpointByExternalEndpointId(String externalEndpointId);
-
-    /**
-     * Delete the endpoint using the given endpoint ID.
-     *
-     * @param agrirouterEndpointId -
-     */
-    @Modifying
-    void deleteEndpointByAgrirouterEndpointId(String agrirouterEndpointId);
+    @Query("select a.endpoints from Application a where a.internalApplicationId = :internalApplicationId")
+    List<Endpoint> findAllByInternalApplicationId(String internalApplicationId);
 }

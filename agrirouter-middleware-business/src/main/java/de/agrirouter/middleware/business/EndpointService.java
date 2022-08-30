@@ -290,4 +290,14 @@ public class EndpointService {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
     }
+
+    /**
+     * Fetch all endpoints.
+     *
+     * @param internalApplicationId The internal ID of the application.
+     * @return The endpoints.
+     */
+    public List<Endpoint> findAll(String internalApplicationId) {
+        return endpointRepository.findAllByInternalApplicationId(internalApplicationId);
+    }
 }

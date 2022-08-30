@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title},~{::main})}" lang="en"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+    <title th:text="#{endpoints.title}"></title>
+</head>
+<body>
+<main class="mdl-layout__content">
+    <div class="mdl-grid">
+        <div th:each="endpoint: ${endpoints}" class="mdl-cell mdl-cell--4-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="${endpoint.agrirouterEndpointId}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-grid">
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.account-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.agrirouterAccountId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.external-endpoint-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.externalEndpointId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.virtual-endpoints.nr}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.connectedVirtualEndpoints.size}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.active}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <i th:class="${endpoint.deactivated}?'material-icons mdl-color-text--red':'material-icons mdl-color-text--green'"
+                               th:text="${endpoint.deactivated}?'block':'check_small'"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -46,7 +46,8 @@
                     </div>
                 </div>
                 <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
-                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                       th:href="@{/endpoints(internalApplicationId=${app.internalApplicationId})}">
                         <span th:text="#{applications.show-endpoints}"></span>
                     </a>
                 </div>
