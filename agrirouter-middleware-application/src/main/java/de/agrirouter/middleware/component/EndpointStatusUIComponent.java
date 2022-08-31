@@ -1,6 +1,5 @@
-package de.agrirouter.middleware.controller;
+package de.agrirouter.middleware.component;
 
-import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.controller.dto.enums.OverallEndpointStatusForUi;
 import de.agrirouter.middleware.domain.Endpoint;
@@ -8,38 +7,21 @@ import de.agrirouter.middleware.domain.log.Error;
 import de.agrirouter.middleware.domain.log.Warning;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.security.Principal;
 import java.util.List;
 
 /**
  * The endpoints controller.
  */
 @Controller
-public class EndpointsController {
+public class EndpointStatusUIComponent {
 
     private final EndpointService endpointService;
     private final MqttClientManagementService mqttClientManagementService;
 
-    public EndpointsController(EndpointService endpointService, MqttClientManagementService mqttClientManagementService) {
+    public EndpointStatusUIComponent(EndpointService endpointService, MqttClientManagementService mqttClientManagementService) {
         this.endpointService = endpointService;
         this.mqttClientManagementService = mqttClientManagementService;
-    }
-
-    /**
-     * The home / landing page.
-     *
-     * @return -
-     */
-    @SuppressWarnings("unused")
-    @GetMapping("/endpoints")
-    public String navigation(Principal principal, @RequestParam(value = "internalApplicationId") String internalApplicationId, Model model) {
-        List<Endpoint> endpoints = endpointService.findAll(internalApplicationId);
-        model.addAttribute("endpoints", endpoints);
-        return Routes.UI.ENDPOINTS;
     }
 
     /**

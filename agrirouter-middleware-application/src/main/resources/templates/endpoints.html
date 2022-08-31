@@ -20,7 +20,7 @@
                             <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.overall-status}"></p>
                         </div>
                         <div class="mdl-cell--8-col mdl-typography--text-left"
-                             th:with="endpointStatus=${@endpointsController.determineOverallStatus(endpoint)}">
+                             th:with="endpointStatus=${@endpointStatusUIComponent.determineOverallStatus(endpoint)}">
                             <i th:if="${endpointStatus.status.name == 'OK'}" th:title="${endpointStatus.toolTip}"
                                class="material-icons mdl-color-text--green">sentiment_very_satisfied</i>
 
@@ -67,6 +67,12 @@
                                th:text="${endpoint.deactivated}?'block':'check_small'"></i>
                         </div>
                     </div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                       th:href="@{/endpoint-dashboard?(externalEndpointId=${endpoint.externalEndpointId})}">
+                        <span th:text="#{applications.show-endpoints}"></span>
+                    </a>
                 </div>
             </div>
         </div>

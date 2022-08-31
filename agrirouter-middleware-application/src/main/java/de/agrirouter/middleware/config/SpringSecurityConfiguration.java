@@ -47,6 +47,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Routes.Secured.APPLICATIONS + WILDCARD,
                         Routes.Secured.ENDPOINTS,
                         Routes.Secured.ENDPOINTS + WILDCARD,
+                        Routes.Secured.ENDPOINT_DASHBOARD,
+                        Routes.Secured.ENDPOINT_DASHBOARD + WILDCARD,
                         Routes.Secured.API_PATH,
                         Routes.Secured.API_PATH + WILDCARD).authenticated()
                 .anyRequest().permitAll()

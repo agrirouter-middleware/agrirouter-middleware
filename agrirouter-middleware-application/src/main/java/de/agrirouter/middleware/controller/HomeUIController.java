@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * The custom home controller.
  */
 @Controller
-public class HomeController {
+public class HomeUIController {
 
     /**
      * The home / landing page.
