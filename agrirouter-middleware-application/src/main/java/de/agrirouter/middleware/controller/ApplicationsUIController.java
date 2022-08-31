@@ -11,19 +11,19 @@ import java.security.Principal;
 import java.util.List;
 
 /**
- * The applications controller.
+ * The applications' controller.
  */
 @Controller
-public class ApplicationsController {
+public class ApplicationsUIController {
 
     private final ApplicationService applicationService;
 
-    public ApplicationsController(ApplicationService applicationService) {
+    public ApplicationsUIController(ApplicationService applicationService) {
         this.applicationService = applicationService;
     }
 
     /**
-     * The home / landing page.
+     * The landing page.
      *
      * @return -
      */

@@ -1,0 +1,229 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title},~{::main})}" lang="en"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+    <title th:text="#{endpoint.dashboard.title}"></title>
+</head>
+<body>
+<main class="mdl-layout__content">
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--6-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="#{domain.endpoint.details}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-grid">
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.application.application-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${agrirouterApplication.applicationId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.application.version-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${agrirouterApplication.versionId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.account-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.agrirouterAccountId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold"
+                               th:text="#{domain.endpoint.external-endpoint-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.externalEndpointId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold"
+                               th:text="#{domain.endpoint.agrirouter-endpoint-id}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.agrirouterEndpointId}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mdl-cell mdl-cell--6-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="#{domain.endpoint.technical-connection-state}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-grid">
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.uses-router-device}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <i th:class="${technicalConnectionState.usesRouterDevice}?'material-icons mdl-color-text--green':'material-icons mdl-color-text--red'"
+                               th:text="${technicalConnectionState.usesRouterDevice}?'check_small':'block'"></i>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.active}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <i th:class="${endpoint.deactivated}?'material-icons mdl-color-text--red':'material-icons mdl-color-text--green'"
+                               th:text="${endpoint.deactivated}?'block':'check_small'"></i>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.messages.nr}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${endpoint.endpointStatus.nrOfMessagesWithinTheInbox}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold"
+                               th:text="#{domain.endpoint.pending-delivery-tokens.nr}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${technicalConnectionState.nrOfPendingDeliveryTokens}"></p>
+                        </div>
+
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold"
+                               th:text="#{domain.endpoint.connection-errors.nr}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <p th:text="${technicalConnectionState.connectionErrors.size}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdl-grid" th:if="${endpoint.connectedVirtualEndpoints.size > 0}">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="#{domain.endpoint.virtual-endpoints}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                        <thead>
+                        <tr>
+                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.endpoint.active}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.endpoint.external-endpoint-id}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.endpoint.agrirouter-endpoint-id}"></th>
+                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.endpoint.messages.nr}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.endpoint.overall-status}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="vcu: ${endpoint.connectedVirtualEndpoints}">
+                            <td>
+                                <i th:class="${vcu.deactivated}?'material-icons mdl-color-text--red':'material-icons mdl-color-text--green'"
+                                   th:text="${vcu.deactivated}?'block':'check_small'"></i></td>
+                            <td th:text="${vcu.externalEndpointId}"></td>
+                            <td th:text="${vcu.agrirouterEndpointId}"></td>
+                            <td th:text="${endpoint.endpointStatus.nrOfMessagesWithinTheInbox}"></td>
+                            <td th:with="endpointStatus=${@endpointStatusUIComponent.determineOverallStatus(endpoint)}">
+                                <i th:if="${endpointStatus.status.name == 'OK'}" th:title="${endpointStatus.toolTip}"
+                                   class="material-icons mdl-color-text--green">sentiment_very_satisfied</i>
+
+                                <i th:if="${endpointStatus.status.name == 'WARNING'}"
+                                   th:title="${endpointStatus.toolTip}"
+                                   class="material-icons mdl-color-text--orange">sentiment_dissatisfied</i>
+
+                                <i th:if="${endpointStatus.status.name == 'ERROR'}" th:title="${endpointStatus.toolTip}"
+                                   class="material-icons mdl-color-text--red">sentiment_very_dissatisfied</i>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdl-grid" th:if="${errors.size > 0}">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="#{domain.endpoint.errors}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                        <thead>
+                        <tr>
+                            <th th:text="#{domain.log-entry.timestamp}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.log-entry.response-code}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.log-entry.response-type}"></th>
+                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message-id}"></th>
+                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="error: ${errors}">
+                            <td th:text="${error.timestamp}"></td>
+                            <td th:text="${error.responseCode}"></td>
+                            <td th:text="${error.responseType}"></td>
+                            <td th:text="${error.messageId}"></td>
+                            <td th:text="${error.message}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdl-grid" th:if="${warnings.size > 0}">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="#{domain.endpoint.warnings}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                        <thead>
+                        <tr>
+                            <th th:text="#{domain.log-entry.timestamp}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.log-entry.response-code}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.log-entry.response-type}"></th>
+                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message-id}"></th>
+                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="warning: ${warnings}">
+                            <td th:text="${warning.timestamp}"></td>
+                            <td th:text="${warning.responseCode}"></td>
+                            <td th:text="${warning.responseType}"></td>
+                            <td th:text="${warning.messageId}"></td>
+                            <td th:text="${warning.message}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
