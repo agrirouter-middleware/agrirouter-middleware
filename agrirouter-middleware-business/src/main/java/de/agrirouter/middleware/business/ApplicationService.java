@@ -13,6 +13,7 @@ import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -198,6 +199,7 @@ public class ApplicationService {
      *
      * @param internalApplicationId The ID of the application.
      */
+    @Async
     @Transactional
     public void delete(String internalApplicationId) {
         Application application = find(internalApplicationId);
