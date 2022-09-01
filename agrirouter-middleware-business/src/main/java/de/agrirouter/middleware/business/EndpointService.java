@@ -307,4 +307,38 @@ public class EndpointService {
     public void delete(Endpoint endpoint) {
         endpointRepository.deleteByExternalEndpointId(endpoint.getExternalEndpointId());
     }
+
+    /**
+     * Reset all errors.
+     *
+     * @param externalEndpointId The external ID of the endpoint.
+     */
+    @Transactional
+    public void resetErrors(String externalEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            errorRepository.deleteAllByEndpoint(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Errors were reset.");
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+    }
+
+    /**
+     * Reset all warnings.
+     *
+     * @param externalEndpointId The external ID of the endpoint.
+     */
+    @Transactional
+    public void resetWarnings(String externalEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            warningRepository.deleteAllByEndpoint(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warnings were reset.");
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+    }
 }
