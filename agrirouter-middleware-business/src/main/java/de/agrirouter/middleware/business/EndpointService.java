@@ -313,6 +313,7 @@ public class EndpointService {
      *
      * @param externalEndpointId The external ID of the endpoint.
      */
+    @Async
     @Transactional
     public void resetErrors(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
@@ -330,6 +331,7 @@ public class EndpointService {
      *
      * @param externalEndpointId The external ID of the endpoint.
      */
+    @Async
     @Transactional
     public void resetWarnings(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
