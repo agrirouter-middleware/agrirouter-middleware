@@ -2244,6 +2244,54 @@
         ]
       }
     },
+    "/unsecured/api/maintenance/application/{internalApplicationId}": {
+      "delete": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Delete the application incl. all endpoints and other data. Handle with care, the data is lost forever.",
+        "operationId": "maintenance.delete",
+        "parameters": [
+          {
+            "name": "internalApplicationId",
+            "in": "path",
+            "description": "The internal application ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "In case the operation was successful.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/secured/api/telemetry-platform/{externalEndpointId}": {
       "delete": {
         "tags": [
