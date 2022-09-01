@@ -14,6 +14,7 @@ import de.agrirouter.middleware.persistence.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
@@ -32,14 +33,18 @@ public class ApplicationService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
 
+    private final EndpointService endpointService;
+
     public ApplicationService(ApplicationRepository applicationRepository,
                               TenantRepository tenantRepository,
                               ApplicationEventPublisher applicationEventPublisher,
-                              BusinessOperationLogService businessOperationLogService) {
+                              BusinessOperationLogService businessOperationLogService,
+                              EndpointService endpointService) {
         this.applicationRepository = applicationRepository;
         this.tenantRepository = tenantRepository;
         this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
+        this.endpointService = endpointService;
     }
 
     /**
@@ -186,5 +191,21 @@ public class ApplicationService {
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
+    }
+
+    /**
+     * Delete the application incl. all the endpoints and other data.
+     *
+     * @param internalApplicationId The ID of the application.
+     */
+    @Transactional
+    public void delete(String internalApplicationId) {
+        Application application = find(internalApplicationId);
+        application.getEndpoints().forEach(endpoint -> {
+            endpointService.deleteEndpointData(endpoint.getExternalEndpointId());
+            endpointService.delete(endpoint);
+        });
+        businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application deleted.");
+        applicationRepository.delete(application);
     }
 }
