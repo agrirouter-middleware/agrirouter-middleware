@@ -76,4 +76,11 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
      */
     @Query("select a.endpoints from Application a where a.internalApplicationId = :internalApplicationId")
     List<Endpoint> findAllByInternalApplicationId(String internalApplicationId);
+
+    /**
+     * Delete the endpoint by its internal endpoint ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     */
+    void deleteByExternalEndpointId(String externalEndpointId);
 }

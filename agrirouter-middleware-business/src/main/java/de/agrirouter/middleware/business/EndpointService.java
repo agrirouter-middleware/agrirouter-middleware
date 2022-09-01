@@ -148,8 +148,6 @@ public class EndpointService {
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
             endpointRepository.delete(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
     }
 
@@ -299,5 +297,14 @@ public class EndpointService {
      */
     public List<Endpoint> findAll(String internalApplicationId) {
         return endpointRepository.findAllByInternalApplicationId(internalApplicationId);
+    }
+
+    /**
+     * Delete an endpoint.
+     *
+     * @param endpoint The endpoint.
+     */
+    public void delete(Endpoint endpoint) {
+        endpointRepository.deleteByExternalEndpointId(endpoint.getExternalEndpointId());
     }
 }
