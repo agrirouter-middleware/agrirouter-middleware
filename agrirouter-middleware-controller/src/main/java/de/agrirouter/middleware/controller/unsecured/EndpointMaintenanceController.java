@@ -107,7 +107,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
             description = "Reset the errors for the endpoint.",
             responses = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "In case the operation was successful.",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
@@ -147,7 +147,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
     )
     public ResponseEntity<Void> resetErrors(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resetErrors(externalEndpointId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -163,7 +163,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
             description = "Reset the warnings for the endpoint.",
             responses = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "In case the operation was successful.",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
@@ -203,7 +203,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
     )
     public ResponseEntity<Void> resetWarnings(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resetWarnings(externalEndpointId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
     }
 
 }
