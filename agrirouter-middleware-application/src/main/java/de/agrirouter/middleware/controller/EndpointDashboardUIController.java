@@ -6,6 +6,7 @@ import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.mqtt.TechnicalConnectionState;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +51,9 @@ public class EndpointDashboardUIController {
                 model.addAttribute("agrirouterApplication", application);
                 model.addAttribute("warnings", endpointService.getWarnings(endpoint));
                 model.addAttribute("errors", endpointService.getErrors(endpoint));
-                model.addAttribute("technicalConnectionState", mqttClientManagementService.getTechnicalState(application, endpoint.asOnboardingResponse()));
+                TechnicalConnectionState technicalConnectionState = mqttClientManagementService.getTechnicalState(application, endpoint.asOnboardingResponse());
+                model.addAttribute("technicalConnectionState", technicalConnectionState);
+                model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
             } else {
                 return Routes.UI.ERROR;
             }
