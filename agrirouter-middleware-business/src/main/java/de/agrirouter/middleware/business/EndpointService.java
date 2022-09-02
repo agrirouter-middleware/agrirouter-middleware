@@ -343,4 +343,14 @@ public class EndpointService {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
     }
+
+    /**
+     * Deactivate the endpoint.
+     *
+     * @param endpoint -
+     */
+    public void deactivateEndpoint(Endpoint endpoint) {
+        endpoint.setDeactivated(true);
+        endpointRepository.save(endpoint);
+    }
 }
