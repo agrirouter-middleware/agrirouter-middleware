@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.integration.common;
 
+import agrirouter.request.payload.endpoint.Capabilities;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.service.parameters.SetSubscriptionParameters;
 import de.agrirouter.middleware.domain.Application;
@@ -31,27 +32,33 @@ public final class SubscriptionParameterFactory {
     public static List<SetSubscriptionParameters.Subscription> create(Application application) {
         List<SetSubscriptionParameters.Subscription> subscriptions = new ArrayList<>();
         application.getSupportedTechnicalMessageTypes().forEach(supportedTechnicalMessageType -> {
-            SetSubscriptionParameters.Subscription subscription = new SetSubscriptionParameters.Subscription();
-            subscription.setTechnicalMessageType(supportedTechnicalMessageType.getTechnicalMessageType());
-            if (ContentMessageType.ISO_11783_TIME_LOG == supportedTechnicalMessageType.getTechnicalMessageType()) {
-                subscription.setPosition(true);
-                if (null == application.getApplicationSettings() || application.getApplicationSettings().getDdiCombinationsToSubscribeFor().isEmpty()) {
-                    LOGGER.debug("The application did not define any DDIs, therefore the whole range from DDI 0 to 600 is subscribed.");
-                    subscription.setDdis(IntStream.rangeClosed(0, 600).boxed().collect(Collectors.toList()));
+
+            if (supportedTechnicalMessageType.getDirection().equals(Capabilities.CapabilitySpecification.Direction.RECEIVE)
+                    || supportedTechnicalMessageType.getDirection().equals(Capabilities.CapabilitySpecification.Direction.SEND_RECEIVE)) {
+                SetSubscriptionParameters.Subscription subscription = new SetSubscriptionParameters.Subscription();
+                subscription.setTechnicalMessageType(supportedTechnicalMessageType.getTechnicalMessageType());
+                if (ContentMessageType.ISO_11783_TIME_LOG == supportedTechnicalMessageType.getTechnicalMessageType()) {
+                    subscription.setPosition(true);
+                    if (null == application.getApplicationSettings() || application.getApplicationSettings().getDdiCombinationsToSubscribeFor().isEmpty()) {
+                        LOGGER.debug("The application did not define any DDIs, therefore the whole range from DDI 0 to 600 is subscribed.");
+                        subscription.setDdis(IntStream.rangeClosed(0, 600).boxed().collect(Collectors.toList()));
+                    } else {
+                        LOGGER.debug("The application did define (multiple) ranges of DDIs.");
+                        List<Integer> ddis = new ArrayList<>();
+                        application.getApplicationSettings().getDdiCombinationsToSubscribeFor()
+                                .forEach(ddiCombinationToSubscribeFor -> ddis.addAll(IntStream
+                                        .rangeClosed(ddiCombinationToSubscribeFor.getStart(), ddiCombinationToSubscribeFor.getEnd())
+                                        .boxed().toList()));
+                        LOGGER.trace("Adding the following DDIs as subscription.");
+                        LOGGER.trace(ArrayUtils.toString(ddis));
+                        subscription.setDdis(ddis);
+                    }
+                    subscriptions.add(subscription);
                 } else {
-                    LOGGER.debug("The application did define (multiple) ranges of DDIs.");
-                    List<Integer> ddis = new ArrayList<>();
-                    application.getApplicationSettings().getDdiCombinationsToSubscribeFor()
-                            .forEach(ddiCombinationToSubscribeFor -> ddis.addAll(IntStream
-                                    .rangeClosed(ddiCombinationToSubscribeFor.getStart(), ddiCombinationToSubscribeFor.getEnd())
-                                    .boxed().toList()));
-                    LOGGER.trace("Adding the following DDIs as subscription.");
-                    LOGGER.trace(ArrayUtils.toString(ddis));
-                    subscription.setDdis(ddis);
+                    LOGGER.trace("Skip DDIs and position information for technical message types that do not require setting DDIs.");
                 }
-                subscriptions.add(subscription);
             } else {
-                LOGGER.trace("Skip DDIs and position information for technical message types that do not require setting DDIs.");
+                LOGGER.trace("Skip technical message type {} because it is not a receive or send-receive type.", supportedTechnicalMessageType.getTechnicalMessageType());
             }
         });
         return subscriptions;
