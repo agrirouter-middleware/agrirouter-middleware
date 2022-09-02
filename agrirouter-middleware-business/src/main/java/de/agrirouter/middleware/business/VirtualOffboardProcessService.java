@@ -53,7 +53,9 @@ public class VirtualOffboardProcessService {
             offboardVirtualEndpointParameters.setEndpoint(endpoint);
             offboardVirtualEndpointParameters.setEndpointIds(getEndpointIds(virtualOffboardProcessParameters));
             virtualOffboardProcessIntegrationService.offboard(offboardVirtualEndpointParameters);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Virtual endpoint was removed from the AR.");
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Virtual endpoint was removed from the AR.");
+            endpointService.deactivateEndpoint(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deactivated.");
             offboardVirtualEndpointParameters.getEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
