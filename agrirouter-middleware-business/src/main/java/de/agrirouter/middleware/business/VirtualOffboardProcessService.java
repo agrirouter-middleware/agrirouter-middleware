@@ -49,16 +49,16 @@ public class VirtualOffboardProcessService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOffboardProcessParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var endpoint = optionalEndpoint.get();
-            final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters();
-            offboardVirtualEndpointParameters.setEndpoint(endpoint);
-            offboardVirtualEndpointParameters.setEndpointIds(getEndpointIds(virtualOffboardProcessParameters));
-            virtualOffboardProcessIntegrationService.offboard(offboardVirtualEndpointParameters);
+            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters();
+            virtualOffboardProcessIntegrationParameters.setEndpoint(endpoint);
+            virtualOffboardProcessIntegrationParameters.setEndpointIds(getEndpointIds(virtualOffboardProcessParameters));
+            virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Virtual endpoint was removed from the AR.");
             endpointService.deactivateEndpoint(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deactivated.");
-            offboardVirtualEndpointParameters.getEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
+            virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+            businessOperationLogService.log(new EndpointLogInformation(virtualOffboardProcessParameters.getExternalEndpointId(), null), "Endpoint was not found.");
         }
     }
 

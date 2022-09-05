@@ -120,6 +120,7 @@ public class EndpointService {
      *
      * @param agrirouterEndpointId -
      */
+    @Transactional
     public void deleteEndpointDataFromTheMiddlewareByAgrirouterId(String agrirouterEndpointId) {
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointIdAndIgnoreDeactivated(agrirouterEndpointId);
         if (optionalEndpoint.isPresent()) {
@@ -157,12 +158,12 @@ public class EndpointService {
         log.debug("Remove all unprocessed messages.");
         unprocessedMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
-        log.debug("Remove the content messages for the endpoint.");
-        contentMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
-
         log.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
+
+        log.debug("Remove the content messages for the endpoint.");
+        contentMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
         log.debug("Remove device descriptions.");
         deviceDescriptionRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
