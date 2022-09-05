@@ -122,6 +122,7 @@ public class EndpointService {
      *
      * @param agrirouterEndpointId -
      */
+    @Async
     @Transactional
     public void deleteEndpointDataFromTheMiddlewareByAgrirouterId(String agrirouterEndpointId) {
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointIdAndIgnoreDeactivated(agrirouterEndpointId);
@@ -348,12 +349,19 @@ public class EndpointService {
     }
 
     /**
-     * Deactivate the endpoint.
+     * Deactivate an endpoint.
      *
-     * @param endpoint -
+     * @param agrirouterEndpointId The ID of the endpoint.
      */
-    public void deactivateEndpoint(Endpoint endpoint) {
-        endpoint.setDeactivated(true);
-        endpointRepository.save(endpoint);
+    @Transactional
+    public void deactivateEndpointByAgrirouterId(String agrirouterEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            endpoint.setDeactivated(true);
+            endpointRepository.save(endpoint);
+        } else {
+            LOGGER.warn("Could not find endpoint with agrirouter ID {}.", agrirouterEndpointId);
+        }
     }
 }

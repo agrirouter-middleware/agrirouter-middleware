@@ -12,6 +12,7 @@ import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class VirtualOnboardProcessIntegrationService {
      *
      * @param virtualOnboardProcessIntegrationParameters The parameters for the onboard process.
      */
+    @Async
     public void onboard(VirtualOnboardProcessIntegrationParameters virtualOnboardProcessIntegrationParameters) {
         final var onboardingResponse = virtualOnboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
