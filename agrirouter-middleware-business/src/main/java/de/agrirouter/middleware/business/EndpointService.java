@@ -125,7 +125,9 @@ public class EndpointService {
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             deleteEndpointData(optionalEndpoint.get().getExternalEndpointId());
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data incl. the endpoint was deleted.");
+        } else {
+            businessOperationLogService.log(new EndpointLogInformation(null, agrirouterEndpointId), "Endpoint was not found and the removing process was skipped.");
         }
     }
 
