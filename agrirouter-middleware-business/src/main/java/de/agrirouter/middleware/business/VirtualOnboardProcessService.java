@@ -8,7 +8,6 @@ import de.agrirouter.middleware.business.parameters.VirtualOnboardProcessParamet
 import de.agrirouter.middleware.integration.VirtualOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,7 +33,6 @@ public class VirtualOnboardProcessService {
      *
      * @param virtualOnboardProcessParameters -
      */
-    @Async
     public void onboard(VirtualOnboardProcessParameters virtualOnboardProcessParameters) {
         final var alreadyExistingEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
         alreadyExistingEndpoint.ifPresent(endpoint -> {

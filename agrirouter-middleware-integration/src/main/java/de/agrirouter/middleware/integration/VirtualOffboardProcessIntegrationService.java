@@ -36,7 +36,7 @@ public class VirtualOffboardProcessIntegrationService {
      * @param virtualOffboardProcessIntegrationParameters The parameters for the offboard process.
      */
     public void offboard(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
-        final var onboardingResponse = virtualOffboardProcessIntegrationParameters.getEndpoint().asOnboardingResponse();
+        final var onboardingResponse = virtualOffboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
         if (iMqttClient.isEmpty()) {
             throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
@@ -44,7 +44,7 @@ public class VirtualOffboardProcessIntegrationService {
         final var cloudOffboardingService = new CloudOffboardingServiceImpl(iMqttClient.get());
         final var parameters = new CloudOffboardingParameters();
         parameters.setOnboardingResponse(onboardingResponse);
-        parameters.setEndpointIds(virtualOffboardProcessIntegrationParameters.getEndpointIds());
+        parameters.setEndpointIds(virtualOffboardProcessIntegrationParameters.virtualEndpointIds());
         final var messageId = cloudOffboardingService.send(parameters);
 
         LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
