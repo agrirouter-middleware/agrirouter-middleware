@@ -22,7 +22,7 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
      * @param agrirouterEndpointId The ID of the endpoint.
      * @return -
      */
-    @Query("from Endpoint e where e.agrirouterEndpointId = :endpointId and e.deactivated = false")
+    @Query("from Endpoint e where e.agrirouterEndpointId = :agrirouterEndpointId and e.deactivated = false")
     Optional<Endpoint> findByAgrirouterEndpointId(@Param("agrirouterEndpointId") String agrirouterEndpointId);
 
     /**
