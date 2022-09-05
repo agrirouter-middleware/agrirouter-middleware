@@ -16,7 +16,8 @@ import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +28,10 @@ import java.util.Optional;
 /**
  * Business operations regarding the endpoints.
  */
-@Slf4j
 @Service
 public class EndpointService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointService.class);
 
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
@@ -82,7 +84,7 @@ public class EndpointService {
     public void updateErrors(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        log.debug("Update status of the endpoint.");
+        LOGGER.debug("Update status of the endpoint.");
         final var error = new Error();
         error.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         error.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -103,7 +105,7 @@ public class EndpointService {
     public void updateWarnings(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        log.debug("Update status of the endpoint.");
+        LOGGER.debug("Update status of the endpoint.");
         final var warning = new Warning();
         warning.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         warning.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -128,7 +130,7 @@ public class EndpointService {
             deleteEndpointData(optionalEndpoint.get().getExternalEndpointId());
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data incl. the endpoint was deleted.");
         } else {
-            businessOperationLogService.log(new EndpointLogInformation(null, agrirouterEndpointId), "Endpoint was not found and the removing process was skipped.");
+            LOGGER.warn("Endpoint with agrirouter endpoint ID {} not found.", agrirouterEndpointId);
         }
     }
 
@@ -141,9 +143,9 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            log.debug("Disconnect the endpoint.");
+            LOGGER.debug("Disconnect the endpoint.");
             mqttClientManagementService.disconnect(optionalEndpoint.get().asOnboardingResponse());
-            log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
+            LOGGER.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
             endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
             deleteEndpointData(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
@@ -155,20 +157,20 @@ public class EndpointService {
     private void deleteEndpointData(Endpoint endpoint) {
         final var sensorAlternateId = endpoint.asOnboardingResponse().getSensorAlternateId();
 
-        log.debug("Remove all unprocessed messages.");
+        LOGGER.debug("Remove all unprocessed messages.");
         unprocessedMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
-        log.debug("Remove all errors, warnings and information.");
+        LOGGER.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
 
-        log.debug("Remove the content messages for the endpoint.");
+        LOGGER.debug("Remove the content messages for the endpoint.");
         contentMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
-        log.debug("Remove device descriptions.");
+        LOGGER.debug("Remove device descriptions.");
         deviceDescriptionRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
 
-        log.debug("Remove time logs.");
+        LOGGER.debug("Remove time logs.");
         timeLogRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
     }
 
@@ -267,7 +269,7 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            log.debug("Deactivate the endpoint to avoid race conditions.");
+            LOGGER.debug("Deactivate the endpoint to avoid race conditions.");
             endpoint.setDeactivated(true);
             endpointRepository.save(endpoint);
             endpoint.getConnectedVirtualEndpoints().forEach(vcu -> {
