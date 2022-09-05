@@ -54,7 +54,7 @@ public class SendMessageIntegrationService {
      * @param messagingIntegrationParameters -
      */
     public void publish(MessagingIntegrationParameters messagingIntegrationParameters) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(messagingIntegrationParameters.getExternalEndpointId());
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(messagingIntegrationParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             final var onboardingResponse = endpoint.asOnboardingResponse();

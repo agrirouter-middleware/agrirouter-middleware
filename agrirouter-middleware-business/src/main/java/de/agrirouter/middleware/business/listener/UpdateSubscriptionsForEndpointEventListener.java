@@ -77,7 +77,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param externalEndpointId The ID of the endpoint.
      */
     private void resendSubscriptions(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
