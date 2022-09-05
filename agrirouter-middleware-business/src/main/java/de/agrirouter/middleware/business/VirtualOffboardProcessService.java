@@ -46,7 +46,7 @@ public class VirtualOffboardProcessService {
     @Transactional
     public void offboard(VirtualOffboardProcessParameters virtualOffboardProcessParameters) {
         virtualOffboardProcessParameters.getExternalVirtualEndpointIds().forEach(this::checkWhetherTheEndpointIsVirtualOrNot);
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(virtualOffboardProcessParameters.getExternalEndpointId());
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOffboardProcessParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var endpoint = optionalEndpoint.get();
             final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters();
@@ -65,7 +65,7 @@ public class VirtualOffboardProcessService {
     private List<String> getEndpointIds(VirtualOffboardProcessParameters virtualOffboardProcessParameters) {
         final var agrirouterEndpointIds = new ArrayList<String>();
         virtualOffboardProcessParameters.getExternalVirtualEndpointIds().forEach(s -> {
-            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(s);
+            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(s);
             optionalEndpoint.ifPresent(endpoint -> agrirouterEndpointIds.add(endpoint.getAgrirouterEndpointId()));
         });
         return agrirouterEndpointIds;

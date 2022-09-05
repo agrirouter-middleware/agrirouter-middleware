@@ -36,11 +36,11 @@ public class VirtualOnboardProcessService {
      */
     @Async
     public void onboard(VirtualOnboardProcessParameters virtualOnboardProcessParameters) {
-        final var alreadyExistingEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+        final var alreadyExistingEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
         alreadyExistingEndpoint.ifPresent(endpoint -> {
             throw new BusinessException(ErrorMessageFactory.endpointWithTheSameExternalIdIsPresent(endpoint.getExternalEndpointId()));
         });
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(virtualOnboardProcessParameters.getExternalEndpointId());
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOnboardProcessParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var endpoint = optionalEndpoint.get();
             final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters();

@@ -318,7 +318,7 @@ public class DeviceDescriptionService {
         log.debug("Register machine and return a team set context ID for the device description.");
         final var optionalISO11783TaskData = parse(registerMachineParameters.getBase64EncodedDeviceDescription());
         if (optionalISO11783TaskData.isPresent()) {
-            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(registerMachineParameters.getExternalEndpointId());
+            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(registerMachineParameters.getExternalEndpointId());
             if (optionalEndpoint.isPresent()) {
                 final var endpoint = optionalEndpoint.get();
                 final var createDeviceDescriptionParameters = new CreateDeviceDescriptionParameters();

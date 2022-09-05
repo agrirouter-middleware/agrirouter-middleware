@@ -114,7 +114,7 @@ public class CloudRegistrationEventListener {
     private List<String> getEndpointIds(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
         final var agrirouterEndpointIds = new ArrayList<String>();
         virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(s -> {
-            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(s);
+            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(s);
             optionalEndpoint.ifPresent(endpoint -> agrirouterEndpointIds.add(endpoint.getAgrirouterEndpointId()));
         });
         agrirouterEndpointIds.addAll(virtualOffboardProcessIntegrationParameters.getEndpointIds());

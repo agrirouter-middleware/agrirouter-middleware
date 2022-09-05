@@ -49,7 +49,7 @@ public class DisableEndpointEventListener {
      * @param externalEndpointId -
      */
     private void deactivateEndpoint(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDisabled(externalEndpointId);
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             endpoint.setDeactivated(true);
