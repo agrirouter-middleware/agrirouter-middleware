@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.util.List;
 
 /**
- * Parameters for the offboard process of a virtual endpoint.
+ * Parameter class.
  */
 @Getter
 @Setter

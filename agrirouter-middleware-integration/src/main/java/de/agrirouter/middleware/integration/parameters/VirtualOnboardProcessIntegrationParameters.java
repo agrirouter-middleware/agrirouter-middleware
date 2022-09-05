@@ -1,31 +1,13 @@
 package de.agrirouter.middleware.integration.parameters;
 
 import de.agrirouter.middleware.domain.Endpoint;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
- * Parameters for the onboard process of a virtual endpoint.
+ * Parameter class.
+ *
+ * @param parentEndpoint            The parent endpoint.
+ * @param endpointName              The name of the endpoint.
+ * @param externalVirtualEndpointId The ID of the virtual endpoint.
  */
-@Getter
-@Setter
-@ToString
-public class VirtualOnboardProcessIntegrationParameters {
-
-    /**
-     * The endpoint.
-     */
-    private Endpoint endpoint;
-
-    /**
-     * The name of the virtual endpoint.
-     */
-    private String endpointName;
-
-    /**
-     * The ID of the virtual endpoint.
-     */
-    private String externalVirtualEndpointId;
-
+public record VirtualOnboardProcessIntegrationParameters(Endpoint parentEndpoint, String endpointName, String externalVirtualEndpointId) {
 }

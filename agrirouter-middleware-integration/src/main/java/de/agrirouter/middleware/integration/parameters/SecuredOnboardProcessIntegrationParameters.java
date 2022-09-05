@@ -1,45 +1,16 @@
 package de.agrirouter.middleware.integration.parameters;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 /**
- * Paranmeter class.
+ * Parameter class.
+ *
+ * @param applicationId      The ID of the application.
+ * @param versionId          The ID of the version.
+ * @param externalEndpointId The external ID of the endpoint.
+ * @param registrationCode   The registration code.
+ * @param privateKey         The private key.
+ * @param publicKey          The public key.
  */
-@Getter
-@Setter
-@ToString
-public class SecuredOnboardProcessIntegrationParameters {
-
-    /**
-     * The ID of the application.
-     */
-    private String applicationId;
-
-    /**
-     * The version of the application.
-     */
-    private String versionId;
-
-    /**
-     * The ID of the endpoint.
-     */
-    private String externalEndpointId;
-
-    /**
-     * The registration code used for the request.
-     */
-    private String registrationCode;
-
-    /**
-     * The private key of the application.
-     */
-    private String privateKey;
-
-    /**
-     * The public key of the application.
-     */
-    private String publicKey;
-
+public record SecuredOnboardProcessIntegrationParameters(String applicationId, String versionId,
+                                                         String externalEndpointId, String registrationCode,
+                                                         String privateKey, String publicKey) {
 }

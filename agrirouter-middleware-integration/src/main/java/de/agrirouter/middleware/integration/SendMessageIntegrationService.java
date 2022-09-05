@@ -54,7 +54,7 @@ public class SendMessageIntegrationService {
      * @param messagingIntegrationParameters -
      */
     public void publish(MessagingIntegrationParameters messagingIntegrationParameters) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(messagingIntegrationParameters.getExternalEndpointId());
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(messagingIntegrationParameters.externalEndpointId());
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             final var onboardingResponse = endpoint.asOnboardingResponse();
@@ -72,15 +72,19 @@ public class SendMessageIntegrationService {
             SendMessageParameters sendMessageParameters = new SendMessageParameters();
             sendMessageParameters.setOnboardingResponse(onboardingResponse);
             sendMessageParameters.setEncodedMessages(encodedMessages);
-            sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.getTeamSetContextId());
+            if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
+                sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.teamSetContextId());
+            }
             sendMessageService.send(sendMessageParameters);
 
             LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
             messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageHeaderParameters.getApplicationMessageId());
-            messageWaitingForAcknowledgement.setTechnicalMessageType(messagingIntegrationParameters.getTechnicalMessageType().getKey());
-            messageWaitingForAcknowledgement.getDynamicProperties().put(DynamicMessageProperties.TEAM_SET_CONTEXT_ID, messagingIntegrationParameters.getTeamSetContextId());
+            messageWaitingForAcknowledgement.setTechnicalMessageType(messagingIntegrationParameters.technicalMessageType().getKey());
+            if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
+                messageWaitingForAcknowledgement.getDynamicProperties().put(DynamicMessageProperties.TEAM_SET_CONTEXT_ID, messagingIntegrationParameters.teamSetContextId());
+            }
             messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
@@ -89,8 +93,8 @@ public class SendMessageIntegrationService {
 
     private PayloadParameters createPayloadParameters(MessagingIntegrationParameters messagingIntegrationParameters) {
         final var payloadParameters = new PayloadParameters();
-        payloadParameters.setTypeUrl(messagingIntegrationParameters.getTechnicalMessageType().getTypeUrl());
-        payloadParameters.setValue(messagingIntegrationParameters.getMessage());
+        payloadParameters.setTypeUrl(messagingIntegrationParameters.technicalMessageType().getTypeUrl());
+        payloadParameters.setValue(messagingIntegrationParameters.message());
         return payloadParameters;
     }
 
@@ -98,22 +102,22 @@ public class SendMessageIntegrationService {
         final var messageHeaderParameters = new MessageHeaderParameters();
         messageHeaderParameters.setApplicationMessageId(MessageIdService.generateMessageId());
         messageHeaderParameters.setApplicationMessageSeqNo(SequenceNumberService.generateSequenceNumberForEndpoint(onboardingResponse));
-        messageHeaderParameters.setTechnicalMessageType(messagingIntegrationParameters.getTechnicalMessageType());
+        messageHeaderParameters.setTechnicalMessageType(messagingIntegrationParameters.technicalMessageType());
         final var metadataBuilder = MessageOuterClass.Metadata.newBuilder();
-        if (StringUtils.isNotBlank(messagingIntegrationParameters.getFilename())) {
-            metadataBuilder.setFileName(messagingIntegrationParameters.getFilename());
+        if (StringUtils.isNotBlank(messagingIntegrationParameters.filename())) {
+            metadataBuilder.setFileName(messagingIntegrationParameters.filename());
         }
         messageHeaderParameters.setMetadata(metadataBuilder.build());
 
-        if (null != messagingIntegrationParameters.getRecipients() && !messagingIntegrationParameters.getRecipients().isEmpty()) {
-            messageHeaderParameters.setRecipients(new ArrayList<>(messagingIntegrationParameters.getRecipients()));
+        if (null != messagingIntegrationParameters.recipients() && !messagingIntegrationParameters.recipients().isEmpty()) {
+            messageHeaderParameters.setRecipients(new ArrayList<>(messagingIntegrationParameters.recipients()));
             messageHeaderParameters.setMode(Request.RequestEnvelope.Mode.DIRECT);
         } else {
             messageHeaderParameters.setMode(Request.RequestEnvelope.Mode.PUBLISH);
         }
 
-        if (StringUtils.isNotBlank(messagingIntegrationParameters.getTeamSetContextId())) {
-            messageHeaderParameters.setTeamSetContextId(messagingIntegrationParameters.getTeamSetContextId());
+        if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
+            messageHeaderParameters.setTeamSetContextId(messagingIntegrationParameters.teamSetContextId());
         }
 
         return messageHeaderParameters;
