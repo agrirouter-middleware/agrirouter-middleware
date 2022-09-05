@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Integration service to handle the onboard requests.
@@ -85,8 +84,8 @@ public class CloudRegistrationEventListener {
      * @param virtualOffboardProcessIntegrationParameters The parameters for the offboard process.
      */
     private void offboard(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
-        virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(this::checkWhetherTheEndpointIsVirtualOrNot);
-        final var endpoint = virtualOffboardProcessIntegrationParameters.getEndpoint();
+        virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(this::checkWhetherTheEndpointIsVirtualOrNot);
+        final var endpoint = virtualOffboardProcessIntegrationParameters.parentEndpoint();
         final var onboardingResponse = endpoint.asOnboardingResponse();
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
         if (iMqttClient.isEmpty()) {
@@ -107,17 +106,17 @@ public class CloudRegistrationEventListener {
             messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
             messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
 
-            virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(endpointService::deleteEndpointData);
+            virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(endpointService::deleteEndpointData);
         }
     }
 
     private List<String> getEndpointIds(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
         final var agrirouterEndpointIds = new ArrayList<String>();
-        virtualOffboardProcessIntegrationParameters.getEndpointIds().forEach(s -> {
+        virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(s -> {
             final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(s);
             optionalEndpoint.ifPresent(endpoint -> agrirouterEndpointIds.add(endpoint.getAgrirouterEndpointId()));
         });
-        agrirouterEndpointIds.addAll(virtualOffboardProcessIntegrationParameters.getEndpointIds());
+        agrirouterEndpointIds.addAll(virtualOffboardProcessIntegrationParameters.virtualEndpointIds());
         return agrirouterEndpointIds;
     }
 
@@ -170,11 +169,9 @@ public class CloudRegistrationEventListener {
                     });
                 } else {
                     log.warn("Since the state for the message ID '{}' has not been found the endpoints are removed from the AR to avoid problems.", cloudRegistrationEvent.getApplicationMessageId());
-                    final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters();
-                    offboardVirtualEndpointParameters.setEndpoint(endpoint);
                     final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), endpoint.asOnboardingResponse());
-                    final var endpointIds = cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).collect(Collectors.toList());
-                    offboardVirtualEndpointParameters.setEndpointIds(endpointIds);
+                    final var endpointIds = cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).toList();
+                    final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters(endpoint, endpointIds);
                     offboard(offboardVirtualEndpointParameters);
                 }
             } else {
