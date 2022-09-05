@@ -162,8 +162,6 @@ public class EndpointService {
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
 
-        /* FIXME: Remove all content messages.
-
         log.debug("Remove the content messages for the endpoint.");
         contentMessageRepository.deleteAllByAgrirouterEndpointId(sensorAlternateId);
 
@@ -172,8 +170,6 @@ public class EndpointService {
 
         log.debug("Remove time logs.");
         timeLogRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-
-         */
     }
 
     /**
