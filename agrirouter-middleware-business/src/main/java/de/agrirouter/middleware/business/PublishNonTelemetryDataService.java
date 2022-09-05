@@ -47,12 +47,12 @@ public class PublishNonTelemetryDataService {
     @EventListener(ResendMessageCacheEntryEvent.class)
     public void publish(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         if (checkConnectionForEndpoint(publishNonTelemetryDataParameters.getExternalEndpointId())) {
-            final var messagingIntegrationParameters = new MessagingIntegrationParameters();
-            messagingIntegrationParameters.setExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
-            messagingIntegrationParameters.setTechnicalMessageType(publishNonTelemetryDataParameters.getContentMessageType());
-            messagingIntegrationParameters.setMessage(asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()));
-            messagingIntegrationParameters.setFilename(publishNonTelemetryDataParameters.getFilename());
-            messagingIntegrationParameters.setRecipients(publishNonTelemetryDataParameters.getRecipients());
+            final var messagingIntegrationParameters = new MessagingIntegrationParameters(publishNonTelemetryDataParameters.getExternalEndpointId(),
+                    publishNonTelemetryDataParameters.getContentMessageType(),
+                    publishNonTelemetryDataParameters.getRecipients(),
+                    publishNonTelemetryDataParameters.getFilename(),
+                    asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
+                    null);
             sendMessageIntegrationService.publish(messagingIntegrationParameters);
             businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
         } else {

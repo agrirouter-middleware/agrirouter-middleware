@@ -5,7 +5,7 @@ import de.agrirouter.middleware.domain.Endpoint;
 import java.util.List;
 
 /**
- * Parameters for the offboard process of a virtual endpoint.
+ * Parameter class.
  *
  * @param parentEndpoint     The parent endpoint.
  * @param virtualEndpointIds The endpoint IDs of the virtual endpoints.

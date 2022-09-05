@@ -102,13 +102,12 @@ public class SecuredOnboardProcessService {
                         throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReonboardingIsNotAllowed());
                     } else {
 
-                        final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters();
-                        securedOnboardProcessIntegrationParameters.setExternalEndpointId(endpoint.getExternalEndpointId());
-                        securedOnboardProcessIntegrationParameters.setApplicationId(application.getApplicationId());
-                        securedOnboardProcessIntegrationParameters.setVersionId(application.getVersionId());
-                        securedOnboardProcessIntegrationParameters.setRegistrationCode(onboardProcessParameters.getRegistrationCode());
-                        securedOnboardProcessIntegrationParameters.setPrivateKey(application.getPrivateKey());
-                        securedOnboardProcessIntegrationParameters.setPublicKey(application.getPublicKey());
+                        final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
+                                application.getVersionId(),
+                                endpoint.getExternalEndpointId(),
+                                onboardProcessParameters.getRegistrationCode(),
+                                application.getPrivateKey(),
+                                application.getPublicKey());
                         final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
 
                         endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
@@ -119,32 +118,31 @@ public class SecuredOnboardProcessService {
                         endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                         endpoint.setDeactivated(false);
                         endpointRepository.save(endpoint);
-                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Endpoint was updated.");
+                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was updated.");
                         endpointService.sendCapabilities(application, endpoint);
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
                     }
                 } else {
                     log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
-                    final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters();
-                    securedOnboardProcessIntegrationParameters.setExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
-                    securedOnboardProcessIntegrationParameters.setApplicationId(application.getApplicationId());
-                    securedOnboardProcessIntegrationParameters.setVersionId(application.getVersionId());
-                    securedOnboardProcessIntegrationParameters.setRegistrationCode(onboardProcessParameters.getRegistrationCode());
-                    securedOnboardProcessIntegrationParameters.setPrivateKey(application.getPrivateKey());
-                    securedOnboardProcessIntegrationParameters.setPublicKey(application.getPublicKey());
+                    final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
+                            application.getVersionId(),
+                            onboardProcessParameters.getExternalEndpointId(),
+                            onboardProcessParameters.getRegistrationCode(),
+                            application.getPrivateKey(),
+                            application.getPublicKey());
                     final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
 
                     final var endpoint = new Endpoint();
                     endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
-                    endpoint.setExternalEndpointId(securedOnboardProcessIntegrationParameters.getExternalEndpointId());
+                    endpoint.setExternalEndpointId(securedOnboardProcessIntegrationParameters.externalEndpointId());
                     endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                     endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
                     endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
                     endpointRepository.save(endpoint);
-                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Endpoint was created.");
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was created.");
                     application.getEndpoints().add(endpoint);
                     applicationRepository.save(application);
-                    businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(),application.getApplicationId()),"The endpoint was added to the application.");
+                    businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "The endpoint was added to the application.");
                     endpointService.sendCapabilities(application, endpoint);
                     applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
                 }

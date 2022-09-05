@@ -28,14 +28,14 @@ public class SecuredOnboardProcessIntegrationService {
      */
     public OnboardingResponse onboard(SecuredOnboardProcessIntegrationParameters securedOnboardProcessIntegrationParameters) {
         final var parameters = new SecuredOnboardingParameters();
-        parameters.setUuid(securedOnboardProcessIntegrationParameters.getExternalEndpointId());
-        parameters.setApplicationId(securedOnboardProcessIntegrationParameters.getApplicationId());
-        parameters.setCertificationVersionId(securedOnboardProcessIntegrationParameters.getVersionId());
+        parameters.setUuid(securedOnboardProcessIntegrationParameters.externalEndpointId());
+        parameters.setApplicationId(securedOnboardProcessIntegrationParameters.applicationId());
+        parameters.setCertificationVersionId(securedOnboardProcessIntegrationParameters.versionId());
         parameters.setGatewayId(Gateway.MQTT.getKey());
         parameters.setCertificationType(CertificationType.P12);
-        parameters.setRegistrationCode(securedOnboardProcessIntegrationParameters.getRegistrationCode());
-        parameters.setPrivateKey(securedOnboardProcessIntegrationParameters.getPrivateKey());
-        parameters.setPublicKey(securedOnboardProcessIntegrationParameters.getPublicKey());
+        parameters.setRegistrationCode(securedOnboardProcessIntegrationParameters.registrationCode());
+        parameters.setPrivateKey(securedOnboardProcessIntegrationParameters.privateKey());
+        parameters.setPublicKey(securedOnboardProcessIntegrationParameters.publicKey());
         onboardingService.verify(parameters);
         return onboardingService.onboard(parameters);
     }

@@ -29,13 +29,13 @@ public class OnboardProcessIntegrationService {
      */
     public OnboardingResponse onboard(OnboardProcessIntegrationParameters onboardProcessIntegrationParameters) {
         final var parameters = new OnboardingParameters();
-        parameters.setUuid(onboardProcessIntegrationParameters.getEndpointId());
-        parameters.setApplicationId(onboardProcessIntegrationParameters.getApplicationId());
-        parameters.setCertificationVersionId(onboardProcessIntegrationParameters.getVersionId());
+        parameters.setUuid(onboardProcessIntegrationParameters.endpointId());
+        parameters.setApplicationId(onboardProcessIntegrationParameters.applicationId());
+        parameters.setCertificationVersionId(onboardProcessIntegrationParameters.versionId());
         parameters.setApplicationType(ApplicationType.APPLICATION);
         parameters.setGatewayId(Gateway.MQTT.getKey());
         parameters.setCertificationType(CertificationType.P12);
-        parameters.setRegistrationCode(onboardProcessIntegrationParameters.getRegistrationCode());
+        parameters.setRegistrationCode(onboardProcessIntegrationParameters.registrationCode());
         return onboardingService.onboard(parameters);
     }
 

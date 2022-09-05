@@ -71,11 +71,12 @@ public class TimeLogService {
      */
     public void publish(PublishTimeLogParameters publishTimeLogParameters) {
         deviceDescriptionService.resendDeviceDescriptionIfNecessary(publishTimeLogParameters.getTeamSetContextId());
-        final var messagingIntegrationParameters = new MessagingIntegrationParameters();
-        messagingIntegrationParameters.setExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
-        messagingIntegrationParameters.setTeamSetContextId(publishTimeLogParameters.getTeamSetContextId());
-        messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_TIME_LOG);
-        messagingIntegrationParameters.setMessage(asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()));
+        final var messagingIntegrationParameters = new MessagingIntegrationParameters(publishTimeLogParameters.getExternalEndpointId(),
+                ContentMessageType.ISO_11783_TIME_LOG,
+                Collections.emptyList(),
+                null,
+                asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()),
+                publishTimeLogParameters.getTeamSetContextId());
         sendMessageIntegrationService.publish(messagingIntegrationParameters);
         businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
     }

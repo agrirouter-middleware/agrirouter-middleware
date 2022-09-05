@@ -45,7 +45,7 @@ public class VirtualOnboardProcessIntegrationService {
      */
     @Async
     public void onboard(VirtualOnboardProcessIntegrationParameters virtualOnboardProcessIntegrationParameters) {
-        final var onboardingResponse = virtualOnboardProcessIntegrationParameters.getEndpoint().asOnboardingResponse();
+        final var onboardingResponse = virtualOnboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
         if (iMqttClient.isEmpty()) {
             throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
@@ -57,8 +57,8 @@ public class VirtualOnboardProcessIntegrationService {
         List<CloudOnboardingParameters.EndpointDetailsParameters> endpointDetails = new ArrayList<>();
 
         final var endpointDetailsParameters = new CloudOnboardingParameters.EndpointDetailsParameters();
-        endpointDetailsParameters.setEndpointId(virtualOnboardProcessIntegrationParameters.getExternalVirtualEndpointId());
-        endpointDetailsParameters.setEndpointName(virtualOnboardProcessIntegrationParameters.getEndpointName());
+        endpointDetailsParameters.setEndpointId(virtualOnboardProcessIntegrationParameters.externalVirtualEndpointId());
+        endpointDetailsParameters.setEndpointName(virtualOnboardProcessIntegrationParameters.endpointName());
         endpointDetails.add(endpointDetailsParameters);
         parameters.setEndpointDetails(endpointDetails);
 

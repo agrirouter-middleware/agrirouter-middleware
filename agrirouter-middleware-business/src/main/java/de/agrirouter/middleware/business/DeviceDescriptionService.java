@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -326,11 +327,12 @@ public class DeviceDescriptionService {
                 createDeviceDescriptionParameters.setEndpoint(endpoint);
                 createDeviceDescriptionParameters.setTeamSetContextId(teamSetContextId);
                 saveCreatedDeviceDescription(createDeviceDescriptionParameters);
-                final var messagingIntegrationParameters = new MessagingIntegrationParameters();
-                messagingIntegrationParameters.setMessage(asByteString(registerMachineParameters.getBase64EncodedDeviceDescription()));
-                messagingIntegrationParameters.setExternalEndpointId(endpoint.getExternalEndpointId());
-                messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
-                messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
+                final var messagingIntegrationParameters = new MessagingIntegrationParameters(endpoint.getExternalEndpointId(),
+                        ContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
+                        Collections.emptyList(),
+                        null,
+                        asByteString(registerMachineParameters.getBase64EncodedDeviceDescription()),
+                        teamSetContextId);
                 sendMessageIntegrationService.publish(messagingIntegrationParameters);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
                 return teamSetContextId;
@@ -388,11 +390,12 @@ public class DeviceDescriptionService {
             final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
             if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
                 log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
-                final var messagingIntegrationParameters = new MessagingIntegrationParameters();
-                messagingIntegrationParameters.setMessage(asByteString(deviceDescription.getBase64EncodedDeviceDescription()));
-                messagingIntegrationParameters.setExternalEndpointId(deviceDescription.getExternalEndpointId());
-                messagingIntegrationParameters.setTeamSetContextId(teamSetContextId);
-                messagingIntegrationParameters.setTechnicalMessageType(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION);
+                final var messagingIntegrationParameters = new MessagingIntegrationParameters(deviceDescription.getExternalEndpointId(),
+                        ContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
+                        Collections.emptyList(),
+                        null,
+                        asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
+                        teamSetContextId);
                 sendMessageIntegrationService.publish(messagingIntegrationParameters);
                 businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
                 lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());

@@ -40,13 +40,10 @@ public class VirtualOnboardProcessService {
         });
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOnboardProcessParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
-            final var endpoint = optionalEndpoint.get();
-            final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters();
-            onboardVirtualEndpointParameters.setEndpoint(endpoint);
-            onboardVirtualEndpointParameters.setEndpointName(virtualOnboardProcessParameters.getEndpointName());
-            onboardVirtualEndpointParameters.setExternalVirtualEndpointId(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+            final var parentEndpoint = optionalEndpoint.get();
+            final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(parentEndpoint,virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
             virtualOnboardProcessIntegrationService.onboard(onboardVirtualEndpointParameters);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Virtual endpoint has been created.");
+            businessOperationLogService.log(new EndpointLogInformation(parentEndpoint.getExternalEndpointId(), parentEndpoint.getAgrirouterEndpointId()),"Virtual endpoint has been created.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
