@@ -13,10 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static de.agrirouter.middleware.controller.unsecured.UnsecuredApiController.API_PREFIX;
 
@@ -203,6 +200,63 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
     )
     public ResponseEntity<Void> resetWarnings(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resetWarnings(externalEndpointId);
+        return ResponseEntity.ok().build();
+    }
+
+
+    /**
+     * Reset warnings for the endpoint.
+     *
+     * @return HTTP 201 after completion.
+     */
+    @DeleteMapping(
+            "/{externalEndpointId}"
+    )
+    @Operation(
+            operationId = "maintenance.delete-endpoint",
+            description = "Delete the endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "In case the operation was successful.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<Void> deleteEndpoint(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+        endpointService.deleteAllEndpoints(externalEndpointId);
         return ResponseEntity.ok().build();
     }
 
