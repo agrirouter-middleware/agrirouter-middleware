@@ -138,21 +138,36 @@ public class EndpointService {
     /**
      * Delete the endpoint and remove all the data.
      *
-     * @param externalEndpointId -
+     * @param externalEndpointId The external endpoint ID.
      */
     public void deleteEndpointData(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            LOGGER.debug("Disconnect the endpoint.");
-            mqttClientManagementService.disconnect(optionalEndpoint.get().asOnboardingResponse());
-            LOGGER.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
-            endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
-            deleteEndpointData(endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
-            endpointRepository.delete(endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
+            deleteEndpointWithAllDataFromTheMiddleware(endpoint);
         }
+    }
+
+    private void deleteEndpointWithAllDataFromTheMiddleware(Endpoint endpoint) {
+        LOGGER.debug("Disconnect the endpoint.");
+        mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
+        LOGGER.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
+        endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
+        deleteEndpointData(endpoint);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
+        endpointRepository.delete(endpoint);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
+    }
+
+    /**
+     * Delete the endpoint and remove all the data.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     */
+    @Async
+    @Transactional
+    public void deleteAllEndpoints(String externalEndpointId) {
+        endpointRepository.findAllByExternalEndpointId(externalEndpointId).forEach(this::deleteEndpointWithAllDataFromTheMiddleware);
     }
 
     private void deleteEndpointData(Endpoint endpoint) {

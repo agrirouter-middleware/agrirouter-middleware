@@ -92,4 +92,11 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
      * @param externalEndpointId The external endpoint ID.
      */
     void deleteByExternalEndpointId(String externalEndpointId);
+
+    /**
+     * Find all endpoints by the given external endpoint ID.
+     *
+     * @return The endpoints.
+     */
+    List<Endpoint> findAllByExternalEndpointId(String externalEndpointId);
 }
