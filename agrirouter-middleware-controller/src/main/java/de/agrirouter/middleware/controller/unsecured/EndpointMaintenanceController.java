@@ -96,7 +96,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
      *
      * @return HTTP 201 after completion.
      */
-    @PutMapping(
+    @DeleteMapping(
             "/reset/errors/{externalEndpointId}"
     )
     @Operation(
@@ -152,7 +152,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
      *
      * @return HTTP 201 after completion.
      */
-    @PutMapping(
+    @DeleteMapping(
             "/reset/warnings/{externalEndpointId}"
     )
     @Operation(
