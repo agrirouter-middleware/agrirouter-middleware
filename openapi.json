@@ -2027,6 +2027,65 @@
         ]
       }
     },
+    "/secured/api/endpoint/failures/cloud-onboarding/{externalVirtualEndpointId}": {
+      "get": {
+        "tags": [
+          "endpoint management"
+        ],
+        "description": "Fetch the cloud-onboarding failures for the virtual endpoint id.",
+        "operationId": "endpoint.failures.cloud-onboarding",
+        "parameters": [
+          {
+            "name": "externalVirtualEndpointId",
+            "in": "path",
+            "description": "The external virtual endpoint ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The status information for this endpoint.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "In case there is no failure.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "secured-api": []
+          }
+        ]
+      }
+    },
     "/secured/api/application/{applicationId}": {
       "get": {
         "tags": [
