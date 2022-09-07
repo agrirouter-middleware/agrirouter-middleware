@@ -31,19 +31,10 @@ public class VirtualEndpointOnboardStateContainer {
     }
 
     /**
-     * The state for the onboard process.
-     */
-    public static class OnboardState {
+         * The state for the onboard process.
+         */
+        public record OnboardState(String externalEndpointId) {
 
-        private final String externalEndpointId;
-
-        public OnboardState(String externalEndpointId) {
-            this.externalEndpointId = externalEndpointId;
-        }
-
-        public String getExternalEndpointId() {
-            return externalEndpointId;
-        }
     }
 
 }

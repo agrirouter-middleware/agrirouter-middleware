@@ -153,7 +153,7 @@ public class CloudRegistrationEventListener {
                         log.debug("Saving the following cloud onboard response to the database >>> {}", cloudOnboardResponse);
                         var virtualEndpoint = new Endpoint();
                         virtualEndpoint.setAgrirouterEndpointId(cloudOnboardResponse.getSensorAlternateId());
-                        virtualEndpoint.setExternalEndpointId(onboardState.getExternalEndpointId());
+                        virtualEndpoint.setExternalEndpointId(onboardState.externalEndpointId());
                         virtualEndpoint.setOnboardResponse(new Gson().toJson(cloudOnboardResponse));
                         virtualEndpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(virtualEndpoint.asOnboardingResponse(true)));
                         virtualEndpoint.setEndpointType(EndpointType.VIRTUAL);
