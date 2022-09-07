@@ -195,7 +195,18 @@ public class EndpointController implements SecuredApiController {
     )
     public ResponseEntity<CloudOnboardingFailureResponse> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
         Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry = cloudOnboardingFailureCache.get(externalVirtualEndpointId);
-        return optionalFailureEntry.map(failureEntry -> ResponseEntity.ok(new CloudOnboardingFailureResponse(modelMapper.map(failureEntry, CloudOnboardingFailureDto.class)))).orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+        if (optionalFailureEntry.isPresent()) {
+            CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
+            final var cloudOnboardFailure = new CloudOnboardingFailureDto();
+            cloudOnboardFailure.setErrorCode(failureEntry.errorCode());
+            cloudOnboardFailure.setErrorMessage(failureEntry.errorMessage());
+            cloudOnboardFailure.setExternalEndpointId(failureEntry.externalEndpointId());
+            cloudOnboardFailure.setTimestamp(failureEntry.timestamp());
+            cloudOnboardFailure.setVirtualExternalEndpointId(failureEntry.virtualExternalEndpointId());
+            return ResponseEntity.ok(new CloudOnboardingFailureResponse(cloudOnboardFailure));
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 
     /**
