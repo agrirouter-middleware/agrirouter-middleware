@@ -82,7 +82,7 @@ public class EndpointDashboardUIController {
 
                 model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
 
-                model.addAttribute("cloudOnboardingFailures", cloudOnboardingFailureCache.get(endpoint.getExternalEndpointId()));
+                model.addAttribute("cloudOnboardingFailures", cloudOnboardingFailureCache.getAll(endpoint.getExternalEndpointId()));
 
                 final var messagesWaitingForAcknowledgement = messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
                         .stream()

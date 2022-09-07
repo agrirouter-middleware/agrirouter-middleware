@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Cache for cloud onboarding failures.
@@ -31,8 +32,15 @@ public class CloudOnboardingFailureCache {
     /**
      * Get all entries for the external endpoint ID.
      */
-    public List<FailureEntry> get(String externalEndpointId) {
+    public List<FailureEntry> getAll(String externalEndpointId) {
         return cache.values().stream().filter(failureEntry -> failureEntry.externalEndpointId.equals(externalEndpointId)).toList();
+    }
+
+    /**
+     * Get the entry for the virtual external endpoint ID.
+     */
+    public Optional<FailureEntry> get(String virtualExternalEndpointId) {
+        return Optional.ofNullable(cache.get(virtualExternalEndpointId));
     }
 
     /**

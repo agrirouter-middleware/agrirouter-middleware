@@ -3,6 +3,7 @@ package de.agrirouter.middleware.controller.secured;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.controller.dto.request.EndpointHealthStatusRequest;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller to manage applications.
@@ -43,27 +45,28 @@ public class EndpointController implements SecuredApiController {
     private final EndpointService endpointService;
     private final ModelMapper modelMapper;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
-
     private final MessageCache messageCache;
-
     private final MqttClientManagementService mqttClientManagementService;
+    private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
 
     public EndpointController(ApplicationService applicationService,
                               EndpointService endpointService,
                               ModelMapper modelMapper,
                               MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                               MessageCache messageCache,
-                              MqttClientManagementService mqttClientManagementService) {
+                              MqttClientManagementService mqttClientManagementService,
+                              CloudOnboardingFailureCache cloudOnboardingFailureCache) {
         this.applicationService = applicationService;
         this.endpointService = endpointService;
         this.modelMapper = modelMapper;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.messageCache = messageCache;
         this.mqttClientManagementService = mqttClientManagementService;
+        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
     }
 
     /**
-     * Find an endpoint status of an application by the given IDs of the endpoint.
+     * Find an endpoint status by the given IDs of the endpoint.
      *
      * @param endpointStatusRequest The request containing the IDs of the endpoints.
      * @return HTTP 200 with the data of the endpoint or an HTTP 400 with an error message.
@@ -128,6 +131,72 @@ public class EndpointController implements SecuredApiController {
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
+    }
+
+    /**
+     * Check the cloud onboarding failures for the given IDs of the virtual endpoint.
+     *
+     * @param externalVirtualEndpointId The external virtual endpoint ID.
+     * @return HTTP 200 with the data of the endpoint or error message otherwise.
+     */
+    @GetMapping(
+            value = "/failures/cloud-onboarding/{externalVirtualEndpointId}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "endpoint.failures.cloud-onboarding",
+            description = "Fetch the cloud-onboarding failures for the virtual endpoint id.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The status information for this endpoint.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "In case there is no failure.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<CloudOnboardingFailureResponse> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
+        Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry = cloudOnboardingFailureCache.get(externalVirtualEndpointId);
+        return optionalFailureEntry.map(failureEntry -> ResponseEntity.ok(new CloudOnboardingFailureResponse(modelMapper.map(failureEntry, CloudOnboardingFailureDto.class)))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -467,7 +536,7 @@ public class EndpointController implements SecuredApiController {
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, TechnicalConnectionStateDto>();
         endpoints.forEach(endpoint -> {
-            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper,applicationService, endpointService, mqttClientManagementService, endpoint);
+            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper, applicationService, endpointService, mqttClientManagementService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), technicalConnectionStateDto);
         });
         return ResponseEntity.ok(new TechnicalConnectionStateResponse(mappedEndpoints));
