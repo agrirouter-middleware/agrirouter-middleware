@@ -141,8 +141,7 @@ public class EndpointController implements SecuredApiController {
      */
     @GetMapping(
             value = "/failures/cloud-onboarding/{externalVirtualEndpointId}",
-            produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
             operationId = "endpoint.failures.cloud-onboarding",
@@ -156,7 +155,7 @@ public class EndpointController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "404",
+                            responseCode = "204",
                             description = "In case there is no failure.",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
@@ -196,7 +195,7 @@ public class EndpointController implements SecuredApiController {
     )
     public ResponseEntity<CloudOnboardingFailureResponse> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
         Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry = cloudOnboardingFailureCache.get(externalVirtualEndpointId);
-        return optionalFailureEntry.map(failureEntry -> ResponseEntity.ok(new CloudOnboardingFailureResponse(modelMapper.map(failureEntry, CloudOnboardingFailureDto.class)))).orElseGet(() -> ResponseEntity.notFound().build());
+        return optionalFailureEntry.map(failureEntry -> ResponseEntity.ok(new CloudOnboardingFailureResponse(modelMapper.map(failureEntry, CloudOnboardingFailureDto.class)))).orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 
     /**
