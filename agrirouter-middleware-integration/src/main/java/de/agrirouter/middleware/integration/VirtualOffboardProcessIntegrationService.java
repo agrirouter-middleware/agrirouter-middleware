@@ -5,6 +5,7 @@ import com.dke.data.agrirouter.api.service.parameters.CloudOffboardingParameters
 import com.dke.data.agrirouter.impl.messaging.mqtt.CloudOffboardingServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
@@ -12,6 +13,8 @@ import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessInt
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 
 /**
  * Integration service to handle the virtual onboard requests.
@@ -52,6 +55,9 @@ public class VirtualOffboardProcessIntegrationService {
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
         messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
+        final var dynamicProperties = new HashMap<String, Object>();
+        dynamicProperties.put(DynamicMessageProperties.EXTERNAL_VIRTUAL_ENDPOINT_IDS, virtualOffboardProcessIntegrationParameters.virtualEndpointIds());
+        messageWaitingForAcknowledgement.setDynamicProperties(dynamicProperties);
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
     }
 
