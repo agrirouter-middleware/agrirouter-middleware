@@ -5,4 +5,6 @@ package de.agrirouter.middleware.integration.ack;
  */
 public interface DynamicMessageProperties {
     String TEAM_SET_CONTEXT_ID = "team_set_context_id";
+    String EXTERNAL_VIRTUAL_ENDPOINT_ID = "EXTERNAL_VIRTUAL_ENDPOINT_ID";
+
 }

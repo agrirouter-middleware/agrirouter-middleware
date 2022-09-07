@@ -16,7 +16,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static de.agrirouter.middleware.integration.ack.DynamicMessageProperties.EXTERNAL_VIRTUAL_ENDPOINT_ID;
 
 /**
  * Integration service to handle the virtual onboard requests.
@@ -71,6 +74,9 @@ public class VirtualOnboardProcessIntegrationService {
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
         messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_ONBOARD_ENDPOINTS.getKey());
+        final var dynamicProperties = new HashMap<String, Object>();
+        dynamicProperties.put(EXTERNAL_VIRTUAL_ENDPOINT_ID, endpointDetailsParameters.getEndpointId());
+        messageWaitingForAcknowledgement.setDynamicProperties(dynamicProperties);
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
     }
 }
