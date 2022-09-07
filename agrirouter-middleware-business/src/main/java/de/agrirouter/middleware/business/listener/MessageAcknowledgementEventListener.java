@@ -11,6 +11,7 @@ import de.agrirouter.middleware.api.events.MessageAcknowledgementEvent;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
+import de.agrirouter.middleware.business.events.CloudOffboardingEvent;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -69,6 +70,9 @@ public class MessageAcknowledgementEventListener {
                     }
                     if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
+                    }
+                    if (SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                        applicationEventPublisher.publishEvent(new CloudOffboardingEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsStringList(DynamicMessageProperties.EXTERNAL_VIRTUAL_ENDPOINT_IDS)));
                     }
                 }
                 case ACK_WITH_MESSAGES -> {

@@ -24,14 +24,10 @@ public class VirtualOffboardProcessService {
 
     private final EndpointRepository endpointRepository;
     private final VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService;
-    private final EndpointService endpointService;
-
     public VirtualOffboardProcessService(EndpointRepository endpointRepository,
-                                         VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService,
-                                         EndpointService endpointService) {
+                                         VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService) {
         this.endpointRepository = endpointRepository;
         this.virtualOffboardProcessIntegrationService = virtualOffboardProcessIntegrationService;
-        this.endpointService = endpointService;
     }
 
     /**
@@ -46,8 +42,6 @@ public class VirtualOffboardProcessService {
             final var parentEndpoint = optionalEndpoint.get();
             final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint,getEndpointIds(virtualOffboardProcessParameters));
             virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
-            virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(endpointService::deactivateEndpointByAgrirouterId);
-            virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
         } else {
             LOGGER.warn("Endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());
         }

@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,10 +51,21 @@ public class MessageWaitingForAcknowledgement {
     /**
      * Get a dynamic property as string.
      *
-     * @param key -
-     * @return -
+     * @param key The key of the property.
+     * @return The value of the property.
      */
     public String getDynamicPropertyAsString(String key) {
         return (String) dynamicProperties.get(key);
+    }
+
+    /**
+     * Get a dynamic property as string set.
+     *
+     * @param key The key of the property.
+     * @return The value of the property.
+     */
+    public List<String> getDynamicPropertyAsStringList(String key) {
+        //noinspection unchecked
+        return (List<String>) dynamicProperties.get(key);
     }
 }
