@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -17,6 +18,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@Scope(value = "singleton")
 @Profile("!persistent-message-cache")
 public class TransientMessageCache extends CommonMessageCache {
 

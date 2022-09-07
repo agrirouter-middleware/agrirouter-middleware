@@ -9,7 +9,6 @@ import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.events.MessageAcknowledgementEvent;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
 import de.agrirouter.middleware.business.EndpointService;
-import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -32,20 +31,16 @@ public class MessageAcknowledgementEventListener {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
 
-    private final MessageCache messageCache;
-
     public MessageAcknowledgementEventListener(MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                EndpointRepository endpointRepository,
                                                EndpointService endpointService,
                                                ApplicationEventPublisher applicationEventPublisher,
-                                               DecodeMessageService decodeMessageService,
-                                               MessageCache messageCache) {
+                                               DecodeMessageService decodeMessageService) {
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.endpointRepository = endpointRepository;
         this.endpointService = endpointService;
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
-        this.messageCache = messageCache;
     }
 
     /**
@@ -97,11 +92,7 @@ public class MessageAcknowledgementEventListener {
     }
 
     private void handleSuccessMessage(MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
-        log.debug("Since the message had a successful ACK, nothing to do right now. The message waiting for ACK was deleted.");
-        final var optional = endpointRepository.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
-        if (optional.isEmpty()) {
-            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
-        }
+        log.debug("Since the message '{}' for endpoint '{}' had a successful ACK, nothing to do right now. The message waiting for ACK was deleted.", messageWaitingForAcknowledgement.getMessageId(), messageWaitingForAcknowledgement.getAgrirouterEndpointId());
     }
 
     private void handleSuccessMessageAndUpdateWarnings(DecodeMessageResponse decodedMessageResponse, MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {

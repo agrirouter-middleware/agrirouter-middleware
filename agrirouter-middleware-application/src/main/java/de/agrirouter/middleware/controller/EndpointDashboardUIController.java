@@ -3,6 +3,7 @@ package de.agrirouter.middleware.controller;
 import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingForAcknowledgementDto;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
@@ -34,17 +35,20 @@ public class EndpointDashboardUIController {
     private final ApplicationService applicationService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final ModelMapper modelMapper;
+    private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
 
     public EndpointDashboardUIController(EndpointService endpointService,
                                          MqttClientManagementService mqttClientManagementService,
                                          ApplicationService applicationService,
                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                         ModelMapper modelMapper) {
+                                         ModelMapper modelMapper,
+                                         CloudOnboardingFailureCache cloudOnboardingFailureCache) {
         this.endpointService = endpointService;
         this.mqttClientManagementService = mqttClientManagementService;
         this.applicationService = applicationService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.modelMapper = modelMapper;
+        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
     }
 
     /**
@@ -77,6 +81,8 @@ public class EndpointDashboardUIController {
                 model.addAttribute("technicalConnectionState", technicalConnectionState);
 
                 model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
+
+                model.addAttribute("cloudOnboardingFailures", cloudOnboardingFailureCache.getAll(endpoint.getExternalEndpointId()));
 
                 final var messagesWaitingForAcknowledgement = messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
                         .stream()
