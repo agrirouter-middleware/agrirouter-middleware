@@ -16,9 +16,9 @@
                      style="text-align: center;color:darkgreen;font-size: xxx-large">
                     check_circle
                 </div>
-                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center"
                      th:text="#{onboard-process-result.success-message}"></div>
-                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center"
                      th:text="#{onboard-process-result.close-window}"></div>
             </div>
             <div class="mdl-cell mdl-cell--12-col"
@@ -27,9 +27,11 @@
                      style="text-align: center;color:darkred;font-size: xxx-large">
                     cancel
                 </div>
-                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center"
                      th:text="#{onboard-process-result.failure-message}"></div>
-                <div class="mdl-cell mdl-cell--12-col" style="text-align: center"
+                <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center mdl-typography--font-bold"
+                     th:text="${errorMessage}"></div>
+                <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center"
                      th:text="#{onboard-process-result.close-window}"></div>
             </div>
         </div>

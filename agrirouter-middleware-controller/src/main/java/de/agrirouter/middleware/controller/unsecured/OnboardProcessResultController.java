@@ -20,8 +20,9 @@ public class OnboardProcessResultController implements UnsecuredApiController {
      */
     @GetMapping(UnsecuredApiController.API_PREFIX + "/onboard-process-result")
     @Operation(hidden = true)
-    public String onboardProcessResult(@RequestParam("onboardProcessResult") OnboardProcessResult onboardProcessResult, Model model) {
+    public String onboardProcessResult(@RequestParam("onboardProcessResult") OnboardProcessResult onboardProcessResult, @RequestParam(value = "errorMessage", required = false) String errorMessage, Model model) {
         model.addAttribute("onboardProcessResult", onboardProcessResult);
+        model.addAttribute("errorMessage", errorMessage);
         return "onboard-process-result";
     }
 
