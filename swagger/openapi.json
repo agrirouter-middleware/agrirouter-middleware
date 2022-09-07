@@ -2052,7 +2052,7 @@
               "application/json": {}
             }
           },
-          "404": {
+          "204": {
             "description": "In case there is no failure.",
             "content": {
               "application/json": {}
