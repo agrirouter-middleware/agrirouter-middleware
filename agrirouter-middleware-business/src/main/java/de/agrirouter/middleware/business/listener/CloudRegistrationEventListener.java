@@ -17,6 +17,7 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import de.agrirouter.middleware.integration.EndpointIntegrationService;
@@ -59,6 +60,8 @@ public class CloudRegistrationEventListener {
     private final DeviceDescriptionService deviceDescriptionService;
     private final DecodeMessageService decodeMessageService;
 
+    private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
+
     public CloudRegistrationEventListener(ApplicationRepository applicationRepository,
                                           EndpointRepository endpointRepository,
                                           EndpointIntegrationService endpointIntegrationService,
@@ -70,7 +73,8 @@ public class CloudRegistrationEventListener {
                                           ApplicationEventPublisher applicationEventPublisher,
                                           BusinessOperationLogService businessOperationLogService,
                                           DeviceDescriptionService deviceDescriptionService,
-                                          DecodeMessageService decodeMessageService) {
+                                          DecodeMessageService decodeMessageService,
+                                          CloudOnboardingFailureCache cloudOnboardingFailureCache) {
         this.applicationRepository = applicationRepository;
         this.endpointRepository = endpointRepository;
         this.endpointIntegrationService = endpointIntegrationService;
@@ -83,6 +87,7 @@ public class CloudRegistrationEventListener {
         this.businessOperationLogService = businessOperationLogService;
         this.deviceDescriptionService = deviceDescriptionService;
         this.decodeMessageService = decodeMessageService;
+        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
     }
 
     /**
@@ -200,9 +205,13 @@ public class CloudRegistrationEventListener {
     private void handleCloudOnboardErrors(FetchMessageResponse fetchMessageResponse, Endpoint endpoint) {
         try {
             CloudVirtualizedAppRegistration.OnboardingResponse nativeCloudOnboardResponse = decodeCloudOnboardingResponsesService.unsafeDecode(decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage()).getResponsePayloadWrapper().getDetails().getValue());
-            if(nativeCloudOnboardResponse.getFailuresCount()>0){
+            if (nativeCloudOnboardResponse.getFailuresCount() > 0) {
                 log.warn("There are {} failures during the cloud onboard process.", nativeCloudOnboardResponse.getFailuresCount());
-                nativeCloudOnboardResponse.getFailuresList().forEach(failure -> businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Onboard process of the following virtual endpoint failed >>> {}", failure.getId()));
+                nativeCloudOnboardResponse.getFailuresList().forEach(failure -> {
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Onboard process of the following virtual endpoint failed >>> {}", failure.getId());
+                    log.warn("The following virtual endpoint could not be onboarded >>> {}", failure.getId());
+                    cloudOnboardingFailureCache.put(endpoint.getExternalEndpointId(), failure.getId(), failure.getReason().getMessageCode(), failure.getReason().getMessage());
+                });
             }
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not decode the cloud onboard response.", e);
