@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Base64;
+
 /**
  * The controller for the results of the onboard process.
  */
@@ -22,7 +24,7 @@ public class OnboardProcessResultController implements UnsecuredApiController {
     @Operation(hidden = true)
     public String onboardProcessResult(@RequestParam("onboardProcessResult") OnboardProcessResult onboardProcessResult, @RequestParam(value = "errorMessage", required = false) String errorMessage, Model model) {
         model.addAttribute("onboardProcessResult", onboardProcessResult);
-        model.addAttribute("errorMessage", errorMessage);
+        model.addAttribute("errorMessage", new String(Base64.getDecoder().decode(errorMessage)));
         return "onboard-process-result";
     }
 

@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 /**
  * Callback for the secured onboard process.
  */
@@ -172,7 +175,7 @@ public class CallbackController implements UnsecuredApiController {
             String redirectUrl = UriComponentsBuilder
                     .fromUriString(externalRedirectUrl)
                     .queryParam("onboardProcessResult", result)
-                    .queryParam("errorMessage", errorMessage)
+                    .queryParam("errorMessage", Base64.getEncoder().encodeToString(errorMessage.getBytes(StandardCharsets.UTF_8)))
                     .build().toUriString();
             return new RedirectView(redirectUrl);
         }
