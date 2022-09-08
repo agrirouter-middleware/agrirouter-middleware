@@ -179,6 +179,7 @@ public class CloudRegistrationEventListener {
                             endpointRepository.save(endpoint);
                             application.getEndpoints().add(virtualEndpoint);
                             applicationRepository.save(application);
+                            cloudOnboardingFailureCache.clear(virtualEndpoint.getExternalEndpointId());
                             endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
                             deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
                             applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId(), null));

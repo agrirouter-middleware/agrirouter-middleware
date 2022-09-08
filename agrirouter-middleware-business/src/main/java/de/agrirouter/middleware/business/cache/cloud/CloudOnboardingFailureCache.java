@@ -44,6 +44,15 @@ public class CloudOnboardingFailureCache {
     }
 
     /**
+     * Clear all failures for the external virtual endpoint ID.
+     *
+     * @param externalVirtualEndpointId The external virtual endpoint ID.
+     */
+    public void clear(String externalVirtualEndpointId) {
+        cache.remove(externalVirtualEndpointId);
+    }
+
+    /**
      * The cache entry.
      *
      * @param timestamp                 The timestamp.
