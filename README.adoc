@@ -185,3 +185,27 @@ image::documentation/release_3_0/old_endpoint_status.png[old endpoint status,rol
 The new endpoint status looks like this:
 
 image::documentation/release_3_0/new_endpoint_status.png[new endpoint status,role="left]
+
+==== 3.0 to 3.1
+
+There are no breaking changes in this release (as the version indicates already). Although there are some new features for efficiency and performance.
+
+===== Internal status page
+
+With the release 3.1 you can now access the internal status page of the agrirouter© middleware. You can find all your applications and their belonging endpoints there. Each of the endpoints has a detailed dashboard, where you can see the current status of the endpoint and the last messages that have been sent or received. Errors are also displayed there.
+
+image::documentation/release_3_1/endpoint_overview.png[endpoint overview,role="left]
+
+As you can see, there are small icons indicating the current status. You are able to hover over them and see the details of the status.
+
+image::documentation/release_3_1/endpoint_status_details.png[endpoint status details,role="left]
+
+Each of the endpoints has a dedicated dashboard showing common errors, warnings, virtual endpoints and much more. The sections are only displayed if there is any data to show.
+
+image::documentation/release_3_1/endpoint_dashboard.png[endpoint dashboard,role="left]
+
+===== New endpoints for the maintenance mode
+
+The maintenance mode has some new endpoints to reset the state of an endpoint, remove an endpoint completely or to remove the whole application. Please handle with care and only use them if you know what you are doing. Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
+
+image::documentation/release_3_1/new_maintenance_endpoints.png[new maintenance endpoints,role="left]
