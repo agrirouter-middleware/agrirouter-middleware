@@ -2,6 +2,7 @@ package de.agrirouter.middleware.controller.unsecured;
 
 import de.agrirouter.middleware.controller.dto.response.enums.OnboardProcessResult;
 import io.swagger.v3.oas.annotations.Operation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,11 @@ public class OnboardProcessResultController implements UnsecuredApiController {
     @Operation(hidden = true)
     public String onboardProcessResult(@RequestParam("onboardProcessResult") OnboardProcessResult onboardProcessResult, @RequestParam(value = "errorMessage", required = false) String errorMessage, Model model) {
         model.addAttribute("onboardProcessResult", onboardProcessResult);
-        model.addAttribute("errorMessage", new String(Base64.getDecoder().decode(errorMessage)));
+        if(StringUtils.isNotBlank(errorMessage)) {
+            model.addAttribute("errorMessage", new String(Base64.getDecoder().decode(errorMessage)));
+        }else{
+            model.addAttribute("errorMessage", "");
+        }
         return "onboard-process-result";
     }
 
