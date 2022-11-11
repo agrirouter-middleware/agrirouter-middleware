@@ -156,7 +156,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${errors.size > 0}">
+    <div class="mdl-grid" style="width: 100%" th:if="${errors.size > 0}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -178,7 +178,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="error: ${errors}">
-                            <td th:text="${error.timestamp}"></td>
+                            <td th:text="${#dates.format(error.timestamp * 1000,'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${error.responseCode}"></td>
                             <td th:text="${error.responseType}"></td>
                             <td th:text="${error.messageId}"></td>
@@ -209,7 +209,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="connectionError: ${Connectionserrors}">
-                            <td th:text="${error.pointInTime}"></td>
+                            <td th:text="${#dates.format(error.pointInTime * 1000,'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${error.errorMessage}"></td>
                         </tr>
                         </tbody>
@@ -241,7 +241,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="cloudOnboardingFailure: ${cloudOnboardingFailures}">
-                            <td th:text="${cloudOnboardingFailure.timestamp}"></td>
+                            <td th:text="${#dates.format(cloudOnboardingFailure.timestamp * 1000,'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${cloudOnboardingFailure.virtualExternalEndpointId}"></td>
                             <td th:text="${cloudOnboardingFailure.errorCode}"></td>
                             <td th:text="${cloudOnboardingFailure.errorMessage}"></td>
@@ -275,7 +275,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="messageWaitingForAcknowledgement: ${messagesWaitingForAcknowledgement}">
-                            <td th:text="${messageWaitingForAcknowledgement.created}"></td>
+                            <td th:text="${#dates.format(messageWaitingForAcknowledgement.created * 1000,'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${messageWaitingForAcknowledgement.agrirouterEndpointId}"></td>
                             <td th:text="${messageWaitingForAcknowledgement.messageId}"></td>
                             <td th:text="${messageWaitingForAcknowledgement.technicalMessageType}"></td>
@@ -308,7 +308,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="warning: ${warnings}">
-                            <td th:text="${warning.timestamp}"></td>
+                            <td th:text="${#dates.format(warning.timestamp * 1000,'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${warning.responseCode}"></td>
                             <td th:text="${warning.responseType}"></td>
                             <td th:text="${warning.messageId}"></td>
