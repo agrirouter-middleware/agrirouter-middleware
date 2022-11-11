@@ -398,4 +398,18 @@ public class EndpointService {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
     }
+
+    /**
+     * Remove all connection errors.
+     * @param externalEndpointId The external ID of the endpoint.
+     */
+    public void resetConnectionErrors(String externalEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            mqttClientManagementService.clearConnectionErrors(endpoint);
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+    }
 }
