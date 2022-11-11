@@ -19,4 +19,5 @@ public record CachedMqttClient(String agrirouterEndpointId, String id,
     public void clearConnectionErrors() {
         connectionErrors.clear();
     }
+
 }

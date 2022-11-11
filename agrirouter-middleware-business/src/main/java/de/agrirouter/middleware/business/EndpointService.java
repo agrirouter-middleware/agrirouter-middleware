@@ -401,6 +401,7 @@ public class EndpointService {
 
     /**
      * Remove all connection errors.
+     *
      * @param externalEndpointId The external ID of the endpoint.
      */
     public void resetConnectionErrors(String externalEndpointId) {
@@ -412,4 +413,5 @@ public class EndpointService {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
     }
+
 }
