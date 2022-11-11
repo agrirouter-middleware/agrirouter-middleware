@@ -17,6 +17,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: echo ${GITHUB_TOKEN} | docker build . --file .github/Dockerfile --tag agrirouter-middleware:$(date +%s)
+      run: docker build . --file .github/Dockerfile --tag agrirouter-middleware:$(date +%s)
