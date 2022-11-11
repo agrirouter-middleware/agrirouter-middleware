@@ -323,6 +323,12 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
+                    <form action="#" th:action="@{/endpoint-dashboard/clear-errors(externalEndpointId=${endpoint.externalEndpointId})}" method="post">
+                        <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                               th:value="#{endpoint.clear-all}"/>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -111,4 +111,16 @@ public class EndpointDashboardUIController {
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
 
+    /**
+     * Clearing warnings.
+     *
+     * @return -
+     */
+    @PostMapping("/endpoint-dashboard/clear-warnings")
+    public String clearWarnings(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
+        LOGGER.debug("Clearing warnings for endpoint with external endpoint ID {}.", externalEndpointId);
+        endpointService.resetWarnings(externalEndpointId);
+        return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
+    }
+
 }
