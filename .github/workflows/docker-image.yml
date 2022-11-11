@@ -1,8 +1,12 @@
-name: Docker Image CI
+name: Docker CI
 
 on:
+  pull_request:
+    branches:
+      - "main"
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
 
 jobs:
 
@@ -13,4 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: docker build . --file Dockerfile --tag agrirouter-middleware:$(date +%s)
