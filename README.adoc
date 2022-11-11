@@ -45,8 +45,7 @@ The easy way to connect machines, farming software and telemetry platforms is on
 == Functional Documentation
 
 The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project.
-Do you need more than a OpenAPI documentation?
-Feel free to have a look at the xref:DOCUMENTATION.adoc[functional documentation].
+Do you need more than a OpenAPI documentation, than you are at the right place.
 
 == Want To Try It?
 
@@ -137,78 +136,6 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 |Errors from the agrirouter© will be transformed into speaking business errors (if necessary).
 
 |===
-
-== Release-Management
-
-The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
-If there are any manual migrations necessary, the documentation can be found right here.
-
-=== Update your version
-
-==== 2.1.0 to 3.0
-
-There are some breaking changes in release 3.0 and therefore the documentation has been updated.
-
-===== Status codes
-
-With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/87[PR 87] there was a change in the way the HTTP status codes are handled.
-The response does not contain a real HTTP status code and no longer the literal.
-Please see the Swagger documentation for more information.
-
-===== Searching for time logs
-
-With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/89[PR 89] there was a change regarding the search of time logs.
-The search is now based on the timestamp of the message and searching for an ID is not supported anymore.
-
-The former search query did look like this:
-
-image::documentation/release_3_0/old_search_for_timelogs.png[search for time logs,role="left"]
-
-The new search query looks like this:
-
-image::documentation/release_3_0/new_search_for_timelogs.png[search for time logs,role="left"]
-
-===== Monitoring endpoints
-
-With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/103[PR 103] the monitoring for endpoints has been changed.
-This is the main reason why this release is a breaking change.
-If you did not include the monitoring in any of your tools you can now ignore the rest of this section.
-
-The endpoint "status" has been modified and was replaced by several, more detailed endpoints to lower the amount of data transferred during the monitoring.
-The common endpoint "status" is still available, but some details where cut out and moved to specific endpoints.
-Please see the updated Swagger documentation for details.
-
-The former endpoint status did look like this:
-
-image::documentation/release_3_0/old_endpoint_status.png[old endpoint status,role="left]
-
-The new endpoint status looks like this:
-
-image::documentation/release_3_0/new_endpoint_status.png[new endpoint status,role="left]
-
-==== 3.0 to 3.1
-
-There are no breaking changes in this release (as the version indicates already). Although there are some new features for efficiency and performance.
-
-===== Internal status page
-
-With the release 3.1 you can now access the internal status page of the agrirouter© middleware. You can find all your applications and their belonging endpoints there. Each of the endpoints has a detailed dashboard, where you can see the current status of the endpoint and the last messages that have been sent or received. Errors are also displayed there.
-
-image::documentation/release_3_1/endpoint_overview.png[endpoint overview,role="left]
-
-As you can see, there are small icons indicating the current status. You are able to hover over them and see the details of the status.
-
-image::documentation/release_3_1/endpoint_status_details.png[endpoint status details,role="left]
-
-Each of the endpoints has a dedicated dashboard showing common errors, warnings, virtual endpoints and much more. The sections are only displayed if there is any data to show.
-
-image::documentation/release_3_1/endpoint_dashboard.png[endpoint dashboard,role="left]
-
-===== New endpoints for the maintenance mode
-
-The maintenance mode has some new endpoints to reset the state of an endpoint, remove an endpoint completely or to remove the whole application. Please handle with care and only use them if you know what you are doing. Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
-
-image::documentation/release_3_1/new_maintenance_endpoints.png[new maintenance endpoints,role="left]
 
 == Functional Documentation
 
@@ -434,3 +361,75 @@ because the database is not available yet) and all containers are up, you can ex
 ----
 docker-compose logs middleware | grep "Generated default" -B 2 -A 8
 ----
+
+== Releases
+
+The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
+If there are any manual migrations necessary, the documentation can be found right here.
+
+=== Update your version
+
+==== 2.1.0 to 3.0
+
+There are some breaking changes in release 3.0 and therefore the documentation has been updated.
+
+===== Status codes
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/87[PR 87] there was a change in the way the HTTP status codes are handled.
+The response does not contain a real HTTP status code and no longer the literal.
+Please see the Swagger documentation for more information.
+
+===== Searching for time logs
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/89[PR 89] there was a change regarding the search of time logs.
+The search is now based on the timestamp of the message and searching for an ID is not supported anymore.
+
+The former search query did look like this:
+
+image::documentation/release_3_0/old_search_for_timelogs.png[search for time logs,role="left"]
+
+The new search query looks like this:
+
+image::documentation/release_3_0/new_search_for_timelogs.png[search for time logs,role="left"]
+
+===== Monitoring endpoints
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/103[PR 103] the monitoring for endpoints has been changed.
+This is the main reason why this release is a breaking change.
+If you did not include the monitoring in any of your tools you can now ignore the rest of this section.
+
+The endpoint "status" has been modified and was replaced by several, more detailed endpoints to lower the amount of data transferred during the monitoring.
+The common endpoint "status" is still available, but some details where cut out and moved to specific endpoints.
+Please see the updated Swagger documentation for details.
+
+The former endpoint status did look like this:
+
+image::documentation/release_3_0/old_endpoint_status.png[old endpoint status,role="left]
+
+The new endpoint status looks like this:
+
+image::documentation/release_3_0/new_endpoint_status.png[new endpoint status,role="left]
+
+==== 3.0 to 3.1
+
+There are no breaking changes in this release (as the version indicates already). Although there are some new features for efficiency and performance.
+
+===== Internal status page
+
+With the release 3.1 you can now access the internal status page of the agrirouter© middleware. You can find all your applications and their belonging endpoints there. Each of the endpoints has a detailed dashboard, where you can see the current status of the endpoint and the last messages that have been sent or received. Errors are also displayed there.
+
+image::documentation/release_3_1/endpoint_overview.png[endpoint overview,role="left]
+
+As you can see, there are small icons indicating the current status. You are able to hover over them and see the details of the status.
+
+image::documentation/release_3_1/endpoint_status_details.png[endpoint status details,role="left]
+
+Each of the endpoints has a dedicated dashboard showing common errors, warnings, virtual endpoints and much more. The sections are only displayed if there is any data to show.
+
+image::documentation/release_3_1/endpoint_dashboard.png[endpoint dashboard,role="left]
+
+===== New endpoints for the maintenance mode
+
+The maintenance mode has some new endpoints to reset the state of an endpoint, remove an endpoint completely or to remove the whole application. Please handle with care and only use them if you know what you are doing. Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
+
+image::documentation/release_3_1/new_maintenance_endpoints.png[new maintenance endpoints,role="left]
