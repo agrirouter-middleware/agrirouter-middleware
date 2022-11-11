@@ -19,4 +19,4 @@ jobs:
     - name: Build the Docker image
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: docker build . --file .github/Dockerfile --tag agrirouter-middleware:$(date +%s)
+      run: echo ${GITHUB_TOKEN} | docker build . --file .github/Dockerfile --tag agrirouter-middleware:$(date +%s)
