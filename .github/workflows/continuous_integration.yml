@@ -4,7 +4,9 @@ on:
   pull_request:
     branches:
       - "main"
-      - "releases/**"
+  push:
+    branches:
+      - "main"
 
 jobs:
   build_jdk_17:
@@ -19,4 +21,4 @@ jobs:
       - name: Build with Maven
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B package --file pom.xml --settings ci/github-settings.xml
+        run: mvn -B verify --file pom.xml --settings ci/github-settings.xml
