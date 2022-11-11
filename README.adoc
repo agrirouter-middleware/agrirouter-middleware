@@ -137,7 +137,7 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 
 |===
 
-== Functional Documentation
+== Functional documentation
 
 === How to authenticate the requests?
 
@@ -281,6 +281,64 @@ There is an aspect for business operations that logs with the log level "TRACE".
 * Name of the method that is called.
 * Parameters and parameter values of the method.
 * Execution time of the method.
+
+=== Scheduled jobs
+
+There are several scheduled jobs that are executed in the background. The following jobs are running:
+
+==== Scheduled connection checking
+
+The middleware checks the connection of each endpoint to the agrirouter© in a configurable intervall. The following intervall is configured by default:
+
+No profile: every minute
+'dev' profile: every minute
+'qa' profile: every 15 minutes
+'prod' profile: every 30 minutes
+
+==== Scheduled fetching and confirming messages
+
+The middleware fetches messages from the agrirouter© and confirms them in a configurable intervall. The following intervall is configured by default:
+
+No profile: every 5 minutes
+'dev' profile: every 5 minutes
+'qa' profile: every 15 minutes
+'prod' profile: every 15 minutes
+
+==== Scheduled message sending from the cache
+
+The middleware is sending out the cached messages in a configurable intervall. The following intervall is configured by default:
+
+No profile: every 5 minutes
+'dev' profile: every 5 minutes
+'qa' profile: every 15 minutes
+'prod' profile: every 30 minutes
+
+==== Scheduled removal of ACKs
+
+If the agrirouter© is not responding, the middleware is caching the messages waiting for ACKs and removes them in a configurable intervall. The following intervall is configured by default:
+
+No profile: every 5 minutes
+'dev' profile: every 5 minutes
+'qa' profile: once a day
+'prod' profile: once a day
+
+==== Scheduled recipient query
+
+The recipients of the endpoints are queried in a configurable intervall. The following intervall is configured by default:
+
+No profile: every 5 minutes
+'dev' profile: every 5 minutes
+'qa' profile: every 15 minutes
+'prod' profile: every 30 minutes
+
+==== Scheduled status logging
+
+The middleware logs the status of the endpoints in a configurable intervall. The following intervall is configured by default:
+
+No profile: every 5 minutes
+'dev' profile: every 5 minutes
+'qa' profile: every 15 minutes
+'prod' profile: every 30 minutes
 
 == Development
 
