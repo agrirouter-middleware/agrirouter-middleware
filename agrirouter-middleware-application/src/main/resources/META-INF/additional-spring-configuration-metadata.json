@@ -49,6 +49,11 @@
       "name": "app.cache.transient-machine-registration-cache.time-to-live-in-seconds",
       "type": "java.lang.String",
       "description": "The time to live for a transient machine registration cache entry."
+    },
+    {
+      "name": "app.scheduled.message-waiting-for-ack-removal",
+      "type": "java.lang.String",
+      "description": "The interval for the message waiting for ack removal, has to be a valid CRON expression."
     }
   ]
 }

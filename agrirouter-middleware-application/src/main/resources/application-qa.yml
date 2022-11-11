@@ -9,8 +9,9 @@ logging:
 
 app:
   scheduled:
-    connection-check: "0 */5 * * * *"
+    connection-check: "0 */15 * * * *"
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
-    status-logging: "0 */5 * * * *"
-    recipient-query: "0 */5 * * * *"
+    status-logging: "0 */15 * * * *"
+    recipient-query: "0 */15 * * * *"
     empty-message-cache: "0 */15 * * * *"
+    message-waiting-for-ack-removal: "0 0 0 * * *"
