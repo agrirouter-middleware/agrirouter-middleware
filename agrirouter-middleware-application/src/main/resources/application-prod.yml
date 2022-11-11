@@ -9,3 +9,4 @@ app:
     status-logging: "0 */15 * * * *"
     recipient-query: "0 */30 * * * *"
     empty-message-cache: "0 */30 * * * *"
+    message-waiting-for-ack-removal: "0 0 0 * * *"

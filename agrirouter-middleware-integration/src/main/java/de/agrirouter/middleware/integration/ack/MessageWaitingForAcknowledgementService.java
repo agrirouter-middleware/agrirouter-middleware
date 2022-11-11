@@ -69,4 +69,17 @@ public class MessageWaitingForAcknowledgementService {
                 .filter(messageWaitingForAcknowledgement -> messageWaitingForAcknowledgement.getAgrirouterEndpointId().equals(agrirouterEndpointId))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Clear all messages waiting for ACK that are older than a week.
+     */
+    public void clearAllThatAreOlderThanOneWeek() {
+        LOGGER.info("Clearing all messages waiting for ACK that are older than a week.");
+        LOGGER.debug("Currently there are {} messages waiting for ACK in total.", messages.size());
+        messages
+                .values()
+                .stream()
+                .filter(MessageWaitingForAcknowledgement::isOlderThanOneWeek)
+                .forEach(this::delete);
+    }
 }

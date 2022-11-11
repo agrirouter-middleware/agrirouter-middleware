@@ -68,4 +68,13 @@ public class MessageWaitingForAcknowledgement {
         //noinspection unchecked
         return (List<String>) dynamicProperties.get(key);
     }
+
+    /**
+     * Check if the message waiting for ACK is older than one week.
+     *
+     * @return True if the message is older than one week.
+     */
+    public boolean isOlderThanOneWeek() {
+        return created < Instant.now().minusSeconds(60 * 60 * 24 * 7).getEpochSecond();
+    }
 }
