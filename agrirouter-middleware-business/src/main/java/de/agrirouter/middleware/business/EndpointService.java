@@ -13,6 +13,7 @@ import de.agrirouter.middleware.domain.log.Error;
 import de.agrirouter.middleware.domain.log.Warning;
 import de.agrirouter.middleware.integration.EndpointIntegrationService;
 import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
+import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.*;
@@ -46,6 +47,7 @@ public class EndpointService {
     private final DeviceDescriptionRepository deviceDescriptionRepository;
     private final TimeLogRepository timeLogRepository;
     private final BusinessOperationLogService businessOperationLogService;
+    private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
@@ -59,7 +61,8 @@ public class EndpointService {
                            RevokeProcessIntegrationService revokeProcessIntegrationService,
                            DeviceDescriptionRepository deviceDescriptionRepository,
                            TimeLogRepository timeLogRepository,
-                           BusinessOperationLogService businessOperationLogService) {
+                           BusinessOperationLogService businessOperationLogService,
+                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
         this.errorRepository = errorRepository;
@@ -73,6 +76,7 @@ public class EndpointService {
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.timeLogRepository = timeLogRepository;
         this.businessOperationLogService = businessOperationLogService;
+        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
     }
 
     /**
@@ -377,6 +381,21 @@ public class EndpointService {
             endpointRepository.save(endpoint);
         } else {
             LOGGER.warn("Could not find endpoint with agrirouter ID {}.", agrirouterEndpointId);
+        }
+    }
+
+    /**
+     * Remove all messages waiting for ACK for the endpoint.
+     *
+     * @param externalEndpointId The external ID of the endpoint.
+     */
+    public void resetMessagesWaitingForAcknowledgement(String externalEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            messageWaitingForAcknowledgementService.deleteAllForEndpoint(endpoint);
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
     }
 }

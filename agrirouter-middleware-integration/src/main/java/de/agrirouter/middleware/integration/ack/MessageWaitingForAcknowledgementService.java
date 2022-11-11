@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.integration.ack;
 
+import de.agrirouter.middleware.domain.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -80,6 +81,21 @@ public class MessageWaitingForAcknowledgementService {
                 .values()
                 .stream()
                 .filter(MessageWaitingForAcknowledgement::isOlderThanOneWeek)
+                .forEach(this::delete);
+    }
+
+    /**
+     * Clear all messages waiting for ACK for a specific endpoint.
+     *
+     * @param endpoint The endpoint.
+     */
+    public void deleteAllForEndpoint(Endpoint endpoint) {
+        LOGGER.info("Deleting all messages waiting for ACK for endpoint {}.", endpoint.getAgrirouterEndpointId());
+        LOGGER.debug("Currently there are {} messages waiting for ACK in total.", messages.size());
+        messages
+                .values()
+                .stream()
+                .filter(messageWaitingForAcknowledgement -> messageWaitingForAcknowledgement.getAgrirouterEndpointId().equals(endpoint.getAgrirouterEndpointId()))
                 .forEach(this::delete);
     }
 }

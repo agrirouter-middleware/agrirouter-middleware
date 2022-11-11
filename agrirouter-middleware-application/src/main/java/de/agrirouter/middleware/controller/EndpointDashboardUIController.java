@@ -123,4 +123,16 @@ public class EndpointDashboardUIController {
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
 
+    /**
+     * Clearing messages waiting for ACK.
+     *
+     * @return -
+     */
+    @PostMapping("/endpoint-dashboard/clear-messages-waiting-for-ack")
+    public String clearMessagesWaitingForAck(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
+        LOGGER.debug("Clearing messages waiting for ACK for endpoint with external endpoint ID {}.", externalEndpointId);
+        endpointService.resetMessagesWaitingForAcknowledgement(externalEndpointId);
+        return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
+    }
+
 }
