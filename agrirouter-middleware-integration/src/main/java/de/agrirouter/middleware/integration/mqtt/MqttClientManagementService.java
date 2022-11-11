@@ -5,6 +5,7 @@ import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttClientService;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import de.agrirouter.middleware.domain.Application;
+import de.agrirouter.middleware.domain.Endpoint;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
@@ -179,5 +180,17 @@ public class MqttClientManagementService {
      */
     public void removeStaleConnections() {
         cachedMqttClients.values().removeIf(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected());
+    }
+
+    /**
+     * Clear the connection errors.
+     * @param endpoint The endpoint.
+     */
+    public void clearConnectionErrors(Endpoint endpoint) {
+        final var cachedMqttClient = getCachedMqttClient(endpoint.asOnboardingResponse());
+        if (null != cachedMqttClient) {
+            cachedMqttClient.clearConnectionErrors();
+        }
+        cachedMqttClients.put(endpoint.asOnboardingResponse().getConnectionCriteria().getClientId(), cachedMqttClient);
     }
 }

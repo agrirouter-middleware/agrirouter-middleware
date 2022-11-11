@@ -135,4 +135,16 @@ public class EndpointDashboardUIController {
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
 
+    /**
+     * Clearing connection errors.
+     *
+     * @return -
+     */
+    @PostMapping("/endpoint-dashboard/clear-connection-errors")
+    public String clearConnectionErrors(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
+        LOGGER.debug("Clearing connection errors for the endpoint with external endpoint ID {}.", externalEndpointId);
+        endpointService.resetConnectionErrors(externalEndpointId);
+        return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
+    }
+
 }
