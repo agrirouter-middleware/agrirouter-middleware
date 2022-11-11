@@ -8,9 +8,12 @@ import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingFor
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
@@ -23,6 +26,8 @@ import java.util.Date;
  */
 @Controller
 public class EndpointDashboardUIController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointDashboardUIController.class);
 
     private final EndpointService endpointService;
     private final MqttClientManagementService mqttClientManagementService;
@@ -92,6 +97,18 @@ public class EndpointDashboardUIController {
             return Routes.UI.ERROR;
         }
         return Routes.UI.ENDPOINT_DASHBOARD;
+    }
+
+    /**
+     * Clearing errors.
+     *
+     * @return -
+     */
+    @PostMapping("/endpoint-dashboard/clear-errors")
+    public String clearErrors(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
+        LOGGER.debug("Clearing errors for endpoint with external endpoint ID {}.", externalEndpointId);
+        endpointService.resetErrors(externalEndpointId);
+        return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
 
 }
