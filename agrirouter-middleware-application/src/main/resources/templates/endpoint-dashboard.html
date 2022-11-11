@@ -352,6 +352,42 @@
             </div>
         </div>
     </div>
+    <div class="mdl-grid" th:if="${pendingDeliveryTokens.size > 0}">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"
+                        th:text="#{domain.endpoint.pending-delivery-tokens}"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                        <thead>
+                        <tr>
+                            <th th:text="#{domain.delivery-token.message-id}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.delivery-token.granted-qos}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.delivery-token.topics}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.delivery-token.complete}"></th>
+                            <th class="mdl-data-table__cell--non-numeric"
+                                th:text="#{domain.delivery-token.message-qos}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="pendingDeliveryToken: ${pendingDeliveryTokens}">
+                            <td th:text="${pendingDeliveryToken.messageId}"></td>
+                            <td th:text="${pendingDeliveryToken.grantedQos}"></td>
+                            <td th:text="${pendingDeliveryToken.topics}"></td>
+                            <td th:text="${pendingDeliveryToken.complete}"></td>
+                            <td th:text="${pendingDeliveryToken.messageQos}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 </body>
 </html>
