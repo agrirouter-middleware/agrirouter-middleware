@@ -302,12 +302,12 @@ public class ApplicationController implements SecuredApiController {
      * Add a router device to the application.
      *
      * @param principal              The principal to fetch the application.
-     * @param applicationId          The ID of the application.
+     * @param internalApplicationId  The internal ID of the application.
      * @param addRouterDeviceRequest The request to register the router device.
      * @return HTTP 201 after definition.
      */
     @PutMapping(
-            value = "/router-device/{applicationId}",
+            value = "/router-device/{internalApplicationId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -351,14 +351,14 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> addRouterDevice(Principal principal,
-                                                @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                                @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                 @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
                                                 @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
         final var addRouterDeviceParameters = new AddRouterDeviceParameters();
-        addRouterDeviceParameters.setInternalApplicationId(applicationId);
+        addRouterDeviceParameters.setInternalApplicationId(internalApplicationId);
         addRouterDeviceParameters.setTenantId(principal.getName());
         addRouterDeviceParameters.setDeviceAlternateId(addRouterDeviceRequest.getRouterDevice().getDeviceAlternateId());
         addRouterDeviceParameters.setCertificate(addRouterDeviceRequest.getRouterDevice().getAuthentication().getCertificate());
