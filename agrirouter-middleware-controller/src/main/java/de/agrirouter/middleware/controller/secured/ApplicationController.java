@@ -232,12 +232,12 @@ public class ApplicationController implements SecuredApiController {
      * Define the supported technical message types.
      *
      * @param principal                               The principal to fetch the application.
-     * @param applicationId                           The ID of the application.
+     * @param internalApplicationId                   The internal ID of the application.
      * @param addSupportedTechnicalMessageTypeRequest The application to register.
      * @return HTTP 201 after definition.
      */
     @PutMapping(
-            value = "/supported-technical-message-types/{applicationId}",
+            value = "/supported-technical-message-types/{internalApplicationId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -281,7 +281,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
-                                                                     @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                                      @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
                                                                      @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -294,7 +294,7 @@ public class ApplicationController implements SecuredApiController {
             supportedTechnicalMessageType.setDirection(dto.getDirection());
             supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
         });
-        applicationService.defineSupportedTechnicalMessageTypes(principal, applicationId, supportedTechnicalMessageTypes);
+        applicationService.defineSupportedTechnicalMessageTypes(principal, internalApplicationId, supportedTechnicalMessageTypes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
