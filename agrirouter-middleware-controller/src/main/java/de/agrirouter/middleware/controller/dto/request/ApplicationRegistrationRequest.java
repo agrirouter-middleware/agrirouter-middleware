@@ -31,7 +31,7 @@ public class ApplicationRegistrationRequest {
      */
     @NotNull
     @NotBlank
-    @Schema(description = "The ID of the application.")
+    @Schema(description = "The agrirouter© ID of the application.")
     private String applicationId;
 
     /**
