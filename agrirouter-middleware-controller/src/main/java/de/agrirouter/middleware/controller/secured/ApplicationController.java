@@ -375,7 +375,7 @@ public class ApplicationController implements SecuredApiController {
      * Find an application by its ID.
      *
      * @param principal             The principal to fetch the application.
-     * @param internalApplicationId The ID of the application.
+     * @param internalApplicationId The internal ID of the application.
      * @return HTTP 200 with the data of the application or an HTTP 400 with an error message.
      */
     @GetMapping(
