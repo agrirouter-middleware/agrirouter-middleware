@@ -50,12 +50,12 @@ public class TelemetryPlatformController implements SecuredApiController {
     /**
      * Onboard a virtual endpoint using the internal ID of the endpoint.
      *
-     * @param endpointId                    The ID of the endpoint.
+     * @param externalEndpointId            The external ID of the endpoint.
      * @param onboardVirtualEndpointRequest The body containing all necessary information.
      * @return HTTP 200 in case everything is fine.
      */
     @PostMapping(
-            value = "/{endpointId}/virtual",
+            value = "/{externalEndpointId}/virtual",
             consumes = MediaType.APPLICATION_JSON
     )
     @Operation(
@@ -101,13 +101,13 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> onboard(@Parameter(description = "The ID of the existing endpoint.", required = true) @PathVariable String endpointId,
+    public ResponseEntity<Void> onboard(@Parameter(description = "The external ID of the existing endpoint.", required = true) @PathVariable String externalEndpointId,
                                         @Parameter(description = "Necessary information to create the virtual endpoint.", required = true) @Valid @RequestBody OnboardVirtualEndpointRequest onboardVirtualEndpointRequest, @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
         final var virtualOnboardProcessParameters = new VirtualOnboardProcessParameters();
-        virtualOnboardProcessParameters.setExternalEndpointId(endpointId);
+        virtualOnboardProcessParameters.setExternalEndpointId(externalEndpointId);
         virtualOnboardProcessParameters.setExternalVirtualEndpointId(onboardVirtualEndpointRequest.getExternalVirtualEndpointId());
         virtualOnboardProcessParameters.setEndpointName(onboardVirtualEndpointRequest.getEndpointName());
         virtualOnboardProcessService.onboard(virtualOnboardProcessParameters);
@@ -117,12 +117,12 @@ public class TelemetryPlatformController implements SecuredApiController {
     /**
      * Offboard one or multiple virtual CUs.
      *
-     * @param endpointId                   The ID of the endpoint.
+     * @param externalEndpointId           The external ID of the endpoint.
      * @param revokeVirtualEndpointRequest The body containing all necessary information.
      * @return HTTP 200 in case everything is fine.
      */
     @DeleteMapping(
-            value = "/{endpointId}/virtual",
+            value = "/{externalEndpointId}/virtual",
             consumes = MediaType.APPLICATION_JSON
     )
     @Operation(
@@ -168,14 +168,14 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> revoke(@Parameter(description = "The ID of the existing endpoint.", required = true) @PathVariable String endpointId,
+    public ResponseEntity<Void> revoke(@Parameter(description = "The external ID of the existing endpoint.", required = true) @PathVariable String externalEndpointId,
                                        @Parameter(description = "The necessary information to revoke the virtual endpoint.") @Valid @RequestBody RevokeVirtualEndpointRequest revokeVirtualEndpointRequest,
                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
         final var virtualOffboardProcessParameters = new VirtualOffboardProcessParameters();
-        virtualOffboardProcessParameters.setExternalEndpointId(endpointId);
+        virtualOffboardProcessParameters.setExternalEndpointId(externalEndpointId);
         virtualOffboardProcessParameters.setExternalVirtualEndpointIds(revokeVirtualEndpointRequest.getExternalEndpointIds());
         virtualOffboardProcessService.offboard(virtualOffboardProcessParameters);
         return ResponseEntity.status(HttpStatus.OK).build();
