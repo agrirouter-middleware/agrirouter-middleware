@@ -545,11 +545,11 @@ public class ApplicationController implements SecuredApiController {
     /**
      * Find all endpoints of an application by the IDs of the application.
      *
-     * @param applicationId The ID of the application.
+     * @param internalApplicationId The internal ID of the application.
      * @return HTTP 200 with the data of the application or an HTTP 400 with an error message.
      */
     @GetMapping(
-            value = "/{applicationId}/endpoints",
+            value = "/{internalApplicationId}/endpoints",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -589,8 +589,8 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
-                                                                                           @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
-        final var application = applicationService.find(applicationId, principal);
+                                                                                           @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+        final var application = applicationService.find(internalApplicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
         application.getEndpoints().forEach(endpoint -> {
             final var dto = new EndpointWithChildrenDto();
