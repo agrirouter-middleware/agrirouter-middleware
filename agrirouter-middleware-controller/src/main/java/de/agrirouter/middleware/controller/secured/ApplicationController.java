@@ -374,12 +374,12 @@ public class ApplicationController implements SecuredApiController {
     /**
      * Find an application by its ID.
      *
-     * @param principal     The principal to fetch the application.
-     * @param applicationId The ID of the application.
+     * @param principal             The principal to fetch the application.
+     * @param internalApplicationId The ID of the application.
      * @return HTTP 200 with the data of the application or an HTTP 400 with an error message.
      */
     @GetMapping(
-            value = "/{applicationId}",
+            value = "/{internalApplicationId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -419,8 +419,8 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindApplicationResponse> find(Principal principal,
-                                                        @Parameter(description = "The ID of the application", required = true) @PathVariable String applicationId) {
-        final var application = applicationService.find(applicationId, principal);
+                                                        @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
+        final var application = applicationService.find(internalApplicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
         return ResponseEntity.ok(new FindApplicationResponse(applicationDto));
