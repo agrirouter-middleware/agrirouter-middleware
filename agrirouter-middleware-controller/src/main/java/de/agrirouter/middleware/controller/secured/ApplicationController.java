@@ -123,10 +123,10 @@ public class ApplicationController implements SecuredApiController {
         application.setName(applicationRegistrationRequest.getName());
         application.setApplicationType(applicationRegistrationRequest.getApplicationType());
 
-        final var publicKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getPublicKey()));
+        final var publicKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getBase64EncodedPublicKey()));
         application.setPublicKey(publicKey);
 
-        final var privateKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getPrivateKey()));
+        final var privateKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getBase64EncodedPrivateKey()));
         application.setPrivateKey(privateKey);
 
         final var applicationSettings = new ApplicationSettings();
