@@ -2691,9 +2691,51 @@
           "versionId": {
             "type": "string",
             "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
+          },
+          "supportedTechnicalMessageTypes": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "The supported technical message types for this version of the application.",
+            "items": {
+              "$ref": "#/components/schemas/SupportedTechnicalMessageTypeDto"
+            }
           }
         },
         "description": "A container holding the basic representation of an application."
+      },
+      "SupportedTechnicalMessageTypeDto": {
+        "type": "object",
+        "properties": {
+          "technicalMessageType": {
+            "type": "string",
+            "description": "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.",
+            "enum": [
+              "ISO_11783_TASKDATA_ZIP",
+              "SHP_SHAPE_ZIP",
+              "DOC_PDF",
+              "IMG_JPEG",
+              "IMG_PNG",
+              "IMG_BMP",
+              "VID_AVI",
+              "VID_MP4",
+              "VID_WMV",
+              "GPS_INFO",
+              "ISO_11783_DEVICE_DESCRIPTION",
+              "ISO_11783_TIME_LOG"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "description": "The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.",
+            "enum": [
+              "SEND",
+              "RECEIVE",
+              "SEND_RECEIVE",
+              "UNRECOGNIZED"
+            ]
+          }
+        },
+        "description": "A container holding the basic representation of a supported technical message type."
       },
       "UpdateApplicationResponse": {
         "type": "object",
@@ -2753,40 +2795,6 @@
           }
         },
         "description": "The container holding the parameters to add the supported technical messages types."
-      },
-      "SupportedTechnicalMessageTypeDto": {
-        "type": "object",
-        "properties": {
-          "technicalMessageType": {
-            "type": "string",
-            "description": "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.",
-            "enum": [
-              "ISO_11783_TASKDATA_ZIP",
-              "SHP_SHAPE_ZIP",
-              "DOC_PDF",
-              "IMG_JPEG",
-              "IMG_PNG",
-              "IMG_BMP",
-              "VID_AVI",
-              "VID_MP4",
-              "VID_WMV",
-              "GPS_INFO",
-              "ISO_11783_DEVICE_DESCRIPTION",
-              "ISO_11783_TIME_LOG"
-            ]
-          },
-          "direction": {
-            "type": "string",
-            "description": "The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.",
-            "enum": [
-              "SEND",
-              "RECEIVE",
-              "SEND_RECEIVE",
-              "UNRECOGNIZED"
-            ]
-          }
-        },
-        "description": "Representation of a technical message type to add."
       },
       "AddRouterDeviceRequest": {
         "required": [
