@@ -2723,13 +2723,13 @@
             "type": "string",
             "description": "The name of the application."
           },
-          "privateKey": {
+          "base64EncodedPrivateKey": {
             "type": "string",
-            "description": "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+            "description": "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform. The private key has to be Base64 encoded."
           },
-          "publicKey": {
+          "base64EncodedPublicKey": {
             "type": "string",
-            "description": "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+            "description": "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform. The public key has to be Base64 encoded."
           },
           "redirectUrl": {
             "type": "string",
@@ -3268,9 +3268,9 @@
         "required": [
           "applicationId",
           "applicationType",
+          "base64EncodedPrivateKey",
+          "base64EncodedPublicKey",
           "name",
-          "privateKey",
-          "publicKey",
           "versionId"
         ],
         "type": "object",
@@ -3287,13 +3287,13 @@
             "type": "string",
             "description": "The version of the application. Each agrirouter© version creates a new application in the middleware."
           },
-          "privateKey": {
+          "base64EncodedPrivateKey": {
             "type": "string",
-            "description": "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+            "description": "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform. The private key has to be Base64 encoded."
           },
-          "publicKey": {
+          "base64EncodedPublicKey": {
             "type": "string",
-            "description": "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform."
+            "description": "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform. The public key has to be Base64 encoded."
           },
           "applicationType": {
             "type": "string",
