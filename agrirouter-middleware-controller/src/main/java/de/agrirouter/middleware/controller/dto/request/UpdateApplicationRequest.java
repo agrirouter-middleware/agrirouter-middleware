@@ -34,14 +34,14 @@ public class UpdateApplicationRequest {
     /**
      * The private key of the application.
      */
-    @Schema(description = "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform.")
-    private String privateKey;
+    @Schema(description = "The private key of the application. Only needed if the application is an instance of a farming software or telemetry platform. The private key has to be Base64 encoded.")
+    private String base64EncodedPrivateKey;
 
     /**
      * The public key of the application.
      */
-    @Schema(description = "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform.")
-    private String publicKey;
+    @Schema(description = "The public key of the application. Only needed if the application is an instance of a farming software or telemetry platform. The public key has to be Base64 encoded.")
+    private String base64EncodedPublicKey;
 
     /**
      * The redirect URL for the application.
