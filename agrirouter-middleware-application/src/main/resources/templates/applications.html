@@ -8,10 +8,12 @@
 <body>
 <main class="mdl-layout__content">
     <div class="mdl-grid">
-        <div th:each="agrirouterApplication: ${applications}" class="mdl-cell mdl-cell--4-col mdl-typography--text-center">
+        <div th:each="agrirouterApplication: ${applications}"
+             class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text mdl-typography--text-left" th:text="${agrirouterApplication.name}"></h2>
+                    <h2 class="mdl-card__title-text mdl-typography--text-left"
+                        th:text="${agrirouterApplication.name}"></h2>
                 </div>
                 <div class="mdl-card__supporting-text">
                     <div class="mdl-grid">
@@ -43,13 +45,28 @@
                             <p th:text="${agrirouterApplication.applicationType}"></p>
                         </div>
 
+                        <div class="mdl-cell--3-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold"
+                               th:text="#{domain.application.supportedTechnicalMessageTypes}"></p>
+                        </div>
+                        <div class="mdl-cell--9-col mdl-typography--text-left">
+                            <div class="mdl-grid mdl-grid--no-spacing"
+                                 th:each="supportedTechnicalMessageType: ${agrirouterApplication.supportedTechnicalMessageTypes}">
+                                <div class="mdl-cell--4-col">
+                                    <p th:text="${supportedTechnicalMessageType.technicalMessageType.name}"></p>
+                                </div>
+                                <div class="mdl-cell--8-col">
+                                    <p th:text="${supportedTechnicalMessageType.direction.name}"></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
-                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-                       th:href="@{/endpoints(internalApplicationId=${agrirouterApplication.internalApplicationId})}">
-                        <span th:text="#{applications.show-endpoints}"></span>
-                    </a>
+                    <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
+                        <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                           th:href="@{/endpoints(internalApplicationId=${agrirouterApplication.internalApplicationId})}">
+                            <span th:text="#{applications.show-endpoints}"></span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
