@@ -206,7 +206,7 @@
         ]
       }
     },
-    "/secured/api/application/supported-technical-message-types/{applicationId}": {
+    "/secured/api/application/supported-technical-message-types/{internalApplicationId}": {
       "put": {
         "tags": [
           "application management"
@@ -215,9 +215,9 @@
         "operationId": "application.define-technical-message-types",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application.",
+            "description": "The internal ID of the application.",
             "required": true,
             "schema": {
               "type": "string"
@@ -266,7 +266,7 @@
         ]
       }
     },
-    "/secured/api/application/router-device/{applicationId}": {
+    "/secured/api/application/router-device/{internalApplicationId}": {
       "put": {
         "tags": [
           "application management"
@@ -275,9 +275,9 @@
         "operationId": "application.add-router-device",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application.",
+            "description": "The internal ID of the application.",
             "required": true,
             "schema": {
               "type": "string"
@@ -377,7 +377,7 @@
         }
       }
     },
-    "/secured/api/telemetry-platform/{endpointId}/virtual": {
+    "/secured/api/telemetry-platform/{externalEndpointId}/virtual": {
       "post": {
         "tags": [
           "telemetry platform management"
@@ -386,9 +386,9 @@
         "operationId": "telemetry-platform.onboard.virtual",
         "parameters": [
           {
-            "name": "endpointId",
+            "name": "externalEndpointId",
             "in": "path",
-            "description": "The ID of the existing endpoint.",
+            "description": "The external ID of the existing endpoint.",
             "required": true,
             "schema": {
               "type": "string"
@@ -447,9 +447,9 @@
         "operationId": "telemetry-platform.revoke.virtual",
         "parameters": [
           {
-            "name": "endpointId",
+            "name": "externalEndpointId",
             "in": "path",
-            "description": "The ID of the existing endpoint.",
+            "description": "The external ID of the existing endpoint.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1594,7 +1594,7 @@
         ]
       }
     },
-    "/unsecured/api/telemetry-platform/{applicationId}/{externalEndpointId}": {
+    "/unsecured/api/telemetry-platform/{internalApplicationId}/{externalEndpointId}": {
       "get": {
         "tags": [
           "telemetry platform management"
@@ -1603,9 +1603,9 @@
         "operationId": "telemetry-platform.auth-url",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application.",
+            "description": "The internal ID of the application.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1701,7 +1701,7 @@
         }
       }
     },
-    "/unsecured/api/farming-software/{applicationId}/{externalEndpointId}": {
+    "/unsecured/api/farming-software/{internalApplicationId}/{externalEndpointId}": {
       "get": {
         "tags": [
           "farming software management"
@@ -1710,9 +1710,9 @@
         "operationId": "onboard.farming-software.auth-url",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application.",
+            "description": "The internal ID of the application.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2086,7 +2086,7 @@
         ]
       }
     },
-    "/secured/api/application/{applicationId}": {
+    "/secured/api/application/{internalApplicationId}": {
       "get": {
         "tags": [
           "application management"
@@ -2095,9 +2095,9 @@
         "operationId": "application.find",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application",
+            "description": "The internal ID of the application",
             "required": true,
             "schema": {
               "type": "string"
@@ -2143,7 +2143,7 @@
         ]
       }
     },
-    "/secured/api/application/{applicationId}/endpoints": {
+    "/secured/api/application/{internalApplicationId}/endpoints": {
       "get": {
         "tags": [
           "application management"
@@ -2152,9 +2152,9 @@
         "operationId": "application.endpoints",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application.",
+            "description": "The internal ID of the application.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2200,7 +2200,7 @@
         ]
       }
     },
-    "/secured/api/application/status/{applicationId}": {
+    "/secured/api/application/status/{internalApplicationId}": {
       "get": {
         "tags": [
           "application management"
@@ -2209,9 +2209,9 @@
         "operationId": "application.status",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "internalApplicationId",
             "in": "path",
-            "description": "The ID of the application.",
+            "description": "The internal ID of the application.",
             "required": true,
             "schema": {
               "type": "string"
@@ -3281,7 +3281,7 @@
           },
           "applicationId": {
             "type": "string",
-            "description": "The ID of the application."
+            "description": "The agrirouter© ID of the application."
           },
           "versionId": {
             "type": "string",

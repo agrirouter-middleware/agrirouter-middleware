@@ -37,12 +37,12 @@ public class FarmingSoftwareController implements UnsecuredApiController {
     /**
      * Create an authorization URL for the secured onboard process.
      *
-     * @param applicationId      The id of the application.
-     * @param externalEndpointId The id of the endpoint.
-     * @param redirectUrl        The redirect URL.
+     * @param internalApplicationId The internal id of the application.
+     * @param externalEndpointId    The id of the endpoint.
+     * @param redirectUrl           The redirect URL.
      * @return HTTP 200 with the URL.
      */
-    @GetMapping("/{applicationId}/{externalEndpointId}")
+    @GetMapping("/{internalApplicationId}/{externalEndpointId}")
     @Operation(
             operationId = "onboard.farming-software.auth-url",
             description = "Create an authorization URL for the telemetry platform.",
@@ -86,10 +86,10 @@ public class FarmingSoftwareController implements UnsecuredApiController {
                     )
             }
     )
-    public RedirectView onboardFarmingSoftware(@Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+    public RedirectView onboardFarmingSoftware(@Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                @Parameter(description = "The redirect URL for this onboard request.") @RequestParam(name = "redirectUrl", required = false) String redirectUrl) {
-        final var application = applicationService.find(applicationId);
+        final var application = applicationService.find(internalApplicationId);
         final var url = securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId, redirectUrl);
         return new RedirectView(url);
     }

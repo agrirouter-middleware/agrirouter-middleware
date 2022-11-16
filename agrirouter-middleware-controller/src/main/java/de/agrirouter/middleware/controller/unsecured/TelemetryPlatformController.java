@@ -35,12 +35,12 @@ public class TelemetryPlatformController implements UnsecuredApiController {
     /**
      * Create an authorization URL for the telemetry platform.
      *
-     * @param applicationId      The id of the application.
-     * @param externalEndpointId The id of the endpoint.
-     * @param redirectUrl        The redirect URL.
+     * @param internalApplicationId The internal id of the application.
+     * @param externalEndpointId    The id of the endpoint.
+     * @param redirectUrl           The redirect URL.
      * @return HTTP 200 with the URL.
      */
-    @GetMapping(value = "/{applicationId}/{externalEndpointId}")
+    @GetMapping(value = "/{internalApplicationId}/{externalEndpointId}")
     @Operation(
             operationId = "telemetry-platform.auth-url",
             description = "Create an authorization URL for the telemetry platform.",
@@ -74,10 +74,10 @@ public class TelemetryPlatformController implements UnsecuredApiController {
                     )
             }
     )
-    public RedirectView onboardTelemetryPlatform(@Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+    public RedirectView onboardTelemetryPlatform(@Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                  @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                  @Parameter(description = "The redirect URL for this onboard request.") @RequestParam(name = "redirectUrl", required = false) String redirectUrl) {
-        final var application = applicationService.find(applicationId);
+        final var application = applicationService.find(internalApplicationId);
         final var url = securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId, redirectUrl);
         return new RedirectView(url);
     }

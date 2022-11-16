@@ -232,12 +232,12 @@ public class ApplicationController implements SecuredApiController {
      * Define the supported technical message types.
      *
      * @param principal                               The principal to fetch the application.
-     * @param applicationId                           The ID of the application.
+     * @param internalApplicationId                   The internal ID of the application.
      * @param addSupportedTechnicalMessageTypeRequest The application to register.
      * @return HTTP 201 after definition.
      */
     @PutMapping(
-            value = "/supported-technical-message-types/{applicationId}",
+            value = "/supported-technical-message-types/{internalApplicationId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -281,7 +281,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
-                                                                     @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                                      @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
                                                                      @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -294,7 +294,7 @@ public class ApplicationController implements SecuredApiController {
             supportedTechnicalMessageType.setDirection(dto.getDirection());
             supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
         });
-        applicationService.defineSupportedTechnicalMessageTypes(principal, applicationId, supportedTechnicalMessageTypes);
+        applicationService.defineSupportedTechnicalMessageTypes(principal, internalApplicationId, supportedTechnicalMessageTypes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -302,12 +302,12 @@ public class ApplicationController implements SecuredApiController {
      * Add a router device to the application.
      *
      * @param principal              The principal to fetch the application.
-     * @param applicationId          The ID of the application.
+     * @param internalApplicationId  The internal ID of the application.
      * @param addRouterDeviceRequest The request to register the router device.
      * @return HTTP 201 after definition.
      */
     @PutMapping(
-            value = "/router-device/{applicationId}",
+            value = "/router-device/{internalApplicationId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -351,14 +351,14 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> addRouterDevice(Principal principal,
-                                                @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId,
+                                                @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                 @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
                                                 @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
         final var addRouterDeviceParameters = new AddRouterDeviceParameters();
-        addRouterDeviceParameters.setInternalApplicationId(applicationId);
+        addRouterDeviceParameters.setInternalApplicationId(internalApplicationId);
         addRouterDeviceParameters.setTenantId(principal.getName());
         addRouterDeviceParameters.setDeviceAlternateId(addRouterDeviceRequest.getRouterDevice().getDeviceAlternateId());
         addRouterDeviceParameters.setCertificate(addRouterDeviceRequest.getRouterDevice().getAuthentication().getCertificate());
@@ -374,12 +374,12 @@ public class ApplicationController implements SecuredApiController {
     /**
      * Find an application by its ID.
      *
-     * @param principal     The principal to fetch the application.
-     * @param applicationId The ID of the application.
+     * @param principal             The principal to fetch the application.
+     * @param internalApplicationId The internal ID of the application.
      * @return HTTP 200 with the data of the application or an HTTP 400 with an error message.
      */
     @GetMapping(
-            value = "/{applicationId}",
+            value = "/{internalApplicationId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -419,8 +419,8 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindApplicationResponse> find(Principal principal,
-                                                        @Parameter(description = "The ID of the application", required = true) @PathVariable String applicationId) {
-        final var application = applicationService.find(applicationId, principal);
+                                                        @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
+        final var application = applicationService.find(internalApplicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
         return ResponseEntity.ok(new FindApplicationResponse(applicationDto));
@@ -429,12 +429,12 @@ public class ApplicationController implements SecuredApiController {
     /**
      * Determine the status for all endpoints within the application.
      *
-     * @param principal     The principal to fetch the application.
-     * @param applicationId The ID of the application.
+     * @param principal             The principal to fetch the application.
+     * @param internalApplicationId The internal ID of the application.
      * @return HTTP 200 with the data of the application or an HTTP 400 with an error message.
      */
     @GetMapping(
-            value = "/status/{applicationId}",
+            value = "/status/{internalApplicationId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -474,8 +474,8 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<ApplicationStatusResponse> status(Principal principal,
-                                                            @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
-        final var application = applicationService.find(applicationId, principal);
+                                                            @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+        final var application = applicationService.find(internalApplicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
         applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
@@ -545,11 +545,11 @@ public class ApplicationController implements SecuredApiController {
     /**
      * Find all endpoints of an application by the IDs of the application.
      *
-     * @param applicationId The ID of the application.
+     * @param internalApplicationId The internal ID of the application.
      * @return HTTP 200 with the data of the application or an HTTP 400 with an error message.
      */
     @GetMapping(
-            value = "/{applicationId}/endpoints",
+            value = "/{internalApplicationId}/endpoints",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -589,8 +589,8 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
-                                                                                           @Parameter(description = "The ID of the application.", required = true) @PathVariable String applicationId) {
-        final var application = applicationService.find(applicationId, principal);
+                                                                                           @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+        final var application = applicationService.find(internalApplicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
         application.getEndpoints().forEach(endpoint -> {
             final var dto = new EndpointWithChildrenDto();
