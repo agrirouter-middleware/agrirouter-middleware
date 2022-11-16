@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 /**
  * DTO.
  */
@@ -41,5 +43,11 @@ public class ApplicationDto {
      */
     @Schema(description = "The version of the application. Each agrirouter© version creates a new application in the middleware.")
     private String versionId;
+
+    /**
+     * The supported technical message types for this version of the application.
+     */
+    @Schema(description = "The supported technical message types for this version of the application.")
+    private Set<SupportedTechnicalMessageTypeDto> supportedTechnicalMessageTypes;
 
 }
