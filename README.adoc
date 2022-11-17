@@ -42,11 +42,6 @@ image::partners/agrirouter.svg[lmis,175,role="left]
 Without the https://my-agrirouter.com[agrirouter] there would not have been such a project.
 The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
 
-== Functional Documentation
-
-The agrirouter© middleware is documented using the OpenAPI standard, you can find the documentation within the project.
-Do you need more than a OpenAPI documentation, than you are at the right place.
-
 == Want To Try It?
 
 The https://lmis.de[LMIS AG] is providing free hosting of the agrirouter© for development purpose.
@@ -55,6 +50,14 @@ The hosting on the QA environment is free and won't be charged.
 If you need a hosting offer for production, please send out a request as well - there are reasonable packages for everyone.
 
 In addition, the project has an easy-to-use Docker compose script, a rapid solution for local development.
+
+== Public Postman Workspace
+
+There is a public Postman workspace available, which can be used to test the agrirouter© middleware. The workspace can be found here:
+
+https://www.postman.com/gold-trinity-758038/workspace/agrirouter-middleware
+
+If there are any questions or issues regarding the workspace, please feel free to create an issue in the GitHub repository. Thanks for your support!
 
 == How Does It Work?
 
