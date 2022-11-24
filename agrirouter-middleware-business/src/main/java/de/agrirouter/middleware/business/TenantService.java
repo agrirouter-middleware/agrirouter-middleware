@@ -54,8 +54,8 @@ public class TenantService implements UserDetailsService {
             log.info("#######################################################################################################################################################");
             log.info("#");
             log.info("# Generated default tenant!");
-            log.info("# Tenant ID: {}", tenant.getTenantId());
             log.info("# Name: {}", tenant.getName());
+            log.info("# Tenant ID: {}", tenant.getTenantId());
             log.info("# Access token: {}", accessToken);
             log.info("#");
             log.info("# NOTE");
@@ -68,8 +68,8 @@ public class TenantService implements UserDetailsService {
             log.info("#");
             log.info("# Generated default tenant!");
             //noinspection OptionalGetWithoutIsPresent
-            log.info("# Tenant ID: {}", generatedTenant.get().getTenantId());
             log.info("# Name: {}", generatedTenant.get().getName());
+            log.info("# Tenant ID: {}", generatedTenant.get().getTenantId());
             log.info("#");
             log.info("# NOTE");
             log.info("# The password for the default tenant is stored as hash, therefore it will be printed only during setup.");
@@ -106,8 +106,8 @@ public class TenantService implements UserDetailsService {
                 log.info("#######################################################################################################################################################");
                 log.info("#");
                 log.info("# A new tenant was registered!");
-                log.info("# Tenant ID: {}", tenant.getTenantId());
                 log.info("# Name: {}", tenant.getName());
+                log.info("# Tenant ID: {}", tenant.getTenantId());
                 log.info("#");
                 log.info("# NOTE");
                 log.info("# The password for the tenant is stored as hash, therefore it will be printed only during setup.");
@@ -140,5 +140,33 @@ public class TenantService implements UserDetailsService {
      */
     public List<Tenant> findAll() {
         return tenantRepository.findAll();
+    }
+
+    /**
+     * Reset the Password for a tenant.
+     *
+     * @param tenantId Tenant ID
+     * @return The new access token.
+     */
+    public String resetPassword(String tenantId) {
+        final var optionalTenant = tenantRepository.findTenantByTenantId(tenantId);
+        if (optionalTenant.isEmpty()) {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(tenantId));
+        } else {
+            final var tenant = optionalTenant.get();
+            final var accessToken = generateAccessToken(DEFAULT_ACCESS_TOKEN_LENGTH);
+            tenant.setAccessToken(passwordEncoder.encode(accessToken));
+            tenantRepository.save(tenant);
+            log.info("#######################################################################################################################################################");
+            log.info("#");
+            log.info("# The password for the tenant '{}' was reset!", tenant.getName());
+            log.info("# Tenant ID: {}", tenant.getTenantId());
+            log.info("#");
+            log.info("# NOTE");
+            log.info("# The password for the tenant is stored as hash, therefore it will be printed only during setup.");
+            log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
+            log.info("#######################################################################################################################################################");
+            return accessToken;
+        }
     }
 }

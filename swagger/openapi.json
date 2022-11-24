@@ -48,6 +48,58 @@
     }
   ],
   "paths": {
+    "/unsecured/api/maintenance/tenant/reset-password/{tenantId}": {
+      "put": {
+        "tags": [
+          "maintenance"
+        ],
+        "description": "Reset the password for an existing tenant within the middleware.",
+        "operationId": "maintenance.tenant.reset-password",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "description": "The tenant ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "In case the password for the tenant was reset.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of a parameter validation exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParameterValidationProblemResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/unsecured/api/maintenance/endpoint/resend/capabilities-and-subscriptions/{externalEndpointId}": {
       "put": {
         "tags": [
@@ -2604,6 +2656,25 @@
   },
   "components": {
     "schemas": {
+      "TenantRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "The timestamp (UTC) of the response.",
+            "format": "date-time"
+          },
+          "tenantId": {
+            "type": "string",
+            "description": "Internal ID of the tenant."
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Access token for API usage. Will be shown only once, therefore better save this one."
+          }
+        },
+        "description": "The response after the tenant was registered."
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -2878,25 +2949,6 @@
           }
         },
         "description": "A router device from the AR."
-      },
-      "TenantRegistrationResponse": {
-        "type": "object",
-        "properties": {
-          "timestamp": {
-            "type": "string",
-            "description": "The timestamp (UTC) of the response.",
-            "format": "date-time"
-          },
-          "tenantId": {
-            "type": "string",
-            "description": "Internal ID of the tenant."
-          },
-          "accessToken": {
-            "type": "string",
-            "description": "Access token for API usage. Will be shown only once, therefore better save this one."
-          }
-        },
-        "description": "The response after the tenant was registered."
       },
       "TenantRegistrationRequest": {
         "required": [
