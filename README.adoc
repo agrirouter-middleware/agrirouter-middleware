@@ -543,3 +543,15 @@ Please handle with care and only use them if you know what you are doing.
 Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
 
 image::documentation/release_3_1/new_maintenance_endpoints.png[new maintenance endpoints,role="left]
+
+==== 3.1 to 3.2
+
+No need for special documentation, no breaking or important changes. Just bugfixing.
+
+==== 3.1 to 4.0
+
+With this release there are breaking changes, so please note the following migration guide.
+
+===== former `applicationId` is now `internalApplicationId`
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/167[PR 167] the naming was updated. The name `applicationId` has was misleading and therefore it has been changed.
