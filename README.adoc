@@ -53,11 +53,13 @@ In addition, the project has an easy-to-use Docker compose script, a rapid solut
 
 == Public Postman Workspace
 
-There is a public Postman workspace available, which can be used to test the agrirouter© middleware. The workspace can be found here:
+There is a public Postman workspace available, which can be used to test the agrirouter© middleware.
+The workspace can be found here:
 
 https://www.postman.com/gold-trinity-758038/workspace/agrirouter-middleware
 
-If there are any questions or issues regarding the workspace, please feel free to create an issue in the GitHub repository. Thanks for your support!
+If there are any questions or issues regarding the workspace, please feel free to create an issue in the GitHub repository.
+Thanks for your support!
 
 == How Does It Work?
 
@@ -543,3 +545,53 @@ Please handle with care and only use them if you know what you are doing.
 Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
 
 image::documentation/release_3_1/new_maintenance_endpoints.png[new maintenance endpoints,role="left]
+
+==== 3.1 to 3.2
+
+No need for special documentation, no breaking or important changes.
+Just bugfixes.
+
+==== 3.2 to 4.0
+
+With this release there are breaking changes, so please note the following migration guide.
+
+===== Former `applicationId` is now `internalApplicationId`
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/167[PR 167] the naming was updated.
+The name `applicationId` has was misleading, and therefore it has been changed.
+The new name is `internalApplicationId`.
+
+image::documentation/release_4_0/former_internal_application_id.png[new usage of the internal application id,role="left]
+
+===== Former `privateKey` and `publicKey` are now `base64EncodedPrivateKey` and `base64EncodedPublicKey`
+
+Since the parameter names did not reflect the actual content, they have been changed.
+The new names are `base64EncodedPrivateKey` and `base64EncodedPublicKey` for application registration.
+The format is still the same, just the name has been changed.
+
+image::documentation/release_4_0/changed_names_for_private_and_public_key.png[new parameter names for application registration,role="left]
+
+===== Technical message types are now shown in the application details
+
+This is no breaking change, but a new feature. The technical message types are now shown in the application details. This is useful for debugging and monitoring. You can find them either in the response of the application details or in the internal status page.
+
+image::documentation/release_4_0/tmts_in_the_request.png[technical message types,role="left]
+
+image::documentation/release_4_0/tmts_in_internal_status_page.png[technical message types,role="left]
+
+===== Additional features in the internal status page
+
+There are several new features in the internal status page. You can clear error several status messages / error messages and see the pending delivery tokens for the endpoints.
+
+image::documentation/release_4_0/clear_error_messages.png[clear error messages,role="left]
+
+===== Public Postman collection
+
+With the new release there comes a handy Postman collection for the agrirouter© middleware. You find the link right in the documentation.
+
+===== New endpoints for the maintenance mode
+
+The maintenance mode has a new endpoint to reset the password for a tenant. Please handle with care and only use them if you know what you are doing. Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
+
+image::documentation/release_4_0/reset_password_for_tenant.png[new maintenance endpoint,role="left]
+
