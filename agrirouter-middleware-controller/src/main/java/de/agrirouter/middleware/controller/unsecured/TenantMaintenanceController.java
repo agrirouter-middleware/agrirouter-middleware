@@ -3,10 +3,7 @@ package de.agrirouter.middleware.controller.unsecured;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.TenantService;
 import de.agrirouter.middleware.controller.dto.request.TenantRegistrationRequest;
-import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
-import de.agrirouter.middleware.controller.dto.response.FindTenantResponse;
-import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
-import de.agrirouter.middleware.controller.dto.response.TenantRegistrationResponse;
+import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.TenantDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -170,6 +167,68 @@ public class TenantMaintenanceController implements UnsecuredApiController {
     public ResponseEntity<FindTenantResponse> findAll() {
         final var tenants = tenantService.findAll().stream().map(tenant -> modelMapper.map(tenant, TenantDto.class)).collect(Collectors.toList());
         return ResponseEntity.ok(new FindTenantResponse(tenants));
+    }
+
+    /**
+     * Reset the password for a tenant.
+     *
+     * @param tenantId The ID of the tenant.
+     * @return HTTP 200 after password reset, HTTP 400 with an error code in case of an exception.
+     */
+    @PutMapping(
+            value = "/reset-password/{tenantId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "maintenance.tenant.reset-password",
+            description = "Reset the password for an existing tenant within the middleware.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "In case the password for the tenant was reset.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            implementation = TenantRegistrationResponse.class
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<TenantPasswordResetResponse> resetPassword(@Parameter(description = "The tenant ID.", required = true) @PathVariable String tenantId) {
+        final var newAccessToken = tenantService.resetPassword(tenantId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TenantPasswordResetResponse(tenantId, newAccessToken));
     }
 
 }
