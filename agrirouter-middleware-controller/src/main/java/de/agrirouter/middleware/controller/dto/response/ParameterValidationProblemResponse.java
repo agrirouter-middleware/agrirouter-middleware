@@ -1,10 +1,10 @@
 package de.agrirouter.middleware.controller.dto.response;
 
+import de.agrirouter.middleware.api.errorhandling.error.ParameterValidationError;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
-import org.springframework.validation.ObjectError;
 
 import java.util.List;
 
@@ -18,6 +18,6 @@ import java.util.List;
 public class ParameterValidationProblemResponse extends Response {
 
     @Schema(description = "The validation errors.")
-    List<ObjectError> errors;
+    List<ParameterValidationError> errors;
 
 }
