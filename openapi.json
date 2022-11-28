@@ -2694,25 +2694,10 @@
         },
         "description": "Generic error response to map the internal errors and provide clean API description."
       },
-      "ObjectError": {
+      "ParameterValidationError": {
         "type": "object",
         "properties": {
-          "codes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "arguments": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          },
-          "defaultMessage": {
-            "type": "string"
-          },
-          "objectName": {
+          "field": {
             "type": "string"
           },
           "code": {
@@ -2733,7 +2718,7 @@
             "type": "array",
             "description": "The validation errors.",
             "items": {
-              "$ref": "#/components/schemas/ObjectError"
+              "$ref": "#/components/schemas/ParameterValidationError"
             }
           }
         },
