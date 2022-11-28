@@ -101,6 +101,7 @@ public class ApplicationService {
      * @param application The application to update.
      */
     public void update(Application application) {
+        checkCertificatesForApplication(application);
         applicationRepository.save(application);
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application updated.");
     }
