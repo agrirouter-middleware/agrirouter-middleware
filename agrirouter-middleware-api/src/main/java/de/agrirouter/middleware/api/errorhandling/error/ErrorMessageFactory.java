@@ -76,10 +76,6 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_DEVICE_DESCRIPTION, "Could not parse the given device description. Please check the format.");
     }
 
-    public static ErrorMessage couldNotFindDevice() {
-        return new ErrorMessage(ErrorKey.COULD_NOT_FIND_DEVICE, "Could not find the given device.");
-    }
-
     public static ErrorMessage couldNotParseTimeLog() {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_TIME_LOG, "Could not parse the given time log. Please check the format.");
     }
@@ -118,5 +114,13 @@ public final class ErrorMessageFactory {
 
     public static ErrorMessage teamSetContextIdAlreadyInUse(String teamSetContextId) {
         return new ErrorMessage(ErrorKey.TEAM_SET_CONTEXT_ID_ALREADY_IN_USE, String.format("The team set context ID '%s' is already in use.", teamSetContextId));
+    }
+
+    public static ErrorMessage couldNotCreatePrivateKeyForApplication(String applicationId, String versionId) {
+        return new ErrorMessage(ErrorKey.COULD_NOT_CREATE_PRIVATE_KEY_FOR_APPLICATION, String.format("Could not create private key for application with id '%s' and version '%s'.", applicationId, versionId));
+    }
+
+    public static ErrorMessage couldNotCreatePublicKeyForApplication(String applicationId, String versionId) {
+        return new ErrorMessage(ErrorKey.COULD_NOT_CREATE_PUBLIC_KEY_FOR_APPLICATION, String.format("Could not create public key for application with id '%s' and version '%s'.", applicationId, versionId));
     }
 }

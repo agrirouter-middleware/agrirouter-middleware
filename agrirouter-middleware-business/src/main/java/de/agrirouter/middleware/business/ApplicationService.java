@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business;
 
+import com.dke.data.agrirouter.impl.common.signing.SecurityKeyCreationService;
 import de.agrirouter.middleware.api.IdFactory;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
@@ -11,7 +12,8 @@ import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.domain.*;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.TenantRepository;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,9 +27,10 @@ import java.util.Set;
 /**
  * Encapsulate all asynchronous business actions for applications.
  */
-@Slf4j
 @Service
 public class ApplicationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
 
     private final ApplicationRepository applicationRepository;
     private final TenantRepository tenantRepository;
@@ -63,10 +66,32 @@ public class ApplicationService {
         if (optionalTenant.isPresent()) {
             application.setTenant(optionalTenant.get());
             application.setInternalApplicationId(IdFactory.applicationId());
+            checkCertificatesForApplication(application);
             applicationRepository.save(application);
             businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application created.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(principal.getName()));
+        }
+    }
+
+    /**
+     * Check if it is possible to create a private and a public key for the application.
+     *
+     * @param application The application to check.
+     */
+    private void checkCertificatesForApplication(Application application) {
+        var securityKeyCreationService = new SecurityKeyCreationService();
+        try {
+            LOGGER.info("Creating private key for application {}.", application.getApplicationId());
+            securityKeyCreationService.createPrivateKey(application.getPrivateKey());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorMessageFactory.couldNotCreatePrivateKeyForApplication(application.getApplicationId(), application.getVersionId()));
+        }
+        try {
+            LOGGER.info("Creating public key for application {}.", application.getApplicationId());
+            securityKeyCreationService.createPublicKey(application.getPublicKey());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorMessageFactory.couldNotCreatePublicKeyForApplication(application.getApplicationId(), application.getVersionId()));
         }
     }
 
@@ -76,6 +101,7 @@ public class ApplicationService {
      * @param application The application to update.
      */
     public void update(Application application) {
+        checkCertificatesForApplication(application);
         applicationRepository.save(application);
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application updated.");
     }
@@ -182,7 +208,7 @@ public class ApplicationService {
             connectionCriteria.setPort(addRouterDeviceParameters.getPort());
             routerDevice.setConnectionCriteria(connectionCriteria);
             if (null == application.getApplicationSettings()) {
-                log.debug("The current application did not have application settings, therefore creating new ones.");
+                LOGGER.debug("The current application did not have application settings, therefore creating new ones.");
                 application.setApplicationSettings(new ApplicationSettings());
             }
             application.getApplicationSettings().setRouterDevice(routerDevice);
