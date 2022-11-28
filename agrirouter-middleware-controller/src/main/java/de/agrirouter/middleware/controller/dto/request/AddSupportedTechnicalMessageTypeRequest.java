@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -32,12 +33,14 @@ public class AddSupportedTechnicalMessageTypeRequest {
         /**
          * The technical message type, that the application does support, i.e. TaskData, EFDI, etc.
          */
+        @NotNull
         @Schema(description = "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.")
         private ContentMessageType technicalMessageType;
 
         /**
          * The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.
          */
+        @NotNull
         @Schema(description = "The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.")
         private Capabilities.CapabilitySpecification.Direction direction;
 
@@ -53,6 +56,6 @@ public class AddSupportedTechnicalMessageTypeRequest {
     @NotNull
     @NotEmpty
     @Schema(description = "The list of supported technical message types.")
-    private List<SupportedTechnicalMessageTypeDto> supportedTechnicalMessageTypes;
+    private List<@Valid SupportedTechnicalMessageTypeDto> supportedTechnicalMessageTypes;
 
 }

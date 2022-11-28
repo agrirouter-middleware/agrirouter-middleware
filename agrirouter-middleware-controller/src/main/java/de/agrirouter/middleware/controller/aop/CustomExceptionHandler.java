@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.aop;
 
+import com.dke.data.agrirouter.api.exception.IllegalParameterDefinitionException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
@@ -34,13 +35,19 @@ public class CustomExceptionHandler {
     @ExceptionHandler(ParameterValidationException.class)
     public ResponseEntity<ParameterValidationProblemResponse> handle(ParameterValidationException parameterValidationException) {
         LOGGER.error("A parameter validation exception occurred.", parameterValidationException);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ParameterValidationProblemResponse(parameterValidationException.getErrors().getAllErrors()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ParameterValidationProblemResponse(parameterValidationException.getErrors()));
     }
 
     @ExceptionHandler({RuntimeException.class, Exception.class})
     public ResponseEntity<ErrorResponse> handle(RuntimeException runtimeException) {
         LOGGER.error("A unknown exception occurred.", runtimeException);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "This was an unknown error, please file an issue and see the logs for more details."));
+    }
+
+    @ExceptionHandler({IllegalParameterDefinitionException.class})
+    public ResponseEntity<ErrorResponse> handle(IllegalParameterDefinitionException illegalParameterDefinitionException) {
+        LOGGER.error("A illegal parameter definition exception occurred.", illegalParameterDefinitionException);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ErrorKey.ILLEGAL_PARAMETER_DEFINITION.getKey(), "The parameter you provided was not valid."));
     }
 
 
