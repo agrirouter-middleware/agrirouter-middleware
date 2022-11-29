@@ -9,9 +9,10 @@ import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParam
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.internal.Base64;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import java.util.Base64;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
 
@@ -87,6 +88,6 @@ public class PublishNonTelemetryDataService {
     }
 
     private ByteString asByteString(String base64EncodedMessageContent) {
-        return ByteString.copyFrom(Base64.decode(base64EncodedMessageContent));
+        return ByteString.copyFrom(Base64.getDecoder().decode(base64EncodedMessageContent));
     }
 }
