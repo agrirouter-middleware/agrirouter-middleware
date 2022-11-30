@@ -161,18 +161,6 @@
                 <version>1.1.1</version>
             </dependency>
 
-            <!-- QUERY DSL -->
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-apt</artifactId>
-                <version>5.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jpa</artifactId>
-                <version>5.0.0</version>
-            </dependency>
-
             <!-- PROTOBUF -->
             <dependency>
                 <groupId>com.google.protobuf</groupId>
@@ -235,6 +223,20 @@
                 <groupId>one.microstream</groupId>
                 <artifactId>microstream-storage-embedded</artifactId>
                 <version>07.01.00-MS-GA</version>
+            </dependency>
+
+            <!-- QUERY DSL -->
+            <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <classifier>jakarta</classifier>
+                <version>5.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-jpa</artifactId>
+                <classifier>jakarta</classifier>
+                <version>5.0.0</version>
             </dependency>
 
         </dependencies>
