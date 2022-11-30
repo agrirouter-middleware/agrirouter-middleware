@@ -51,10 +51,6 @@
             <name>GitHub Sascha Doemer Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/saschadoemer/*</url>
         </repository>
-        <repository>
-            <id>microstream-releases</id>
-            <url>https://repo.microstream.one/repository/maven-public/</url>
-        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -237,13 +233,8 @@
             <!-- MICROSTREAM -->
             <dependency>
                 <groupId>one.microstream</groupId>
-                <artifactId>storage.embedded</artifactId>
-                <version>04.01.00-MS-GA</version>
-            </dependency>
-            <dependency>
-                <groupId>one.microstream</groupId>
-                <artifactId>storage.embedded.configuration</artifactId>
-                <version>04.01.00-MS-GA</version>
+                <artifactId>microstream-storage-embedded</artifactId>
+                <version>07.01.00-MS-GA</version>
             </dependency>
 
         </dependencies>

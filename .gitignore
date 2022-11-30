@@ -37,3 +37,9 @@ ci/local-settings.xml
 
 # ENV FOR DOCKER-COMPOSE SECRETS #
 .env
+
+# MICROSTREAM | LOCAL
+message-cache
+*.dat
+*.ptd
+*.sft
