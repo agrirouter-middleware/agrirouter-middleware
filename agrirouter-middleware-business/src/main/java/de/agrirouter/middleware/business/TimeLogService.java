@@ -26,7 +26,6 @@ import de.agrirouter.middleware.persistence.TimeLogRepository;
 import efdi.GrpcEfdi;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.bson.internal.Base64;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -83,7 +82,7 @@ public class TimeLogService {
 
     private ByteString asByteString(String base64EncodedTimeLog) {
         try {
-            return GrpcEfdi.TimeLog.parseFrom(Base64.decode(base64EncodedTimeLog)).toByteString();
+            return GrpcEfdi.TimeLog.parseFrom(Base64.getDecoder().decode(base64EncodedTimeLog)).toByteString();
         } catch (InvalidProtocolBufferException e) {
             throw new BusinessException(ErrorMessageFactory.couldNotParseTimeLog());
         }
@@ -101,7 +100,7 @@ public class TimeLogService {
             final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
             if (optionalEndpoint.isPresent()) {
                 final var endpoint = optionalEndpoint.get();
-                TimeLog timeLog = new TimeLog();
+                final var timeLog = new TimeLog();
                 timeLog.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
                 timeLog.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
                 timeLog.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
