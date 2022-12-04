@@ -31,9 +31,9 @@ public class VirtualEndpointOnboardStateContainer {
     }
 
     /**
-         * The state for the onboard process.
-         */
-        public record OnboardState(String externalEndpointId) {
+     * The state for the onboard process.
+     */
+    public record OnboardState(String externalEndpointId) {
 
     }
 

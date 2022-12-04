@@ -22,6 +22,7 @@ public class VirtualOffboardProcessService {
 
     private final EndpointRepository endpointRepository;
     private final VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService;
+
     public VirtualOffboardProcessService(EndpointRepository endpointRepository,
                                          VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService) {
         this.endpointRepository = endpointRepository;
@@ -38,7 +39,7 @@ public class VirtualOffboardProcessService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOffboardProcessParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var parentEndpoint = optionalEndpoint.get();
-            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint,getEndpointIds(virtualOffboardProcessParameters));
+            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint, getEndpointIds(virtualOffboardProcessParameters));
             virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
         } else {
             log.warn("Endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());

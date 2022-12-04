@@ -45,10 +45,10 @@ public class VirtualOnboardProcessService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(virtualOnboardProcessParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var parentEndpoint = optionalEndpoint.get();
-            final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(parentEndpoint,virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+            final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(parentEndpoint, virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
             virtualOnboardProcessIntegrationService.onboard(onboardVirtualEndpointParameters);
             cloudOnboardingFailureCache.clear(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
-            businessOperationLogService.log(new EndpointLogInformation(parentEndpoint.getExternalEndpointId(), parentEndpoint.getAgrirouterEndpointId()),"Virtual endpoint has been created.");
+            businessOperationLogService.log(new EndpointLogInformation(parentEndpoint.getExternalEndpointId(), parentEndpoint.getAgrirouterEndpointId()), "Virtual endpoint has been created.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }

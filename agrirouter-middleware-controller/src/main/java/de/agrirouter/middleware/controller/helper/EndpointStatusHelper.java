@@ -155,7 +155,7 @@ public class EndpointStatusHelper {
         Optional<Application> optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             Application application = optionalApplication.get();
-            dto.setTechnicalConnectionState(mqttClientManagementService.getTechnicalState(application,endpoint.asOnboardingResponse()));
+            dto.setTechnicalConnectionState(mqttClientManagementService.getTechnicalState(application, endpoint.asOnboardingResponse()));
             dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
         }
         return dto;
