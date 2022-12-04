@@ -2,8 +2,7 @@ FROM maven:3.8-openjdk-17 as build
 WORKDIR /usr/src
 COPY . .
 
-RUN --mount=type=secret,id=GITHUB_TOKEN export GITHUB_TOKEN=$(cat /app/secret_github_token) && \
-    mvn --batch-mode --update-snapshots --settings ci/github-settings.xml verify
+RUN mvn --batch-mode --update-snapshots --settings ci/github-settings.xml verify
 
 FROM openjdk:17
 WORKDIR /srv
