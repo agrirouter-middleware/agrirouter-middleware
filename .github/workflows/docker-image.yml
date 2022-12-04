@@ -24,4 +24,5 @@ jobs:
         push: false
         secrets:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: docker build . --file .github/dockerfile --tag agrirouter-middleware:$(date +%s)
+        file: .github/dockerfile
+        tags: agrirouter-middleware:$(date +%s)
