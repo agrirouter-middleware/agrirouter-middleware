@@ -25,4 +25,4 @@ jobs:
         secrets: |
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         file: .github/dockerfile
-        tags: agrirouter-middleware:$(date +%s)
+        tags: agrirouter-middleware:latest
