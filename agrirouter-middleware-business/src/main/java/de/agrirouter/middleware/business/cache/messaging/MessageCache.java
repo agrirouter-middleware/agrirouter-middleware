@@ -2,11 +2,10 @@ package de.agrirouter.middleware.business.cache.messaging;
 
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
+import lombok.extern.slf4j.Slf4j;
 import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
@@ -18,11 +17,10 @@ import java.util.Collection;
 /**
  * Cache for messages.
  */
+@Slf4j
 @Component
 @Scope(value = "singleton")
 public class MessageCache {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MessageCache.class);
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmbeddedStorageManager storageManager;
@@ -30,13 +28,16 @@ public class MessageCache {
     @Value("${app.cache.message-cache.time-to-live-in-seconds}")
     private long timeToLiveInSeconds;
 
+    @Value("${app.cache.message-cache.batch-size}")
+    private int batchSize;
+
     protected MessageCache(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.storageManager = embeddedStorageManager();
-        LOG.trace("###################################################################################################");
-        LOG.trace("Currently cached messages: {}", getCacheRoot().getMessageCache().size());
+        log.trace("###################################################################################################");
+        log.trace("Currently cached messages: {}", getCacheRoot().getMessageCache().size());
         getCacheRoot().getMessageCache().forEach(this::trace);
-        LOG.trace("###################################################################################################");
+        log.trace("###################################################################################################");
     }
 
     /**
@@ -45,25 +46,32 @@ public class MessageCache {
      * @param messageCacheEntry A message cache entry.
      */
     private void trace(MessageCacheEntry messageCacheEntry) {
-        LOG.trace("{} : {} | {}", messageCacheEntry.getCreatedAt(), messageCacheEntry.getExternalEndpointId(), messageCacheEntry.getPublishNonTelemetryDataParameters().getContentMessageType());
+        log.trace("{} : {} | {}", messageCacheEntry.getCreatedAt(), messageCacheEntry.getExternalEndpointId(), messageCacheEntry.getPublishNonTelemetryDataParameters().getContentMessageType());
     }
 
     /**
      * Send messages within the cache.
      */
     public void sendMessages() {
-        Collection<MessageCacheEntry> currentMessageCacheEntries = getCurrentMessageCacheEntries();
-        LOG.debug("Re-sending {} messages from cache.", currentMessageCacheEntries.size());
-        clear();
-        LOG.debug("Cleared cache.");
+        Collection<MessageCacheEntry> currentMessageCacheEntries = getOldestCacheEntries();
+        log.debug("Re-sending {} messages from cache.", currentMessageCacheEntries.size());
+        log.debug("Cleared cache.");
         for (MessageCacheEntry messageCacheEntry : currentMessageCacheEntries) {
-            if (messageCacheEntry.isExpired()) {
-                LOG.debug("Message cache entry expired. Skipping.");
+            if (getCacheRoot().getMessageCache().remove(messageCacheEntry)) {
+                if (messageCacheEntry.isExpired()) {
+                    log.debug("Message cache entry expired. Skipped sending, just removing this one from the cache.");
+                } else {
+                    log.debug("Sending message from cache.");
+                    applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getPublishNonTelemetryDataParameters()));
+                }
             } else {
-                LOG.debug("Sending message from cache.");
-                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getPublishNonTelemetryDataParameters()));
+                log.debug("Message cache entry has not been removed from the cache, therefore not sending this one.");
             }
         }
+    }
+
+    private Collection<MessageCacheEntry> getOldestCacheEntries() {
+        return getCacheRoot().getMessageCache().stream().sorted((o1, o2) -> Long.compare(o2.getCreatedAt(), o1.getCreatedAt())).limit(batchSize).toList();
     }
 
     /**
@@ -84,24 +92,15 @@ public class MessageCache {
      * @param publishNonTelemetryDataParameters Parameters for message sending.
      */
     public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
-        LOG.info("Saving message to cache.");
-        LOG.trace("External endpoint ID: {}", externalEndpointId);
-        LOG.trace("Base64 encoded message content: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
+        log.info("Saving message to cache.");
+        log.trace("External endpoint ID: {}", externalEndpointId);
+        log.trace("Base64 encoded message content: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
         getCacheRoot().put(externalEndpointId, publishNonTelemetryDataParameters, timeToLiveInSeconds);
         storageManager.storeRoot();
     }
 
     private CacheRoot getCacheRoot() {
         return (CacheRoot) storageManager.root();
-    }
-
-    /**
-     * Clear the cache.
-     */
-    public void clear() {
-        LOG.info("Clearing message cache.");
-        getCacheRoot().getMessageCache().clear();
-        storageManager.storeRoot();
     }
 
     /**
