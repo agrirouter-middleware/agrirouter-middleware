@@ -7,6 +7,7 @@ import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache
 import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingForAcknowledgementDto;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,9 @@ import java.util.Date;
 /**
  * The custom home controller.
  */
+@Slf4j
 @Controller
 public class EndpointDashboardUIController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointDashboardUIController.class);
 
     private final EndpointService endpointService;
     private final MqttClientManagementService mqttClientManagementService;
@@ -108,7 +108,7 @@ public class EndpointDashboardUIController {
      */
     @PostMapping("/endpoint-dashboard/clear-errors")
     public String clearErrors(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
-        LOGGER.debug("Clearing errors for endpoint with external endpoint ID {}.", externalEndpointId);
+        log.debug("Clearing errors for endpoint with external endpoint ID {}.", externalEndpointId);
         endpointService.resetErrors(externalEndpointId);
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
@@ -120,7 +120,7 @@ public class EndpointDashboardUIController {
      */
     @PostMapping("/endpoint-dashboard/clear-warnings")
     public String clearWarnings(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
-        LOGGER.debug("Clearing warnings for endpoint with external endpoint ID {}.", externalEndpointId);
+        log.debug("Clearing warnings for endpoint with external endpoint ID {}.", externalEndpointId);
         endpointService.resetWarnings(externalEndpointId);
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
@@ -132,7 +132,7 @@ public class EndpointDashboardUIController {
      */
     @PostMapping("/endpoint-dashboard/clear-messages-waiting-for-ack")
     public String clearMessagesWaitingForAck(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
-        LOGGER.debug("Clearing messages waiting for ACK for endpoint with external endpoint ID {}.", externalEndpointId);
+        log.debug("Clearing messages waiting for ACK for endpoint with external endpoint ID {}.", externalEndpointId);
         endpointService.resetMessagesWaitingForAcknowledgement(externalEndpointId);
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
@@ -144,7 +144,7 @@ public class EndpointDashboardUIController {
      */
     @PostMapping("/endpoint-dashboard/clear-connection-errors")
     public String clearConnectionErrors(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
-        LOGGER.debug("Clearing connection errors for the endpoint with external endpoint ID {}.", externalEndpointId);
+        log.debug("Clearing connection errors for the endpoint with external endpoint ID {}.", externalEndpointId);
         endpointService.resetConnectionErrors(externalEndpointId);
         return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
