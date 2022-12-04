@@ -22,7 +22,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: false
-        secrets:
+        secrets: |
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         file: .github/dockerfile
         tags: agrirouter-middleware:$(date +%s)
