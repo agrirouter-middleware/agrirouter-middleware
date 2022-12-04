@@ -2,8 +2,7 @@ package de.agrirouter.middleware.business.listener;
 
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.events.CloudOffboardingEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service to handle the message acknowledgement events in case of a cloud offboarding.
  */
+@Slf4j
 @Service
 public class CloudOffboardingEventListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudOffboardingEventListener.class);
 
     private final EndpointService endpointService;
 
@@ -30,7 +28,7 @@ public class CloudOffboardingEventListener {
     @EventListener
     @Transactional
     public void offboardCloudEndpoint(CloudOffboardingEvent cloudOffboardingEvent) {
-        LOGGER.debug("Incoming event for cloud offboarding.");
+        log.debug("Incoming event for cloud offboarding.");
         cloudOffboardingEvent.getVirtualEndpointIds().forEach(endpointService::deactivateEndpointByAgrirouterId);
         cloudOffboardingEvent.getVirtualEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
     }

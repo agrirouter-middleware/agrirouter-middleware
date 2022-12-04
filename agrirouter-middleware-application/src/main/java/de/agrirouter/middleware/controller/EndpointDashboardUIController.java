@@ -9,8 +9,6 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

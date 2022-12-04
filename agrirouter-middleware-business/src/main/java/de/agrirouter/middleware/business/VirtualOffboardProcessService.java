@@ -7,8 +7,7 @@ import de.agrirouter.middleware.domain.enums.EndpointType;
 import de.agrirouter.middleware.integration.VirtualOffboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.EndpointRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,10 +16,9 @@ import java.util.List;
 /**
  * The service for the onboard process.
  */
+@Slf4j
 @Service
 public class VirtualOffboardProcessService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualOffboardProcessService.class);
 
     private final EndpointRepository endpointRepository;
     private final VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService;
@@ -43,7 +41,7 @@ public class VirtualOffboardProcessService {
             final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint,getEndpointIds(virtualOffboardProcessParameters));
             virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
         } else {
-            LOGGER.warn("Endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());
+            log.warn("Endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());
         }
     }
 

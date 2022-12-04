@@ -5,9 +5,8 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.isoxml.domain.Constants;
 import de.agrirouter.middleware.isoxml.domain.TimeStart;
 import de.agrirouter.middleware.isoxml.reader.ByteValueReader;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBContext;
@@ -23,11 +22,11 @@ import java.util.zip.ZipInputStream;
 /**
  * Service to handle time log values from the task data files.
  */
+@Slf4j
 @Service
 public class TaskDataTimeLogService {
 
     public static final String XML_FILE_EXTENSION = "xml";
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskDataTimeLogService.class);
     public static final String TIME_LOG_PREFIX = "tlg";
     public static final String BINARY_FILE_EXTENSION = "bin";
 
@@ -39,28 +38,28 @@ public class TaskDataTimeLogService {
     public List<Document> parseMessageContent(byte[] base64EncodedZipFile) {
         final var documents = new ArrayList<Document>();
         final var decodedMessageContent = Base64.getDecoder().decode(base64EncodedZipFile);
-        LOGGER.debug("Message content successfully decoded.");
-        LOGGER.trace("Decoded message content >>> {}", decodedMessageContent);
+        log.debug("Message content successfully decoded.");
+        log.trace("Decoded message content >>> {}", decodedMessageContent);
         try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(decodedMessageContent))) {
             final var files = readFilesFromZipFile(zipInputStream);
             files.forEach((s, bytes) -> {
-                LOGGER.debug("Processing file from ZIP.");
+                log.debug("Processing file from ZIP.");
                 final var fileNameAndExtension = s.split("\\.");
                 if (BINARY_FILE_EXTENSION.equals(fileNameAndExtension[1].toLowerCase(Locale.ROOT))) {
-                    LOGGER.debug("Handling binary file from the ZIP.");
+                    log.debug("Handling binary file from the ZIP.");
                     if (fileNameAndExtension[0].toLowerCase(Locale.ROOT).contains(TIME_LOG_PREFIX)) {
                         final var xmlDescriptor = findMatchingXmlDescriptorFileForTimeLog(fileNameAndExtension[0], files);
                         final var document = handleTimeLogValue(xmlDescriptor, bytes);
                         documents.add(document);
                     } else {
-                        LOGGER.debug("Will not handle the following file '{}'. The file will be handled separately.", s);
+                        log.debug("Will not handle the following file '{}'. The file will be handled separately.", s);
                     }
                 } else {
-                    LOGGER.debug("Will not handle the following file '{}'. The file will be handled separately.", s);
+                    log.debug("Will not handle the following file '{}'. The file will be handled separately.", s);
                 }
             });
         } catch (IOException e) {
-            LOGGER.error("Could not open zipped file. Looks like the file is broken?", e);
+            log.error("Could not open zipped file. Looks like the file is broken?", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseTaskData(), e);
         }
         return documents;
@@ -70,12 +69,12 @@ public class TaskDataTimeLogService {
         for (Map.Entry<String, byte[]> entry : files.entrySet()) {
             String s = entry.getKey();
             byte[] bytes = entry.getValue();
-            LOGGER.debug("Processing file from ZIP to find the matching XML descriptor.");
+            log.debug("Processing file from ZIP to find the matching XML descriptor.");
             final var fileNameAndExtension = s.split("\\.");
             if (fileNameAndExtension[0].equalsIgnoreCase(fileNameOfTheTimeLog) && fileNameAndExtension[1].equalsIgnoreCase(XML_FILE_EXTENSION)) {
                 return bytes;
             } else {
-                LOGGER.debug("Skipping file '{}', since this is not the descriptor for '{}'.", s, fileNameOfTheTimeLog);
+                log.debug("Skipping file '{}', since this is not the descriptor for '{}'.", s, fileNameOfTheTimeLog);
             }
         }
         throw new BusinessException(ErrorMessageFactory.couldNotFindDescriptorForTheTimeLog());
@@ -86,16 +85,16 @@ public class TaskDataTimeLogService {
         var zipEntry = zipInputStream.getNextEntry();
         while (null != zipEntry) {
             if (zipEntry.isDirectory()) {
-                LOGGER.debug("Skipping the directory '{}'.", zipEntry.getName());
+                log.debug("Skipping the directory '{}'.", zipEntry.getName());
             } else {
                 byte[] buffer = new byte[2048];
-                LOGGER.debug("Processing next ZIP entry >>> {}", zipEntry.getName());
+                log.debug("Processing next ZIP entry >>> {}", zipEntry.getName());
                 try (final var byteArrayOutputStream = new ByteArrayOutputStream()) {
                     int len;
                     while ((len = zipInputStream.read(buffer)) > 0) {
                         byteArrayOutputStream.write(buffer, 0, len);
                     }
-                    LOGGER.debug("Saving the file content to the temporary map.");
+                    log.debug("Saving the file content to the temporary map.");
                     files.put(zipEntry.getName(), byteArrayOutputStream.toByteArray());
                 }
             }
@@ -115,12 +114,12 @@ public class TaskDataTimeLogService {
                 readTimeInformation(xmlDescriptor, timeLog, timeLogByteBuffer);
                 final var optionalPtn = xmlDescriptor.getPTNOrDLV().stream().filter(o -> o instanceof PTN).findAny();
                 if (optionalPtn.isPresent()) {
-                    LOGGER.debug("Found PTN element.");
+                    log.debug("Found PTN element.");
                     final var ptn = (PTN) optionalPtn.get();
                     readPositionInformation(ptn, timeLog, timeLogByteBuffer);
                 }
                 final var numberOfDataLogValuesToFollow = readNumberOfDataLogValuesToFollow(timeLog, timeLogByteBuffer);
-                LOGGER.debug("There should be {} DLV elements to read.", numberOfDataLogValuesToFollow);
+                log.debug("There should be {} DLV elements to read.", numberOfDataLogValuesToFollow);
                 final var dataLogValues = new Document();
                 for (int i = 0; i < numberOfDataLogValuesToFollow; i++) {
                     final var dataLogValueOrderingNumber = ByteValueReader.readByte(timeLogByteBuffer);
@@ -135,7 +134,7 @@ public class TaskDataTimeLogService {
             }
             return timeLog;
         } catch (Exception e) {
-            LOGGER.error("There was an exception while parsing the task data.", e);
+            log.error("There was an exception while parsing the task data.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseTaskData(), e);
         }
     }
@@ -204,17 +203,17 @@ public class TaskDataTimeLogService {
     }
 
     private void append(Document timeLog, String key, Object value) {
-        LOGGER.debug("Appending the following key-value-pair to the time log document. | {} >>> {}", key, value);
+        log.debug("Appending the following key-value-pair to the time log document. | {} >>> {}", key, value);
         timeLog.append(key, value);
     }
 
     private void logFinalResult(Document timeLog) {
-        LOGGER.debug("These are the final values");
-        LOGGER.debug("###########################################################################################");
-        LOGGER.debug("");
-        LOGGER.debug("{}", timeLog.toJson());
-        LOGGER.debug("");
-        LOGGER.debug("###########################################################################################");
+        log.debug("These are the final values");
+        log.debug("###########################################################################################");
+        log.debug("");
+        log.debug("{}", timeLog.toJson());
+        log.debug("");
+        log.debug("###########################################################################################");
     }
 
 }

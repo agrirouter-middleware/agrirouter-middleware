@@ -10,8 +10,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.container.VirtualEndpointOnboardStateContainer;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +23,9 @@ import static de.agrirouter.middleware.integration.ack.DynamicMessageProperties.
 /**
  * Integration service to handle the virtual onboard requests.
  */
+@Slf4j
 @Service
 public class VirtualOnboardProcessIntegrationService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualOnboardProcessIntegrationService.class);
 
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
@@ -66,10 +64,10 @@ public class VirtualOnboardProcessIntegrationService {
         parameters.setEndpointDetails(endpointDetails);
 
         final var messageId = cloudOnboardingService.send(parameters);
-        LOGGER.debug("Pushing the message ID '{}' to the stack to fetch the endpoint ID afterwards.", messageId);
+        log.debug("Pushing the message ID '{}' to the stack to fetch the endpoint ID afterwards.", messageId);
         virtualEndpointOnboardStateContainer.push(messageId, endpointDetailsParameters.getEndpointId());
 
-        LOGGER.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);

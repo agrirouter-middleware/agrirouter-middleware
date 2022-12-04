@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
-import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 

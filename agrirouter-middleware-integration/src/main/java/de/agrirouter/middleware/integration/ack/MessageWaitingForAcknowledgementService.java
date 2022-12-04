@@ -1,8 +1,7 @@
 package de.agrirouter.middleware.integration.ack;
 
 import de.agrirouter.middleware.domain.Endpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -15,11 +14,10 @@ import java.util.stream.Collectors;
 /**
  * The service for all the messages waiting for ACK.
  */
+@Slf4j
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class MessageWaitingForAcknowledgementService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageWaitingForAcknowledgementService.class);
 
     private static final ConcurrentHashMap<String, MessageWaitingForAcknowledgement> messages = new ConcurrentHashMap<>();
 
@@ -40,10 +38,10 @@ public class MessageWaitingForAcknowledgementService {
      * @param messageWaitingForAcknowledgement -
      */
     public void delete(MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
-        LOGGER.debug("Remove message waiting for ACK, currently there are {} messages waiting for ACK.", messages.size());
-        LOGGER.trace("{}", messageWaitingForAcknowledgement);
+        log.debug("Remove message waiting for ACK, currently there are {} messages waiting for ACK.", messages.size());
+        log.trace("{}", messageWaitingForAcknowledgement);
         messages.remove(messageWaitingForAcknowledgement.getMessageId());
-        LOGGER.debug("Now there are {} messages waiting for ACK.", messages.size());
+        log.debug("Now there are {} messages waiting for ACK.", messages.size());
     }
 
     /**
@@ -52,8 +50,8 @@ public class MessageWaitingForAcknowledgementService {
      * @param messageWaitingForAcknowledgement -
      */
     public void save(MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
-        LOGGER.debug("Adding message waiting for ACK, currently there are {} messages waiting for ACK.", messages.size());
-        LOGGER.trace("{}", messageWaitingForAcknowledgement);
+        log.debug("Adding message waiting for ACK, currently there are {} messages waiting for ACK.", messages.size());
+        log.trace("{}", messageWaitingForAcknowledgement);
         messages.put(messageWaitingForAcknowledgement.getMessageId(), messageWaitingForAcknowledgement);
     }
 
@@ -75,8 +73,8 @@ public class MessageWaitingForAcknowledgementService {
      * Clear all messages waiting for ACK that are older than a week.
      */
     public void clearAllThatAreOlderThanOneWeek() {
-        LOGGER.info("Clearing all messages waiting for ACK that are older than a week.");
-        LOGGER.debug("Currently there are {} messages waiting for ACK in total.", messages.size());
+        log.info("Clearing all messages waiting for ACK that are older than a week.");
+        log.debug("Currently there are {} messages waiting for ACK in total.", messages.size());
         messages
                 .values()
                 .stream()
@@ -90,8 +88,8 @@ public class MessageWaitingForAcknowledgementService {
      * @param endpoint The endpoint.
      */
     public void deleteAllForEndpoint(Endpoint endpoint) {
-        LOGGER.info("Deleting all messages waiting for ACK for endpoint {}.", endpoint.getAgrirouterEndpointId());
-        LOGGER.debug("Currently there are {} messages waiting for ACK in total.", messages.size());
+        log.info("Deleting all messages waiting for ACK for endpoint {}.", endpoint.getAgrirouterEndpointId());
+        log.debug("Currently there are {} messages waiting for ACK in total.", messages.size());
         messages
                 .values()
                 .stream()

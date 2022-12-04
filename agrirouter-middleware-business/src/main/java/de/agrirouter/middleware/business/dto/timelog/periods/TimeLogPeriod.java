@@ -3,7 +3,6 @@ package de.agrirouter.middleware.business.dto.timelog.periods;
 import lombok.Getter;
 
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * A dedicated time log period.
