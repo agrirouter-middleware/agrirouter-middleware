@@ -70,7 +70,7 @@ public class UpdateRecipientsForEndpointEventListener {
                 log.debug("There were {} recipients found for the endpoint '{}'.", endpoint.getMessageRecipients().size(), endpoint.getExternalEndpointId());
                 log.trace("{}", endpoint.getMessageRecipients());
                 endpointRepository.save(endpoint);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),"Recipients updated.");
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Recipients updated.");
             }
         } else {
             log.warn("The endpoint was not found in the database, the message was deleted but not saved.");

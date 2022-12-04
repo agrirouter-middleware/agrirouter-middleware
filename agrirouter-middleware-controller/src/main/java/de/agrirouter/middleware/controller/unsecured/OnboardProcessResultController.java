@@ -25,9 +25,9 @@ public class OnboardProcessResultController implements UnsecuredApiController {
     @Operation(hidden = true)
     public String onboardProcessResult(@RequestParam("onboardProcessResult") OnboardProcessResult onboardProcessResult, @RequestParam(value = "errorMessage", required = false) String errorMessage, Model model) {
         model.addAttribute("onboardProcessResult", onboardProcessResult);
-        if(StringUtils.isNotBlank(errorMessage)) {
+        if (StringUtils.isNotBlank(errorMessage)) {
             model.addAttribute("errorMessage", new String(Base64.getDecoder().decode(errorMessage)));
-        }else{
+        } else {
             model.addAttribute("errorMessage", "");
         }
         return "onboard-process-result";

@@ -49,7 +49,7 @@ public class ScheduledConnectionCheck {
                     log.warn("Deactivating endpoint {}.", endpoint.getExternalEndpointId());
                     log.warn("Scheduled connection check for endpoint '{}' has FAILED.", endpoint.getExternalEndpointId());
                     endpoint.setDeactivated(true);
-                    if(!application.usesRouterDevice()) {
+                    if (!application.usesRouterDevice()) {
                         mqttClientManagementService.disconnect(onboardingResponse);
                     }
                 } else {
@@ -62,7 +62,7 @@ public class ScheduledConnectionCheck {
                         log.warn("Deactivating endpoint {}.", endpoint.getExternalEndpointId());
                         log.warn("Scheduled connection check for MQTT client '{}' has FAILED.", mqttClient.getClientId());
                         endpoint.setDeactivated(true);
-                        if(!application.usesRouterDevice()) {
+                        if (!application.usesRouterDevice()) {
                             mqttClientManagementService.disconnect(onboardingResponse);
                         }
                         log.warn("Scheduled connection check for MQTT client '{}' has FAILED.", mqttClient.getClientId());
@@ -70,14 +70,14 @@ public class ScheduledConnectionCheck {
                 }
             } catch (BusinessException | MqttException e) {
                 endpoint.setDeactivated(true);
-                if(!application.usesRouterDevice()) {
+                if (!application.usesRouterDevice()) {
                     mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
                 }
                 log.error("Could not perform connection check for the endpoint '{}' since there was an exception.", endpoint.getExternalEndpointId(), e);
             }
             if (endpoint.isDeactivated()) {
                 log.warn("Removing connection for endpoint {}.", endpoint.getExternalEndpointId());
-                if(!application.usesRouterDevice()) {
+                if (!application.usesRouterDevice()) {
                     mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
                 }
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled connection check was _NOT_ successful. The endpoint was deactivated to reduce error messages.");

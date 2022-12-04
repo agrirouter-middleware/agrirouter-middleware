@@ -5,8 +5,7 @@ import com.dke.data.agrirouter.api.service.RevokingService;
 import com.dke.data.agrirouter.api.service.parameters.RevokeParameters;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -14,10 +13,9 @@ import java.util.Collections;
 /**
  * Service for the offboard process for existing endpoints.
  */
+@Slf4j
 @Service
 public class RevokeProcessIntegrationService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RevokeProcessIntegrationService.class);
 
     private final RevokingService revokingService;
 
@@ -41,7 +39,7 @@ public class RevokeProcessIntegrationService {
             revokeParameters.setEndpointIds(Collections.singletonList(endpoint.asOnboardingResponse().getSensorAlternateId()));
             revokingService.revoke(revokeParameters);
         } catch (RevokingException e) {
-            LOGGER.error("Could not revoke existing endpoint from the AR. The data is removed from the middleware.", e);
+            log.error("Could not revoke existing endpoint from the AR. The data is removed from the middleware.", e);
         }
     }
 
