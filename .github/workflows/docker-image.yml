@@ -23,6 +23,6 @@ jobs:
       with:
         push: false
         secrets: |
-          GITHUB_TOKEN: ${{ secrets.GIT_AUTH_TOKEN }}
+          GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         file: .github/dockerfile
         tags: agrirouter-middleware:latest
