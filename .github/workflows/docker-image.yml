@@ -15,8 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      secrets:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Build & push the Image
+      uses: docker/build-push-action@v2
+      with:
+        push: false
+        secrets:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: docker build . --file .github/dockerfile --tag agrirouter-middleware:$(date +%s)
