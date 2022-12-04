@@ -1,6 +1,6 @@
 FROM openjdk:17
 
-ADD target/agrirouter-middleware.jar /opt/application/application.jar
+ADD agrirouter-middleware-application/target/agrirouter-middleware.jar /opt/application/application.jar
 
 USER 1000
 EXPOSE 8080
