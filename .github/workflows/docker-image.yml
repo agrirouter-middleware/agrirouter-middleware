@@ -9,18 +9,23 @@ on:
       - "main"
 
 jobs:
-
-  build:
-
+  build_jdk_17:
+    name: Build with Java 17
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+        name: Set up Java 17
 
-    - name: Build & push the Image
-      uses: docker/build-push-action@v2
-      with:
-        push: false
-        file: .github/dockerfile
-        tags: agrirouter-middleware:latest
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 17
+        name: Build with Maven
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B verify --file pom.xml --settings ci/github-settings.xml
+
+      - uses: docker/build-push-action@v2
+        with:
+          push: false
+          file: .github/dockerfile
+          tags: agrirouter-middleware:latest

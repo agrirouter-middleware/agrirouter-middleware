@@ -1,11 +1,10 @@
-FROM maven:3.8-openjdk-17 as build
-WORKDIR /usr/src
-COPY . .
-
-RUN mvn --batch-mode --update-snapshots --settings ci/docker-settings.xml verify
-
 FROM openjdk:17
-WORKDIR /srv
-COPY --from=build /usr/src/agrirouter-middleware-application/target/agrirouter-middleware.jar .
 
-CMD java -jar /srv/agrirouter-middleware.jar
+ADD target/agrirouter-middleware.jar /opt/application/application.jar
+
+USER 1000
+EXPOSE 8080
+
+WORKDIR /opt/application
+
+ENTRYPOINT ["java","-jar","application.jar"]
