@@ -54,6 +54,11 @@
       "name": "app.scheduled.message-waiting-for-ack-removal",
       "type": "java.lang.String",
       "description": "The interval for the message waiting for ack removal, has to be a valid CRON expression."
+    },
+    {
+      "name": "app.cache.message-cache.batch-size",
+      "type": "java.lang.String",
+      "description": "The batch size to send messages from the message cache to the AR."
     }
   ]
 }
