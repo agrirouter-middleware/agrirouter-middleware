@@ -2,7 +2,7 @@ FROM maven:3.8-openjdk-17 as build
 WORKDIR /usr/src
 COPY . .
 
-RUN mvn --batch-mode --update-snapshots --settings ci/github-settings.xml verify
+RUN mvn --batch-mode --update-snapshots --settings ci/docker-settings.xml verify
 
 FROM openjdk:17
 WORKDIR /srv
