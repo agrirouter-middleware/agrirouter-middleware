@@ -1,0 +1,10 @@
+FROM openjdk:17
+
+ADD agrirouter-middleware-application/target/agrirouter-middleware.jar /opt/application/application.jar
+
+USER 1000
+EXPOSE 8080
+
+WORKDIR /opt/application
+
+ENTRYPOINT ["java","-jar","application.jar"]

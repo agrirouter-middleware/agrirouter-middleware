@@ -32,13 +32,13 @@
     <servers>
         <server>
             <id>dke-data</id>
-            <username>${GITHUB_USER}</username>
-            <password>${GITHUB_TOKEN}</password>
+            <username>agrirouter-middleware</username>
+            <password>${GIT_AUTH_TOKEN}</password>
         </server>
         <server>
             <id>saschadoemer</id>
-            <username>${GITHUB_USER}</username>
-            <password>${GITHUB_TOKEN}</password>
+            <username>agrirouter-middleware</username>
+            <password>${GIT_AUTH_TOKEN}</password>
         </server>
     </servers>
 </settings>

@@ -1,11 +1,7 @@
 version: "3.7"
 services:
   middleware:
-    build:
-      context: .
-      args:
-        - GITHUB_USER=${GITHUB_USER}
-        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:latest
     environment:
       - MONGODB_HOST=${MONGO_HOST:-mongo}
       - MONGODB_PASSWORD=${MONGO_PASSWORD}
@@ -46,7 +42,7 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-agriroutermiddleware}
       - MYSQL_USER=${MYSQL_USER:-agriroutermiddleware}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    volumes: 
+    volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - backend
@@ -57,5 +53,5 @@ networks:
   frontend:
 
 volumes:
-  mongo_data: {}
-  mysql_data: {}
+  mongo_data: { }
+  mysql_data: { }

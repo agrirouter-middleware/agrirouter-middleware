@@ -451,7 +451,7 @@ You can run the whole required stack, including Mongo and MariaDB, using docker-
 
 * copy `.env.example` to `.env` (or run `./prepare-env.sh`, which sets secure passwords)
 * edit `.env`:
-* set `GITHUB_USER` and `GITHUB_TOKEN` to credentials from GitHub, the token only needs `read:packages` rights
+* set `MY_GITHUB_USER` and `MY_GITHUB_TOKEN` to credentials from GitHub, the token only needs `read:packages` rights
 * set all fields marked as "required" (not needed if `prepare-env` has been used)
 * run (one of) the following commands:
 * `docker-compose build`: builds the agrirouter-middleware sourcecode and packs it into a docker image

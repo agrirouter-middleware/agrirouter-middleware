@@ -2,10 +2,10 @@ FROM maven:3.8-openjdk-17 as build
 WORKDIR /usr/src
 COPY . .
 
-ARG GITHUB_USER
-ARG GITHUB_TOKEN
+ARG MY_GITHUB_USER
+ARG MY_GITHUB_TOKEN
 
-RUN mvn --batch-mode --update-snapshots --settings m2-settings.xml verify
+RUN mvn --batch-mode --update-snapshots --settings ci/settings.xml verify
 
 FROM openjdk:17
 WORKDIR /srv
