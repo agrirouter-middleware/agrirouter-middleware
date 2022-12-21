@@ -6,12 +6,3 @@ logging:
     org.springframework.web.filter.CommonsRequestLoggingFilter: off
     de.agrirouter.middleware: info
     com.dke.data.agrirouter: off
-
-app:
-  scheduled:
-    connection-check: "0 */15 * * * *"
-    fetching-and-confirming-existing-messages: "0 */15 * * * *"
-    status-logging: "0 */15 * * * *"
-    recipient-query: "0 */15 * * * *"
-    empty-message-cache: "0 */15 * * * *"
-    message-waiting-for-ack-removal: "0 0 0 * * *"
