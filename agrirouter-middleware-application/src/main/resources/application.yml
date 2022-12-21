@@ -32,16 +32,20 @@ logging:
     com.dke.data.agrirouter: trace
 
 app:
+  agrirouter:
+    status:
+      url: https://status.agrirouter.com/api/v2/components.json
   fetch-messages:
     max-tries: 5
     interval: 1000
   scheduled:
-    connection-check: "0 */1 * * * *"
-    fetching-and-confirming-existing-messages: "0 */5 * * * *"
-    status-logging: "0 */5 * * * *"
-    recipient-query: "0 */5 * * * *"
-    empty-message-cache: "0 */5 * * * *"
-    message-waiting-for-ack-removal: "0 */5 * * * *"
+    connection-check: "0 */30 * * * *"
+    fetching-and-confirming-existing-messages: "0 */15 * * * *"
+    status-logging: "0 */15 * * * *"
+    recipient-query: "0 */30 * * * *"
+    empty-message-cache: "0 */30 * * * *"
+    message-waiting-for-ack-removal: "0 0 0 * * *"
+    statuspage-check-interval: "*/15 * * * * *"
   branding:
     favicon: "/img/favicon.ico"
   cache:

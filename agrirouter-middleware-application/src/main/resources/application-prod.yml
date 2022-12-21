@@ -1,12 +1,3 @@
 logging:
   level:
     root: error
-
-app:
-  scheduled:
-    connection-check: "0 */30 * * * *"
-    fetching-and-confirming-existing-messages: "0 */15 * * * *"
-    status-logging: "0 */15 * * * *"
-    recipient-query: "0 */30 * * * *"
-    empty-message-cache: "0 */30 * * * *"
-    message-waiting-for-ack-removal: "0 0 0 * * *"
