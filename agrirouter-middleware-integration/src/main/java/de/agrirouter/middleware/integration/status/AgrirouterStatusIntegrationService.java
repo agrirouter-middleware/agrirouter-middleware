@@ -3,7 +3,6 @@ package de.agrirouter.middleware.integration.status;
 import com.google.gson.Gson;
 import de.agrirouter.middleware.integration.status.dto.AgrirouterStatusResponse;
 import de.agrirouter.middleware.integration.status.dto.Component;
-import de.agrirouter.middleware.integration.status.dto.ComponentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Live status information for the agrirouter©.
@@ -51,18 +49,8 @@ public class AgrirouterStatusIntegrationService {
     }
 
     /**
-     * Check if the agrirouter© is operational.
-     *
-     * @return - true if operational, false otherwise.
+     * Scheduled task to fetch the current status.
      */
-    public boolean isOperational() {
-        return Optional.ofNullable(latestStatus)
-                .map(Component::getComponentStatus)
-                .map(ComponentStatus::isOperational)
-                .orElse(false);
-    }
-
-    // Scheduled check for the status
     @Scheduled(cron = "${app.scheduled.statuspage-check-interval}")
     public void checkStatus() {
         latestStatus = fetchCurrentStatus();
