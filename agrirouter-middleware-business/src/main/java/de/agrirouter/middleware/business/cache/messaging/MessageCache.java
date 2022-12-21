@@ -25,9 +25,6 @@ public class MessageCache {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmbeddedStorageManager storageManager;
 
-    @Value("${app.cache.message-cache.time-to-live-in-seconds}")
-    private long timeToLiveInSeconds;
-
     @Value("${app.cache.message-cache.batch-size}")
     private int batchSize;
 
@@ -58,12 +55,8 @@ public class MessageCache {
         log.debug("Cleared cache.");
         for (MessageCacheEntry messageCacheEntry : currentMessageCacheEntries) {
             if (getCacheRoot().getMessageCache().remove(messageCacheEntry)) {
-                if (messageCacheEntry.isExpired()) {
-                    log.debug("Message cache entry expired. Skipped sending, just removing this one from the cache.");
-                } else {
-                    log.debug("Sending message from cache.");
-                    applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getPublishNonTelemetryDataParameters()));
-                }
+                log.debug("Sending message from cache.");
+                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getPublishNonTelemetryDataParameters()));
             } else {
                 log.debug("Message cache entry has not been removed from the cache, therefore not sending this one.");
             }
@@ -95,7 +88,7 @@ public class MessageCache {
         log.info("Saving message to cache.");
         log.trace("External endpoint ID: {}", externalEndpointId);
         log.trace("Base64 encoded message content: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
-        getCacheRoot().put(externalEndpointId, publishNonTelemetryDataParameters, timeToLiveInSeconds);
+        getCacheRoot().put(externalEndpointId, publishNonTelemetryDataParameters);
         storageManager.storeRoot();
     }
 

@@ -41,11 +41,6 @@
       "description": "The interval for the empty message cache, has to be a valid CRON expression."
     },
     {
-      "name": "app.cache.message-cache.time-to-live-in-seconds",
-      "type": "java.lang.String",
-      "description": "The time to live for a transient message cache entry."
-    },
-    {
       "name": "app.cache.transient-machine-registration-cache.time-to-live-in-seconds",
       "type": "java.lang.String",
       "description": "The time to live for a transient machine registration cache entry."
