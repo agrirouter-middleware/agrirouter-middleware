@@ -46,7 +46,6 @@ app:
     favicon: "/img/favicon.ico"
   cache:
     message-cache:
-      time-to-live-in-seconds: 3600
       batch-size: 100
     transient-machine-registration-cache:
       time-to-live-in-seconds: 300

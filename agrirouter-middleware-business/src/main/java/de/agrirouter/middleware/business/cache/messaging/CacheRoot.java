@@ -17,16 +17,14 @@ public class CacheRoot {
      *
      * @param externalEndpointId                The external endpoint ID.
      * @param publishNonTelemetryDataParameters Parameters for message sending.
-     * @param timeToLive                        The time to live.
      */
-    public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters, long timeToLive) {
+    public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         if (messageCache == null) {
             messageCache = new ArrayList<>();
         }
         messageCache.add(new MessageCacheEntry(externalEndpointId,
                 publishNonTelemetryDataParameters,
-                Instant.now().getEpochSecond(),
-                timeToLive));
+                Instant.now().getEpochSecond()));
     }
 
     /**
