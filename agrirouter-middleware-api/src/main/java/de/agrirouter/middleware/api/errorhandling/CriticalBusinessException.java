@@ -4,9 +4,9 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessage;
 import lombok.Getter;
 
 /**
- * Will be thrown in case of any business problem.
+ * Will be thrown in case of any critical business problem that has to be handled.
  */
-public class BusinessException extends RuntimeException {
+public class CriticalBusinessException extends Exception {
 
     /**
      * The error message.
@@ -19,18 +19,7 @@ public class BusinessException extends RuntimeException {
      *
      * @param errorMessage -
      */
-    public BusinessException(ErrorMessage errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param errorMessage -
-     * @param e            -
-     */
-    public BusinessException(ErrorMessage errorMessage, Exception e) {
-        super(e);
+    public CriticalBusinessException(ErrorMessage errorMessage) {
         this.errorMessage = errorMessage;
     }
 

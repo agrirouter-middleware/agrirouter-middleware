@@ -19,7 +19,6 @@ public class ParameterValidationException extends BusinessException {
 
     public ParameterValidationException(Errors errors) {
         super(ErrorMessageFactory.parameterValidationProblem());
-
         this.errors = new ArrayList<>();
         ModelMapper modelMapper = new ModelMapper();
         errors.getAllErrors().forEach(objectError -> {

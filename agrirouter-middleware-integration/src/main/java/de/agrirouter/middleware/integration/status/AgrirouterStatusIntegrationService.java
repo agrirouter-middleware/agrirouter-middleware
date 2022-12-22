@@ -1,6 +1,9 @@
 package de.agrirouter.middleware.integration.status;
 
 import com.google.gson.Gson;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.integration.status.dto.AgrirouterStatusResponse;
 import de.agrirouter.middleware.integration.status.dto.Component;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +55,21 @@ public class AgrirouterStatusIntegrationService {
      * Scheduled task to fetch the current status.
      */
     @Scheduled(cron = "${app.scheduled.statuspage-check-interval}")
-    public void checkStatus() {
+    protected void checkStatus() {
         latestStatus = fetchCurrentStatus();
     }
 
+    /**
+     * Check if the agrirouter© is available.
+     */
+    public void checkCurrentStatus() throws CriticalBusinessException {
+        if (latestStatus == null || latestStatus.getComponentStatus() == null) {
+            throw new BusinessException(ErrorMessageFactory.agrirouterStatusNotAvailable());
+        } else {
+            if (!latestStatus.getComponentStatus().isOperational()) {
+                log.warn("Agrirouter status: {}", latestStatus.getComponentStatus());
+                throw new CriticalBusinessException(ErrorMessageFactory.agrirouterStatusNotOperational());
+            }
+        }
+    }
 }

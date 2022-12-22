@@ -1,7 +1,7 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
-import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
+import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.storage.embedded.types.EmbeddedStorage;
@@ -43,7 +43,7 @@ public class MessageCache {
      * @param messageCacheEntry A message cache entry.
      */
     private void trace(MessageCacheEntry messageCacheEntry) {
-        log.trace("{} : {} | {}", messageCacheEntry.getCreatedAt(), messageCacheEntry.getExternalEndpointId(), messageCacheEntry.getPublishNonTelemetryDataParameters().getContentMessageType());
+        log.trace("{} : {} | {}", messageCacheEntry.getCreatedAt(), messageCacheEntry.getExternalEndpointId(), messageCacheEntry.getMessagingIntegrationParameters().technicalMessageType());
     }
 
     /**
@@ -56,7 +56,7 @@ public class MessageCache {
         for (MessageCacheEntry messageCacheEntry : currentMessageCacheEntries) {
             if (getCacheRoot().getMessageCache().remove(messageCacheEntry)) {
                 log.debug("Sending message from cache.");
-                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getPublishNonTelemetryDataParameters()));
+                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getMessagingIntegrationParameters()));
             } else {
                 log.debug("Message cache entry has not been removed from the cache, therefore not sending this one.");
             }
@@ -81,14 +81,13 @@ public class MessageCache {
     /**
      * Place an entry in the cache.
      *
-     * @param externalEndpointId                The external endpoint ID.
-     * @param publishNonTelemetryDataParameters Parameters for message sending.
+     * @param externalEndpointId             The external endpoint ID.
+     * @param messagingIntegrationParameters Parameters for message sending.
      */
-    public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
+    public void put(String externalEndpointId, MessagingIntegrationParameters messagingIntegrationParameters) {
         log.info("Saving message to cache.");
         log.trace("External endpoint ID: {}", externalEndpointId);
-        log.trace("Base64 encoded message content: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
-        getCacheRoot().put(externalEndpointId, publishNonTelemetryDataParameters);
+        getCacheRoot().put(externalEndpointId, messagingIntegrationParameters);
         storageManager.storeRoot();
     }
 
