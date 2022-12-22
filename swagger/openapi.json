@@ -45,6 +45,10 @@
     {
       "name": "maintenance",
       "description": "Maintenance operations for internal usage. Do NOT use this profile in production."
+    },
+    {
+      "name": "statistics",
+      "description": "Statistics for the whole application."
     }
   ],
   "paths": {
@@ -1894,6 +1898,47 @@
         }
       }
     },
+    "/secured/api/statistics/mqtt": {
+      "get": {
+        "tags": [
+          "statistics"
+        ],
+        "description": "Get the statistics for the MQTT connections.",
+        "operationId": "statistics.mqtt",
+        "responses": {
+          "200": {
+            "description": "The application has been registered and was created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MqttStatisticsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "In case of a business exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "In case of an unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/secured/api/non-telemetry-data/download/{externalEndpointId}/{messageId}": {
       "get": {
         "tags": [
@@ -3386,6 +3431,77 @@
           }
         },
         "description": "Representation of a tenant within the middleware."
+      },
+      "MqttStatisticsResponse": {
+        "type": "object",
+        "properties": {
+          "numberOfConnectionLosses": {
+            "type": "integer",
+            "description": "The number of connection losses.",
+            "format": "int64"
+          },
+          "numberOfCacheMisses": {
+            "type": "integer",
+            "description": "The number of cache misses.",
+            "format": "int64"
+          },
+          "numberOfMessagesArrived": {
+            "type": "integer",
+            "description": "The number of messages arrived.",
+            "format": "int64"
+          },
+          "numberOfAcknowledgements": {
+            "type": "integer",
+            "description": "The number of acknowledgements.",
+            "format": "int64"
+          },
+          "numberOfPushNotifications": {
+            "type": "integer",
+            "description": "The number of push notifications.",
+            "format": "int64"
+          },
+          "numberOfCloudRegistrations": {
+            "type": "integer",
+            "description": "The number of cloud registrations.",
+            "format": "int32"
+          },
+          "numberOfEndpointListings": {
+            "type": "integer",
+            "description": "The number of endpoint listings.",
+            "format": "int64"
+          },
+          "numberOfUnknownMessages": {
+            "type": "integer",
+            "description": "The number of unknown messages.",
+            "format": "int32"
+          },
+          "numberOfClientInitializations": {
+            "type": "integer",
+            "description": "The number of client initializations.",
+            "format": "int64"
+          },
+          "numberOfDisconnects": {
+            "type": "integer",
+            "description": "The number of disconnects.",
+            "format": "int64"
+          },
+          "numberOfStaleConnectionsRemovals": {
+            "type": "integer",
+            "description": "The number of stale connections removals.",
+            "format": "int64"
+          },
+          "numberOfConnectedClients": {
+            "type": "integer",
+            "description": "The number of connected clients.",
+            "format": "int64"
+          },
+          "numberOfDisconnectedClients": {
+            "type": "integer",
+            "description": "The number of disconnected clients.",
+            "format": "int64"
+          }
+        },
+        "description": "Statistics for the MQTT connections."
       },
       "EndpointRecipientsResponse": {
         "type": "object",

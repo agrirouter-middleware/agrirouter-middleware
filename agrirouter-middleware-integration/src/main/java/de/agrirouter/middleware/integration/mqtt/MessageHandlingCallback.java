@@ -23,16 +23,20 @@ public class MessageHandlingCallback implements MqttCallback {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
+    private final MqttStatistics mqttStatistics;
 
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
-                                   DecodeMessageService decodeMessageService) {
+                                   DecodeMessageService decodeMessageService,
+                                   MqttStatistics mqttStatistics) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
+        this.mqttStatistics = mqttStatistics;
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
         log.warn("Connection lost. There is at least one endpoint unreachable until the next connection check.");
+        mqttStatistics.increaseNumberOfConnectionLosses();
         applicationEventPublisher.publishEvent(new RemoveStaleConnectionsEvent(this));
     }
 
@@ -41,39 +45,47 @@ public class MessageHandlingCallback implements MqttCallback {
         try {
             log.debug("Message '{}' with QoS {} arrived.", mqttMessage.getId(), mqttMessage.getQos());
             log.trace("Message payload for message '{}' >>> {}", mqttMessage.getId(), StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8));
+            mqttStatistics.increaseNumberOfMessagesArrived();
             final var fetchMessageResponse = new Gson().fromJson(new String(mqttMessage.getPayload()), FetchMessageResponse.class);
             final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
             switch (decodedMessageResponse.getResponseEnvelope().getType()) {
                 case ACK, ACK_WITH_MESSAGES, ACK_WITH_FAILURE -> {
                     log.trace("This was a message acknowledgement.");
+                    mqttStatistics.increaseNumberOfAcknowledgements();
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
                 case PUSH_NOTIFICATION -> {
                     log.trace("This was a push notification.");
+                    mqttStatistics.increaseNumberOfPushNotifications();
                     applicationEventPublisher.publishEvent(new PushMessageEvent(this, fetchMessageResponse));
                 }
                 case ACK_FOR_FEED_MESSAGE -> {
                     log.trace("This was a query result for a message query.");
+                    mqttStatistics.increaseNumberOfAcknowledgements();
                     applicationEventPublisher.publishEvent(new MessageQueryResultEvent(this, fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
                 case ACK_FOR_FEED_HEADER_LIST -> {
                     log.trace("This was a query result for a message header query that is used.");
+                    mqttStatistics.increaseNumberOfAcknowledgements();
                     applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
                 case CLOUD_REGISTRATIONS -> {
                     log.trace("This was a cloud registration.");
+                    mqttStatistics.increaseNumberOfCloudRegistrations();
                     applicationEventPublisher.publishEvent(new CloudRegistrationEvent(this, decodedMessageResponse.getResponseEnvelope().getApplicationMessageId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
                 case ENDPOINTS_LISTING -> {
                     log.trace("This was an endpoint listing.");
+                    mqttStatistics.increaseNumberOfEndpointListings();
                     applicationEventPublisher.publishEvent(new UpdateRecipientsForEndpointEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
                 default -> {
                     log.trace("This was a unknown message.");
+                    mqttStatistics.increaseNumberOfUnknownMessages();
                     applicationEventPublisher.publishEvent(new UnknownMessageEvent(this, fetchMessageResponse));
                     applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
                 }
