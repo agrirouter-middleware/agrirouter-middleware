@@ -3,13 +3,15 @@ package de.agrirouter.middleware.business.cache.messaging;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
+import one.microstream.reflect.ClassLoaderProvider;
+import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -25,9 +27,6 @@ public class MessageCache {
 
     @Value("${app.cache.message-cache.data-directory}")
     private String dataDirectory;
-
-    @Value("${app.cache.message-cache.backup-directory}")
-    private String backupDirectory;
 
     @Value("${app.cache.message-cache.batch-size}")
     private int batchSize;
@@ -110,11 +109,9 @@ public class MessageCache {
 
     private EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
-        return EmbeddedStorageConfiguration.Builder()
-                .setStorageDirectoryInUserHome(dataDirectory)
-                .setBackupDirectory(backupDirectory)
-                .createEmbeddedStorageFoundation()
-                .start(cacheRoot);
+        return EmbeddedStorage.Foundation(Paths.get(dataDirectory))
+                .onConnectionFoundation(cf -> cf.setClassLoaderProvider(ClassLoaderProvider.New(
+                        Thread.currentThread().getContextClassLoader()))).start(cacheRoot);
     }
 
 }
