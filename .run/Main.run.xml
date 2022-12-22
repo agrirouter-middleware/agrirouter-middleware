@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="maintenance" />
+    <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev" />
     <envs>
       <env name="MONGODB_HOST" value="localhost" />
       <env name="MONGODB_PASSWORD" value="changeit" />
