@@ -3,15 +3,13 @@ package de.agrirouter.middleware.business.cache.messaging;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import one.microstream.reflect.ClassLoaderProvider;
-import one.microstream.storage.embedded.types.EmbeddedStorage;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -106,9 +104,11 @@ public class MessageCache {
 
     private EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
-        return EmbeddedStorage.Foundation(Paths.get(System.getProperty("user.home"), ".agrirouter-middleware", "message-cache"))
-                .onConnectionFoundation(cf -> cf.setClassLoaderProvider(ClassLoaderProvider.New(
-                        Thread.currentThread().getContextClassLoader()))).start(cacheRoot);
+        return EmbeddedStorageConfiguration.Builder()
+                .setStorageDirectoryInUserHome("data-dir")
+                .setBackupDirectory("backup-dir")
+                .createEmbeddedStorageFoundation()
+                .start(cacheRoot);
     }
 
 }
