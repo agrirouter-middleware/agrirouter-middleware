@@ -2,6 +2,9 @@ FROM openjdk:17
 
 ADD agrirouter-middleware-application/target/agrirouter-middleware.jar /opt/application/application.jar
 
+RUN apk add --no-cache unzip \
+    && chmod 775 -R /opt/application && chown 1000:root -R /opt/application \
+
 USER 1000
 EXPOSE 8080
 

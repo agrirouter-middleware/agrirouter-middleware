@@ -51,5 +51,7 @@ app:
   cache:
     message-cache:
       batch-size: 100
+      data-directory: ${MESSAGE_CACHE_DATA_DIRECTORY}
+      backup-directory: ${MESSAGE_CACHE_BACKUP_DIRECTORY}
     transient-machine-registration-cache:
       time-to-live-in-seconds: 300
