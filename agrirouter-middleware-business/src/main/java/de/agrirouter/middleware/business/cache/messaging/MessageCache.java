@@ -23,6 +23,12 @@ public class MessageCache {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmbeddedStorageManager storageManager;
 
+    @Value("${app.cache.message-cache.data-directory}")
+    private String dataDirectory;
+
+    @Value("${app.cache.message-cache.backup-directory}")
+    private String backupDirectory;
+
     @Value("${app.cache.message-cache.batch-size}")
     private int batchSize;
 
@@ -105,8 +111,8 @@ public class MessageCache {
     private EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
         return EmbeddedStorageConfiguration.Builder()
-                .setStorageDirectoryInUserHome("data-dir")
-                .setBackupDirectory("backup-dir")
+                .setStorageDirectoryInUserHome(dataDirectory)
+                .setBackupDirectory(backupDirectory)
                 .createEmbeddedStorageFoundation()
                 .start(cacheRoot);
     }
