@@ -109,7 +109,7 @@ public class MessageCache {
 
     private EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
-        log.debug("Using data directory: {}", dataDirectory);
+        log.info("Using data directory: {}", dataDirectory);
         return EmbeddedStorage.Foundation(Paths.get(dataDirectory))
                 .onConnectionFoundation(cf -> cf.setClassLoaderProvider(ClassLoaderProvider.New(
                         Thread.currentThread().getContextClassLoader()))).start(cacheRoot);
