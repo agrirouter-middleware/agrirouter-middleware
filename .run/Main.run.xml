@@ -12,6 +12,7 @@
       <env name="MYSQL_PORT" value="3306" />
       <env name="MYSQL_SCHEMA" value="agriroutermiddleware" />
       <env name="MYSQL_USER" value="mysqluser" />
+      <env name="MESSAGE_CACHE_DATA_DIRECTORY" value="C:\Users\SDO\.message-cache" />
     </envs>
     <module name="agrirouter-middleware-application" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="de.agrirouter.middleware.Main" />

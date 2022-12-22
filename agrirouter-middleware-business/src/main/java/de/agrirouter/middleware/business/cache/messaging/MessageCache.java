@@ -3,15 +3,12 @@ package de.agrirouter.middleware.business.cache.messaging;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import one.microstream.reflect.ClassLoaderProvider;
-import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -25,15 +22,12 @@ public class MessageCache {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmbeddedStorageManager storageManager;
 
-    @Value("${app.cache.message-cache.data-directory}")
-    private String dataDirectory;
-
     @Value("${app.cache.message-cache.batch-size}")
     private int batchSize;
 
-    protected MessageCache(ApplicationEventPublisher applicationEventPublisher) {
+    protected MessageCache(ApplicationEventPublisher applicationEventPublisher, EmbeddedStorageManager storageManager) {
         this.applicationEventPublisher = applicationEventPublisher;
-        this.storageManager = embeddedStorageManager();
+        this.storageManager = storageManager;
         log.trace("###################################################################################################");
         log.trace("Currently cached messages: {}", getCacheRoot().getMessageCache().size());
         getCacheRoot().getMessageCache().forEach(this::trace);
@@ -105,14 +99,6 @@ public class MessageCache {
      */
     protected Collection<MessageCacheEntry> getCurrentMessageCacheEntries() {
         return getCacheRoot().getMessageCache();
-    }
-
-    private EmbeddedStorageManager embeddedStorageManager() {
-        CacheRoot cacheRoot = new CacheRoot();
-        log.info("Using data directory: {}", dataDirectory);
-        return EmbeddedStorage.Foundation(Paths.get(dataDirectory))
-                .onConnectionFoundation(cf -> cf.setClassLoaderProvider(ClassLoaderProvider.New(
-                        Thread.currentThread().getContextClassLoader()))).start(cacheRoot);
     }
 
 }
