@@ -69,11 +69,6 @@
       "name": "app.cache.message-cache.data-directory",
       "type": "java.lang.String",
       "description": "The data directory for the message cache."
-    },
-    {
-      "name": "app.cache.message-cache.backup-directory",
-      "type": "java.lang.String",
-      "description": "The backup directory for the message cache."
     }
   ]
 }

@@ -44,10 +44,6 @@
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
         </dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded-configuration</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
