@@ -8,6 +8,7 @@ import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +32,9 @@ public class MessageCache {
     @Value("${app.cache.message-cache.batch-size}")
     private int batchSize;
 
-    protected MessageCache(ApplicationEventPublisher applicationEventPublisher) {
+    protected MessageCache(ApplicationEventPublisher applicationEventPublisher, EmbeddedStorageManager storageManager) {
         this.applicationEventPublisher = applicationEventPublisher;
-        this.storageManager = embeddedStorageManager();
+        this.storageManager = storageManager;
         log.trace("###################################################################################################");
         log.trace("Currently cached messages: {}", getCacheRoot().getMessageCache().size());
         getCacheRoot().getMessageCache().forEach(this::trace);
@@ -107,7 +108,9 @@ public class MessageCache {
         return getCacheRoot().getMessageCache();
     }
 
-    private EmbeddedStorageManager embeddedStorageManager() {
+    @Bean
+    @Scope(value = "singleton")
+    protected EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
         log.info("Using data directory: {}", dataDirectory);
         return EmbeddedStorage.Foundation(Paths.get(dataDirectory))
