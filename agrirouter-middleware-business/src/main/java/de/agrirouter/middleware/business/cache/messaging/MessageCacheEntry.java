@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
+import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,21 +11,21 @@ import lombok.Setter;
 @Setter
 public class MessageCacheEntry {
     private String externalEndpointId;
-    private PublishNonTelemetryDataParameters publishNonTelemetryDataParameters;
+    private MessagingIntegrationParameters messagingIntegrationParameters;
     private long createdAt;
 
     /**
-     * @param externalEndpointId                The external endpoint ID.
-     * @param publishNonTelemetryDataParameters Parameters for publishing non telemetry data.
-     * @param createdAt                         The time when the cache entry was created.
+     * @param externalEndpointId             The external endpoint ID.
+     * @param messagingIntegrationParameters Parameters for publishing messages.
+     * @param createdAt                      The time when the cache entry was created.
      */
     public MessageCacheEntry(
             String externalEndpointId,
-            PublishNonTelemetryDataParameters publishNonTelemetryDataParameters,
+            MessagingIntegrationParameters messagingIntegrationParameters,
             long createdAt
     ) {
         this.externalEndpointId = externalEndpointId;
-        this.publishNonTelemetryDataParameters = publishNonTelemetryDataParameters;
+        this.messagingIntegrationParameters = messagingIntegrationParameters;
         this.createdAt = createdAt;
     }
 

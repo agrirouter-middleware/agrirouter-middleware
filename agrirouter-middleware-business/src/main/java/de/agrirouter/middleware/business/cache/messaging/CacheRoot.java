@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
+import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,15 +15,15 @@ public class CacheRoot {
     /**
      * Place an entry into the cache.
      *
-     * @param externalEndpointId                The external endpoint ID.
-     * @param publishNonTelemetryDataParameters Parameters for message sending.
+     * @param externalEndpointId             The external endpoint ID.
+     * @param messagingIntegrationParameters Parameters for message sending.
      */
-    public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
+    public void put(String externalEndpointId, MessagingIntegrationParameters messagingIntegrationParameters) {
         if (messageCache == null) {
             messageCache = new ArrayList<>();
         }
         messageCache.add(new MessageCacheEntry(externalEndpointId,
-                publishNonTelemetryDataParameters,
+                messagingIntegrationParameters,
                 Instant.now().getEpochSecond()));
     }
 

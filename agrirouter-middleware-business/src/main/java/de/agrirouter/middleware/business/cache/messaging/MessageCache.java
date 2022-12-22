@@ -1,17 +1,15 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
-import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
+import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import one.microstream.reflect.ClassLoaderProvider;
-import one.microstream.storage.embedded.types.EmbeddedStorage;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -43,7 +41,7 @@ public class MessageCache {
      * @param messageCacheEntry A message cache entry.
      */
     private void trace(MessageCacheEntry messageCacheEntry) {
-        log.trace("{} : {} | {}", messageCacheEntry.getCreatedAt(), messageCacheEntry.getExternalEndpointId(), messageCacheEntry.getPublishNonTelemetryDataParameters().getContentMessageType());
+        log.trace("{} : {} | {}", messageCacheEntry.getCreatedAt(), messageCacheEntry.getExternalEndpointId(), messageCacheEntry.getMessagingIntegrationParameters().technicalMessageType());
     }
 
     /**
@@ -56,7 +54,7 @@ public class MessageCache {
         for (MessageCacheEntry messageCacheEntry : currentMessageCacheEntries) {
             if (getCacheRoot().getMessageCache().remove(messageCacheEntry)) {
                 log.debug("Sending message from cache.");
-                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getPublishNonTelemetryDataParameters()));
+                applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getMessagingIntegrationParameters()));
             } else {
                 log.debug("Message cache entry has not been removed from the cache, therefore not sending this one.");
             }
@@ -81,14 +79,13 @@ public class MessageCache {
     /**
      * Place an entry in the cache.
      *
-     * @param externalEndpointId                The external endpoint ID.
-     * @param publishNonTelemetryDataParameters Parameters for message sending.
+     * @param externalEndpointId             The external endpoint ID.
+     * @param messagingIntegrationParameters Parameters for message sending.
      */
-    public void put(String externalEndpointId, PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
+    public void put(String externalEndpointId, MessagingIntegrationParameters messagingIntegrationParameters) {
         log.info("Saving message to cache.");
         log.trace("External endpoint ID: {}", externalEndpointId);
-        log.trace("Base64 encoded message content: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
-        getCacheRoot().put(externalEndpointId, publishNonTelemetryDataParameters);
+        getCacheRoot().put(externalEndpointId, messagingIntegrationParameters);
         storageManager.storeRoot();
     }
 
@@ -107,9 +104,11 @@ public class MessageCache {
 
     private EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
-        return EmbeddedStorage.Foundation(Paths.get(System.getProperty("user.home"), ".agrirouter-middleware", "message-cache"))
-                .onConnectionFoundation(cf -> cf.setClassLoaderProvider(ClassLoaderProvider.New(
-                        Thread.currentThread().getContextClassLoader()))).start(cacheRoot);
+        return EmbeddedStorageConfiguration.Builder()
+                .setStorageDirectoryInUserHome("data-dir")
+                .setBackupDirectory("backup-dir")
+                .createEmbeddedStorageFoundation()
+                .start(cacheRoot);
     }
 
 }

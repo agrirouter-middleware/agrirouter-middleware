@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.business;
 
 import com.google.protobuf.ByteString;
+import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
@@ -8,6 +9,7 @@ import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
+import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -25,19 +27,20 @@ public class PublishNonTelemetryDataService {
 
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
-
     private final EndpointService endpointService;
-
     private final MessageCache messageCache;
+    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public PublishNonTelemetryDataService(SendMessageIntegrationService sendMessageIntegrationService,
                                           BusinessOperationLogService businessOperationLogService,
                                           EndpointService endpointService,
-                                          MessageCache messageCache) {
+                                          MessageCache messageCache,
+                                          AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.sendMessageIntegrationService = sendMessageIntegrationService;
         this.businessOperationLogService = businessOperationLogService;
         this.endpointService = endpointService;
         this.messageCache = messageCache;
+        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -47,33 +50,30 @@ public class PublishNonTelemetryDataService {
      */
     @EventListener(ResendMessageCacheEntryEvent.class)
     public void publish(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
-        if (checkConnectionForEndpoint(publishNonTelemetryDataParameters.getExternalEndpointId())) {
-            final var messagingIntegrationParameters = new MessagingIntegrationParameters(publishNonTelemetryDataParameters.getExternalEndpointId(),
-                    publishNonTelemetryDataParameters.getContentMessageType(),
-                    publishNonTelemetryDataParameters.getRecipients(),
-                    publishNonTelemetryDataParameters.getFilename(),
-                    asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
-                    null);
-            sendMessageIntegrationService.publish(messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
-        } else {
-            log.warn("Could not publish data. No connection to agrirouter©.");
-            log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
-            cacheNonTelemetryMessage(publishNonTelemetryDataParameters);
+        final var messagingIntegrationParameters = new MessagingIntegrationParameters(publishNonTelemetryDataParameters.getExternalEndpointId(),
+                publishNonTelemetryDataParameters.getContentMessageType(),
+                publishNonTelemetryDataParameters.getRecipients(),
+                publishNonTelemetryDataParameters.getFilename(),
+                asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
+                null);
+        try {
+            agrirouterStatusIntegrationService.checkCurrentStatus();
+            if (checkConnectionForEndpoint(publishNonTelemetryDataParameters.getExternalEndpointId())) {
+                sendMessageIntegrationService.publish(messagingIntegrationParameters);
+                businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
+            } else {
+                log.warn("Could not publish data. No connection to agrirouter©.");
+                log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
+                messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
+                businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+            }
+        } catch (CriticalBusinessException e) {
+            log.debug("Could not publish data. There was a critical business exception. {}", e.getErrorMessage());
+            messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
             businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
         }
     }
 
-    /**
-     * Save message to the internal cache and log it.
-     *
-     * @param publishNonTelemetryDataParameters -
-     */
-    private void cacheNonTelemetryMessage(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
-        log.info("Message saved to cache. Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
-        log.info("Message: {}", publishNonTelemetryDataParameters.getBase64EncodedMessageContent());
-        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), publishNonTelemetryDataParameters);
-    }
 
     private boolean checkConnectionForEndpoint(String externalEndpointId) {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);

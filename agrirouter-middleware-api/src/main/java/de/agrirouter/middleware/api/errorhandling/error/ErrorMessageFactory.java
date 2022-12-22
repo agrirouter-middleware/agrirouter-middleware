@@ -123,4 +123,12 @@ public final class ErrorMessageFactory {
     public static ErrorMessage couldNotCreatePublicKeyForApplication(String applicationId, String versionId) {
         return new ErrorMessage(ErrorKey.COULD_NOT_CREATE_PUBLIC_KEY_FOR_APPLICATION, String.format("Could not create public key for application with id '%s' and version '%s'.", applicationId, versionId));
     }
+
+    public static ErrorMessage agrirouterStatusNotOperational() {
+        return new ErrorMessage(ErrorKey.AGRIROUTER_STATUS_NOT_OPERATIONAL, "Current agrirouter© status is not operational.");
+    }
+
+    public static ErrorMessage agrirouterStatusNotAvailable() {
+        return new ErrorMessage(ErrorKey.AGRIROUTER_STATUS_NOT_AVAILABLE, "Current agrirouter© status is not available.");
+    }
 }

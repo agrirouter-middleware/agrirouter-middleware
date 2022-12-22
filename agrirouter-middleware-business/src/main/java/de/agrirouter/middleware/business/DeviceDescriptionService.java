@@ -6,10 +6,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import de.agrirouter.middleware.api.IdFactory;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.cache.registration.TransientMachineRegistrationCache;
 import de.agrirouter.middleware.business.parameters.CreateDeviceDescriptionParameters;
 import de.agrirouter.middleware.business.parameters.RegisterMachineParameters;
@@ -40,6 +42,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
+
 /**
  * Service to handle business operations round about the device descriptions.
  */
@@ -54,21 +58,23 @@ public class DeviceDescriptionService {
     private final DeviceRepository deviceRepository;
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
-
     private final TransientMachineRegistrationCache machineRegistrationCache;
+    private final MessageCache messageCache;
 
     public DeviceDescriptionService(DeviceDescriptionRepository deviceDescriptionRepository,
                                     EndpointRepository endpointRepository,
                                     DeviceRepository deviceRepository,
                                     SendMessageIntegrationService sendMessageIntegrationService,
                                     BusinessOperationLogService businessOperationLogService,
-                                    TransientMachineRegistrationCache machineRegistrationCache) {
+                                    TransientMachineRegistrationCache machineRegistrationCache,
+                                    MessageCache messageCache) {
         this.deviceDescriptionRepository = deviceDescriptionRepository;
         this.endpointRepository = endpointRepository;
         this.deviceRepository = deviceRepository;
         this.sendMessageIntegrationService = sendMessageIntegrationService;
         this.businessOperationLogService = businessOperationLogService;
         this.machineRegistrationCache = machineRegistrationCache;
+        this.messageCache = messageCache;
     }
 
     /**
@@ -333,9 +339,14 @@ public class DeviceDescriptionService {
                         null,
                         asByteString(registerMachineParameters.getBase64EncodedDeviceDescription()),
                         teamSetContextId);
-                sendMessageIntegrationService.publish(messagingIntegrationParameters);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
-                return teamSetContextId;
+                try {
+                    sendMessageIntegrationService.publish(messagingIntegrationParameters);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
+                    return teamSetContextId;
+                } catch (CriticalBusinessException e) {
+                    log.error("Could not register machine.", e);
+                    throw new BusinessException(ErrorMessageFactory.agrirouterStatusNotOperational());
+                }
             } else {
                 log.debug("No endpoint found for the given external endpoint ID. Caching the device description. This could be the case if the virtual endpoint is not yet created.");
                 machineRegistrationCache.put(registerMachineParameters.getExternalEndpointId(), teamSetContextId, registerMachineParameters);
@@ -396,9 +407,15 @@ public class DeviceDescriptionService {
                         null,
                         asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
                         teamSetContextId);
-                sendMessageIntegrationService.publish(messagingIntegrationParameters);
-                businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
-                lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
+                try {
+                    sendMessageIntegrationService.publish(messagingIntegrationParameters);
+                    businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
+                    lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
+                } catch (CriticalBusinessException e) {
+                    log.debug("Could not publish the device description. There was a critical business exception. {}", e.getErrorMessage());
+                    messageCache.put(deviceDescription.getExternalEndpointId(), messagingIntegrationParameters);
+                    businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+                }
             }
         }
     }
