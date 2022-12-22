@@ -28,13 +28,16 @@ public class MqttClientManagementService {
     private final MqttClientService mqttClientService;
     private final MqttOptionService mqttOptionService;
     private final MessageHandlingCallback messageHandlingCallback;
+    private final MqttStatistics mqttStatistics;
 
     public MqttClientManagementService(MqttClientService mqttClientService,
                                        MqttOptionService mqttOptionService,
-                                       MessageHandlingCallback messageHandlingCallback) {
+                                       MessageHandlingCallback messageHandlingCallback,
+                                       MqttStatistics mqttStatistics) {
         this.mqttClientService = mqttClientService;
         this.mqttOptionService = mqttOptionService;
         this.messageHandlingCallback = messageHandlingCallback;
+        this.mqttStatistics = mqttStatistics;
         this.cachedMqttClients = new HashMap<>();
     }
 
@@ -78,6 +81,7 @@ public class MqttClientManagementService {
     private CachedMqttClient getCachedMqttClient(OnboardingResponse onboardingResponse) {
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (null == cachedMqttClient) {
+            mqttStatistics.increaseNumberOfCacheMisses();
             log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'. Creating a new one.", onboardingResponse.getConnectionCriteria().getClientId());
             final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.empty(), new ArrayList<>());
             cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
@@ -86,6 +90,7 @@ public class MqttClientManagementService {
     }
 
     private IMqttClient initMqttClient(OnboardingResponse onboardingResponse) throws MqttException {
+        mqttStatistics.increaseNumberOfClientInitializations();
         IMqttClient mqttClient = mqttClientService.create(onboardingResponse);
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setConnectionTimeout(60);
@@ -184,6 +189,7 @@ public class MqttClientManagementService {
      * @param onboardingResponse -
      */
     public void disconnect(OnboardingResponse onboardingResponse) {
+        mqttStatistics.increaseNumberOfDisconnects();
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (null != cachedMqttClient) {
             cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {
@@ -201,6 +207,7 @@ public class MqttClientManagementService {
      * Remove stale connections in case there was a connection loss.
      */
     public void removeStaleConnections() {
+        mqttStatistics.increaseNumberOfStaleConnectionsRemovals();
         cachedMqttClients.values().removeIf(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected());
     }
 
@@ -217,4 +224,21 @@ public class MqttClientManagementService {
         cachedMqttClients.put(endpoint.asOnboardingResponse().getConnectionCriteria().getClientId(), cachedMqttClient);
     }
 
+    /**
+     * Count the number of active connections.
+     *
+     * @return The number of active connections.
+     */
+    public long getNumberOfActiveConnections() {
+        return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected()).count();
+    }
+
+    /**
+     * Count the number of inactive connections.
+     *
+     * @return The number of inactive connections.
+     */
+    public long getNumberOfInactiveConnections() {
+        return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected()).count();
+    }
 }
