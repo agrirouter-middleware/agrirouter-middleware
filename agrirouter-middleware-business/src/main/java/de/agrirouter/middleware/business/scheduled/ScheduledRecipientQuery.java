@@ -10,6 +10,7 @@ import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,15 +27,18 @@ public class ScheduledRecipientQuery {
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public ScheduledRecipientQuery(EndpointRepository endpointRepository,
                                    MqttClientManagementService mqttClientManagementService,
                                    MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                   BusinessOperationLogService businessOperationLogService) {
+                                   BusinessOperationLogService businessOperationLogService,
+                                   AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.endpointRepository = endpointRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessOperationLogService = businessOperationLogService;
+        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -42,28 +46,32 @@ public class ScheduledRecipientQuery {
      */
     @Scheduled(cron = "${app.scheduled.recipient-query}")
     public void scheduledStatusLogging() {
-        log.debug("Scheduled recipient checking for all endpoints.");
-        endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
-            final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
-            if (iMqttClient.isEmpty()) {
-                log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
-            } else {
-                final var listEndpointsService = new ListEndpointsServiceImpl(iMqttClient.get());
-                final var parameters = new ListEndpointsParameters();
-                parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-                parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.SEND);
-                parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
-                parameters.setUnfilteredList(false);
-                final var messageId = listEndpointsService.send(parameters);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled recipient query for the endpoint.");
+        if (agrirouterStatusIntegrationService.isOperational()) {
+            log.debug("Scheduled recipient checking for all endpoints.");
+            endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
+                final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+                if (iMqttClient.isEmpty()) {
+                    log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
+                } else {
+                    final var listEndpointsService = new ListEndpointsServiceImpl(iMqttClient.get());
+                    final var parameters = new ListEndpointsParameters();
+                    parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+                    parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.SEND);
+                    parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
+                    parameters.setUnfilteredList(false);
+                    final var messageId = listEndpointsService.send(parameters);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled recipient query for the endpoint.");
 
-                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-                messageWaitingForAcknowledgement.setMessageId(messageId);
-                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_LIST_ENDPOINTS.getKey());
-                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-            }
-        });
+                    log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                    MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+                    messageWaitingForAcknowledgement.setMessageId(messageId);
+                    messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_LIST_ENDPOINTS.getKey());
+                    messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                }
+            });
+        } else {
+            log.debug("Agrirouter is not operational. Skipping scheduled recipient query.");
+        }
     }
 }

@@ -9,6 +9,7 @@ import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,15 +29,18 @@ public class ScheduledStatusLogging {
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public ScheduledStatusLogging(EndpointRepository endpointRepository,
                                   MqttClientManagementService mqttClientManagementService,
                                   MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                  BusinessOperationLogService businessOperationLogService) {
+                                  BusinessOperationLogService businessOperationLogService,
+                                  AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.endpointRepository = endpointRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessOperationLogService = businessOperationLogService;
+        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -44,27 +48,31 @@ public class ScheduledStatusLogging {
      */
     @Scheduled(cron = "${app.scheduled.status-logging}")
     public void scheduledStatusLogging() {
-        log.debug("Scheduled status update for endpoints.");
-        endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
-            final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
-            if (iMqttClient.isEmpty()) {
-                log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
-            } else {
-                final var messageHeaderQueryService = new MessageHeaderQueryServiceImpl(iMqttClient.get());
-                final var parameters = new MessageQueryParameters();
-                parameters.setSentFromInSeconds(Instant.now().minus(28, ChronoUnit.DAYS).getEpochSecond());
-                parameters.setSentToInSeconds(Instant.now().getEpochSecond());
-                parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
-                final var messageId = messageHeaderQueryService.send(parameters);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled status update for the endpoint.");
+        if (agrirouterStatusIntegrationService.isOperational()) {
+            log.debug("Scheduled status update for endpoints.");
+            endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
+                final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+                if (iMqttClient.isEmpty()) {
+                    log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
+                } else {
+                    final var messageHeaderQueryService = new MessageHeaderQueryServiceImpl(iMqttClient.get());
+                    final var parameters = new MessageQueryParameters();
+                    parameters.setSentFromInSeconds(Instant.now().minus(28, ChronoUnit.DAYS).getEpochSecond());
+                    parameters.setSentToInSeconds(Instant.now().getEpochSecond());
+                    parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+                    final var messageId = messageHeaderQueryService.send(parameters);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled status update for the endpoint.");
 
-                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
-                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-                messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-                messageWaitingForAcknowledgement.setMessageId(messageId);
-                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_HEADER_QUERY.getKey());
-                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-            }
-        });
+                    log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                    MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                    messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+                    messageWaitingForAcknowledgement.setMessageId(messageId);
+                    messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_FEED_HEADER_QUERY.getKey());
+                    messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+                }
+            });
+        } else {
+            log.debug("Agrirouter is not operational. Skipping scheduled status update.");
+        }
     }
 }
