@@ -11,6 +11,7 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,15 +31,18 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public ScheduledFetchingAndConfirmingForExistingMessages(EndpointRepository endpointRepository,
                                                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                              MqttClientManagementService mqttClientManagementService,
-                                                             BusinessOperationLogService businessOperationLogService) {
+                                                             BusinessOperationLogService businessOperationLogService,
+                                                             AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.endpointRepository = endpointRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessOperationLogService = businessOperationLogService;
+        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -46,11 +50,15 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
      */
     @Scheduled(cron = "${app.scheduled.fetching-and-confirming-existing-messages}")
     public void scheduleFetchingAndConfirmingExistingMessagesForAllEndpoints() {
-        log.debug("Scheduled fetching and confirming for existing messages.");
-        endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
-            this.fetchAndConfirmExistingMessages(endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled fetching and confirming of existing messages.");
-        });
+        if (agrirouterStatusIntegrationService.isOperational()) {
+            log.debug("Scheduled fetching and confirming for existing messages.");
+            endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
+                this.fetchAndConfirmExistingMessages(endpoint);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled fetching and confirming of existing messages.");
+            });
+        } else {
+            log.debug("Agrirouter is not operational. Skipping scheduled fetching and confirming for existing messages.");
+        }
     }
 
     private void fetchAndConfirmExistingMessages(Endpoint endpoint) {
