@@ -72,4 +72,13 @@ public class AgrirouterStatusIntegrationService {
             }
         }
     }
+
+    /**
+     * Check whether the agrirouter© is available.
+     *
+     * @return - true if the agrirouter© is available.
+     */
+    public boolean isOperational() {
+        return latestStatus != null && latestStatus.getComponentStatus() != null && latestStatus.getComponentStatus().isOperational();
+    }
 }
