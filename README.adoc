@@ -599,15 +599,19 @@ image::documentation/release_4_0/reset_password_for_tenant.png[new maintenance e
 
 ===== Agrirouter© status integration
 
-With the new release the current status of the agrirouter© is integrated into the whole business process. The status blocks message sending, scheduled checks and status updates in case the agrirouter© is not available. The status is checked every 5 minutes and will be hold within the cache to avoid constant calls to the agrirouter© status page.
+With the new release the current status of the agrirouter© is integrated into the whole business process. The status blocks message sending, scheduled checks and status updates in case the agrirouter© is not available. The status is checked every 5 minutes and will be hold within the cache to avoid constant calls to the agrirouter© status page. This allows to reduce the load on the agrirouter© in case the system has some problems.
 
 ===== Persistent message cache in case of failure
 
-The new version is able to cache messages in case of failure. We added MicroStream as a dependency to the middleware. The cache is stored in a file on the server and you are able to set the path via system property. You can either define the `app.cache.message-cache.data-directory` within your custom set of Spring properties or set the environment variable `MESSAGE_CACHE_DATA_DIRECTORY`. A valid path is required to enable the cache. You could - for example - use something like `/opt/application/.message-cache` to set the location of the cache.
+The new version is able to cache messages in case of failure. We added MicroStream as a dependency to the middleware. The cache is stored in a file on the server, and you are able to set the path via system property. You can either define the `app.cache.message-cache.data-directory` within your custom set of Spring properties or set the environment variable `MESSAGE_CACHE_DATA_DIRECTORY`. A valid path is required to enable the cache. You could - for example - use something like `/opt/application/.message-cache` to set the location of the cache.
 
 ===== Batch size for resending messages
 
 With the new release the messages within the cache are send in batches. The size of the batch can be set via system property. You can define the `app.cache.message-cache.batch-size` within your custom set of Spring properties, there is no environment variable to set the batch size. The default value is 100.
+
+===== No more TTL for the cache
+
+The cache is now persistent and will not be cleared after a certain time.
 
 ===== Adaption of the keep alive interval
 
