@@ -131,4 +131,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage agrirouterStatusNotAvailable() {
         return new ErrorMessage(ErrorKey.AGRIROUTER_STATUS_NOT_AVAILABLE, "Current agrirouter© status is not available.");
     }
+
+    public static ErrorMessage notAuthorized() {
+        return new ErrorMessage(ErrorKey.NOT_AUTHORIZED, "Nice try, but the user is not authorized to perform this action.");
+    }
 }

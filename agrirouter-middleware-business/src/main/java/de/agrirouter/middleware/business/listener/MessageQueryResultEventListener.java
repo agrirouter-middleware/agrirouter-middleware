@@ -20,6 +20,7 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
+import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.Endpoint;
@@ -60,6 +61,7 @@ public class MessageQueryResultEventListener {
     private final TaskDataTimeLogService taskDataTimeLogService;
     private final DeviceDescriptionService deviceDescriptionService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final LatestQueryResults latestQueryResults;
 
     public MessageQueryResultEventListener(MqttClientManagementService mqttClientManagementService,
                                            EndpointRepository endpointRepository,
@@ -70,7 +72,8 @@ public class MessageQueryResultEventListener {
                                            ContentMessageRepository contentMessageRepository,
                                            TaskDataTimeLogService taskDataTimeLogService,
                                            DeviceDescriptionService deviceDescriptionService,
-                                           BusinessOperationLogService businessOperationLogService) {
+                                           BusinessOperationLogService businessOperationLogService,
+                                           LatestQueryResults latestQueryResults) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointRepository = endpointRepository;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -81,6 +84,7 @@ public class MessageQueryResultEventListener {
         this.taskDataTimeLogService = taskDataTimeLogService;
         this.deviceDescriptionService = deviceDescriptionService;
         this.businessOperationLogService = businessOperationLogService;
+        this.latestQueryResults = latestQueryResults;
     }
 
     /**
@@ -228,6 +232,7 @@ public class MessageQueryResultEventListener {
         });
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
+            saveLatestQueryResult(endpoint.getExternalEndpointId(), messageQueryResponse);
             final var nrOfMessagesWithinTheInbox = endpoint.getEndpointStatus().getNrOfMessagesWithinTheInbox();
             if (nrOfMessagesWithinTheInbox > messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery()) {
                 log.warn("The number of messages within the inbox (last status update was {}) is higher than the number of messages in the query. This is not expected. There are {} messages in the inbox and {} messages in the query.", endpoint.getEndpointStatus().getLastUpdate(), nrOfMessagesWithinTheInbox, messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
@@ -241,6 +246,29 @@ public class MessageQueryResultEventListener {
             log.warn("The endpoint was not found in the database, the message was deleted but not saved.");
             deleteMessages(agrirouterEndpointId, messageIds);
         }
+    }
+
+    private void saveLatestQueryResult(String externalEndpointId, FeedResponse.MessageQueryResponse messageQueryResponse) {
+        var queryResult = new LatestQueryResults.QueryResult();
+        log.debug("There are {} messages for this query.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
+        log.debug("There are {} messages in this response.", messageQueryResponse.getMessagesCount());
+        log.debug("This is page {} of {} for the query.", messageQueryResponse.getPage().getNumber(), messageQueryResponse.getPage().getTotal());
+        queryResult.setTotalMessagesInQuery(messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
+        queryResult.setMessagesCount(messageQueryResponse.getMessagesCount());
+        queryResult.setPageNumber(messageQueryResponse.getPage().getNumber());
+        queryResult.setPageTotal(messageQueryResponse.getPage().getTotal());
+        queryResult.setTimestamp(Instant.now());
+        messageQueryResponse.getMessagesList().forEach(feedMessage -> {
+            var messageDetails = new LatestQueryResults.QueryResult.MessageDetails();
+            messageDetails.setMessageId(feedMessage.getHeader().getMessageId());
+            messageDetails.setTechnicalMessageType(feedMessage.getHeader().getTechnicalMessageType());
+            messageDetails.setFileName(feedMessage.getHeader().getMetadata().getFileName());
+            messageDetails.setSenderId(feedMessage.getHeader().getSenderId());
+            messageDetails.setSentTimestamp(feedMessage.getHeader().getSentTimestamp());
+            messageDetails.setPayloadSize(feedMessage.getHeader().getPayloadSize());
+            queryResult.addMessageDetails(messageDetails);
+        });
+        latestQueryResults.add(externalEndpointId, queryResult);
     }
 
     private void fetchAndConfirmExistingMessages(Endpoint endpoint) {

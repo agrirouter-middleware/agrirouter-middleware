@@ -403,7 +403,7 @@ When running the project locally, the Swagger-UI can be found http://localhost:8
 
 === Setting up the database for local development using `docker-compose`
 
-To have a rapid start into developing, you can use the `docker compose` script located within the `dev` folder.
+To have a rapid start into developing, you can use the `docker compose` script located within the `agrirouter-middleware-local` folder.
 The script created both of the necessary databases and after this you are ready to start the development.
 In addition, there is a run configuration for IDEA with all environment variables set - ready, steady, go!
 
@@ -558,7 +558,7 @@ With this release there are breaking changes, so please note the following migra
 ===== Former `applicationId` is now `internalApplicationId`
 
 With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/167[PR 167] the naming was updated.
-The name `applicationId` has was misleading, and therefore it has been changed.
+The name `applicationId` has been misleading, and therefore it has been changed.
 The new name is `internalApplicationId`.
 
 image::documentation/release_4_0/former_internal_application_id.png[new usage of the internal application id,role="left]
