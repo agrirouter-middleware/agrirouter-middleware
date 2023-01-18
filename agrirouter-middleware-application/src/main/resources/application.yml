@@ -25,11 +25,6 @@ spring:
 logging:
   level:
     root: info
-    org.hibernate.SQL: off
-    org.hibernate.type.descriptor.sql: off
-    org.springframework.web.filter.CommonsRequestLoggingFilter: off
-    de.agrirouter.middleware: trace
-    com.dke.data.agrirouter: trace
 
 app:
   agrirouter:
@@ -39,7 +34,6 @@ app:
     max-tries: 5
     interval: 1000
   scheduled:
-    connection-check: "0 */30 * * * *"
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
     status-logging: "0 */15 * * * *"
     recipient-query: "0 */30 * * * *"

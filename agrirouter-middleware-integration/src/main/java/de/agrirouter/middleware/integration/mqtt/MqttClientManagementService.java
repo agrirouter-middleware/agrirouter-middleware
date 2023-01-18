@@ -2,14 +2,18 @@ package de.agrirouter.middleware.integration.mqtt;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.Gateway;
-import com.dke.data.agrirouter.convenience.mqtt.client.MqttClientService;
+import com.dke.data.agrirouter.api.env.Environment;
+import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 
@@ -25,19 +29,19 @@ import java.util.*;
 public class MqttClientManagementService {
 
     private final Map<String, CachedMqttClient> cachedMqttClients;
-    private final MqttClientService mqttClientService;
     private final MqttOptionService mqttOptionService;
     private final MessageHandlingCallback messageHandlingCallback;
     private final MqttStatistics mqttStatistics;
+    private final Environment environment;
 
-    public MqttClientManagementService(MqttClientService mqttClientService,
-                                       MqttOptionService mqttOptionService,
+    public MqttClientManagementService(MqttOptionService mqttOptionService,
                                        MessageHandlingCallback messageHandlingCallback,
-                                       MqttStatistics mqttStatistics) {
-        this.mqttClientService = mqttClientService;
+                                       MqttStatistics mqttStatistics,
+                                       Environment environment) {
         this.mqttOptionService = mqttOptionService;
         this.messageHandlingCallback = messageHandlingCallback;
         this.mqttStatistics = mqttStatistics;
+        this.environment = environment;
         this.cachedMqttClients = new HashMap<>();
     }
 
@@ -91,7 +95,7 @@ public class MqttClientManagementService {
 
     private IMqttClient initMqttClient(OnboardingResponse onboardingResponse) throws MqttException {
         mqttStatistics.increaseNumberOfClientInitializations();
-        IMqttClient mqttClient = mqttClientService.create(onboardingResponse);
+        IMqttClient mqttClient = createMqttClient(onboardingResponse);
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setConnectionTimeout(60);
         mqttConnectOptions.setKeepAliveInterval(60);
@@ -100,6 +104,21 @@ public class MqttClientManagementService {
         mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
         mqttClient.setCallback(messageHandlingCallback);
         return mqttClient;
+    }
+
+    private IMqttClient createMqttClient(OnboardingResponse onboardingResponse) {
+        try {
+            var host = onboardingResponse.getConnectionCriteria().getHost();
+            var port = onboardingResponse.getConnectionCriteria().getPort();
+            var clientId = onboardingResponse.getConnectionCriteria().getClientId();
+            if (StringUtils.isAnyBlank(host, port, clientId)) {
+                throw new CouldNotCreateMqttClientException("Currently there are parameters missing. Did you onboard correctly - host, port or client id are missing.");
+            } else {
+                return new MqttClient(this.environment.getMqttServerUrl(host, port), Objects.requireNonNull(clientId), new MemoryPersistence());
+            }
+        } catch (MqttException var5) {
+            throw new CouldNotCreateMqttClientException("Could not create MQTT client.", var5);
+        }
     }
 
     /**
@@ -201,14 +220,6 @@ public class MqttClientManagementService {
                 }
             });
         }
-    }
-
-    /**
-     * Remove stale connections in case there was a connection loss.
-     */
-    public void removeStaleConnections() {
-        mqttStatistics.increaseNumberOfStaleConnectionsRemovals();
-        cachedMqttClients.values().removeIf(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected());
     }
 
     /**
