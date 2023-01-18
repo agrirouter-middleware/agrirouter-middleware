@@ -34,7 +34,6 @@ public class ApplicationService {
     private final TenantRepository tenantRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
-
     private final EndpointService endpointService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
@@ -234,4 +233,5 @@ public class ApplicationService {
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application deleted.");
         applicationRepository.delete(application);
     }
+
 }
