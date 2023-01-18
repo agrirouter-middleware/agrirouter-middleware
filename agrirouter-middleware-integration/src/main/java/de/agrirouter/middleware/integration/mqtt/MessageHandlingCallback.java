@@ -37,7 +37,6 @@ public class MessageHandlingCallback implements MqttCallback {
     public void connectionLost(Throwable throwable) {
         log.warn("Connection lost. There is at least one endpoint unreachable until the next connection check.");
         mqttStatistics.increaseNumberOfConnectionLosses();
-        applicationEventPublisher.publishEvent(new RemoveStaleConnectionsEvent(this));
     }
 
     @Override
