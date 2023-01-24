@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,9 @@ public class MessageStatisticsGroupedByApplicationResponse {
      */
     public void add(String applicationId, MessageStatisticGroupedBySender messageStatisticGroupedBySender) {
         if (!messageStatistics.containsKey(applicationId)) {
-            messageStatistics.put(applicationId, List.of(messageStatisticGroupedBySender));
+            var value = new ArrayList<MessageStatisticGroupedBySender>();
+            value.add(messageStatisticGroupedBySender);
+            messageStatistics.put(applicationId, value);
         } else {
             messageStatistics.get(applicationId).add(messageStatisticGroupedBySender);
         }
