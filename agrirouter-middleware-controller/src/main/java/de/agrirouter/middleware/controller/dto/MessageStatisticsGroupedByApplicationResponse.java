@@ -44,6 +44,9 @@ public class MessageStatisticsGroupedByApplicationResponse {
     @Schema(description = "The message statistics grouped by sender.")
     public static class MessageStatisticGroupedBySender {
 
+        @Schema(description = "The external endpoint ID of the recipient.")
+        private String externalEndpointId;
+
         /**
          * The list of the message statistics grouped by sender.
          */

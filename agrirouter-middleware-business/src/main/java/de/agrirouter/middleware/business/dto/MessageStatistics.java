@@ -16,6 +16,8 @@ import java.util.Map;
 @Setter
 public class MessageStatistics {
 
+    private String externalEndpointId;
+
     private Map<String, MessageStatistic> messageStatistics = new HashMap<>();
 
     /**
