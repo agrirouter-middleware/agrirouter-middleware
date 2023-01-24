@@ -153,6 +153,7 @@ public class SearchNonTelemetryDataService {
      */
     public MessageStatistics getMessageStatistics(String externalEndpointId) {
         var messageStatistics = new MessageStatistics();
+        messageStatistics.setExternalEndpointId(externalEndpointId);
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             var messageCountForTechnicalMessageTypes = contentMessageRepository.countMessagesGroupedByTechnicalMessageType(optionalEndpoint.get().getAgrirouterEndpointId());
