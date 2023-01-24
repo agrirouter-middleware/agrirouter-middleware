@@ -41,7 +41,7 @@ public class MessageStatistics {
         /**
          * Technical message type.
          */
-        private int numberOfMessages;
+        private long numberOfMessages;
 
         /**
          * The messages statistics grouped by technical message type.
@@ -84,7 +84,7 @@ public class MessageStatistics {
             /**
              * Number of messages.
              */
-            private int numberOfMessages;
+            private long numberOfMessages;
         }
     }
 }

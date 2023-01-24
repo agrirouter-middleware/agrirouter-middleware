@@ -13,5 +13,5 @@ import lombok.Setter;
 public class MessageCountForTechnicalMessageType {
     private String senderId;
     private String technicalMessageType;
-    private int numberOfMessages;
+    private long numberOfMessages;
 }
