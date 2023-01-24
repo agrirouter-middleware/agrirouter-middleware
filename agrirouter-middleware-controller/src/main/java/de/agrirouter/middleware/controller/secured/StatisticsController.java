@@ -2,9 +2,11 @@ package de.agrirouter.middleware.controller.secured;
 
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.ApplicationService;
+import de.agrirouter.middleware.business.SearchNonTelemetryDataService;
 import de.agrirouter.middleware.business.cache.query.LatestHeaderQueryResults;
 import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
 import de.agrirouter.middleware.business.security.AuthorizationService;
+import de.agrirouter.middleware.controller.dto.MessageStatisticsGroupedByApplicationResponse;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.LatestHeaderQueryResultsResponse;
 import de.agrirouter.middleware.controller.dto.response.LatestQueryResultsResponse;
@@ -51,6 +53,7 @@ public class StatisticsController {
     private final AuthorizationService authorizationService;
     private final LatestQueryResults latestQueryResults;
     private final LatestHeaderQueryResults latestHeaderQueryResults;
+    private final SearchNonTelemetryDataService searchNonTelemetryDataService;
 
     public StatisticsController(MqttStatistics mqttStatistics,
                                 MqttClientManagementService mqttClientManagementService,
@@ -58,7 +61,8 @@ public class StatisticsController {
                                 ApplicationService applicationService,
                                 AuthorizationService authorizationService,
                                 LatestQueryResults latestQueryResults,
-                                LatestHeaderQueryResults latestHeaderQueryResults) {
+                                LatestHeaderQueryResults latestHeaderQueryResults,
+                                SearchNonTelemetryDataService searchNonTelemetryDataService) {
         this.mqttStatistics = mqttStatistics;
         this.mqttClientManagementService = mqttClientManagementService;
         this.modelMapper = modelMapper;
@@ -66,6 +70,7 @@ public class StatisticsController {
         this.authorizationService = authorizationService;
         this.latestQueryResults = latestQueryResults;
         this.latestHeaderQueryResults = latestHeaderQueryResults;
+        this.searchNonTelemetryDataService = searchNonTelemetryDataService;
     }
 
     /**
@@ -243,6 +248,30 @@ public class StatisticsController {
             }
         }));
         return ResponseEntity.ok(latestHeaderQueryResultsResponse);
+    }
+
+    @GetMapping(value = {"/message-count", "/message-count/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getMessageStatistics(Principal principal,
+                                                  @PathVariable Optional<String> internalApplicationId) {
+        var messageStatisticsRespose = new MessageStatisticsGroupedByApplicationResponse();
+        final List<Application> applications;
+        if (internalApplicationId.isPresent()) {
+            if (authorizationService.isAuthorized(principal, internalApplicationId.get())) {
+                applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
+            } else {
+                var errorMessage = ErrorMessageFactory.notAuthorized();
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+            }
+        } else {
+            applications = applicationService.findAll(principal);
+        }
+
+        applications.forEach(application -> application.getEndpoints().forEach(endpoint -> {
+            var messageStatistics = searchNonTelemetryDataService.getMessageStatistics(endpoint.getExternalEndpointId());
+            messageStatisticsRespose.add(application.getInternalApplicationId(), modelMapper.map(messageStatistics, MessageStatisticsGroupedByApplicationResponse.MessageStatisticGroupedBySender.class));
+        }));
+
+        return ResponseEntity.ok(messageStatisticsRespose);
     }
 
 }

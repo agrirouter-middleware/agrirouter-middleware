@@ -2,6 +2,7 @@ package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
+import de.agrirouter.middleware.persistence.projections.MessageCountForTechnicalMessageType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -77,4 +78,15 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
                                               @Param("technicalMessageTypesThatAreNotAllowed") List<String> technicalMessageTypesThatAreNotAllowed,
                                               @Param("searchFrom") long searchFrom,
                                               @Param("searchTo") long searchTo);
+
+    /**
+     * Count the number of messages for the given endpoint.
+     *
+     * @param agrirouterEndpointId The endpoint id.
+     * @return The number of messages.
+     */
+    @Query("select c.contentMessageMetadata.senderId, c.contentMessageMetadata.technicalMessageType, count(c.contentMessageMetadata) from ContentMessage c "
+            + "group by c.contentMessageMetadata.senderId, c.contentMessageMetadata.technicalMessageType")
+    List<MessageCountForTechnicalMessageType> countMessagesGroupedByTechnicalMessageType(@Param("agrirouterEndpointId") String agrirouterEndpointId);
+
 }

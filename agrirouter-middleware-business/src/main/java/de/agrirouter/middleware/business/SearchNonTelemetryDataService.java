@@ -3,6 +3,7 @@ package de.agrirouter.middleware.business;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.business.dto.MessageStatistics;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.persistence.ContentMessageRepository;
@@ -142,5 +143,31 @@ public class SearchNonTelemetryDataService {
                 throw new BusinessException(ErrorMessageFactory.couldNotAssembleChunks());
             }
         }
+    }
+
+    /**
+     * Fetch the message statistics for the endpoint.
+     *
+     * @param externalEndpointId The external ID of the endpoint.
+     * @return The statistics.
+     */
+    public MessageStatistics getMessageStatistics(String externalEndpointId) {
+        var messageStatistics = new MessageStatistics();
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var messageCountForTechnicalMessageTypes = contentMessageRepository.countMessagesGroupedByTechnicalMessageType(optionalEndpoint.get().getAgrirouterEndpointId());
+            messageCountForTechnicalMessageTypes.forEach(messageCountForTechnicalMessageType -> {
+                        log.debug("Found {} messages for technical message type {} for the sender {}.",
+                                messageCountForTechnicalMessageType.getNumberOfMessages(),
+                                messageCountForTechnicalMessageType.getTechnicalMessageType(),
+                                messageCountForTechnicalMessageType.getSenderId());
+                        messageStatistics.addMessageStatisticEntry(messageCountForTechnicalMessageType.getSenderId(),
+                                new MessageStatistics.MessageStatistic.Entry(messageCountForTechnicalMessageType.getTechnicalMessageType(), messageCountForTechnicalMessageType.getNumberOfMessages()));
+                    }
+            );
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+        return messageStatistics;
     }
 }
