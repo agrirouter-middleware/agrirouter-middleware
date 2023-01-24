@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,8 @@ public class MessageStatistics {
 
         public MessageStatistic(Entry entry) {
             this.numberOfMessages = entry.getNumberOfMessages();
-            this.entries= List.of(entry);
+            this.entries = new ArrayList<>();
+            this.entries.add(entry);
         }
 
         /**
@@ -61,7 +63,8 @@ public class MessageStatistics {
         public void addEntry(Entry entry) {
             if (entries == null) {
                 numberOfMessages = entry.getNumberOfMessages();
-                entries = List.of(entry);
+                entries = new ArrayList<>();
+                entries.add(entry);
             } else {
                 numberOfMessages += entry.getNumberOfMessages();
                 entries.add(entry);
