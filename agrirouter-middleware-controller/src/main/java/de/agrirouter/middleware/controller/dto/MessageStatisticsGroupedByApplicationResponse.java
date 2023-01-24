@@ -59,7 +59,7 @@ public class MessageStatisticsGroupedByApplicationResponse {
              * Technical message type.
              */
             @Schema(description = "The overall number of messages.")
-            private int numberOfMessages;
+            private long numberOfMessages;
 
             /**
              * The messages statistics grouped by technical message type.
@@ -85,7 +85,7 @@ public class MessageStatisticsGroupedByApplicationResponse {
                  * Number of messages.
                  */
                 @Schema(description = "The number of messages.")
-                private int numberOfMessages;
+                private long numberOfMessages;
             }
         }
     }
