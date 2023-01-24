@@ -50,7 +50,7 @@ public class MessageStatistics {
 
         public MessageStatistic(Entry entry) {
             this.numberOfMessages = entry.getNumberOfMessages();
-            this.entries.add(entry);
+            this.entries= List.of(entry);
         }
 
         /**
