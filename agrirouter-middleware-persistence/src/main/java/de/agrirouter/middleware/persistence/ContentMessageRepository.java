@@ -85,8 +85,9 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
      * @param agrirouterEndpointId The endpoint id.
      * @return The number of messages.
      */
-    @Query("select new de.agrirouter.middleware.persistence.projections.MessageCountForTechnicalMessageType(c.contentMessageMetadata.senderId, c.contentMessageMetadata.technicalMessageType, count(c.contentMessageMetadata)) from ContentMessage c "
-            + "group by c.contentMessageMetadata.senderId, c.contentMessageMetadata.technicalMessageType")
+    @Query("select new de.agrirouter.middleware.persistence.projections.MessageCountForTechnicalMessageType(c.contentMessageMetadata.senderId, c.contentMessageMetadata.technicalMessageType, count(c.contentMessageMetadata)) from ContentMessage c " +
+            " where c.agrirouterEndpointId = :agrirouterEndpointId " +
+            "group by c.contentMessageMetadata.senderId, c.contentMessageMetadata.technicalMessageType")
     List<MessageCountForTechnicalMessageType> countMessagesGroupedByTechnicalMessageType(@Param("agrirouterEndpointId") String agrirouterEndpointId);
 
 }
