@@ -20,6 +20,9 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
+import de.agrirouter.middleware.business.cache.events.BusinessEvent;
+import de.agrirouter.middleware.business.cache.events.BusinessEventApplicationEvent;
+import de.agrirouter.middleware.business.cache.events.BusinessLogEventType;
 import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
@@ -33,6 +36,7 @@ import de.agrirouter.middleware.persistence.ContentMessageRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import de.agrirouter.middleware.persistence.TaskDataTimeLogContainerRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +45,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
 
@@ -62,6 +67,7 @@ public class MessageQueryResultEventListener {
     private final DeviceDescriptionService deviceDescriptionService;
     private final BusinessOperationLogService businessOperationLogService;
     private final LatestQueryResults latestQueryResults;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public MessageQueryResultEventListener(MqttClientManagementService mqttClientManagementService,
                                            EndpointRepository endpointRepository,
@@ -73,7 +79,8 @@ public class MessageQueryResultEventListener {
                                            TaskDataTimeLogService taskDataTimeLogService,
                                            DeviceDescriptionService deviceDescriptionService,
                                            BusinessOperationLogService businessOperationLogService,
-                                           LatestQueryResults latestQueryResults) {
+                                           LatestQueryResults latestQueryResults,
+                                           ApplicationEventPublisher applicationEventPublisher) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointRepository = endpointRepository;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -85,6 +92,7 @@ public class MessageQueryResultEventListener {
         this.deviceDescriptionService = deviceDescriptionService;
         this.businessOperationLogService = businessOperationLogService;
         this.latestQueryResults = latestQueryResults;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -115,17 +123,35 @@ public class MessageQueryResultEventListener {
             contentMessage.setContentMessageMetadata(contentMessageMetadata);
             contentMessageRepository.save(contentMessage);
 
+            var externalEndpointId = new AtomicReference<String>();
+            endpointRepository.findByAgrirouterEndpointId(receiverId)
+                    .ifPresent(endpoint -> {
+                        externalEndpointId.set(endpoint.getExternalEndpointId());
+                    });
+            if (null != externalEndpointId.get()) {
+                applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.NON_TELEMETRY_MESSAGE_RECEIVED)));
+            }
+
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
                 final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
                 taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
+                if (null != externalEndpointId.get()) {
+                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.TASK_DATA_RECEIVED)));
+                }
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
                 deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
+                if (null != externalEndpointId.get()) {
+                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.DEVICE_DESCRIPTION_RECEIVED)));
+                }
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
                 timeLogService.save(contentMessage);
+                if (null != externalEndpointId.get()) {
+                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.TIME_LOG_RECEIVED)));
+                }
             }
         } catch (BusinessException e) {
             log.error("An internal business exception occurred.", e);
