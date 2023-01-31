@@ -489,7 +489,7 @@ public class NonTelemetryDataController implements SecuredApiController {
      * @return -
      */
     @GetMapping(
-            value = {"/{externalEndpointId}/{messageId}", "/download/{externalEndpointId}/{messageId}"},
+            value = "/download/{externalEndpointId}/{messageId}",
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
     )
     @Operation(
