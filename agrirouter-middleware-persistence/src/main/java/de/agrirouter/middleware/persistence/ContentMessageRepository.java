@@ -25,28 +25,45 @@ public interface ContentMessageRepository extends JpaRepository<ContentMessage, 
     /**
      * Find a content message for the given endpoint.
      *
-     * @param agrirouterEndpointId -
-     * @param messageId            -
+     * @param agrirouterEndpointId The endpoint ID.
+     * @param messageId            The message ID.
      * @return -
      */
     Optional<ContentMessage> findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(String agrirouterEndpointId, String messageId);
 
     /**
+     * Delete a content message for the given endpoint.
+     *
+     * @param agrirouterEndpointId The endpoint ID.
+     * @param messageId            The message ID.
+     */
+    int deleteByAgrirouterEndpointIdAndContentMessageMetadataMessageId(String agrirouterEndpointId, String messageId);
+
+    /**
      * Find all messages for the given endpoint and chunk context ID.
      *
-     * @param agrirouterEndpointId -
-     * @param chunkContextId       -
+     * @param agrirouterEndpointId The endpoint ID.
+     * @param chunkContextId       The chunk context ID.
      * @return -
      */
     List<ContentMessage> findByAgrirouterEndpointIdAndContentMessageMetadataChunkContextId(String agrirouterEndpointId, String chunkContextId);
 
     /**
+     * Find all messages for the given endpoint and chunk context ID.
+     *
+     * @param agrirouterEndpointId The endpoint ID.
+     * @param chunkContextId       The chunk context ID.
+     * @return -
+     */
+    int deleteByAgrirouterEndpointIdAndContentMessageMetadataChunkContextId(String agrirouterEndpointId, String chunkContextId);
+
+    /**
      * Search for existing content messages.
      *
-     * @param agrirouterEndpointId  -
-     * @param technicalMessageTypes -
-     * @param searchFrom            -
-     * @param searchTo              -
+     * @param agrirouterEndpointId  The endpoint ID.
+     * @param technicalMessageTypes The technical message types.
+     * @param searchFrom            The search from.
+     * @param searchTo              The search to.
      * @return -
      */
     @Query("select c.contentMessageMetadata from ContentMessage c " +
