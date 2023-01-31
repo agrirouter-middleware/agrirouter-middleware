@@ -489,7 +489,7 @@ public class NonTelemetryDataController implements SecuredApiController {
      * @return -
      */
     @GetMapping(
-            value = "/download/{externalEndpointId}/{messageId}",
+            value = {"/{externalEndpointId}/{messageId}", "/download/{externalEndpointId}/{messageId}"},
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
     )
     @Operation(
@@ -529,6 +529,57 @@ public class NonTelemetryDataController implements SecuredApiController {
     byte[] download(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                     @Parameter(description = "The ID of the message.", required = true) @PathVariable String messageId) {
         return searchNonTelemetryDataService.downloadAsByteArray(externalEndpointId, messageId);
+    }
+
+    /**
+     * Download message content from a content message. This only applies to "non-telemetry-data".
+     *
+     * @param externalEndpointId -
+     * @param messageId          -
+     * @return -
+     */
+    @DeleteMapping(
+            value = "/{externalEndpointId}/{messageId}",
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
+    )
+    @Operation(
+            operationId = "non-telemetry-data.delete",
+            description = "Delete a file for an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The file was deleted.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public @ResponseBody
+    ResponseEntity<Void> delete(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+                                @Parameter(description = "The ID of the message.", required = true) @PathVariable String messageId) {
+        searchNonTelemetryDataService.delete(externalEndpointId, messageId);
+        return ResponseEntity.ok().build();
     }
 
 }
