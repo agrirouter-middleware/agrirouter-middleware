@@ -575,8 +575,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public @ResponseBody
-    ResponseEntity<Void> delete(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> delete(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                 @Parameter(description = "The ID of the message.", required = true) @PathVariable String messageId) {
         searchNonTelemetryDataService.delete(externalEndpointId, messageId);
         return ResponseEntity.ok().build();
