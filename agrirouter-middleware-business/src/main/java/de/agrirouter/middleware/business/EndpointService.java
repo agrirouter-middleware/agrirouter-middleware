@@ -6,6 +6,8 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.cache.events.BusinessEventsCache;
+import de.agrirouter.middleware.business.cache.events.BusinessLogEventType;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -22,7 +24,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -46,6 +51,7 @@ public class EndpointService {
     private final TimeLogRepository timeLogRepository;
     private final BusinessOperationLogService businessOperationLogService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
+    private final BusinessEventsCache businessEventsCache;
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
@@ -60,7 +66,8 @@ public class EndpointService {
                            DeviceDescriptionRepository deviceDescriptionRepository,
                            TimeLogRepository timeLogRepository,
                            BusinessOperationLogService businessOperationLogService,
-                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
+                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
+                           BusinessEventsCache businessEventsCache) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
         this.errorRepository = errorRepository;
@@ -75,6 +82,7 @@ public class EndpointService {
         this.timeLogRepository = timeLogRepository;
         this.businessOperationLogService = businessOperationLogService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
+        this.businessEventsCache = businessEventsCache;
     }
 
     /**
@@ -412,4 +420,22 @@ public class EndpointService {
         }
     }
 
+    /**
+     * Get the business events for the endpoint.
+     *
+     * @param externalEndpointId The external ID of the endpoint.
+     * @return The business events.
+     */
+    public Map<BusinessLogEventType, Instant> getBusinessEvents(String externalEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            var optionalBusinessEvents = businessEventsCache.get(endpoint.getExternalEndpointId());
+            Map<BusinessLogEventType, Instant> businessEvents = new HashMap<>();
+            optionalBusinessEvents.ifPresent(businessEvents::putAll);
+            return businessEvents;
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+    }
 }
