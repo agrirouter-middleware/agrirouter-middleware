@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business.cache.events;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Cache for business events.
@@ -21,7 +21,6 @@ public class BusinessEventsCache {
     /**
      * Cache for business events.
      */
-    @Getter
     private final Map<String, Map<BusinessLogEventType, Instant>> cache = new HashMap<>();
 
     /**
@@ -41,4 +40,13 @@ public class BusinessEventsCache {
         }
     }
 
+    /**
+     * Get the business events for a given external endpoint id.
+     *
+     * @param externalEndpointId The external endpoint id.
+     * @return The business events.
+     */
+    public Optional<Map<BusinessLogEventType, Instant>> get(String externalEndpointId) {
+        return Optional.ofNullable(cache.get(externalEndpointId));
+    }
 }

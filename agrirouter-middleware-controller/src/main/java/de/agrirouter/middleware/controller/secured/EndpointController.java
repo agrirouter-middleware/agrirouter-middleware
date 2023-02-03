@@ -744,4 +744,52 @@ public class EndpointController implements SecuredApiController {
         }
     }
 
+    @GetMapping(
+            value = "/events/{externalEndpointId}"
+    )
+    @Operation(
+            operationId = "endpoint.events",
+            description = "Fetch the business events 2of an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Response with all the events currently available.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = BusinessEventsResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "In case that the endpoint was not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of an business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<BusinessEventsResponse> events(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+        final var businessEvents = endpointService.getBusinessEvents(externalEndpointId);
+        return ResponseEntity.status(HttpStatus.OK).body(new BusinessEventsResponse(externalEndpointId, businessEvents));
+    }
+
 }
