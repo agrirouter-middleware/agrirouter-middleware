@@ -22,7 +22,7 @@ import de.agrirouter.middleware.business.DeviceDescriptionService;
 import de.agrirouter.middleware.business.TimeLogService;
 import de.agrirouter.middleware.business.cache.events.BusinessEvent;
 import de.agrirouter.middleware.business.cache.events.BusinessEventApplicationEvent;
-import de.agrirouter.middleware.business.cache.events.BusinessLogEventType;
+import de.agrirouter.middleware.business.cache.events.BusinessEventType;
 import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
@@ -125,32 +125,30 @@ public class MessageQueryResultEventListener {
 
             var externalEndpointId = new AtomicReference<String>();
             endpointRepository.findByAgrirouterEndpointId(receiverId)
-                    .ifPresent(endpoint -> {
-                        externalEndpointId.set(endpoint.getExternalEndpointId());
-                    });
+                    .ifPresent(endpoint -> externalEndpointId.set(endpoint.getExternalEndpointId()));
             if (null != externalEndpointId.get()) {
-                applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.NON_TELEMETRY_MESSAGE_RECEIVED)));
+                applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessEventType.NON_TELEMETRY_MESSAGE_RECEIVED)));
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
                 final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
                 taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
                 if (null != externalEndpointId.get()) {
-                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.TASK_DATA_RECEIVED)));
+                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessEventType.TASK_DATA_RECEIVED)));
                 }
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
                 deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
                 if (null != externalEndpointId.get()) {
-                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.DEVICE_DESCRIPTION_RECEIVED)));
+                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessEventType.DEVICE_DESCRIPTION_RECEIVED)));
                 }
             }
 
             if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
                 timeLogService.save(contentMessage);
                 if (null != externalEndpointId.get()) {
-                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessLogEventType.TIME_LOG_RECEIVED)));
+                    applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId.get(), new BusinessEvent(Instant.now(), BusinessEventType.TIME_LOG_RECEIVED)));
                 }
             }
         } catch (BusinessException e) {

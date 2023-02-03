@@ -36,7 +36,7 @@ app:
   scheduled:
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
     status-logging: "0 */15 * * * *"
-    recipient-query: "0 */30 * * * *"
+    recipient-query: "0 */15 * * * *"
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
     statuspage-check-interval: "*/30 * * * * *"

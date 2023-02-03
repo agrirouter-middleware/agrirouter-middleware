@@ -7,7 +7,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.cache.events.BusinessEventsCache;
-import de.agrirouter.middleware.business.cache.events.BusinessLogEventType;
+import de.agrirouter.middleware.business.cache.events.BusinessEventType;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -426,12 +426,12 @@ public class EndpointService {
      * @param externalEndpointId The external ID of the endpoint.
      * @return The business events.
      */
-    public Map<BusinessLogEventType, Instant> getBusinessEvents(String externalEndpointId) {
+    public Map<BusinessEventType, Instant> getBusinessEvents(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             var optionalBusinessEvents = businessEventsCache.get(endpoint.getExternalEndpointId());
-            Map<BusinessLogEventType, Instant> businessEvents = new HashMap<>();
+            Map<BusinessEventType, Instant> businessEvents = new HashMap<>();
             optionalBusinessEvents.ifPresent(businessEvents::putAll);
             return businessEvents;
         } else {

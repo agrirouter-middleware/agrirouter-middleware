@@ -17,6 +17,6 @@ import java.time.Instant;
 public class BusinessEvent {
     private Instant timestamp;
 
-    private BusinessLogEventType eventType;
+    private BusinessEventType eventType;
 
 }

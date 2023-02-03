@@ -3,7 +3,7 @@ package de.agrirouter.middleware.business.cache.events;
 /**
  * Event types for the business log.
  */
-public enum BusinessLogEventType {
+public enum BusinessEventType {
 
     /**
      * A new task data has been received.
@@ -19,6 +19,11 @@ public enum BusinessLogEventType {
      * A new time log has been received.
      */
     TIME_LOG_RECEIVED,
+
+    /**
+     * The recipients have been updated.
+     */
+    RECIPIENTS_UPDATED,
 
     /**
      * A new non telemetry message has been received.

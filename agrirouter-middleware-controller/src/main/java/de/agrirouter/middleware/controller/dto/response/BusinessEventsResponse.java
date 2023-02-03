@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.controller.dto.response;
 
-import de.agrirouter.middleware.business.cache.events.BusinessLogEventType;
+import de.agrirouter.middleware.business.cache.events.BusinessEventType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +28,6 @@ public class BusinessEventsResponse {
      * Business events.
      */
     @Schema(description = "Business events.")
-    private Map<BusinessLogEventType, Instant> businessEvents;
+    private Map<BusinessEventType, Instant> businessEvents;
 
 }
