@@ -21,7 +21,7 @@ public class BusinessEventsCache {
     /**
      * Cache for business events.
      */
-    private final Map<String, Map<BusinessLogEventType, Instant>> cache = new HashMap<>();
+    private final Map<String, Map<BusinessEventType, Instant>> cache = new HashMap<>();
 
     /**
      * Handle the application event.
@@ -34,7 +34,7 @@ public class BusinessEventsCache {
         if (cache.containsKey(event.getExternalEndpointId())) {
             cache.get(event.getExternalEndpointId()).put(event.getBusinessEvent().getEventType(), event.getBusinessEvent().getTimestamp());
         } else {
-            var businessLogEvents = new HashMap<BusinessLogEventType, Instant>();
+            var businessLogEvents = new HashMap<BusinessEventType, Instant>();
             businessLogEvents.put(event.getBusinessEvent().getEventType(), event.getBusinessEvent().getTimestamp());
             cache.put(event.getExternalEndpointId(), businessLogEvents);
         }
@@ -46,7 +46,7 @@ public class BusinessEventsCache {
      * @param externalEndpointId The external endpoint id.
      * @return The business events.
      */
-    public Optional<Map<BusinessLogEventType, Instant>> get(String externalEndpointId) {
+    public Optional<Map<BusinessEventType, Instant>> get(String externalEndpointId) {
         return Optional.ofNullable(cache.get(externalEndpointId));
     }
 }
