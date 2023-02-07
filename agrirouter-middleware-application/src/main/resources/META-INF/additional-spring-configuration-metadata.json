@@ -64,6 +64,16 @@
       "name": "app.cache.message-cache.data-directory",
       "type": "java.lang.String",
       "description": "The data directory for the message cache."
+    },
+    {
+      "name": "app.version",
+      "type": "java.lang.String",
+      "description": "Version of the application."
+    },
+    {
+      "name": "app.build",
+      "type": "java.lang.String",
+      "description": "Build of the application."
     }
   ]
 }

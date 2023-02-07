@@ -749,7 +749,7 @@ public class EndpointController implements SecuredApiController {
     )
     @Operation(
             operationId = "endpoint.events",
-            description = "Fetch the business events 2of an existing endpoint.",
+            description = "Fetch the business events of an existing endpoint.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",

@@ -27,6 +27,8 @@ logging:
     root: info
 
 app:
+  version: '@project.version@'
+  build: '@maven.build.timestamp@'
   agrirouter:
     status:
       url: https://status.agrirouter.com/api/v2/components.json
