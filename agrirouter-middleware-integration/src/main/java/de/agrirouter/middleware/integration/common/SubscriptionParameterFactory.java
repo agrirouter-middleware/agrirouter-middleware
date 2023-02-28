@@ -30,7 +30,6 @@ public final class SubscriptionParameterFactory {
     public static List<SetSubscriptionParameters.Subscription> create(Application application) {
         List<SetSubscriptionParameters.Subscription> subscriptions = new ArrayList<>();
         application.getSupportedTechnicalMessageTypes().forEach(supportedTechnicalMessageType -> {
-
             if (supportedTechnicalMessageType.getDirection().equals(Capabilities.CapabilitySpecification.Direction.RECEIVE)
                     || supportedTechnicalMessageType.getDirection().equals(Capabilities.CapabilitySpecification.Direction.SEND_RECEIVE)) {
                 SetSubscriptionParameters.Subscription subscription = new SetSubscriptionParameters.Subscription();
@@ -51,10 +50,10 @@ public final class SubscriptionParameterFactory {
                         log.trace(ArrayUtils.toString(ddis));
                         subscription.setDdis(ddis);
                     }
-                    subscriptions.add(subscription);
                 } else {
                     log.trace("Skip DDIs and position information for technical message types that do not require setting DDIs.");
                 }
+                subscriptions.add(subscription);
             } else {
                 log.trace("Skip technical message type {} because it is not a receive or send-receive type.", supportedTechnicalMessageType.getTechnicalMessageType());
             }
