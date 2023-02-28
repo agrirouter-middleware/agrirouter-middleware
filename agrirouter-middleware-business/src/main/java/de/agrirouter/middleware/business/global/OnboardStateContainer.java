@@ -3,8 +3,6 @@ package de.agrirouter.middleware.business.global;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * A component holding the onboard states for the application.
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class OnboardStateContainer {
 
     private static final ConcurrentHashMap<String, OnboardState> states = new ConcurrentHashMap<>();

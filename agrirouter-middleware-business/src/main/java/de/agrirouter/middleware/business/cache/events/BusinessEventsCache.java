@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business.cache.events;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,6 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
-@Scope(value = "singleton")
 public class BusinessEventsCache {
 
     /**
