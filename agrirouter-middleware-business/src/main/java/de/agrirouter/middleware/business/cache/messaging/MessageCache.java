@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.Collection;
  */
 @Slf4j
 @Component
-@Scope(value = "singleton")
 public class MessageCache {
 
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -54,6 +52,7 @@ public class MessageCache {
             if (getCacheRoot().getMessageCache().remove(messageCacheEntry)) {
                 log.debug("Sending message from cache.");
                 applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, messageCacheEntry.getMessagingIntegrationParameters()));
+                storageManager.storeRoot();
             } else {
                 log.debug("Message cache entry has not been removed from the cache, therefore not sending this one.");
             }

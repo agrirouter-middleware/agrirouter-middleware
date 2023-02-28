@@ -20,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Agrirouter Middleware",
-                version = "5.0",
+                version = "${app.version:unknown}",
                 description = """
                         The agrirouter© middleware was developed to have easier access to the functionality of the agrirouter.
                         The agrirouter© middleware is an additional layer of abstraction and provides access to the agrirouter© without deep knowledge of the underlying processes.

@@ -6,7 +6,6 @@ import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
@@ -22,7 +21,6 @@ public class StorageManagerProvider {
     private String dataDirectory;
 
     @Bean
-    @Scope(value = "singleton")
     protected EmbeddedStorageManager embeddedStorageManager() {
         CacheRoot cacheRoot = new CacheRoot();
         log.info("Using data directory: {}", dataDirectory);

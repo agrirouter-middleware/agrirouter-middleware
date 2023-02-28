@@ -2,8 +2,6 @@ package de.agrirouter.middleware.integration.ack;
 
 import de.agrirouter.middleware.domain.Endpoint;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +14,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class MessageWaitingForAcknowledgementService {
 
     private static final ConcurrentHashMap<String, MessageWaitingForAcknowledgement> messages = new ConcurrentHashMap<>();

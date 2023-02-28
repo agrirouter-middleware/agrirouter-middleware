@@ -3,7 +3,6 @@ package de.agrirouter.middleware.business.cache.query;
 import com.google.protobuf.Timestamp;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -16,7 +15,6 @@ import java.util.Map;
  * Cache for the latest query results.
  */
 @Component
-@Scope("singleton")
 public class LatestHeaderQueryResults {
 
     @Getter

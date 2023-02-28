@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business.cache.cloud;
 
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -12,7 +11,6 @@ import java.util.Optional;
  * Cache for cloud onboarding failures.
  */
 @Component
-@Scope(value = "singleton")
 public class CloudOnboardingFailureCache {
 
     private final HashMap<String, FailureEntry> cache = new HashMap<>();
