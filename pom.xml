@@ -13,7 +13,7 @@
 
     <groupId>de.agrirouter.middleware</groupId>
     <artifactId>agrirouter-middleware</artifactId>
-    <version>5.2</version>
+    <version>5.3</version>
     <packaging>pom</packaging>
 
     <modules>
