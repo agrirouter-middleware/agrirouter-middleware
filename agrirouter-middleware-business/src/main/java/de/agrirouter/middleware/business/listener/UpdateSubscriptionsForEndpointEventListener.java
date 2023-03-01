@@ -99,7 +99,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param endpoint    The endpoint.
      */
     private void sendSubscriptions(Application application, Endpoint endpoint) {
-        log.debug("Update the subscriptions for the endpoint with the id '{}'.", endpoint.getId());
+        log.debug("Update the subscriptions for the endpoint with the id '{}'.", endpoint.getAgrirouterEndpointId());
         final var onboardingResponse = endpoint.asOnboardingResponse();
         if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
             log.debug("Handling MQTT onboard response updates.");
