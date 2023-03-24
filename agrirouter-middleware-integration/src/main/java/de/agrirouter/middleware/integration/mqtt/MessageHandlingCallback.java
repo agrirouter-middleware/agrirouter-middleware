@@ -114,8 +114,8 @@ public class MessageHandlingCallback implements MqttCallback {
 
     private void handleHealthStatusMessage(String payload) {
         log.info("Received health status message: {}", payload);
-        StringUtils.removeStart(payload, HealthStatusMessage.MESSAGE_PREFIX);
-        var healthStatusMessage = new Gson().fromJson(payload, HealthStatusMessage.class);
+        var strippedPayload = StringUtils.removeStart(payload, HealthStatusMessage.MESSAGE_PREFIX).trim();
+        var healthStatusMessage = new Gson().fromJson(strippedPayload, HealthStatusMessage.class);
         var existingHealthStatusMessage = healthStatusMessages.get(healthStatusMessage.getAgrirouterEndpointId());
         if (null != existingHealthStatusMessage) {
             existingHealthStatusMessage.setHasBeenReturned(true);

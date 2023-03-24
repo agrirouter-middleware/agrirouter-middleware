@@ -1,6 +1,8 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
@@ -609,6 +611,15 @@ public class EndpointController implements SecuredApiController {
     )
     public ResponseEntity<Void> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         if (agrirouterStatusIntegrationService.isOperational()) {
+            try {
+                endpointService.findByExternalEndpointId(externalEndpointId);
+            } catch (BusinessException e) {
+                if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                } else {
+                    throw e;
+                }
+            }
             if (endpointService.isHealthy(externalEndpointId)) {
                 return ResponseEntity.status(HttpStatus.OK).build();
             } else {

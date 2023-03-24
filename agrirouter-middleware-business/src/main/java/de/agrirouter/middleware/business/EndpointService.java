@@ -457,17 +457,22 @@ public class EndpointService {
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
             healthStatusService.publishHealthStatusMessage(endpoint.asOnboardingResponse());
-            var timer = nrOfMillisecondsToWaitForHealthStatusResponse;
-            while (timer > 0) {
-                try {
-                    Thread.sleep(HEALTH_STATUS_POLLING_INTERVALL);
-                    if (healthStatusService.isHealthy(endpoint.getAgrirouterEndpointId())) {
-                        return true;
+            if (healthStatusService.hasPendingHealthStatusResponse(endpoint.getAgrirouterEndpointId())) {
+                var timer = nrOfMillisecondsToWaitForHealthStatusResponse;
+                while (timer > 0) {
+                    try {
+                        Thread.sleep(HEALTH_STATUS_POLLING_INTERVALL);
+                        if (healthStatusService.isHealthy(endpoint.getAgrirouterEndpointId())) {
+                            return true;
+                        }
+                    } catch (InterruptedException e) {
+                        log.error("Error while waiting for health status response.", e);
                     }
-                } catch (InterruptedException e) {
-                    log.error("Error while waiting for health status response.", e);
+                    timer = timer - HEALTH_STATUS_POLLING_INTERVALL;
                 }
-                timer = timer - HEALTH_STATUS_POLLING_INTERVALL;
+
+            } else {
+                log.warn("There is no pending health status response for endpoint {}.", endpoint.getAgrirouterEndpointId());
             }
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());

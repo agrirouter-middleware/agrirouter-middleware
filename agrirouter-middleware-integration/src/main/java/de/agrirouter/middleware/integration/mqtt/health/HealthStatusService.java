@@ -38,20 +38,24 @@ public class HealthStatusService {
     public void publishHealthStatusMessage(OnboardingResponse onboardingResponse) {
         Optional<IMqttClient> mqttClient = mqttClientManagementService.get(onboardingResponse);
         mqttClient.ifPresentOrElse(client -> {
-            try {
-                var healthMessage = new MqttMessage();
-                var healthStatusMessage = new HealthStatusMessage();
-                healthStatusMessage.setTimestamp(Instant.now().toEpochMilli());
-                healthStatusMessage.setReason("HEALTH CHECK");
-                healthStatusMessage.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
-                healthMessage.setPayload(healthStatusMessage.asJson().getBytes());
-                healthMessage.setQos(1);
-                healthMessage.setRetained(true);
-                client.publish(onboardingResponse.getConnectionCriteria().getCommands(), healthMessage);
-                healthStatusMessages.put(healthStatusMessage);
-            } catch (MqttException e) {
-                log.error("Could not publish the health check message.", e);
-                throw new BusinessException(new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message."));
+            if (client.isConnected()) {
+                try {
+                    var healthMessage = new MqttMessage();
+                    var healthStatusMessage = new HealthStatusMessage();
+                    healthStatusMessage.setTimestamp(Instant.now().toEpochMilli());
+                    healthStatusMessage.setReason("HEALTH CHECK");
+                    healthStatusMessage.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+                    healthMessage.setPayload(healthStatusMessage.asJson().getBytes());
+                    healthMessage.setQos(1);
+                    client.publish(onboardingResponse.getConnectionCriteria().getCommands(), healthMessage);
+                    healthStatusMessages.put(healthStatusMessage);
+                } catch (MqttException e) {
+                    log.error("Could not publish the health check message.", e);
+                    throw new BusinessException(new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message."));
+                }
+            } else {
+                log.error("Could not publish the health check message. MQTT client is not connected.");
+                throw new BusinessException(new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message. MQTT client is not connected."));
             }
         }, () -> log.warn("Could not find or create a MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId()));
     }
@@ -76,5 +80,16 @@ public class HealthStatusService {
             healthStatusMessages.remove(agrirouterEndpointId);
         }
         return hasBeenReturned;
+    }
+
+    /**
+     * Check if there is a pending health status response for the given endpoint ID.
+     *
+     * @param agrirouterEndpointId The endpoint ID.
+     * @return True if there is a pending health status response, false otherwise.
+     */
+    public boolean hasPendingHealthStatusResponse(String agrirouterEndpointId) {
+        var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
+        return healthStatusMessage != null;
     }
 }
