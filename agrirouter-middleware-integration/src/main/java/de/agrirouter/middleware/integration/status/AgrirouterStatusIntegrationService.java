@@ -45,7 +45,6 @@ public class AgrirouterStatusIntegrationService {
                     .filter(component -> component.getName().equals("agrirouter"))
                     .findFirst()
                     .ifPresent(component -> latestStatus = component);
-            log.trace("Fetched status: {}", latestStatus);
             log.debug("Fetched status: {}", latestStatus.getComponentStatus());
         }
         return latestStatus;
