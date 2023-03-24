@@ -50,7 +50,7 @@ public class MessageHandlingCallback implements MqttCallback {
             log.debug("Message '{}' with QoS {} arrived.", mqttMessage.getId(), mqttMessage.getQos());
             log.trace("Message payload for message '{}' >>> {}", mqttMessage.getId(), StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8));
             mqttStatistics.increaseNumberOfMessagesArrived();
-            var payload = new String(mqttMessage.getPayload());
+            var payload = StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8);
             if (StringUtils.isNotBlank(payload)) {
                 if (StringUtils.startsWith(payload, HealthStatusMessage.MESSAGE_PREFIX)) {
                     handleHealthStatusMessage(payload);
