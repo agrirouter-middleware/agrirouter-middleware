@@ -6,6 +6,8 @@ import com.dke.data.agrirouter.api.service.parameters.SetSubscriptionParameters;
 import de.agrirouter.middleware.domain.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,16 @@ import java.util.stream.IntStream;
 /**
  * Factory to create subscription parameters.
  */
+@Component
 @Slf4j
-public final class SubscriptionParameterFactory {
+public class SubscriptionParameterFactory {
 
-    private SubscriptionParameterFactory() {
-    }
+    @Value("${app.subscriptions.ddi.range.start}")
+    private int ddiRangeStart;
+
+    @Value("${app.subscriptions.ddi.range.end}")
+    private int ddiRangeEnd;
+
 
     /**
      * Create the list of subscription parameters for the given application.
@@ -27,7 +34,7 @@ public final class SubscriptionParameterFactory {
      * @param application The application.
      * @return List of subscriptions to set.
      */
-    public static List<SetSubscriptionParameters.Subscription> create(Application application) {
+    public List<SetSubscriptionParameters.Subscription> create(Application application) {
         List<SetSubscriptionParameters.Subscription> subscriptions = new ArrayList<>();
         application.getSupportedTechnicalMessageTypes().forEach(supportedTechnicalMessageType -> {
             if (supportedTechnicalMessageType.getDirection().equals(Capabilities.CapabilitySpecification.Direction.RECEIVE)
@@ -38,7 +45,7 @@ public final class SubscriptionParameterFactory {
                     subscription.setPosition(true);
                     if (null == application.getApplicationSettings() || application.getApplicationSettings().getDdiCombinationsToSubscribeFor().isEmpty()) {
                         log.debug("The application did not define any DDIs, therefore the whole range from DDI 0 to 600 is subscribed.");
-                        subscription.setDdis(IntStream.rangeClosed(0, 600).boxed().collect(Collectors.toList()));
+                        subscription.setDdis(IntStream.rangeClosed(ddiRangeStart, ddiRangeEnd).boxed().collect(Collectors.toList()));
                     } else {
                         log.debug("The application did define (multiple) ranges of DDIs.");
                         List<Integer> ddis = new ArrayList<>();

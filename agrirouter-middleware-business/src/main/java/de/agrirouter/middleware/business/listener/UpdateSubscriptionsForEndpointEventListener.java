@@ -39,17 +39,20 @@ public class UpdateSubscriptionsForEndpointEventListener {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final SubscriptionParameterFactory subscriptionParameterFactory;
 
     public UpdateSubscriptionsForEndpointEventListener(EndpointRepository endpointRepository,
                                                        ApplicationRepository applicationRepository,
                                                        MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                        MqttClientManagementService mqttClientManagementService,
-                                                       BusinessOperationLogService businessOperationLogService) {
+                                                       BusinessOperationLogService businessOperationLogService,
+                                                       SubscriptionParameterFactory subscriptionParameterFactory) {
         this.endpointRepository = endpointRepository;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessOperationLogService = businessOperationLogService;
+        this.subscriptionParameterFactory = subscriptionParameterFactory;
     }
 
     /**
@@ -102,7 +105,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         final var onboardingResponse = endpoint.asOnboardingResponse();
         if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
             log.debug("Handling MQTT onboard response updates.");
-            final var subscriptions = SubscriptionParameterFactory.create(application);
+            final var subscriptions = subscriptionParameterFactory.create(application);
             enableSubscriptions(onboardingResponse, subscriptions);
             log.debug(String.format("The following subscriptions [%s] for the endpoint with the id '%s' are send.", subscriptions
                     .stream()

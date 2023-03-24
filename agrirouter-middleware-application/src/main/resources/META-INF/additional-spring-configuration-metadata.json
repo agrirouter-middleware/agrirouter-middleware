@@ -79,6 +79,16 @@
       "name": "app.agrirouter.mqtt.health.status.wait.time.in-milliseconds",
       "type": "java.lang.String",
       "description": "The time to wait for the MQTT health status."
+    },
+    {
+      "name": "app.subscriptions.ddi.range.start",
+      "type": "java.lang.String",
+      "description": "Start of the range for the DDI subscription."
+    },
+    {
+      "name": "app.subscriptions.ddi.range.end",
+      "type": "java.lang.String",
+      "description": "End of the range for the DDI subscription."
     }
   ]
 }
