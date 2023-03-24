@@ -27,6 +27,7 @@ logging:
     root: info
 agrirouter:
 
+
 app:
   version: '@project.version@'
   build: '@maven.build.timestamp@'
@@ -57,3 +58,8 @@ app:
       data-directory: ${MESSAGE_CACHE_DATA_DIRECTORY}
     transient-machine-registration-cache:
       time-to-live-in-seconds: 300
+  subscriptions:
+    ddi:
+      range:
+        start: 0
+        end: 675
