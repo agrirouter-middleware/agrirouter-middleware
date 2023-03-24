@@ -25,6 +25,7 @@ spring:
 logging:
   level:
     root: info
+agrirouter:
 
 app:
   version: '@project.version@'
@@ -32,6 +33,12 @@ app:
   agrirouter:
     status:
       url: https://status.agrirouter.com/api/v2/components.json
+    mqtt:
+      health:
+        status:
+          wait:
+            time:
+              in-milliseconds: 5000
   fetch-messages:
     max-tries: 5
     interval: 1000

@@ -1,6 +1,8 @@
 package de.agrirouter.middleware.controller.secured;
 
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
@@ -12,6 +14,7 @@ import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -48,6 +51,7 @@ public class EndpointController implements SecuredApiController {
     private final MessageCache messageCache;
     private final MqttClientManagementService mqttClientManagementService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
+    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public EndpointController(ApplicationService applicationService,
                               EndpointService endpointService,
@@ -55,7 +59,8 @@ public class EndpointController implements SecuredApiController {
                               MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                               MessageCache messageCache,
                               MqttClientManagementService mqttClientManagementService,
-                              CloudOnboardingFailureCache cloudOnboardingFailureCache) {
+                              CloudOnboardingFailureCache cloudOnboardingFailureCache,
+                              AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.applicationService = applicationService;
         this.endpointService = endpointService;
         this.modelMapper = modelMapper;
@@ -63,6 +68,7 @@ public class EndpointController implements SecuredApiController {
         this.messageCache = messageCache;
         this.mqttClientManagementService = mqttClientManagementService;
         this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
+        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -584,6 +590,14 @@ public class EndpointController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "503",
+                            description = "In case the endpoint is currently not connected."
+                    ),
+                    @ApiResponse(
+                            responseCode = "502",
+                            description = "In case the endpoint is currently not able to communicate due to problems with the agrirouter."
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "In case of an unknown error.",
                             content = @Content(
@@ -592,24 +606,27 @@ public class EndpointController implements SecuredApiController {
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
-                    ),
-                    @ApiResponse(
-                            responseCode = "503",
-                            description = "In case the endpoint is currently not connected."
                     )
             }
     )
     public ResponseEntity<Void> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
-        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            if (endpoint.isHealthy()) {
+        if (agrirouterStatusIntegrationService.isOperational()) {
+            try {
+                endpointService.findByExternalEndpointId(externalEndpointId);
+            } catch (BusinessException e) {
+                if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                } else {
+                    throw e;
+                }
+            }
+            if (endpointService.isHealthy(externalEndpointId)) {
                 return ResponseEntity.status(HttpStatus.OK).build();
             } else {
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
         }
     }
 

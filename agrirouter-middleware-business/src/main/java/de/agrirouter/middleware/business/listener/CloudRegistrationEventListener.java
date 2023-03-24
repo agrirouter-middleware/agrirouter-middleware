@@ -61,6 +61,7 @@ public class CloudRegistrationEventListener {
     private final DecodeMessageService decodeMessageService;
 
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
+    private final Gson gson;
 
     public CloudRegistrationEventListener(ApplicationRepository applicationRepository,
                                           EndpointRepository endpointRepository,
@@ -74,7 +75,8 @@ public class CloudRegistrationEventListener {
                                           BusinessOperationLogService businessOperationLogService,
                                           DeviceDescriptionService deviceDescriptionService,
                                           DecodeMessageService decodeMessageService,
-                                          CloudOnboardingFailureCache cloudOnboardingFailureCache) {
+                                          CloudOnboardingFailureCache cloudOnboardingFailureCache,
+                                          Gson gson) {
         this.applicationRepository = applicationRepository;
         this.endpointRepository = endpointRepository;
         this.endpointIntegrationService = endpointIntegrationService;
@@ -88,6 +90,7 @@ public class CloudRegistrationEventListener {
         this.deviceDescriptionService = deviceDescriptionService;
         this.decodeMessageService = decodeMessageService;
         this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
+        this.gson = gson;
     }
 
     /**
@@ -170,7 +173,7 @@ public class CloudRegistrationEventListener {
                             var virtualEndpoint = new Endpoint();
                             virtualEndpoint.setAgrirouterEndpointId(cloudOnboardResponse.getSensorAlternateId());
                             virtualEndpoint.setExternalEndpointId(onboardState.externalEndpointId());
-                            virtualEndpoint.setOnboardResponse(new Gson().toJson(cloudOnboardResponse));
+                            virtualEndpoint.setOnboardResponse(gson.toJson(cloudOnboardResponse));
                             virtualEndpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(virtualEndpoint.asOnboardingResponse(true)));
                             virtualEndpoint.setEndpointType(EndpointType.VIRTUAL);
                             virtualEndpoint = endpointRepository.save(virtualEndpoint);

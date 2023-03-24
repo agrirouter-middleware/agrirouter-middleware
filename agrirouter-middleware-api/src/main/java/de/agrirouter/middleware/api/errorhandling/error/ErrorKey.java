@@ -42,7 +42,8 @@ public enum ErrorKey {
     COULD_NOT_CREATE_PUBLIC_KEY_FOR_APPLICATION(ERR_ + "00033"),
     AGRIROUTER_STATUS_NOT_AVAILABLE(ERR_ + "00034"),
     AGRIROUTER_STATUS_NOT_OPERATIONAL(ERR_ + "00035"),
-    NOT_AUTHORIZED(ERR_ + "00036");
+    NOT_AUTHORIZED(ERR_ + "00036"),
+    COULD_NOT_PUBLISH_HEALTH_MESSAGE(ERR_ + "00037");
 
     private final String key;
 
@@ -58,4 +59,4 @@ public enum ErrorKey {
     public String toString() {
         return key;
     }
-}
+    }

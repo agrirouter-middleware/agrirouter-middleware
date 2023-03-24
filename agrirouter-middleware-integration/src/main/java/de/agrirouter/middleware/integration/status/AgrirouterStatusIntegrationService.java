@@ -25,8 +25,12 @@ public class AgrirouterStatusIntegrationService {
 
     @Value("${app.agrirouter.status.url}")
     private String url;
-
     private Component latestStatus;
+    private final Gson gson;
+
+    public AgrirouterStatusIntegrationService(Gson gson) {
+        this.gson = gson;
+    }
 
     @PostConstruct
     public void init() {
@@ -36,7 +40,7 @@ public class AgrirouterStatusIntegrationService {
     protected Component fetchCurrentStatus() {
         var restTemplate = new RestTemplate();
         var response = restTemplate.getForObject(url, String.class);
-        AgrirouterStatusResponse agrirouterStatusResponse = new Gson().fromJson(response, AgrirouterStatusResponse.class);
+        AgrirouterStatusResponse agrirouterStatusResponse = gson.fromJson(response, AgrirouterStatusResponse.class);
         List<Component> components = Objects.requireNonNull(agrirouterStatusResponse)
                 .getComponents();
         if (components != null && !components.isEmpty()) {
@@ -45,7 +49,6 @@ public class AgrirouterStatusIntegrationService {
                     .filter(component -> component.getName().equals("agrirouter"))
                     .findFirst()
                     .ifPresent(component -> latestStatus = component);
-            log.trace("Fetched status: {}", latestStatus);
             log.debug("Fetched status: {}", latestStatus.getComponentStatus());
         }
         return latestStatus;

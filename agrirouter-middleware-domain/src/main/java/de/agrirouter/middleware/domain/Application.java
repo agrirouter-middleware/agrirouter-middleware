@@ -18,6 +18,7 @@ import java.util.Set;
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class Application extends BaseEntity {
+    private static final Gson GSON = new Gson();
 
     /**
      * The name of the application.
@@ -115,7 +116,7 @@ public class Application extends BaseEntity {
             originalOnboardingResponse.getAuthentication().setCertificate(getApplicationSettings().getRouterDevice().getAuthentication().getCertificate());
             originalOnboardingResponse.getAuthentication().setSecret(getApplicationSettings().getRouterDevice().getAuthentication().getSecret());
             originalOnboardingResponse.getAuthentication().setType(getApplicationSettings().getRouterDevice().getAuthentication().getType().getKey());
-            return new Gson().toJson(originalOnboardingResponse);
+            return GSON.toJson(originalOnboardingResponse);
         } else {
             return null;
         }
