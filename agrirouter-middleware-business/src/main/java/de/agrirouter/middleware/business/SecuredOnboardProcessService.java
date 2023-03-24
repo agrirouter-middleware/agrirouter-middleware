@@ -39,6 +39,7 @@ public class SecuredOnboardProcessService {
     private final EndpointService endpointService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
+    private final Gson gson;
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
@@ -47,7 +48,8 @@ public class SecuredOnboardProcessService {
                                         ApplicationRepository applicationRepository,
                                         EndpointService endpointService,
                                         ApplicationEventPublisher applicationEventPublisher,
-                                        BusinessOperationLogService businessOperationLogService) {
+                                        BusinessOperationLogService businessOperationLogService,
+                                        Gson gson) {
         this.authorizationRequestService = authorizationRequestService;
         this.onboardStateContainer = onboardStateContainer;
         this.endpointRepository = endpointRepository;
@@ -56,6 +58,7 @@ public class SecuredOnboardProcessService {
         this.endpointService = endpointService;
         this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
+        this.gson = gson;
     }
 
     /**
@@ -110,7 +113,7 @@ public class SecuredOnboardProcessService {
                                 application.getPublicKey());
                         final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
 
-                        endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
+                        endpoint.setOnboardResponse(gson.toJson(onboardingResponse));
                         endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
 
                         log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
@@ -136,7 +139,7 @@ public class SecuredOnboardProcessService {
                     endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
                     endpoint.setExternalEndpointId(securedOnboardProcessIntegrationParameters.externalEndpointId());
                     endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
-                    endpoint.setOnboardResponse(new Gson().toJson(onboardingResponse));
+                    endpoint.setOnboardResponse(gson.toJson(onboardingResponse));
                     endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
                     endpointRepository.save(endpoint);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was created.");

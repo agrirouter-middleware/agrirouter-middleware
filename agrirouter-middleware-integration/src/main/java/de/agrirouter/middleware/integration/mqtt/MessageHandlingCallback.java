@@ -23,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class MessageHandlingCallback implements MqttCallback {
 
+    private static final Gson GSON = new Gson();
+
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
@@ -66,7 +68,7 @@ public class MessageHandlingCallback implements MqttCallback {
     }
 
     private void handleAgrirouterMessage(String payload) {
-        final var fetchMessageResponse = new Gson().fromJson(payload, FetchMessageResponse.class);
+        final var fetchMessageResponse = GSON.fromJson(payload, FetchMessageResponse.class);
         final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
         switch (decodedMessageResponse.getResponseEnvelope().getType()) {
             case ACK, ACK_WITH_MESSAGES, ACK_WITH_FAILURE -> {
@@ -115,7 +117,7 @@ public class MessageHandlingCallback implements MqttCallback {
     private void handleHealthStatusMessage(String payload) {
         log.info("Received health status message: {}", payload);
         var strippedPayload = StringUtils.removeStart(payload, HealthStatusMessage.MESSAGE_PREFIX).trim();
-        var healthStatusMessage = new Gson().fromJson(strippedPayload, HealthStatusMessage.class);
+        var healthStatusMessage = GSON.fromJson(strippedPayload, HealthStatusMessage.class);
         var existingHealthStatusMessage = healthStatusMessages.get(healthStatusMessage.getAgrirouterEndpointId());
         if (null != existingHealthStatusMessage) {
             existingHealthStatusMessage.setHasBeenReturned(true);

@@ -24,6 +24,8 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class Endpoint extends BaseEntity {
 
+    private static final Gson GSON = new Gson();
+
     /**
      * The ID of an endpoint.
      */
@@ -97,9 +99,9 @@ public class Endpoint extends BaseEntity {
     public OnboardingResponse asOnboardingResponse() {
         try {
             if (StringUtils.isNotBlank(onboardResponseForRouterDevice)) {
-                return new Gson().fromJson(onboardResponseForRouterDevice, OnboardingResponse.class);
+                return GSON.fromJson(onboardResponseForRouterDevice, OnboardingResponse.class);
             } else {
-                return new Gson().fromJson(onboardResponse, OnboardingResponse.class);
+                return GSON.fromJson(onboardResponse, OnboardingResponse.class);
             }
         } catch (JsonParseException e) {
             throw new BusinessException(ErrorMessageFactory.couldNotParseOnboardResponse(), e);
@@ -114,7 +116,7 @@ public class Endpoint extends BaseEntity {
     public OnboardingResponse asOnboardingResponse(boolean forceUsingTheOriginalOnboardResponse) {
         try {
             if (forceUsingTheOriginalOnboardResponse) {
-                return new Gson().fromJson(onboardResponse, OnboardingResponse.class);
+                return GSON.fromJson(onboardResponse, OnboardingResponse.class);
             } else {
                 return asOnboardingResponse();
             }
