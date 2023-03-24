@@ -20,6 +20,7 @@ import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceI
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -128,8 +129,9 @@ public class AgrirouterConfiguration {
     @Bean
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
-                                                           MqttStatistics mqttStatistics) {
-        return new MessageHandlingCallback(applicationEventPublisher, decodeMessageService, mqttStatistics);
+                                                           MqttStatistics mqttStatistics,
+                                                           HealthStatusMessages healthStatusMessages) {
+        return new MessageHandlingCallback(applicationEventPublisher, decodeMessageService, mqttStatistics, healthStatusMessages);
     }
 
     /**

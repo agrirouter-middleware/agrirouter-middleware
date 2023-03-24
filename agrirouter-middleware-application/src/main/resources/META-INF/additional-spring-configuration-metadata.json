@@ -74,6 +74,11 @@
       "name": "app.build",
       "type": "java.lang.String",
       "description": "Build of the application."
+    },
+    {
+      "name": "app.agrirouter.mqtt.health.status.wait.time.in-milliseconds",
+      "type": "java.lang.String",
+      "description": "The time to wait for the MQTT health status."
     }
   ]
 }

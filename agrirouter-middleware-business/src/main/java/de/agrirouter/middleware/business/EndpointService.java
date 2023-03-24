@@ -6,8 +6,8 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.business.cache.events.BusinessEventsCache;
 import de.agrirouter.middleware.business.cache.events.BusinessEventType;
+import de.agrirouter.middleware.business.cache.events.BusinessEventsCache;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
@@ -18,8 +18,10 @@ import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusService;
 import de.agrirouter.middleware.persistence.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ import java.util.Optional;
 @Service
 public class EndpointService {
 
+    public static final int HEALTH_STATUS_POLLING_INTERVALL = 200;
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
     private final ErrorRepository errorRepository;
@@ -44,6 +47,7 @@ public class EndpointService {
     private final EndpointIntegrationService endpointIntegrationService;
     private final ApplicationRepository applicationRepository;
     private final MqttClientManagementService mqttClientManagementService;
+    private final HealthStatusService healthStatusService;
     private final ContentMessageRepository contentMessageRepository;
     private final UnprocessedMessageRepository unprocessedMessageRepository;
     private final RevokeProcessIntegrationService revokeProcessIntegrationService;
@@ -52,6 +56,8 @@ public class EndpointService {
     private final BusinessOperationLogService businessOperationLogService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final BusinessEventsCache businessEventsCache;
+    @Value("${app.agrirouter.mqtt.health.status.wait.time:5000}")
+    private int nrOfMillisecondsToWaitForHealthStatusResponse;
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
@@ -60,7 +66,7 @@ public class EndpointService {
                            EndpointIntegrationService endpointIntegrationService,
                            ApplicationRepository applicationRepository,
                            MqttClientManagementService mqttClientManagementService,
-                           ContentMessageRepository contentMessageRepository,
+                           HealthStatusService healthStatusService, ContentMessageRepository contentMessageRepository,
                            UnprocessedMessageRepository unprocessedMessageRepository,
                            RevokeProcessIntegrationService revokeProcessIntegrationService,
                            DeviceDescriptionRepository deviceDescriptionRepository,
@@ -75,6 +81,7 @@ public class EndpointService {
         this.endpointIntegrationService = endpointIntegrationService;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
+        this.healthStatusService = healthStatusService;
         this.contentMessageRepository = contentMessageRepository;
         this.unprocessedMessageRepository = unprocessedMessageRepository;
         this.revokeProcessIntegrationService = revokeProcessIntegrationService;
@@ -437,5 +444,34 @@ public class EndpointService {
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
+    }
+
+    /**
+     * Check whether the endpoint is healthy or not. The method will publish a message on
+     *
+     * @param externalEndpointId The external ID of the endpoint.
+     * @return True if the endpoint is healthy, false otherwise.
+     */
+    public boolean isHealthy(String externalEndpointId) {
+        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            healthStatusService.publishHealthStatusMessage(endpoint.asOnboardingResponse());
+            var timer = nrOfMillisecondsToWaitForHealthStatusResponse;
+            while (timer > 0) {
+                try {
+                    Thread.sleep(HEALTH_STATUS_POLLING_INTERVALL);
+                    if (healthStatusService.isHealthy(endpoint.getAgrirouterEndpointId())) {
+                        return true;
+                    }
+                } catch (InterruptedException e) {
+                    log.error("Error while waiting for health status response.", e);
+                }
+                timer = timer - HEALTH_STATUS_POLLING_INTERVALL;
+            }
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+        return false;
     }
 }

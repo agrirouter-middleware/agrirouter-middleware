@@ -252,4 +252,5 @@ public class MqttClientManagementService {
     public long getNumberOfInactiveConnections() {
         return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected()).count();
     }
+
 }
