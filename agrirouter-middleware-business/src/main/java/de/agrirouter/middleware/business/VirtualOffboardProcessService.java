@@ -3,14 +3,15 @@ package de.agrirouter.middleware.business;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParameters;
+import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
 import de.agrirouter.middleware.integration.VirtualOffboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,18 +41,23 @@ public class VirtualOffboardProcessService {
         if (optionalEndpoint.isPresent() && !optionalEndpoint.get().isDeactivated()) {
             final var parentEndpoint = optionalEndpoint.get();
             final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint, getEndpointIds(virtualOffboardProcessParameters));
-            virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
+            if (CollectionUtils.isEmpty(virtualOffboardProcessIntegrationParameters.virtualEndpointIds())) {
+                log.warn("No virtual endpoints available, therefore we are skipping the process.");
+            } else {
+                virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
+            }
         } else {
-            log.warn("Endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());
+            log.warn("Parent endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());
         }
     }
 
     private List<String> getEndpointIds(VirtualOffboardProcessParameters virtualOffboardProcessParameters) {
-        final var agrirouterEndpointIds = new ArrayList<String>();
-        virtualOffboardProcessParameters.getExternalVirtualEndpointIds().forEach(s -> {
-            final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(s);
-            optionalEndpoint.ifPresent(endpoint -> agrirouterEndpointIds.add(endpoint.getAgrirouterEndpointId()));
-        });
+        final var agrirouterEndpointIds = endpointRepository.findByExternalEndpointIdIsIn(virtualOffboardProcessParameters.getExternalVirtualEndpointIds())
+                .stream()
+                .map(Endpoint::getAgrirouterEndpointId)
+                .toList();
+        log.debug("Found {} virtual endpoints.", agrirouterEndpointIds.size());
+        log.trace("Virtual endpoint IDs: {}", String.join(",", agrirouterEndpointIds));
         return agrirouterEndpointIds;
     }
 

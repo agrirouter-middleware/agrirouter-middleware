@@ -319,6 +319,8 @@ public class EndpointService {
                 } else {
                     throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
                 }
+            } else {
+                log.warn("Tried to revoke a virtual endpoint with the ID '{}'. This is not possible.", externalEndpointId);
             }
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
