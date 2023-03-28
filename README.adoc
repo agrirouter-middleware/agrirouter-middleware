@@ -469,7 +469,7 @@ docker-compose logs middleware | grep "Generated default" -B 2 -A 8
 == Releases
 
 The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
-If there are any manual migrations necessary, the documentation can be found right here.
+If there are any manual migrations necessary, the documentation can be found in the release notes[].
 
 === Update your version
 
