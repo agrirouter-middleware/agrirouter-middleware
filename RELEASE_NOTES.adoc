@@ -1,0 +1,257 @@
+= Agrirouter© Middleware Release Notes
+:imagesdir: assets/img
+:toc:
+:toc-title:
+:toclevels: 1
+
+The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
+If there are any manual migrations necessary, the documentation can be found right here.
+
+== Release v5.4
+
+=== Live status checking for endpoints
+
+With the new release it is possible to check the status of the endpoints more easily.
+The check is performed live and not based on a cache.
+
+image::documentation/release_5_4/live_status_for_endpoints.png[live endpoint status checks,role="left]
+
+The basic concept is that the middleware will check the status of the endpoints based on two components - the official status page of the agrirouter© and the echo mechanism of the outbox.
+At first the status page is checked, if there is an error a HTTP 502 is returned.
+If the status page is available, the echo mechanism is checked.
+If the echo mechanism is not available, a HTTP 503 is returned.
+If the echo mechanism is available, a HTTP 200 is returned.
+The echo mechanism is only checked if the status page is available, because the echo mechanism is only if the whole ecosystem is available.
+
+If there is a timeout during the echo mechanism check, the status check will indicate, that the endpoint is no longer available.
+
+=== Update of the DDIs for subscriptions
+
+The DDIs for subscriptions have been updated, the new end of the range is now set to 675 and the configuration is now stored in the environment / Spring profile.
+
+=== Revoke endpoints that are deactivated
+
+With the new release it is possible to revoke endpoints that are deactivated.
+
+== Release v5.3
+
+This release was a hotfix release to fix a bug in the subscription mechanism and provide automated subscription updates without the need to inform the customers.
+
+== Release v5.2
+
+This release was a hotfix release to fix a bug in the subscription mechanism.
+
+== Release v5.1
+
+=== Message statistics for applications
+
+To see how the application is performing, there is a new endpoint to get the number of messages sent and received.
+You are not able to see how many messages per endpoint or per application were sent or received.
+The endpoint is available for the whole installation.
+You can find them in the Swagger documentation.
+
+image::documentation/release_5_1/message_statistics.png[new message statistics endpoint,role="left]
+
+=== Delete messages (and all the chunks)
+
+With the new release it is possible to delete a single message and all of the chunks the message brought with it.
+The endpoint is available for the whole installation.
+You can find them in the Swagger documentation.
+
+image::documentation/release_5_1/delete_message.png[new delete message endpoint,role="left]
+
+=== Add endpoint and caching for business events
+
+There is a new endpoint for business events that occurred within the middleware.
+Each of the business events in the middleware is cached and can be received using the endpoint.
+The endpoint is available for the whole installation.
+You can find them in the Swagger documentation.
+
+image::documentation/release_5_1/business_events.png[new business events endpoint,role="left]
+
+=== Update message recipient checking
+
+The former recipient checking was based on a 30 minute interval.
+The default interval was decreased to a 15 minute interval.
+The interval can be set via system property.
+You can define the `app.scheduled.recipient-query` within your custom set of Spring properties, there is no environment variable to set the recipient check interval.
+The default value is 15 minutes.
+The endpoint is available for the whole installation.
+You can find them in the Swagger documentation.
+
+=== Additional controller for general information
+
+With this release, there is an additional controller, which can be used to check the version of the middleware.
+
+image::documentation/release_5_1/info_controller.png[new info endpoint,role="left]
+
+== Release v5.0
+
+=== Agrirouter© status integration
+
+With the new release the current status of the agrirouter© is integrated into the whole business process.
+The status blocks message sending, scheduled checks and status updates in case the agrirouter© is not available.
+The status is checked every 5 minutes and will be hold within the cache to avoid constant calls to the agrirouter© status page.
+This allows to reduce the load on the agrirouter© in case the system has some problems.
+
+=== Persistent message cache in case of failure
+
+The new version is able to cache messages in case of failure.
+We added MicroStream as a dependency to the middleware.
+The cache is stored in a file on the server, and you are able to set the path via system property.
+You can either define the `app.cache.message-cache.data-directory` within your custom set of Spring properties or set the environment variable `MESSAGE_CACHE_DATA_DIRECTORY`.
+A valid path is required to enable the cache.
+You could - for example - use something like `/opt/application/.message-cache` to set the location of the cache.
+
+=== Batch size for resending messages
+
+With the new release the messages within the cache are send in batches.
+The size of the batch can be set via system property.
+You can define the `app.cache.message-cache.batch-size` within your custom set of Spring properties, there is no environment variable to set the batch size.
+The default value is 100.
+
+=== No more TTL for the cache
+
+The cache is now persistent and will not be cleared after a certain time.
+
+=== Adaption of the keep alive interval
+
+Since the agrirouter© was not happy with the former keep alive interval, we had to adapt it.
+The new value is 60 seconds.
+
+=== New endpoints for statistic purpose
+
+The new version comes with new endpoints to get the number of messages sent and received.
+The endpoints are available for the whole installation.
+You can find them in the Swagger documentation.
+
+image::documentation/release_5_0/mqtt_statistics.png[new statistics endpoint,role="left]
+
+== Release v4.0
+
+With this release there are breaking changes, so please note the following migration guide.
+
+=== Former `applicationId` is now `internalApplicationId`
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/167[PR 167] the naming was updated.
+The name `applicationId` has been misleading, and therefore it has been changed.
+The new name is `internalApplicationId`.
+
+image::documentation/release_4_0/former_internal_application_id.png[new usage of the internal application id,role="left]
+
+=== Former `privateKey` and `publicKey` are now `base64EncodedPrivateKey` and `base64EncodedPublicKey`
+
+Since the parameter names did not reflect the actual content, they have been changed.
+The new names are `base64EncodedPrivateKey` and `base64EncodedPublicKey` for application registration.
+The format is still the same, just the name has been changed.
+
+image::documentation/release_4_0/changed_names_for_private_and_public_key.png[new parameter names for application registration,role="left]
+
+=== Technical message types are now shown in the application details
+
+This is no breaking change, but a new feature.
+The technical message types are now shown in the application details.
+This is useful for debugging and monitoring.
+You can find them either in the response of the application details or in the internal status page.
+
+image::documentation/release_4_0/tmts_in_the_request.png[technical message types,role="left]
+
+image::documentation/release_4_0/tmts_in_internal_status_page.png[technical message types,role="left]
+
+=== Additional features in the internal status page
+
+There are several new features in the internal status page.
+You can clear error several status messages / error messages and see the pending delivery tokens for the endpoints.
+
+image::documentation/release_4_0/clear_error_messages.png[clear error messages,role="left]
+
+=== Public Postman collection
+
+With the new release there comes a handy Postman collection for the agrirouter© middleware.
+You find the link right in the documentation.
+
+=== New endpoints for the maintenance mode
+
+The maintenance mode has a new endpoint to reset the password for a tenant.
+Please handle with care and only use them if you know what you are doing.
+Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
+
+image::documentation/release_4_0/reset_password_for_tenant.png[new maintenance endpoint,role="left]
+
+== Release v3.2
+
+No need for special documentation, no breaking or important changes.
+Just bugfixes.
+
+== Release v3.1
+
+There are no breaking changes in this release (as the version indicates already).
+Although there are some new features for efficiency and performance.
+
+=== Internal status page
+
+With the release 3.1 you can now access the internal status page of the agrirouter© middleware.
+You can find all your applications and their belonging endpoints there.
+Each of the endpoints has a detailed dashboard, where you can see the current status of the endpoint and the last messages that have been sent or received.
+Errors are also displayed there.
+
+image::documentation/release_3_1/endpoint_overview.png[endpoint overview,role="left]
+
+As you can see, there are small icons indicating the current status.
+You are able to hover over them and see the details of the status.
+
+image::documentation/release_3_1/endpoint_status_details.png[endpoint status details,role="left]
+
+Each of the endpoints has a dedicated dashboard showing common errors, warnings, virtual endpoints and much more.
+The sections are only displayed if there is any data to show.
+
+image::documentation/release_3_1/endpoint_dashboard.png[endpoint dashboard,role="left]
+
+=== New endpoints for the maintenance mode
+
+The maintenance mode has some new endpoints to reset the state of an endpoint, remove an endpoint completely or to remove the whole application.
+Please handle with care and only use them if you know what you are doing.
+Since the maintenance endpoints are available without any authentication, you should only expose them to internal networks.
+
+image::documentation/release_3_1/new_maintenance_endpoints.png[new maintenance endpoints,role="left]
+
+== Release v3.0
+
+There are some breaking changes in release 3.0 and therefore the documentation has been updated.
+
+=== Status codes
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/87[PR 87] there was a change in the way the HTTP status codes are handled.
+The response does not contain a real HTTP status code and no longer the literal.
+Please see the Swagger documentation for more information.
+
+=== Searching for time logs
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/89[PR 89] there was a change regarding the search of time logs.
+The search is now based on the timestamp of the message and searching for an ID is not supported anymore.
+
+The former search query did look like this:
+
+image::documentation/release_3_0/old_search_for_timelogs.png[search for time logs,role="left"]
+
+The new search query looks like this:
+
+image::documentation/release_3_0/new_search_for_timelogs.png[search for time logs,role="left"]
+
+=== Monitoring endpoints
+
+With https://github.com/agrirouter-middleware/agrirouter-middleware/pull/103[PR 103] the monitoring for endpoints has been changed.
+This is the main reason why this release is a breaking change.
+If you did not include the monitoring in any of your tools you can now ignore the rest of this section.
+
+The endpoint "status" has been modified and was replaced by several, more detailed endpoints to lower the amount of data transferred during the monitoring.
+The common endpoint "status" is still available, but some details where cut out and moved to specific endpoints.
+Please see the updated Swagger documentation for details.
+
+The former endpoint status did look like this:
+
+image::documentation/release_3_0/old_endpoint_status.png[old endpoint status,role="left]
+
+The new endpoint status looks like this:
+
+image::documentation/release_3_0/new_endpoint_status.png[new endpoint status,role="left]

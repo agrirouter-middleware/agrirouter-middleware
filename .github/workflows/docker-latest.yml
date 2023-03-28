@@ -1,9 +1,6 @@
-name: Docker CI
+name: Docker | Latest
 
 on:
-  pull_request:
-    branches:
-      - "main"
   push:
     branches:
       - "main"
@@ -13,7 +10,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build_jdk_17:
+  create-docker-image:
     name: Create Docker Image
     runs-on: ubuntu-latest
 

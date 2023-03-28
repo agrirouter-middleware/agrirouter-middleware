@@ -6,7 +6,7 @@ on:
       - "main"
 
 jobs:
-  build_jdk_17:
+  build-with-maven:
     name: Build with Java 17
     runs-on: ubuntu-latest
     steps:
