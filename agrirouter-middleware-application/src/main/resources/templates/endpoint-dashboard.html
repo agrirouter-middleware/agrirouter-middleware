@@ -257,7 +257,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="cloudOnboardingFailure: ${cloudOnboardingFailures}">
-                            <td th:text="${#dates.format(cloudOnboardingFailure.timestamp * 1000,'dd.MM.yyyy HH:mm')}"></td>
+                            <td th:text="${#temporals.format(cloudOnboardingFailure.timestamp,'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${cloudOnboardingFailure.virtualExternalEndpointId}"></td>
                             <td th:text="${cloudOnboardingFailure.errorCode}"></td>
                             <td th:text="${cloudOnboardingFailure.errorMessage}"></td>
