@@ -13,6 +13,7 @@ services:
       - MYSQL_PORT=${MYSQL_PORT:-3306}
       - MYSQL_SCHEMA=${MYSQL_DATABASE:-agriroutermiddleware}
       - MYSQL_USER=${MYSQL_USER:-agriroutermiddleware}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-default}
     ports:
       - "${BIND_ADDRESS:-127.0.0.1:8080}:8080"
     networks:
