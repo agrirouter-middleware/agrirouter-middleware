@@ -291,6 +291,10 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>${project.encoding}</encoding>
+                    <compilerArgs>
+                        <arg>--add-exports</arg>
+                        <arg>java.management/sun.management=ALL-UNNAMED</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
