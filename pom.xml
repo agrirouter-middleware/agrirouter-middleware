@@ -293,7 +293,7 @@
                     <encoding>${project.encoding}</encoding>
                     <compilerArgs>
                         <arg>--add-exports</arg>
-                        <arg>java.management/sun.management=ALL-UNNAMED</arg>
+                        <arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
