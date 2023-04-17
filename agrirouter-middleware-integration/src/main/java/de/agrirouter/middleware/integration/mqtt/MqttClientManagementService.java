@@ -5,6 +5,7 @@ import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
+import de.agrirouter.middleware.api.events.CheckConnectionsEvent;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 
@@ -99,7 +101,6 @@ public class MqttClientManagementService {
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setConnectionTimeout(60);
         mqttConnectOptions.setKeepAliveInterval(60);
-        mqttConnectOptions.setAutomaticReconnect(true);
         mqttClient.connect(mqttConnectOptions);
         mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
         mqttClient.setCallback(messageHandlingCallback);
@@ -251,6 +252,19 @@ public class MqttClientManagementService {
      */
     public long getNumberOfInactiveConnections() {
         return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected()).count();
+    }
+
+    /**
+     * Remove all stale connections.
+     */
+    @EventListener(CheckConnectionsEvent.class)
+    public void removeAllStaleConnections() {
+        log.info("There has been a check connections event. Checking all connections.");
+        var disconnectedMqttClients = cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected());
+        disconnectedMqttClients.forEach(cachedMqttClient -> {
+            log.info("Removing stale connection with MQTT client ID '{}'.", cachedMqttClient.id());
+            cachedMqttClients.remove(cachedMqttClient.id());
+        });
     }
 
 }

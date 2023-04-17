@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 public class MessageHandlingCallback implements MqttCallback {
 
     private static final Gson GSON = new Gson();
-
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
@@ -44,6 +43,7 @@ public class MessageHandlingCallback implements MqttCallback {
     public void connectionLost(Throwable throwable) {
         log.warn("Connection lost. There is at least one endpoint unreachable until the next connection check.");
         mqttStatistics.increaseNumberOfConnectionLosses();
+        applicationEventPublisher.publishEvent(new CheckConnectionsEvent(this));
     }
 
     @Override
