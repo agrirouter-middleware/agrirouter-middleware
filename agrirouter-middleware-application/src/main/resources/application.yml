@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mariadb://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_SCHEMA}?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mariadb://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_SCHEMA}?useUnicode=true&characterEncoding=UTF-8${MYSQL_ADDITIONAL_OPTIONS}
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
   data:
@@ -26,7 +26,6 @@ logging:
   level:
     root: info
 agrirouter:
-
 
 app:
   version: '@project.version@'
