@@ -1,8 +1,4 @@
 logging:
   level:
-    root: warn
-    org.hibernate.SQL: off
-    org.hibernate.type.descriptor.sql: off
-    org.springframework.web.filter.CommonsRequestLoggingFilter: off
+    root: info
     de.agrirouter.middleware: info
-    com.dke.data.agrirouter: off
