@@ -1,8 +1,5 @@
 logging:
   level:
     root: info
-    org.hibernate.SQL: off
-    org.hibernate.type.descriptor.sql: off
-    org.springframework.web.filter.CommonsRequestLoggingFilter: off
+    org.flywaydb: debug
     de.agrirouter.middleware: trace
-    com.dke.data.agrirouter: off

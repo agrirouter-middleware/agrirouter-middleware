@@ -428,6 +428,7 @@ To run the application, the following environment variables have to be set.
 |`MYSQL_PORT` |Port for the Maria DB / MySQL.
 |`MYSQL_SCHEMA` |Schema / Database for the Maria DB / MySQL.
 |`MYSQL_USER` |User for the Maria DB / MySQL.
+|`MYSQL_ADDITIONAL_OPTIONS` |Additional options for the Maria DB / MySQL. Start with a `?` and separate the options with `&`.
 |===
 
 === Authentication for the GitHub packages
