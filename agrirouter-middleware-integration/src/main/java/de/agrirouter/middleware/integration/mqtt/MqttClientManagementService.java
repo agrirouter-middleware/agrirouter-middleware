@@ -99,7 +99,6 @@ public class MqttClientManagementService {
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setConnectionTimeout(60);
         mqttConnectOptions.setKeepAliveInterval(60);
-        mqttConnectOptions.setAutomaticReconnect(true);
         mqttClient.connect(mqttConnectOptions);
         mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
         mqttClient.setCallback(messageHandlingCallback);
