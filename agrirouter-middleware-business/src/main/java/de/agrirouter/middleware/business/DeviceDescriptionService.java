@@ -398,24 +398,28 @@ public class DeviceDescriptionService {
         }
 
         if (deviceDescription != null) {
-            final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
-            if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
-                log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
-                final var messagingIntegrationParameters = new MessagingIntegrationParameters(deviceDescription.getExternalEndpointId(),
-                        ContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
-                        Collections.emptyList(),
-                        null,
-                        asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
-                        teamSetContextId);
-                try {
-                    sendMessageIntegrationService.publish(messagingIntegrationParameters);
-                    businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
-                    lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
-                } catch (CriticalBusinessException e) {
-                    log.debug("Could not publish the device description. There was a critical business exception. {}", e.getErrorMessage());
-                    messageCache.put(deviceDescription.getExternalEndpointId(), messagingIntegrationParameters);
-                    businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+            if (StringUtils.isNotBlank(deviceDescription.getBase64EncodedDeviceDescription())) {
+                final var theLastTimeTheDeviceDescriptionHasBeenSent = lastTimeTheDeviceDescriptionHasBeenSent.get(teamSetContextId);
+                if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
+                    log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
+                    final var messagingIntegrationParameters = new MessagingIntegrationParameters(deviceDescription.getExternalEndpointId(),
+                            ContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
+                            Collections.emptyList(),
+                            null,
+                            asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
+                            teamSetContextId);
+                    try {
+                        sendMessageIntegrationService.publish(messagingIntegrationParameters);
+                        businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
+                        lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
+                    } catch (CriticalBusinessException e) {
+                        log.debug("Could not publish the device description. There was a critical business exception. {}", e.getErrorMessage());
+                        messageCache.put(deviceDescription.getExternalEndpointId(), messagingIntegrationParameters);
+                        businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+                    }
                 }
+            } else {
+                log.warn("Missing device description for team set context ID '{}'. The device description has not been sent.", teamSetContextId);
             }
         }
     }
@@ -442,7 +446,7 @@ public class DeviceDescriptionService {
             }
         } catch (IncorrectResultSizeDataAccessException e) {
             log.warn("Looks like we are having duplicates for the team set context id {}. Returning the newest and ignoring the rest.", teamSetContextId);
-            Optional<DeviceDescription> optionalDeviceDescription = deviceDescriptionRepository.findFirstByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
+            var optionalDeviceDescription = deviceDescriptionRepository.findFirstByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
             if (optionalDeviceDescription.isPresent()) {
                 return optionalDeviceDescription.get();
             } else {
