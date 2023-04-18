@@ -62,7 +62,8 @@ public class UpdateRecipientsForEndpointEventListener {
                 final var fetchMessageResponse = updateRecipientsForEndpointEvent.getFetchMessageResponse();
                 final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
                 final var listEndpointsResponse = Endpoints.ListEndpointsResponse.parseFrom(decodedMessageResponse.getResponsePayloadWrapper().getDetails().getValue());
-                if (checkIfAnUpdateOfTheRecipientsIsNeeded(endpoint, listEndpointsResponse)) {
+                if (checkIfThereAreOtherRecipientsThanBefore(endpoint, listEndpointsResponse)
+                        || checkIfAnUpdateOfTheRecipientsIsNeeded(endpoint, listEndpointsResponse)) {
                     log.debug("Remove all of the former message recipients.");
                     messageRecipientRepository.deleteAll(endpoint.getMessageRecipients());
                     endpoint.setMessageRecipients(new HashSet<>());
@@ -91,8 +92,38 @@ public class UpdateRecipientsForEndpointEventListener {
         }
     }
 
+    private boolean checkIfThereAreOtherRecipientsThanBefore(Endpoint endpoint, Endpoints.ListEndpointsResponse listEndpointsResponse) {
+        var otherRecipientsThanBefore = new AtomicBoolean(false);
+        for (Endpoints.ListEndpointsResponse.Endpoint e : listEndpointsResponse.getEndpointsList()) {
+            if (otherRecipientsThanBefore.get()) {
+                break;
+            }
+            var thereIsAMessageRecipientWithTheSameValues = isThereAMessageRecipientWithTheSameId(endpoint, e);
+            if (!thereIsAMessageRecipientWithTheSameValues) {
+                otherRecipientsThanBefore.set(true);
+            }
+        }
+        return otherRecipientsThanBefore.get();
+    }
+
+    private boolean isThereAMessageRecipientWithTheSameId(Endpoint endpoint, Endpoints.ListEndpointsResponse.Endpoint e) {
+        var thereIsAMessageRecipientWithTheSameValues = new AtomicBoolean(false);
+        endpoint.getMessageRecipients().stream().filter(mr -> compareTheMessageRecipientIds(mr, e)).findFirst().ifPresentOrElse(
+                messageRecipient -> {
+                    log.debug("The recipient '{}' is already known.", messageRecipient.getAgrirouterEndpointId());
+                    thereIsAMessageRecipientWithTheSameValues.set(true);
+                },
+                () -> log.debug("The recipient '{}' is not known, therefore an update is needed.", e.getEndpointId())
+        );
+        return thereIsAMessageRecipientWithTheSameValues.get();
+    }
+
+    private boolean compareTheMessageRecipientIds(MessageRecipient mr, Endpoints.ListEndpointsResponse.Endpoint e) {
+        return mr.getAgrirouterEndpointId().equals(e.getEndpointId());
+    }
+
     private boolean checkIfAnUpdateOfTheRecipientsIsNeeded(Endpoint endpoint, Endpoints.ListEndpointsResponse listEndpointsResponse) {
-        AtomicBoolean updateNeeded = new AtomicBoolean(false);
+        var updateNeeded = new AtomicBoolean(false);
         for (Endpoints.ListEndpointsResponse.Endpoint e : listEndpointsResponse.getEndpointsList()) {
             if (updateNeeded.get()) {
                 break;
@@ -115,7 +146,7 @@ public class UpdateRecipientsForEndpointEventListener {
                     log.debug("The recipient '{}' is already known.", messageRecipient.getAgrirouterEndpointId());
                     thereIsAMessageRecipientWithTheSameValues.set(true);
                 },
-                () -> log.debug("The recipient '{}' is not known yet.", e.getEndpointId())
+                () -> log.debug("The recipient '{}' is not known yet, therefore an update is needed.", e.getEndpointId())
         );
         return thereIsAMessageRecipientWithTheSameValues.get();
     }
@@ -128,6 +159,5 @@ public class UpdateRecipientsForEndpointEventListener {
                 mr.getTechnicalMessageType().equals(mt.getTechnicalMessageType()) &&
                 mr.getDirection().equals(mt.getDirection().name());
     }
-
 
 }
