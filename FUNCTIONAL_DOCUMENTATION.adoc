@@ -1,0 +1,256 @@
+= Agrirouter© Middleware
+:imagesdir: assets/img
+:toc:
+:toc-title:
+:toclevels: 4
+
+== Functional documentation
+
+=== How to authenticate the requests?
+
+The endpoints of the middleware are secured by HTTP basic authentication.
+You have to use the *ID of the tenant* and the corresponding *access token* to authenticate.
+
+image::documentation/tenant_log_entry.png[logentry]
+
+[IMPORTANT]
+.Default tenant generation on startup
+====
+During the first startup of the middleware, a default tenant is generated and printed on level INFO within the log file.
+You have to store the credentials at a safe place to authenticate again.
+====
+
+=== How to integrate the middleware in your project?
+
+If you have a running instance, the integration is quite easy.
+The following diagram shows the main aspects of the integration process in your personal application.
+
+image::documentation/integration.png[integration]
+
+==== Set up an instance of the middleware
+
+There are two possible options when setting up an instance of the middleware.
+The first one is to set up the whole environment by yourself and the second one would be to have a look at a commercial offer, like the https://www.lmis.de/connectivity-service-for-agrirouter/["Connectivity Service for agrirouter©"], which is based on the middleware and provides multiple packages for different needs.
+
+==== Configuration of the callbacks and the certificates within the agrirouter©
+
+If you do not have an agrirouter© account, please follow the instructions to register a developer account and create your application within the agrirouter© to proceed with the integration.
+If you already have an application, you can start with the configuration of the application.
+
+First thing to do is the configuration of the callback within the agrirouter©.
+
+image::documentation/configure_callback.png[callback]
+
+The callback endpoint is part of the middleware and has to be reachable as redirect target for the onboard process.
+
+After you configured the callback, you need to generate the certificates.
+Both certificates, the public and the private one are needed for the next steps.
+So please save them to a keystore, a notepad or something else.
+
+==== Register an application within the middleware
+
+After finishing the configuration within the agrirouter© you are ready to set up your application within the middleware.
+There is a dedicated endpoint to register a new application, please see the Swagger documentation of the middleware to have all the details.
+
+==== Define the capabilities of the application
+
+Each application version has its own capabilities and therefore, they have to be configured during the setup process.
+An example could be:
+
+[source,json]
+----
+{
+    "supportedTechnicalMessageTypes": [
+        {
+            "direction": "SEND",
+            "technicalMessageType": "ISO_11783_TASKDATA_ZIP"
+        },
+        {
+            "direction": "SEND",
+            "technicalMessageType": "SHP_SHAPE_ZIP"
+        }
+    ]
+}
+----
+
+In this case the application would be able to send ISO11783 task data and shape files.
+If you need more details, please see the Swagger documentation.
+
+Regarding the capabilities, the middleware is able to handle the following technical message types (content message types):
+
+[cols="1,3"]
+|===
+    |Content Message Type |Matching technical message type within the agrirouter©
+
+    |ISO_11783_TASKDATA_ZIP | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/taskdata.html[iso:11783:-10:taskdata:zip]
+
+    |SHP_SHAPE_ZIP | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/shape.html[shp:shape:zip]
+
+    |DOC_PDF | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/doc.html[doc:pdf]
+
+    |IMG_JPEG | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/image.html[img:jpeg]
+
+    |IMG_PNG | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/image.html[img:png]
+
+    |IMG_BMP | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/image.html[img:bmp]
+
+    |VID_AVI | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/video.html[vid:avi]
+
+    |VID_MP4 | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/video.html[vid:mp4]
+
+    |VID_WMV | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/video.html[vid:wmv]
+
+    |GPS_INFO | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/gps.html[gps:info]
+
+    |ISO_11783_DEVICE_DESCRIPTION | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/efdi.html#iso11783-10device_descriptionprotobuf-teamsetefdi-device-description[iso:11783:-10:device_description:protobuf]
+
+    |ISO_11783_TIME_LOG | https://docs.agrirouter.com/agrirouter-interface-documentation/latest/tmt/efdi.html#iso11783-10time_logprotobuf-efdi-timelog[iso:11783:-10:time_log:protobuf]
+
+|===
+
+==== Onboard process for new endpoints
+
+The middleware provides endpoints for the onboard process for farming software and telemetry platforms, communication units are not supported, since they are not in the main scope of server side software.
+The endpoints for the onboard process will redirect the user to the agrirouter© interface.
+If you do not define a redirect URL when calling the endpoint, then the redirect will be to a page within the agrirouter middleware.
+Otherwise, the priority for redirect urls is as follows:
+
+1. `redirectUrl` parameter within the call of the endpoint
+2. `redirectUrl` within the settings of the application (see Swagger documentation for more details)
+3. Default redirect page within the middleware
+
+After you created you own endpoint with your chosen `externalEndpointId`, the `externalEndpointId` is everything you need to send data and fetch messages from the agrirouter©.
+
+=== Profiles
+
+There are three main profiles, the `dev` profile, the `qa` profile and the `prod` profile.
+The profiles define which log level is set or which job intervals are configured.You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable.
+
+In addition, there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`.
+Those profiles can be set in addition to the main profiles.
+
+1. `-Dspring.profiles.active=dev` - Running the middleware in DEV mode with access to the QA environment of the agrirouter©.
+2. `-Dspring.profiles.active=qa` - Running the middleware in QA mode with access to the QA environment of the agrirouter©.
+3. `-Dspring.profiles.active=prod` - Running the middleware in PROD mode with access to the QA environment of the agrirouter©.
+4. `-Dspring.profiles.active=maintenance` - Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
+5. `-Dspring.profiles.active=connect-agrirouter-qa` - This mode injects a QA environment with specific URLs for the agrirouter©.
+6. `-Dspring.profiles.active=connect-agrirouter-prod` - This mode injects a production environment with specific URLs for the agrirouter©.
+
+=== Logging for Business operations
+
+Each changing business operation is logged with the log level "TRACE".
+The log contains the following information:
+
+* ID of the endpoint (`externalEndpointId` [eid] and `agriroputerEndpointId` [aid]).
+* ID of the application (`internalApplicationId` [iid] `applicationId` [aid]).
+* Log message for the business operation.
+
+==== Trace of business operations
+
+There is an aspect for business operations that logs with the log level "TRACE".
+The log contains the following information:
+
+* Name of the method that is called.
+* Parameters and parameter values of the method.
+* Execution time of the method.
+
+=== Scheduled jobs
+
+There are several scheduled jobs that are executed in the background.
+The following jobs are running:
+
+* The middleware checks the connection of each endpoint to the agrirouter© in a configurable intervall.
+* The middleware fetches messages from the agrirouter© and confirms them in a configurable intervall.
+* The middleware is sending out the cached messages in a configurable intervall.
+* If the agrirouter© is not responding, the middleware is caching the messages waiting for ACKs and removes them in a configurable intervall.
+* The recipients of the endpoints are queried in a configurable intervall.
+* The middleware logs the status of the endpoints in a configurable intervall.
+
+== Development
+
+=== Swagger
+
+The project provides a Swagger documentation and brings its own Swagger-UI that can be accessed using the following url:
+
+http://your-path-to-the-middleware/swagger-ui/index.html
+
+When running the project locally, the Swagger-UI can be found http://localhost:8080/swagger-ui/index.html[here].
+
+=== Prerequisites for building and running the application
+
+* Java 17
+* Maven
+
+=== Setting up the database for local development using `docker-compose`
+
+To have a rapid start into developing, you can use the `docker compose` script located within the `agrirouter-middleware-local` folder.
+The script created both of the necessary databases and after this you are ready to start the development.
+In addition, there is a run configuration for IDEA with all environment variables set - ready, steady, go!
+
+=== Environment variables
+
+To run the application, the following environment variables have to be set.
+
+|===
+|Name |Description
+
+|`MONGODB_HOST` |Host for the MongoDB.
+|`MONGODB_PASSWORD` |Password for the MongoDB.
+|`MONGODB_PORT` |Port for the MongoDB.
+|`MONGODB_SCHEMA` |Schema / Database for the MongoDB.
+|`MONGODB_USER` |User for the MongoDB.
+|`MYSQL_HOST` |Host for the Maria DB / MySQL.
+|`MYSQL_PASSWORD` |Password for the Maria DB / MySQL.
+|`MYSQL_PORT` |Port for the Maria DB / MySQL.
+|`MYSQL_SCHEMA` |Schema / Database for the Maria DB / MySQL.
+|`MYSQL_USER` |User for the Maria DB / MySQL.
+|`MYSQL_ADDITIONAL_OPTIONS` |Additional options for the Maria DB / MySQL. Start with a `?` and separate the options with `&`.
+|===
+
+If you are using the profiles for full URL configuration, you can use the following environment variables.
+
+|===
+|Name |Description
+|'MYSQL_URL' |URL for the Maria DB / MySQL.
+|'MONGODB_URI' |URI for the MongoDB.
+|===
+
+=== Authentication for the GitHub packages
+
+To build the project from scratch you need to authenticate for GitHub packages.
+Please see the following https://docs.github.com/en/packages/guides/configuring-apache-maven-for-use-with-github-packages[website]
+for more details.
+
+=== Run database
+
+Within the `env/database` folder there is a shell script to build and run the database.
+Just run `build.sh` to create and run a docker container.
+
+=== Create and run the docker image
+
+Creating the docker image is straight-forward.
+
+* Build and install all the dependencies via `mvn clean install`.
+* Run `spring-boot:build-image` to create the docker image within the module `agrirouter-middleware-application`.
+* Run `docker run -it -p8080:8080 agrirouter-middleware-application:1.0-SNAPSHOT` to run the container locally.
+
+=== Running the whole stack using docker-compose
+
+You can run the whole required stack, including Mongo and MariaDB, using docker-compose.
+
+* copy `.env.example` to `.env` (or run `./prepare-env.sh`, which sets secure passwords)
+* edit `.env`:
+* set `MY_GITHUB_USER` and `MY_GITHUB_TOKEN` to credentials from GitHub, the token only needs `read:packages` rights
+* set all fields marked as "required" (not needed if `prepare-env` has been used)
+* run (one of) the following commands:
+* `docker-compose build`: builds the agrirouter-middleware sourcecode and packs it into a docker image
+* `docker-compose up [-d]`: creates and starts all containers (agrirouter middleware, mongo and mysql) [in detached mode]
+* `docker-compose stop`: stops the running containers
+* `docker-compose down [-v]`: removes all containers, but keeps the volumes which hold the data [unless -v is specified]
+* `docker-compose logs [-f]`: print the accumulated logs from all containers [and follow the output]
+
+After the initialization of the databases is complete (the middleware container will restart multiple times because the database is not available yet) and all containers are up, you can extract the generated tenant credentials from the logs:
+
+----
+docker-compose logs middleware | grep "Generated default" -B 2 -A 8
+----
