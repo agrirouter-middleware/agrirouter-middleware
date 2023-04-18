@@ -446,7 +446,7 @@ public class DeviceDescriptionService {
             }
         } catch (IncorrectResultSizeDataAccessException e) {
             log.warn("Looks like we are having duplicates for the team set context id {}. Returning the newest and ignoring the rest.", teamSetContextId);
-            var optionalDeviceDescription = deviceDescriptionRepository.findFirstByTeamSetContextIdAndBase64EncodedDeviceDescriptionNotEmptyOrderByTimestampDesc(teamSetContextId);
+            var optionalDeviceDescription = deviceDescriptionRepository.findFirstByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
             if (optionalDeviceDescription.isPresent()) {
                 return optionalDeviceDescription.get();
             } else {
