@@ -18,6 +18,13 @@
                 <div class="mdl-card__supporting-text">
                     <div class="mdl-grid">
                         <div class="mdl-cell--3-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.application.internal-application-id}"></p>
+                        </div>
+                        <div class="mdl-cell--9-col mdl-typography--text-left">
+                            <p th:text="${agrirouterApplication.internalApplicationId}"></p>
+                        </div>
+
+                        <div class="mdl-cell--3-col mdl-typography--text-left">
                             <p class="mdl-typography--font-bold" th:text="#{domain.application.application-id}"></p>
                         </div>
                         <div class="mdl-cell--9-col mdl-typography--text-left">
