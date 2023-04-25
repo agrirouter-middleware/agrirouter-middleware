@@ -83,14 +83,12 @@ public class PublishNonTelemetryDataService {
             final var endpoint = optionalEndpoint.get();
             var messageRecipients = endpoint.getMessageRecipients();
             var updatedMessageRecipients = new ArrayList<String>();
-            publishNonTelemetryDataParameters.getRecipients().forEach(recipient -> {
-                messageRecipients.stream()
-                        .filter(messageRecipient -> StringUtils.equals(recipient, messageRecipient.getAgrirouterEndpointId()) || StringUtils.equals(recipient, messageRecipient.getExternalId()))
-                        .findFirst().ifPresentOrElse(messageRecipient -> {
-                            log.debug("Recipient {} does exists for endpoint {}, using the agrirouter endpoint ID to send the message.", recipient, publishNonTelemetryDataParameters.getExternalEndpointId());
-                            updatedMessageRecipients.add(messageRecipient.getAgrirouterEndpointId());
-                        }, () -> log.warn("Recipient {} does not exist for endpoint {}.", recipient, publishNonTelemetryDataParameters.getExternalEndpointId()));
-            });
+            publishNonTelemetryDataParameters.getRecipients().forEach(recipient -> messageRecipients.stream()
+                    .filter(messageRecipient -> StringUtils.equals(recipient, messageRecipient.getAgrirouterEndpointId()) || StringUtils.equals(recipient, messageRecipient.getExternalId()))
+                    .findFirst().ifPresentOrElse(messageRecipient -> {
+                        log.debug("Recipient {} does exists for endpoint {}, using the agrirouter endpoint ID to send the message.", recipient, publishNonTelemetryDataParameters.getExternalEndpointId());
+                        updatedMessageRecipients.add(messageRecipient.getAgrirouterEndpointId());
+                    }, () -> log.warn("Recipient {} does not exist for endpoint {}.", recipient, publishNonTelemetryDataParameters.getExternalEndpointId())));
             log.debug("Former recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), publishNonTelemetryDataParameters.getRecipients());
             log.debug("Updated recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), updatedMessageRecipients);
             publishNonTelemetryDataParameters.setRecipients(updatedMessageRecipients);
