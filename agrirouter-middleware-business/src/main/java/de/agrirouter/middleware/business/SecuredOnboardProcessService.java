@@ -123,7 +123,7 @@ public class SecuredOnboardProcessService {
                         endpointRepository.save(endpoint);
                         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was updated.");
                         endpointService.sendCapabilities(application, endpoint);
-                        applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
+                        applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId()));
                     }
                 } else {
                     log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
@@ -147,7 +147,7 @@ public class SecuredOnboardProcessService {
                     applicationRepository.save(application);
                     businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "The endpoint was added to the application.");
                     endpointService.sendCapabilities(application, endpoint);
-                    applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
+                    applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId()));
                 }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());

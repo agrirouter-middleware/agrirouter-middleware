@@ -185,7 +185,7 @@ public class CloudRegistrationEventListener {
                             cloudOnboardingFailureCache.clear(virtualEndpoint.getExternalEndpointId());
                             endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
                             deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
-                            applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId(), null));
+                            applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId()));
                         });
                     } else {
                         log.warn("No cloud onboard response found, are there only errors during the cloud onboard process?");

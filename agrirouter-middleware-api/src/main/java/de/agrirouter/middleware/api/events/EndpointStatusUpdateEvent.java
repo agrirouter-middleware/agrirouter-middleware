@@ -26,4 +26,10 @@ public class EndpointStatusUpdateEvent extends ApplicationEvent {
         this.fetchMessageResponse = fetchMessageResponse;
     }
 
+    public EndpointStatusUpdateEvent(Object source, String agrirouterEndpointId) {
+        super(source);
+        this.agrirouterEndpointId = agrirouterEndpointId;
+        this.fetchMessageResponse = null;
+    }
+
 }

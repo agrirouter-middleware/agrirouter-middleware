@@ -1,13 +1,15 @@
 package de.agrirouter.middleware.business.listener;
 
+import de.agrirouter.middleware.api.events.AllEndpointsReconnectedEvent;
+import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,14 +33,19 @@ public class RenewAllSubscriptionsEventListener {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void clearAllMessagesWaitingForAck() {
+    /**
+     * Update the subscriptions for all endpoints.
+     */
+    @Async
+    @EventListener(AllEndpointsReconnectedEvent.class)
+    public void updateSubscriptionsForEndpoints() {
         if (agrirouterStatusIntegrationService.isOperational()) {
             applicationService.findAll().forEach(application -> {
                 log.debug("Renewing subscriptions for application with the ID {}.", application.getInternalApplicationId());
                 endpointService.findAll(application.getInternalApplicationId()).forEach(endpoint -> {
                     log.debug("Renewing subscriptions for endpoint with the ID {}.", endpoint.getAgrirouterEndpointId());
                     applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, endpoint.getAgrirouterEndpointId()));
+                    applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId()));
                 });
             });
         } else {
