@@ -1,5 +1,4 @@
 logging:
   level:
     root: info
-    org.flywaydb: debug
     de.agrirouter.middleware: trace
