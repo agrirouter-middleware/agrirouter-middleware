@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business.listener;
 
+import de.agrirouter.middleware.api.events.AllEndpointsReconnectedEvent;
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.EndpointRepository;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -45,7 +47,7 @@ public class ReconnectAllOnboardResponsesEventListener {
                     final var mqttClient = mqttClientManagementService.get(onboardingResponse);
                     mqttClient.ifPresentOrElse(mc -> log.debug("MQTT client for endpoint with the ID '{}' and client ID '{}' connected", onboardingResponse.getSensorAlternateId(), mc.getClientId()), () ->
                             log.error("Could not reconnect a client, please check the client to avoid data loss."));
-                    applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId(), null));
+                    applicationEventPublisher.publishEvent(new AllEndpointsReconnectedEvent(this));
                 }
             } catch (Exception e) {
                 log.error("Could not reconnect a client, please check the client to avoid data loss.", e);
