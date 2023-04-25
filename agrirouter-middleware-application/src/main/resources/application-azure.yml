@@ -1,0 +1,3 @@
+spring:
+  flyway:
+    locations: classpath:flyway/migrations/all-versions,classpath:flyway/migrations/lt-10.5
