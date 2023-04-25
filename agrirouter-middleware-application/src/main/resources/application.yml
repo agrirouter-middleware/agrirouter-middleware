@@ -28,7 +28,6 @@ spring:
 logging:
   level:
     root: info
-agrirouter:
 
 app:
   version: '@project.version@'

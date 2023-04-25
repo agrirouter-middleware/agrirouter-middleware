@@ -11,9 +11,11 @@ import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Base64;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
@@ -59,6 +61,7 @@ public class PublishNonTelemetryDataService {
         try {
             agrirouterStatusIntegrationService.checkCurrentStatus();
             if (checkConnectionForEndpoint(publishNonTelemetryDataParameters.getExternalEndpointId())) {
+                checkAndUpdateRecipients(publishNonTelemetryDataParameters);
                 sendMessageIntegrationService.publish(messagingIntegrationParameters);
                 businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
             } else {
@@ -72,6 +75,28 @@ public class PublishNonTelemetryDataService {
             messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
             businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
         }
+    }
+
+    private void checkAndUpdateRecipients(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            var messageRecipients = endpoint.getMessageRecipients();
+            var updatedMessageRecipients = new ArrayList<String>();
+            publishNonTelemetryDataParameters.getRecipients().forEach(recipient -> messageRecipients.stream()
+                    .filter(messageRecipient -> StringUtils.equals(recipient, messageRecipient.getAgrirouterEndpointId()) || StringUtils.equals(recipient, messageRecipient.getExternalId()))
+                    .findFirst().ifPresentOrElse(messageRecipient -> {
+                        log.debug("Recipient {} does exists for endpoint {}, using the agrirouter endpoint ID to send the message.", recipient, publishNonTelemetryDataParameters.getExternalEndpointId());
+                        updatedMessageRecipients.add(messageRecipient.getAgrirouterEndpointId());
+                    }, () -> log.warn("Recipient {} does not exist for endpoint {}.", recipient, publishNonTelemetryDataParameters.getExternalEndpointId())));
+            log.debug("Former recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), publishNonTelemetryDataParameters.getRecipients());
+            log.debug("Updated recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), updatedMessageRecipients);
+            publishNonTelemetryDataParameters.setRecipients(updatedMessageRecipients);
+        } else {
+            log.warn("Could not find endpoint with external endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
+            log.info("This might be because the endpoint is not yet registered. The recipients are not updated.");
+        }
+
     }
 
 
