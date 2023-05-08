@@ -9,4 +9,6 @@ EXPOSE 8080
 
 WORKDIR /opt/application
 
-ENTRYPOINT ["java","-jar","application.jar"]
+ENV JAVA_OPTS=""
+
+CMD java $JAVA_OPTS -jar application.jar

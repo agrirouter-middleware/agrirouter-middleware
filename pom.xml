@@ -13,7 +13,7 @@
 
     <groupId>de.agrirouter.middleware</groupId>
     <artifactId>agrirouter-middleware</artifactId>
-    <version>5.9.0-SNAPSHOT</version>
+    <version>5.9.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -238,6 +238,13 @@
                 <groupId>one.microstream</groupId>
                 <artifactId>microstream-storage-embedded</artifactId>
                 <version>07.01.00-MS-GA</version>
+            </dependency>
+
+            <!-- PROMETHEUS -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>1.10.6</version>
             </dependency>
 
         </dependencies>

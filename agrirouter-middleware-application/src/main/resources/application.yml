@@ -25,6 +25,12 @@ spring:
     enabled: true
     locations: classpath:flyway/migrations/all-versions,classpath:flyway/migrations/gt-10.5
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health,metrics,prometheus
+
 logging:
   level:
     root: info
