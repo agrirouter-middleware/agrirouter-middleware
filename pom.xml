@@ -240,6 +240,13 @@
                 <version>07.01.00-MS-GA</version>
             </dependency>
 
+            <!-- PROMETHEUS -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>1.10.6</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
