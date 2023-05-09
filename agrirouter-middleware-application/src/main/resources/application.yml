@@ -18,7 +18,7 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-    open-in-view: false
+    open-in-view: true
 
   flyway:
     baseline-on-migrate: true
