@@ -1,19 +1,18 @@
-package de.agrirouter.middleware.domain;
+package de.agrirouter.middleware.integration.mqtt.list_endpoints;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Entity;
+import java.time.Instant;
 
 /**
  * One of the message recipients for the endpoint.
  */
-@Data
-@Entity
+@Getter
+@Setter
 @ToString
-@EqualsAndHashCode(callSuper = true)
-public class MessageRecipient extends BaseEntity {
+public class MessageRecipient {
 
     /**
      * The agrirouter© endpoint ID.
@@ -44,5 +43,15 @@ public class MessageRecipient extends BaseEntity {
      * The direction.
      */
     private String direction;
+
+    /**
+     * Indicator if the entry was cached.
+     */
+    private boolean cached;
+
+    /**
+     * The timestamp when the message recipients have been fetched.
+     */
+    private Instant timestamp;
 
 }

@@ -1,12 +1,17 @@
 package de.agrirouter.middleware.integration.mqtt;
 
+import agrirouter.request.payload.endpoint.Capabilities;
+import agrirouter.response.payload.account.Endpoints;
 import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import com.google.gson.Gson;
+import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.*;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessage;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
+import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
+import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -16,6 +21,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
 
 /**
  * Callback for all MQTT connections to the agrirouter.
@@ -28,15 +35,18 @@ public class MessageHandlingCallback implements MqttCallback {
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
     private final HealthStatusMessages healthStatusMessages;
+    private final ListEndpointsMessages listEndpointsMessages;
 
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                    DecodeMessageService decodeMessageService,
                                    MqttStatistics mqttStatistics,
-                                   HealthStatusMessages healthStatusMessages) {
+                                   HealthStatusMessages healthStatusMessages,
+                                   ListEndpointsMessages listEndpointsMessages) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
         this.mqttStatistics = mqttStatistics;
         this.healthStatusMessages = healthStatusMessages;
+        this.listEndpointsMessages = listEndpointsMessages;
     }
 
     @Override
@@ -102,7 +112,7 @@ public class MessageHandlingCallback implements MqttCallback {
             case ENDPOINTS_LISTING -> {
                 log.trace("This was an endpoint listing.");
                 mqttStatistics.increaseNumberOfEndpointListings();
-                applicationEventPublisher.publishEvent(new UpdateRecipientsForEndpointEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
+                handleListEndpointsMessage(fetchMessageResponse);
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
             }
             default -> {
@@ -111,6 +121,44 @@ public class MessageHandlingCallback implements MqttCallback {
                 applicationEventPublisher.publishEvent(new UnknownMessageEvent(this, fetchMessageResponse));
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
             }
+        }
+    }
+
+    private void handleListEndpointsMessage(FetchMessageResponse fetchMessageResponse) {
+        try {
+            var existingListEndpointsMessage = listEndpointsMessages.get(fetchMessageResponse.getSensorAlternateId());
+            if (null != existingListEndpointsMessage) {
+                final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
+                final Endpoints.ListEndpointsResponse listEndpointsResponse;
+                listEndpointsResponse = Endpoints.ListEndpointsResponse.parseFrom(decodedMessageResponse.getResponsePayloadWrapper().getDetails().getValue());
+                var messageRecipients = new ArrayList<MessageRecipient>();
+                final var now = Instant.now();
+                listEndpointsResponse.getEndpointsList().forEach(e -> e.getMessageTypesList().forEach(messageType -> {
+                    if (messageType.getDirection().name().equalsIgnoreCase(Capabilities.CapabilitySpecification.Direction.SEND.name())) {
+                        final var messageRecipient = new MessageRecipient();
+                        messageRecipient.setAgrirouterEndpointId(e.getEndpointId());
+                        messageRecipient.setEndpointName(e.getEndpointName());
+                        messageRecipient.setEndpointType(e.getEndpointType());
+                        messageRecipient.setExternalId(e.getExternalId());
+                        messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
+                        messageRecipient.setDirection(messageType.getDirection().name());
+                        messageRecipient.setTimestamp(now);
+                        log.trace("Added recipient: {}", messageRecipient);
+                        messageRecipients.add(messageRecipient);
+                    } else {
+                        log.debug("Ignoring message type with direction {} for endpoint '{}'.", messageType.getDirection().name(), e.getEndpointId());
+                    }
+                }));
+                log.debug("There were {} recipients found for the endpoint '{}'.", messageRecipients.size(), fetchMessageResponse.getSensorAlternateId());
+                log.trace("{}", messageRecipients);
+                existingListEndpointsMessage.setMessageRecipients(messageRecipients);
+                existingListEndpointsMessage.setHasBeenReturned(true);
+                listEndpointsMessages.put(existingListEndpointsMessage);
+            } else {
+                log.warn("Received list endpoints message for unknown former message for endpoint: {}", fetchMessageResponse.getSensorAlternateId());
+            }
+        } catch (InvalidProtocolBufferException e) {
+            log.error("Could not parse list endpoints response.", e);
         }
     }
 

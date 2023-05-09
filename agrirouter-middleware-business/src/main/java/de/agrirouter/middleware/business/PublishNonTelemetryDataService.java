@@ -81,7 +81,7 @@ public class PublishNonTelemetryDataService {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            var messageRecipients = endpoint.getMessageRecipients();
+            var messageRecipients = endpointService.getMessageRecipients(endpoint.getExternalEndpointId());
             var updatedMessageRecipients = new ArrayList<String>();
             publishNonTelemetryDataParameters.getRecipients().forEach(recipient -> messageRecipients.stream()
                     .filter(messageRecipient -> StringUtils.equals(recipient, messageRecipient.getAgrirouterEndpointId()) || StringUtils.equals(recipient, messageRecipient.getExternalId()))

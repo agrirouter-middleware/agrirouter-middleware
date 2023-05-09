@@ -19,13 +19,13 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
-public class HealthStatusService {
+public class HealthStatusIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final HealthStatusMessages healthStatusMessages;
 
-    public HealthStatusService(MqttClientManagementService mqttClientManagementService,
-                               HealthStatusMessages healthStatusMessages) {
+    public HealthStatusIntegrationService(MqttClientManagementService mqttClientManagementService,
+                                          HealthStatusMessages healthStatusMessages) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.healthStatusMessages = healthStatusMessages;
     }
@@ -88,7 +88,7 @@ public class HealthStatusService {
      * @param agrirouterEndpointId The endpoint ID.
      * @return True if there is a pending health status response, false otherwise.
      */
-    public boolean hasPendingHealthStatusResponse(String agrirouterEndpointId) {
+    public boolean hasPendingResponse(String agrirouterEndpointId) {
         var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
         return healthStatusMessage != null;
     }

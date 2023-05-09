@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Container holding the onboard responses as JSON.
@@ -82,14 +81,6 @@ public class Endpoint extends BaseEntity {
      */
     @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     private EndpointStatus endpointStatus;
-
-    /**
-     * The message recipients for this endpoint.
-     */
-    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "endpoint_id")
-    @ToString.Exclude
-    private Set<MessageRecipient> messageRecipients;
 
     /**
      * Deliver the internal JSON as DTO.

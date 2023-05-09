@@ -1,16 +1,16 @@
-package de.agrirouter.middleware.controller.dto.response.domain;
+package de.agrirouter.middleware.business.dto.recipients;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * One of the message recipients for the endpoint.
  */
 @Getter
 @Setter
-@Schema(description = "The status of an endpoint.")
-public class MessageRecipientDto {
+@ToString
+public class MessageRecipient {
 
     /**
      * The agrirouter© endpoint ID.
@@ -41,10 +41,5 @@ public class MessageRecipientDto {
      * The direction.
      */
     private String direction;
-
-    /**
-     * Indicator if the entry was cached.
-     */
-    private boolean cached;
 
 }
