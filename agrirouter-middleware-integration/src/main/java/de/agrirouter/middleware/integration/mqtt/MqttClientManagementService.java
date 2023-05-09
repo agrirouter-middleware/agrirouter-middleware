@@ -171,11 +171,11 @@ public class MqttClientManagementService {
                         log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
                     }
                 });
-                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, application.usesRouterDevice(), pendingDeliveryTokens, cachedMqttClient.connectionErrors());
+                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
             }
         }
         log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-        return new TechnicalConnectionState(0, false, Collections.emptyList(), Collections.emptyList());
+        return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
     }
 
     /**
