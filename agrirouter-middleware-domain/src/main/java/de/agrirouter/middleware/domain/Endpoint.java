@@ -84,14 +84,6 @@ public class Endpoint extends BaseEntity {
     private EndpointStatus endpointStatus;
 
     /**
-     * The message recipients for this endpoint.
-     */
-    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "endpoint_id")
-    @ToString.Exclude
-    private Set<MessageRecipient> messageRecipients;
-
-    /**
      * Deliver the internal JSON as DTO.
      *
      * @return -
