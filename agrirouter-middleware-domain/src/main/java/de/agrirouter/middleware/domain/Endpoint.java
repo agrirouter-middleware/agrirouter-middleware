@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Container holding the onboard responses as JSON.
