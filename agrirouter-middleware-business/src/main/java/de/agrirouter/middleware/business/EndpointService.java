@@ -22,6 +22,7 @@ import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationS
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.cache.MessageRecipientCache;
+import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import de.agrirouter.middleware.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +62,8 @@ public class EndpointService {
     private final ListEndpointsIntegrationService listEndpointsIntegrationService;
     @Value("${app.agrirouter.mqtt.synchronous.response.wait.time:3000}")
     private int nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
-    private MessageRecipientCache messageRecipientCache;
+    private final MessageRecipientCache messageRecipientCache;
+    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
 
     public EndpointService(EndpointRepository endpointRepository,
@@ -81,7 +83,8 @@ public class EndpointService {
                            MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                            BusinessEventsCache businessEventsCache,
                            ListEndpointsIntegrationService listEndpointsIntegrationService,
-                           MessageRecipientCache messageRecipientCache) {
+                           MessageRecipientCache messageRecipientCache,
+                           AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
         this.errorRepository = errorRepository;
@@ -100,6 +103,7 @@ public class EndpointService {
         this.businessEventsCache = businessEventsCache;
         this.listEndpointsIntegrationService = listEndpointsIntegrationService;
         this.messageRecipientCache = messageRecipientCache;
+        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -498,36 +502,42 @@ public class EndpointService {
      * @return The recipients for the endpoint.
      */
     public Collection<MessageRecipient> getMessageRecipients(String externalEndpointId) {
-        final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint.asOnboardingResponse());
-            if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
-                var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
-                while (timer > 0) {
-                    try {
-                        Thread.sleep(POLLING_INTERVALL);
-                        var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
-                        if (recipients.isPresent()) {
-                            log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
-                            Collection<MessageRecipient> messageRecipients = recipients.get();
-                            log.debug("Recipients: {}.", messageRecipients);
-                            messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
-                            return messageRecipients;
+        if (agrirouterStatusIntegrationService.isOperational()) {
+            final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+            if (optionalEndpoint.isPresent()) {
+                final var endpoint = optionalEndpoint.get();
+                listEndpointsIntegrationService.publishListEndpointsMessage(endpoint.asOnboardingResponse());
+                if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
+                    var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+                    while (timer > 0) {
+                        try {
+                            Thread.sleep(POLLING_INTERVALL);
+                            var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
+                            if (recipients.isPresent()) {
+                                log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                                Collection<MessageRecipient> messageRecipients = recipients.get();
+                                log.debug("Recipients: {}.", messageRecipients);
+                                messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
+                                return messageRecipients;
+                            }
+                        } catch (InterruptedException e) {
+                            log.error("Error while waiting for list endpoints / message recipients response.", e);
                         }
-                    } catch (InterruptedException e) {
-                        log.error("Error while waiting for list endpoints / message recipients response.", e);
+                        timer = timer - POLLING_INTERVALL;
                     }
-                    timer = timer - POLLING_INTERVALL;
+                } else {
+                    log.warn("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
                 }
             } else {
-                log.warn("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
             }
+            log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
+            var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
+            return optionalMessageRecipients.orElse(Collections.emptyList());
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+            log.debug("Agrirouter is not operational, using the cached recipients.");
+            var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
+            return optionalMessageRecipients.orElse(Collections.emptyList());
         }
-        log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
-        var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
-        return optionalMessageRecipients.orElse(Collections.emptyList());
     }
 }

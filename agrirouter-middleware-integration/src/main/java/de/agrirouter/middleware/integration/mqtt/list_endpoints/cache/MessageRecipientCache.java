@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 public class MessageRecipientCache {
 
-    private HashMap<String, MessageRecipientCacheEntry> cache = new HashMap<>();
+    private final HashMap<String, MessageRecipientCacheEntry> cache = new HashMap<>();
 
     /**
      * Place a collection of message recipients into the cache.

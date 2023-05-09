@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business.dto.recipients;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
