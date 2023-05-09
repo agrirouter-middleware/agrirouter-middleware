@@ -57,6 +57,7 @@ public class MqttClientManagementService {
     public Optional<IMqttClient> get(OnboardingResponse onboardingResponse) {
         if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
             final CachedMqttClient cachedMqttClient = getCachedMqttClient(onboardingResponse);
+            IMqttClient mqttClientAfterInitialization = null;
             if (!isConnected(cachedMqttClient)) {
                 try {
                     log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
@@ -64,7 +65,7 @@ public class MqttClientManagementService {
                     final var mqttClient = initMqttClient(onboardingResponse);
                     final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
                     cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
-                    return Optional.of(mqttClient);
+                    mqttClientAfterInitialization = mqttClient;
                 } catch (Exception e) {
                     cachedMqttClient.connectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
                     cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
@@ -72,11 +73,19 @@ public class MqttClientManagementService {
             } else {
                 log.debug("Returning existing mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
                 //noinspection OptionalGetWithoutIsPresent
-                return Optional.of(cachedMqttClient.mqttClient().get());
+                mqttClientAfterInitialization = cachedMqttClient.mqttClient().get();
+            }
+            if (null != mqttClientAfterInitialization) {
+                if (mqttClientAfterInitialization.isConnected()) {
+                    return Optional.of(mqttClientAfterInitialization);
+                } else {
+                    log.error("The mqtt client for endpoint '{}' with the MQTT client ID '{}' is not connected.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
+                }
             }
         } else {
             log.debug("This onboard response is not MQTT ready, the gateway is set to {}.", onboardingResponse.getConnectionCriteria().getGatewayId());
         }
+        log.info("Could not create a MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         return Optional.empty();
     }
 
@@ -162,11 +171,11 @@ public class MqttClientManagementService {
                         log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
                     }
                 });
-                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, application.usesRouterDevice(), pendingDeliveryTokens, cachedMqttClient.connectionErrors());
+                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
             }
         }
         log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-        return new TechnicalConnectionState(0, false, Collections.emptyList(), Collections.emptyList());
+        return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
     }
 
     /**

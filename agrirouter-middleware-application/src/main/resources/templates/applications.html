@@ -52,6 +52,14 @@
                             <p th:text="${agrirouterApplication.applicationType}"></p>
                         </div>
 
+                        <div class="mdl-cell--4-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold" th:text="#{domain.application.uses-router-device}"></p>
+                        </div>
+                        <div class="mdl-cell--8-col mdl-typography--text-left">
+                            <i th:class="${application.usesRouterDevice}?'material-icons mdl-color-text--green':'material-icons mdl-color-text--red'"
+                               th:text="${application.usesRouterDevice}?'check_small':'block'"></i>
+                        </div>
+
                         <div class="mdl-cell--3-col mdl-typography--text-left">
                             <p class="mdl-typography--font-bold"
                                th:text="#{domain.application.supportedTechnicalMessageTypes}"></p>

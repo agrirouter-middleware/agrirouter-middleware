@@ -132,7 +132,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         parameters.setOnboardingResponse(onboardingResponse);
         parameters.setSubscriptions(subscriptions);
         final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
-        if (iMqttClient.isEmpty()) {
+        if (iMqttClient.isEmpty() || !iMqttClient.get().isConnected()) {
             log.error("No MQTT client found for endpoint with ID '{}'.", onboardingResponse.getSensorAlternateId());
         } else {
             SetSubscriptionService setSubscriptionService = new SetSubscriptionServiceImpl(iMqttClient.get());
