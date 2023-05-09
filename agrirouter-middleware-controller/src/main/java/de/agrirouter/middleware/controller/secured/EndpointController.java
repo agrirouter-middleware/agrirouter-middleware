@@ -613,17 +613,17 @@ public class EndpointController implements SecuredApiController {
         if (agrirouterStatusIntegrationService.isOperational()) {
             try {
                 endpointService.findByExternalEndpointId(externalEndpointId);
+                if (endpointService.isHealthy(externalEndpointId)) {
+                    return ResponseEntity.status(HttpStatus.OK).build();
+                } else {
+                    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+                }
             } catch (BusinessException e) {
                 if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 } else {
                     throw e;
                 }
-            }
-            if (endpointService.isHealthy(externalEndpointId)) {
-                return ResponseEntity.status(HttpStatus.OK).build();
-            } else {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
