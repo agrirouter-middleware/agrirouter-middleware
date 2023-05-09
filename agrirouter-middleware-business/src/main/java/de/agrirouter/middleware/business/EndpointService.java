@@ -18,7 +18,9 @@ import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusService;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
+import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
+import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import de.agrirouter.middleware.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,10 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Business operations regarding the endpoints.
@@ -39,7 +38,7 @@ import java.util.Optional;
 @Service
 public class EndpointService {
 
-    public static final int HEALTH_STATUS_POLLING_INTERVALL = 200;
+    public static final int POLLING_INTERVALL = 200;
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
     private final ErrorRepository errorRepository;
@@ -47,7 +46,7 @@ public class EndpointService {
     private final EndpointIntegrationService endpointIntegrationService;
     private final ApplicationRepository applicationRepository;
     private final MqttClientManagementService mqttClientManagementService;
-    private final HealthStatusService healthStatusService;
+    private final HealthStatusIntegrationService healthStatusIntegrationService;
     private final ContentMessageRepository contentMessageRepository;
     private final UnprocessedMessageRepository unprocessedMessageRepository;
     private final RevokeProcessIntegrationService revokeProcessIntegrationService;
@@ -58,6 +57,10 @@ public class EndpointService {
     private final BusinessEventsCache businessEventsCache;
     @Value("${app.agrirouter.mqtt.health.status.wait.time:5000}")
     private int nrOfMillisecondsToWaitForHealthStatusResponse;
+    private final ListEndpointsIntegrationService listEndpointsIntegrationService;
+    @Value("${app.agrirouter.mqtt.synchronous.response.wait.time:3000}")
+    private int nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
@@ -66,14 +69,16 @@ public class EndpointService {
                            EndpointIntegrationService endpointIntegrationService,
                            ApplicationRepository applicationRepository,
                            MqttClientManagementService mqttClientManagementService,
-                           HealthStatusService healthStatusService, ContentMessageRepository contentMessageRepository,
+                           HealthStatusIntegrationService healthStatusIntegrationService,
+                           ContentMessageRepository contentMessageRepository,
                            UnprocessedMessageRepository unprocessedMessageRepository,
                            RevokeProcessIntegrationService revokeProcessIntegrationService,
                            DeviceDescriptionRepository deviceDescriptionRepository,
                            TimeLogRepository timeLogRepository,
                            BusinessOperationLogService businessOperationLogService,
                            MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                           BusinessEventsCache businessEventsCache) {
+                           BusinessEventsCache businessEventsCache,
+                           ListEndpointsIntegrationService listEndpointsIntegrationService) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
         this.errorRepository = errorRepository;
@@ -81,7 +86,7 @@ public class EndpointService {
         this.endpointIntegrationService = endpointIntegrationService;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
-        this.healthStatusService = healthStatusService;
+        this.healthStatusIntegrationService = healthStatusIntegrationService;
         this.contentMessageRepository = contentMessageRepository;
         this.unprocessedMessageRepository = unprocessedMessageRepository;
         this.revokeProcessIntegrationService = revokeProcessIntegrationService;
@@ -90,6 +95,7 @@ public class EndpointService {
         this.businessOperationLogService = businessOperationLogService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessEventsCache = businessEventsCache;
+        this.listEndpointsIntegrationService = listEndpointsIntegrationService;
     }
 
     /**
@@ -458,19 +464,19 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            healthStatusService.publishHealthStatusMessage(endpoint.asOnboardingResponse());
-            if (healthStatusService.hasPendingHealthStatusResponse(endpoint.getAgrirouterEndpointId())) {
+            healthStatusIntegrationService.publishHealthStatusMessage(endpoint.asOnboardingResponse());
+            if (healthStatusIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
                 var timer = nrOfMillisecondsToWaitForHealthStatusResponse;
                 while (timer > 0) {
                     try {
-                        Thread.sleep(HEALTH_STATUS_POLLING_INTERVALL);
-                        if (healthStatusService.isHealthy(endpoint.getAgrirouterEndpointId())) {
+                        Thread.sleep(POLLING_INTERVALL);
+                        if (healthStatusIntegrationService.isHealthy(endpoint.getAgrirouterEndpointId())) {
                             return true;
                         }
                     } catch (InterruptedException e) {
                         log.error("Error while waiting for health status response.", e);
                     }
-                    timer = timer - HEALTH_STATUS_POLLING_INTERVALL;
+                    timer = timer - POLLING_INTERVALL;
                 }
 
             } else {
@@ -480,5 +486,40 @@ public class EndpointService {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
         return false;
+    }
+
+    /**
+     * Get the recipients for the endpoint.
+     *
+     * @return The recipients for the endpoint.
+     */
+    public Collection<MessageRecipient> getMessageRecipients(String externalEndpointId) {
+        final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint.asOnboardingResponse());
+            if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
+                var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+                while (timer > 0) {
+                    try {
+                        Thread.sleep(POLLING_INTERVALL);
+                        var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
+                        if (recipients.isPresent()) {
+                            log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                            log.debug("Recipients: {}.", recipients.get());
+                            return recipients.get();
+                        }
+                    } catch (InterruptedException e) {
+                        log.error("Error while waiting for list endpoints / message recipients response.", e);
+                    }
+                    timer = timer - POLLING_INTERVALL;
+                }
+            } else {
+                log.warn("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+            }
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        }
+        return Collections.emptyList();
     }
 }

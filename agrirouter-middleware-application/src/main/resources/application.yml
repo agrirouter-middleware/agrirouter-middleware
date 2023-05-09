@@ -42,6 +42,10 @@ app:
     status:
       url: https://status.agrirouter.com/api/v2/components.json
     mqtt:
+      synchronous:
+        response:
+          wait:
+            time: 3000
       health:
         status:
           wait:

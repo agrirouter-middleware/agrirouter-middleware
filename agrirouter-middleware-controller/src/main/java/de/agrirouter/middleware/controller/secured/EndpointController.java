@@ -748,17 +748,11 @@ public class EndpointController implements SecuredApiController {
             }
     )
     public ResponseEntity<EndpointRecipientsResponse> recipients(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
-        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            final var messageRecipientDtos = endpoint.getMessageRecipients()
-                    .stream()
-                    .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
-                    .toList();
-            return ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        final var messageRecipientDtos = endpointService.getMessageRecipients(externalEndpointId)
+                .stream()
+                .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
+                .toList();
+        return ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
     }
 
     @GetMapping(

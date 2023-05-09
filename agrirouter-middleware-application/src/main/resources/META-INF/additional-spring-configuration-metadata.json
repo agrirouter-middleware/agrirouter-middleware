@@ -89,6 +89,11 @@
       "name": "app.subscriptions.ddi.range.end",
       "type": "java.lang.String",
       "description": "End of the range for the DDI subscription."
+    },
+    {
+      "name": "app.agrirouter.mqtt.synchronous.response.wait.time",
+      "type": "java.lang.String",
+      "description": "The time to wait for a synchronous response."
     }
   ]
 }
