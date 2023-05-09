@@ -21,6 +21,7 @@ import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
+import de.agrirouter.middleware.integration.mqtt.list_endpoints.cache.MessageRecipientCache;
 import de.agrirouter.middleware.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,7 @@ import java.util.*;
 @Service
 public class EndpointService {
 
-    public static final int POLLING_INTERVALL = 200;
+    public static final int POLLING_INTERVALL = 100;
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
     private final ErrorRepository errorRepository;
@@ -60,6 +61,7 @@ public class EndpointService {
     private final ListEndpointsIntegrationService listEndpointsIntegrationService;
     @Value("${app.agrirouter.mqtt.synchronous.response.wait.time:3000}")
     private int nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+    private MessageRecipientCache messageRecipientCache;
 
 
     public EndpointService(EndpointRepository endpointRepository,
@@ -78,7 +80,8 @@ public class EndpointService {
                            BusinessOperationLogService businessOperationLogService,
                            MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                            BusinessEventsCache businessEventsCache,
-                           ListEndpointsIntegrationService listEndpointsIntegrationService) {
+                           ListEndpointsIntegrationService listEndpointsIntegrationService,
+                           MessageRecipientCache messageRecipientCache) {
         this.endpointRepository = endpointRepository;
         this.decodeMessageService = decodeMessageService;
         this.errorRepository = errorRepository;
@@ -96,6 +99,7 @@ public class EndpointService {
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessEventsCache = businessEventsCache;
         this.listEndpointsIntegrationService = listEndpointsIntegrationService;
+        this.messageRecipientCache = messageRecipientCache;
     }
 
     /**
@@ -506,8 +510,10 @@ public class EndpointService {
                         var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
                         if (recipients.isPresent()) {
                             log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
-                            log.debug("Recipients: {}.", recipients.get());
-                            return recipients.get();
+                            Collection<MessageRecipient> messageRecipients = recipients.get();
+                            log.debug("Recipients: {}.", messageRecipients);
+                            messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
+                            return messageRecipients;
                         }
                     } catch (InterruptedException e) {
                         log.error("Error while waiting for list endpoints / message recipients response.", e);
@@ -520,6 +526,8 @@ public class EndpointService {
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
         }
-        return Collections.emptyList();
+        log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
+        var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
+        return optionalMessageRecipients.orElse(Collections.emptyList());
     }
 }

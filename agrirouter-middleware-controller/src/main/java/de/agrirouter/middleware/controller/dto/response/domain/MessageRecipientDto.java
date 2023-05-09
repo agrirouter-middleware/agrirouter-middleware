@@ -42,4 +42,9 @@ public class MessageRecipientDto {
      */
     private String direction;
 
+    /**
+     * Indicator if the entry was cached.
+     */
+    private boolean cached;
+
 }

@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.integration.mqtt;
 
+import agrirouter.request.payload.endpoint.Capabilities;
 import agrirouter.response.payload.account.Endpoints;
 import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
@@ -20,6 +21,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 
 /**
@@ -130,16 +132,22 @@ public class MessageHandlingCallback implements MqttCallback {
                 final Endpoints.ListEndpointsResponse listEndpointsResponse;
                 listEndpointsResponse = Endpoints.ListEndpointsResponse.parseFrom(decodedMessageResponse.getResponsePayloadWrapper().getDetails().getValue());
                 var messageRecipients = new ArrayList<MessageRecipient>();
+                final var now = Instant.now();
                 listEndpointsResponse.getEndpointsList().forEach(e -> e.getMessageTypesList().forEach(messageType -> {
-                    final var messageRecipient = new MessageRecipient();
-                    messageRecipient.setAgrirouterEndpointId(e.getEndpointId());
-                    messageRecipient.setEndpointName(e.getEndpointName());
-                    messageRecipient.setEndpointType(e.getEndpointType());
-                    messageRecipient.setExternalId(e.getExternalId());
-                    messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
-                    messageRecipient.setDirection(messageType.getDirection().name());
-                    log.trace("Added recipient: {}", messageRecipient);
-                    messageRecipients.add(messageRecipient);
+                    if (messageType.getDirection().name().equalsIgnoreCase(Capabilities.CapabilitySpecification.Direction.SEND.name())) {
+                        final var messageRecipient = new MessageRecipient();
+                        messageRecipient.setAgrirouterEndpointId(e.getEndpointId());
+                        messageRecipient.setEndpointName(e.getEndpointName());
+                        messageRecipient.setEndpointType(e.getEndpointType());
+                        messageRecipient.setExternalId(e.getExternalId());
+                        messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
+                        messageRecipient.setDirection(messageType.getDirection().name());
+                        messageRecipient.setTimestamp(now);
+                        log.trace("Added recipient: {}", messageRecipient);
+                        messageRecipients.add(messageRecipient);
+                    } else {
+                        log.debug("Ignoring message type with direction {} for endpoint '{}'.", messageType.getDirection().name(), e.getEndpointId());
+                    }
                 }));
                 log.debug("There were {} recipients found for the endpoint '{}'.", messageRecipients.size(), fetchMessageResponse.getSensorAlternateId());
                 log.trace("{}", messageRecipients);

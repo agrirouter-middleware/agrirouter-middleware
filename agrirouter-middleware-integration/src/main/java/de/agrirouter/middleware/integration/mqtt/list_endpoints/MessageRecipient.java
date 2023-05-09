@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.Instant;
+
 /**
  * One of the message recipients for the endpoint.
  */
@@ -41,5 +43,15 @@ public class MessageRecipient {
      * The direction.
      */
     private String direction;
+
+    /**
+     * Indicator if the entry was cached.
+     */
+    private boolean cached;
+
+    /**
+     * The timestamp when the message recipients have been fetched.
+     */
+    private Instant timestamp;
 
 }
