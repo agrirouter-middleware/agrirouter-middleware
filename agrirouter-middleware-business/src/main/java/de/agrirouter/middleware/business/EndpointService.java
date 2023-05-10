@@ -57,10 +57,10 @@ public class EndpointService {
     private final BusinessOperationLogService businessOperationLogService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final BusinessEventsCache businessEventsCache;
-    @Value("${app.agrirouter.mqtt.health.status.wait.time:5000}")
+    @Value("${app.agrirouter.mqtt.health.status.wait.time}")
     private int nrOfMillisecondsToWaitForHealthStatusResponse;
     private final ListEndpointsIntegrationService listEndpointsIntegrationService;
-    @Value("${app.agrirouter.mqtt.synchronous.response.wait.time:3000}")
+    @Value("${app.agrirouter.mqtt.synchronous.response.wait.time}")
     private int nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
     private final MessageRecipientCache messageRecipientCache;
     private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;

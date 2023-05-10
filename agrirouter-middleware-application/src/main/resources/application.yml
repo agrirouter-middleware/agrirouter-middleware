@@ -45,7 +45,7 @@ app:
       synchronous:
         response:
           wait:
-            time: 3000
+            time: 5000
       health:
         status:
           wait:
