@@ -54,4 +54,19 @@ public class MessageRecipient {
      */
     private Instant timestamp;
 
+    /**
+     * Create deep coy.
+     */
+    public MessageRecipient deepCopy() {
+        var messageRecipient = new MessageRecipient();
+        messageRecipient.setAgrirouterEndpointId(this.getAgrirouterEndpointId());
+        messageRecipient.setEndpointName(this.getEndpointName());
+        messageRecipient.setEndpointType(this.getEndpointType());
+        messageRecipient.setExternalId(this.getExternalId());
+        messageRecipient.setTechnicalMessageType(this.getTechnicalMessageType());
+        messageRecipient.setDirection(this.getDirection());
+        messageRecipient.setCached(this.isCached());
+        messageRecipient.setTimestamp(this.getTimestamp());
+        return messageRecipient;
+    }
 }

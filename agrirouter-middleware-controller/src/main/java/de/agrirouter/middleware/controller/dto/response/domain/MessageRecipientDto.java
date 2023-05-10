@@ -47,4 +47,9 @@ public class MessageRecipientDto {
      */
     private boolean cached;
 
+    /**
+     * last update timestamp
+     */
+    private String timestamp;
+
 }
