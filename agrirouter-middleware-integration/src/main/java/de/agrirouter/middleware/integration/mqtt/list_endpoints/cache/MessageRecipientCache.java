@@ -24,7 +24,9 @@ public class MessageRecipientCache {
      */
     public void put(String externalEndpointId, Collection<MessageRecipient> messageRecipients) {
         log.debug("Placing message recipients into cache for external endpoint ID {}.", externalEndpointId);
-        messageRecipients.forEach(messageRecipient -> messageRecipient.setCached(true));
+        messageRecipients.stream()
+                .map(MessageRecipient::deepCopy)
+                .forEach(messageRecipient -> messageRecipient.setCached(true));
         this.cache.put(externalEndpointId, MessageRecipientCacheEntry.builder()
                 .messageRecipients(messageRecipients)
                 .timestamp(Instant.now())
