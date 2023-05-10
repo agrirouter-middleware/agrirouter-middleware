@@ -6,6 +6,7 @@ import de.agrirouter.middleware.business.SearchNonTelemetryDataService;
 import de.agrirouter.middleware.business.cache.query.LatestHeaderQueryResults;
 import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
 import de.agrirouter.middleware.business.security.AuthorizationService;
+import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.MessageStatisticsGroupedByApplicationResponse;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.LatestHeaderQueryResultsResponse;
@@ -44,7 +45,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping(SecuredApiController.API_PREFIX + "/statistics")
-public class StatisticsController {
+public class StatisticsController implements SecuredApiController {
 
     private final MqttStatistics mqttStatistics;
     private final MqttClientManagementService mqttClientManagementService;
