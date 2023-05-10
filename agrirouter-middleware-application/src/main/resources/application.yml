@@ -46,11 +46,8 @@ app:
         response:
           wait:
             time: 5000
-      health:
-        status:
-          wait:
-            time:
-              in-milliseconds: 5000
+        polling:
+          intervall: 50
   fetch-messages:
     max-tries: 5
     interval: 1000
