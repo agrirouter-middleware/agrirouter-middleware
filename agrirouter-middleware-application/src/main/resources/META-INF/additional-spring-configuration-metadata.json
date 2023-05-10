@@ -94,6 +94,11 @@
       "name": "app.agrirouter.mqtt.synchronous.response.wait.time",
       "type": "java.lang.String",
       "description": "The time to wait for a synchronous response."
+    },
+    {
+      "name": "app.agrirouter.mqtt.synchronous.polling.intervall",
+      "type": "java.lang.String",
+      "description": "The interval to poll for a synchronous response."
     }
   ]
 }
