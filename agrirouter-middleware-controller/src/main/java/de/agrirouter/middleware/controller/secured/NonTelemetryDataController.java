@@ -6,6 +6,7 @@ import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
 import de.agrirouter.middleware.business.SearchNonTelemetryDataService;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
+import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.SearchFilesRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishImageDataRequest;
 import de.agrirouter.middleware.controller.dto.request.messaging.PublishNonTelemetryDataRequest;

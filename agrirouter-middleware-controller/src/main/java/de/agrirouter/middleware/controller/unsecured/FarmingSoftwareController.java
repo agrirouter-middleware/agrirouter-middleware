@@ -2,6 +2,8 @@ package de.agrirouter.middleware.controller.unsecured;
 
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.SecuredOnboardProcessService;
+import de.agrirouter.middleware.controller.UnsecuredApiController;
+import de.agrirouter.middleware.controller.aop.agrirouter.status.CancelIfAgrirouterIsNotOperational;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,9 +85,20 @@ public class FarmingSoftwareController implements UnsecuredApiController {
                                     ),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "503",
+                            description = "In case the agrirouter is currently not available.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
                     )
             }
     )
+    @CancelIfAgrirouterIsNotOperational
     public RedirectView onboardFarmingSoftware(@Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                @Parameter(description = "The redirect URL for this onboard request.") @RequestParam(name = "redirectUrl", required = false) String redirectUrl) {

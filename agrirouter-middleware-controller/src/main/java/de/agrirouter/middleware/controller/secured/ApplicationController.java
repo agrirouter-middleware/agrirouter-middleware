@@ -4,6 +4,7 @@ import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
+import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.AddRouterDeviceRequest;
 import de.agrirouter.middleware.controller.dto.request.AddSupportedTechnicalMessageTypeRequest;
 import de.agrirouter.middleware.controller.dto.request.ApplicationRegistrationRequest;

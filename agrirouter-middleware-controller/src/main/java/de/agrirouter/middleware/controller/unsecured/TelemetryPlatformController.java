@@ -2,6 +2,8 @@ package de.agrirouter.middleware.controller.unsecured;
 
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.SecuredOnboardProcessService;
+import de.agrirouter.middleware.controller.UnsecuredApiController;
+import de.agrirouter.middleware.controller.aop.agrirouter.status.CancelIfAgrirouterIsNotOperational;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -71,9 +74,20 @@ public class TelemetryPlatformController implements UnsecuredApiController {
                                     ),
                                     mediaType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "503",
+                            description = "In case the agrirouter is currently not available.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
                     )
             }
     )
+    @CancelIfAgrirouterIsNotOperational
     public RedirectView onboardTelemetryPlatform(@Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                  @Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                  @Parameter(description = "The redirect URL for this onboard request.") @RequestParam(name = "redirectUrl", required = false) String redirectUrl) {

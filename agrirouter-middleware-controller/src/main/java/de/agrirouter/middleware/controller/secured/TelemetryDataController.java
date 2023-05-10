@@ -8,6 +8,7 @@ import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriods;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriodsForDevice;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriodsForTeamSet;
 import de.agrirouter.middleware.business.parameters.*;
+import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.RegisterMachineRequest;
 import de.agrirouter.middleware.controller.dto.request.SearchMachinesRequest;
 import de.agrirouter.middleware.controller.dto.request.SearchTelemetryDataPeriodsRequest;

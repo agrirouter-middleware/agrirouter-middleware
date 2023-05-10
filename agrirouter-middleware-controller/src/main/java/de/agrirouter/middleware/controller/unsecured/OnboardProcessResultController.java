@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.unsecured;
 
+import de.agrirouter.middleware.controller.UnsecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.enums.OnboardProcessResult;
 import io.swagger.v3.oas.annotations.Operation;
 import org.apache.commons.lang3.StringUtils;

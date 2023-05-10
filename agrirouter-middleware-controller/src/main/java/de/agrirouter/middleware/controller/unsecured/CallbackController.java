@@ -8,6 +8,7 @@ import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.SecuredOnboardProcessService;
 import de.agrirouter.middleware.business.global.OnboardStateContainer;
 import de.agrirouter.middleware.business.parameters.OnboardProcessParameters;
+import de.agrirouter.middleware.controller.UnsecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import de.agrirouter.middleware.controller.dto.response.enums.OnboardProcessResult;

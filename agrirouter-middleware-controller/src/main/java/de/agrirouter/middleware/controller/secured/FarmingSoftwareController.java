@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.controller.secured;
 
 import de.agrirouter.middleware.business.EndpointService;
+import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

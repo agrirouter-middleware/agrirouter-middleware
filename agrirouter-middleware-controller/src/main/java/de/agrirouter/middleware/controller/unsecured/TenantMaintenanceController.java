@@ -2,6 +2,7 @@ package de.agrirouter.middleware.controller.unsecured;
 
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.TenantService;
+import de.agrirouter.middleware.controller.UnsecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.TenantRegistrationRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.TenantDto;
