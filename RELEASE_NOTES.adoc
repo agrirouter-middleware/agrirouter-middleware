@@ -7,7 +7,64 @@
 The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
 If there are any manual migrations necessary, the documentation can be found right here.
 
-== Release v5.4
+== Release v6.0.0
+
+=== New error codes for internal errors
+
+With this release the middleware will use new error codes for internal errors.
+Please see the documentation of the `ErrorMessageFactory` for more information.
+Specific error documentation will be added over the next releases.
+
+=== Reject onboarding in case of agrirouter outages
+
+With this release the middleware will reject onboarding requests in case of agrirouter outages.
+This will prevent the middleware from sending messages to the agrirouter in case of outages and will reduce the load on the agrirouter.
+This was necessary to reduce errors during onboarding and to improve the onboarding process.
+
+== Release v5.10.0
+
+Reduced logging for health checks and smaller bugfixes.
+
+== Release v5.9.0
+
+=== Improved startup time
+
+With this release the startup time of the middleware has been improved.
+
+=== Remove missing recipients from the database
+
+With this release the middleware will remove missing recipients from the database.
+
+== Release v5.8.0
+
+=== Azure MariaDB 10.3 support
+
+With this release the middleware supports Azure MariaDB 10.3. You can use the `azure` profile to enable the support.
+MariaDB 10.3 is the minimum required version for Azure MariaDB.
+
+== Release v5.7.0
+
+=== Show the internal application ID in the UI
+
+With this release it is possible to see the internal application ID in the UI.
+
+=== Adapt exception handling in case of outages
+
+With this release the exception handling in case of agrirouter© outages has been adapted.
+
+== Release v5.6.0
+
+=== Profiles for full database URL configuration.
+
+With this release it is possible to configure the full database URL via environment variables.
+This is useful if you want to add custom parameters to the database URL.
+Both internal databases, the MariaDB and the MongoDB database, can be configured this way.
+
+== Release v5.5.0
+
+Disable automated reconnects for MQTT connections.
+
+== Release v5.4.x
 
 === Live status checking for endpoints
 

@@ -102,7 +102,7 @@ public class SecuredOnboardProcessService {
                     final var endpoint = existingEndpoint.get();
 
                     if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
-                        throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReonboardingIsNotAllowed());
+                        throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReOnboardingIsNotAllowed());
                     } else {
 
                         final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
