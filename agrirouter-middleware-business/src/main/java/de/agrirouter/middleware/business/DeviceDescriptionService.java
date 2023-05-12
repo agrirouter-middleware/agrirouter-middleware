@@ -442,7 +442,7 @@ public class DeviceDescriptionService {
             if (optionalDeviceDescription.isPresent()) {
                 return optionalDeviceDescription.get();
             } else {
-                throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+                throw new BusinessException(ErrorMessageFactory.couldNotFindTeamSet(teamSetContextId));
             }
         } catch (IncorrectResultSizeDataAccessException e) {
             log.warn("Looks like we are having duplicates for the team set context id {}. Returning the newest and ignoring the rest.", teamSetContextId);
@@ -450,7 +450,7 @@ public class DeviceDescriptionService {
             if (optionalDeviceDescription.isPresent()) {
                 return optionalDeviceDescription.get();
             } else {
-                throw new BusinessException(ErrorMessageFactory.couldnotFindTeamSet(teamSetContextId));
+                throw new BusinessException(ErrorMessageFactory.couldNotFindTeamSet(teamSetContextId));
             }
         }
     }

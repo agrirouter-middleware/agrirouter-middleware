@@ -1,5 +1,7 @@
 package de.agrirouter.middleware.api.errorhandling.error;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * Class containing global error codes.
  */
@@ -15,9 +17,21 @@ public class ErrorMessage {
      */
     private final String message;
 
+    /**
+     * HTTP status for the error.
+     */
+    private final HttpStatus httpStatus;
+
     public ErrorMessage(ErrorKey key, String message) {
         this.key = key;
         this.message = message;
+        this.httpStatus = HttpStatus.BAD_REQUEST;
+    }
+
+    public ErrorMessage(ErrorKey key, String message, HttpStatus httpStatus) {
+        this.key = key;
+        this.message = message;
+        this.httpStatus = httpStatus;
     }
 
     public ErrorKey getKey() {
