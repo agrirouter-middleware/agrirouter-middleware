@@ -1,10 +1,12 @@
 package de.agrirouter.middleware.api.errorhandling.error;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
  * Class containing global error codes.
  */
+@Getter
 public class ErrorMessage {
 
     /**
@@ -32,14 +34,6 @@ public class ErrorMessage {
         this.key = key;
         this.message = message;
         this.httpStatus = httpStatus;
-    }
-
-    public ErrorKey getKey() {
-        return key;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     /**
