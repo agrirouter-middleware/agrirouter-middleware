@@ -1,8 +1,9 @@
-package de.agrirouter.middleware.controller.unsecured;
+package de.agrirouter.middleware.controller.unsecured.maintenance;
 
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
+import de.agrirouter.middleware.controller.UnsecuredApiController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static de.agrirouter.middleware.controller.unsecured.UnsecuredApiController.API_PREFIX;
+import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PREFIX;
 
 /**
  * Controller to manage applications.

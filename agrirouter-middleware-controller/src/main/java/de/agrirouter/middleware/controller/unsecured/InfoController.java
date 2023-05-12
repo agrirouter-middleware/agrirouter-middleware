@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.unsecured;
 
+import de.agrirouter.middleware.controller.UnsecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.VersionsResponse;
 import io.swagger.v3.oas.annotations.Operation;

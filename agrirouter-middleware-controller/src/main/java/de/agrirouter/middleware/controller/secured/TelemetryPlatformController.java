@@ -6,6 +6,7 @@ import de.agrirouter.middleware.business.VirtualOffboardProcessService;
 import de.agrirouter.middleware.business.VirtualOnboardProcessService;
 import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParameters;
 import de.agrirouter.middleware.business.parameters.VirtualOnboardProcessParameters;
+import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.OnboardVirtualEndpointRequest;
 import de.agrirouter.middleware.controller.dto.request.RevokeVirtualEndpointRequest;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
