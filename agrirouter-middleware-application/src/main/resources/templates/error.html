@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title},~{::main})}" lang="en"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+    <title th:text="#{error.title}"></title>
+</head>
+<body>
+<main class="mdl-layout__content">
+    <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center"><img class="error-logo"
+                                                                            th:src="@{/img/error.png}"/></div>
+    <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+        <h2 th:text="#{error.sorry}"></h2>
+    </div>
+    <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+        <p th:text="#{error.message}"></p>
+    </div>
+</main>
+</body>
+</html>
