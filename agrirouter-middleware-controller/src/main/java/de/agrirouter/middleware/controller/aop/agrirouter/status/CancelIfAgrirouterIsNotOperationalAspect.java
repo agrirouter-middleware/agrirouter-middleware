@@ -29,8 +29,7 @@ public class CancelIfAgrirouterIsNotOperationalAspect {
     @Around(value = "@annotation(CancelIfAgrirouterIsNotOperational)")
     public Object cancelIfAgrirouterIsNotOperational(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         if (this.agrirouterStatusIntegrationService.isOperational()) {
-            // return proceedingJoinPoint.proceed();
-            throw new BusinessException(ErrorMessageFactory.agrirouterStatusNotOperational());
+            return proceedingJoinPoint.proceed();
         } else {
             log.debug("Canceling the execution of the method because the agrirouter is not operational.");
             throw new BusinessException(ErrorMessageFactory.agrirouterStatusNotOperational());
