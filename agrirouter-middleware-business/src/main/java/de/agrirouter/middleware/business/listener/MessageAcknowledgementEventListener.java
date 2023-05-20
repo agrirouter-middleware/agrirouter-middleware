@@ -4,6 +4,7 @@ import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
@@ -15,7 +16,6 @@ import de.agrirouter.middleware.business.events.CloudOffboardingEvent;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,20 +30,17 @@ import org.springframework.stereotype.Component;
 public class MessageAcknowledgementEventListener {
 
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
-    private final EndpointRepository endpointRepository;
     private final EndpointService endpointService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
 
     public MessageAcknowledgementEventListener(MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                               EndpointRepository endpointRepository,
                                                EndpointService endpointService,
                                                ApplicationEventPublisher applicationEventPublisher,
                                                DecodeMessageService decodeMessageService,
                                                CloudOnboardingFailureCache cloudOnboardingFailureCache) {
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.endpointRepository = endpointRepository;
         this.endpointService = endpointService;
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
@@ -107,22 +104,20 @@ public class MessageAcknowledgementEventListener {
 
     private void handleSuccessMessageAndUpdateWarnings(DecodeMessageResponse decodedMessageResponse, MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
         log.debug("Since the message had a ACK with messages, either the warning or the information is updated. The message waiting for ACK was deleted.");
-        final var optional = endpointRepository.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
-        if (optional.isPresent()) {
-            final var endpoint = optional.get();
+        try {
+            final var endpoint = endpointService.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
             if (decodedMessageResponse.getResponseEnvelope().getResponseCode() >= 400) {
                 endpointService.updateWarnings(endpoint, decodedMessageResponse);
             }
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
     }
 
     private void handleErrorMessage(DecodeMessageResponse decodedMessageResponse, MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {
         log.debug("Since the message had a ACK with failure, the errors are updated. The message waiting for ACK was deleted.");
-        final var optional = endpointRepository.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
-        if (optional.isPresent()) {
-            final var endpoint = optional.get();
+        try {
+            final var endpoint = endpointService.findByAgrirouterEndpointId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
             if (SystemMessageType.DKE_CLOUD_ONBOARD_ENDPOINTS.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                 log.debug("Looks like this was a cloud onboarding message. There has to be a failure for the virtual endpoint ID.");
                 final var externalVirtualEndpointId = messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.EXTERNAL_VIRTUAL_ENDPOINT_ID);
@@ -133,8 +128,8 @@ public class MessageAcknowledgementEventListener {
                 }
             }
             endpointService.updateErrors(endpoint, decodedMessageResponse);
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
     }
 

@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.controller;
 
 import de.agrirouter.middleware.api.Routes;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
@@ -56,9 +57,8 @@ public class EndpointDashboardUIController {
     @SuppressWarnings("unused")
     @GetMapping("/endpoint-dashboard")
     public String navigation(Principal principal, @RequestParam(value = "externalEndpointId") String externalEndpointId, Model model) {
-        var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
+        try {
+            var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
             var optionalApplication = applicationService.findByEndpoint(endpoint);
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
@@ -93,7 +93,8 @@ public class EndpointDashboardUIController {
             } else {
                 return Routes.UI.ERROR;
             }
-        } else {
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
             return Routes.UI.ERROR;
         }
         return Routes.UI.ENDPOINT_DASHBOARD;

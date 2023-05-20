@@ -7,7 +7,6 @@ import de.agrirouter.middleware.business.dto.MessageStatistics;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.persistence.ContentMessageRepository;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -24,12 +23,12 @@ import java.util.*;
 public class SearchNonTelemetryDataService {
 
     private final ContentMessageRepository contentMessageRepository;
-    private final EndpointRepository endpointRepository;
+    private final EndpointService endpointService;
 
     public SearchNonTelemetryDataService(ContentMessageRepository contentMessageRepository,
-                                         EndpointRepository endpointRepository) {
+                                         EndpointService endpointService) {
         this.contentMessageRepository = contentMessageRepository;
-        this.endpointRepository = endpointRepository;
+        this.endpointService = endpointService;
     }
 
     /**
@@ -39,30 +38,26 @@ public class SearchNonTelemetryDataService {
      * @return -
      */
     public List<ContentMessageMetadata> search(SearchNonTelemetryDataParameters searchNonTelemetryDataParameters) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(searchNonTelemetryDataParameters.getExternalEndpointId());
-        if (optionalEndpoint.isPresent()) {
-            log.debug("Searching for existing messages, since the endpoint was found.");
-            log.trace("Filter criteria are >>> {}.", searchNonTelemetryDataParameters);
-            final List<ContentMessageMetadata> contentMessageMetadata;
-            if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
-                contentMessageMetadata = contentMessageRepository.findMetadata(optionalEndpoint.get().getAgrirouterEndpointId(),
-                        searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(ContentMessageType::getKey).toList(),
-                        List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
-                        searchNonTelemetryDataParameters.getSendFrom(),
-                        searchNonTelemetryDataParameters.getSendTo());
-                log.debug("Found {} content messages in total.", contentMessageMetadata.size());
-            } else {
-                contentMessageMetadata = contentMessageRepository.findMetadata(optionalEndpoint.get().getAgrirouterEndpointId(),
-                        List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
-                        searchNonTelemetryDataParameters.getSendFrom(),
-                        searchNonTelemetryDataParameters.getSendTo());
-            }
-            var flattenedContentMessageMetadata = flattenContentMessageMetadata(contentMessageMetadata);
-            log.debug("The {} content messages are flattened to {} 'real' messages.", contentMessageMetadata.size(), flattenedContentMessageMetadata);
-            return flattenedContentMessageMetadata;
+        final var endpoint = endpointService.findByExternalEndpointId(searchNonTelemetryDataParameters.getExternalEndpointId());
+        log.debug("Searching for existing messages, since the endpoint was found.");
+        log.trace("Filter criteria are >>> {}.", searchNonTelemetryDataParameters);
+        final List<ContentMessageMetadata> contentMessageMetadata;
+        if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
+            contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
+                    searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(ContentMessageType::getKey).toList(),
+                    List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
+                    searchNonTelemetryDataParameters.getSendFrom(),
+                    searchNonTelemetryDataParameters.getSendTo());
+            log.debug("Found {} content messages in total.", contentMessageMetadata.size());
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+            contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
+                    List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
+                    searchNonTelemetryDataParameters.getSendFrom(),
+                    searchNonTelemetryDataParameters.getSendTo());
         }
+        var flattenedContentMessageMetadata = flattenContentMessageMetadata(contentMessageMetadata);
+        log.debug("The {} content messages are flattened to {} 'real' messages.", contentMessageMetadata.size(), flattenedContentMessageMetadata);
+        return flattenedContentMessageMetadata;
     }
 
     private List<ContentMessageMetadata> flattenContentMessageMetadata(List<ContentMessageMetadata> contentMessageMetadata) {
@@ -102,23 +97,19 @@ public class SearchNonTelemetryDataService {
     }
 
     private byte[] download(String externalEndpointId, String messageId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var optionalContentMessage = contentMessageRepository.findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(optionalEndpoint.get().getAgrirouterEndpointId(), messageId);
-            if (optionalContentMessage.isPresent()) {
-                final var contentMessage = optionalContentMessage.get();
-                if (contentMessage.getContentMessageMetadata().getTotalChunks() > 1) {
-                    log.debug("Looks like we have multiple chunks for the content message. Assembling the message content first. There are {} chunks in total.", contentMessage.getContentMessageMetadata().getTotalChunks());
-                    return assembleChunkedMessageContent(optionalEndpoint.get().getAgrirouterEndpointId(), contentMessage.getContentMessageMetadata().getChunkContextId());
-                } else {
-                    log.debug("This is a single message, therefore returning the content 'as it is'.");
-                    return Base64.getDecoder().decode(contentMessage.getMessageContent());
-                }
+        final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        final var optionalContentMessage = contentMessageRepository.findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(endpoint.getAgrirouterEndpointId(), messageId);
+        if (optionalContentMessage.isPresent()) {
+            final var contentMessage = optionalContentMessage.get();
+            if (contentMessage.getContentMessageMetadata().getTotalChunks() > 1) {
+                log.debug("Looks like we have multiple chunks for the content message. Assembling the message content first. There are {} chunks in total.", contentMessage.getContentMessageMetadata().getTotalChunks());
+                return assembleChunkedMessageContent(endpoint.getAgrirouterEndpointId(), contentMessage.getContentMessageMetadata().getChunkContextId());
             } else {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
+                log.debug("This is a single message, therefore returning the content 'as it is'.");
+                return Base64.getDecoder().decode(contentMessage.getMessageContent());
             }
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+            throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
         }
     }
 
@@ -154,21 +145,17 @@ public class SearchNonTelemetryDataService {
     public MessageStatistics getMessageStatistics(String externalEndpointId) {
         var messageStatistics = new MessageStatistics();
         messageStatistics.setExternalEndpointId(externalEndpointId);
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            var messageCountForTechnicalMessageTypes = contentMessageRepository.countMessagesGroupedByTechnicalMessageType(optionalEndpoint.get().getAgrirouterEndpointId());
-            messageCountForTechnicalMessageTypes.forEach(messageCountForTechnicalMessageType -> {
-                        log.debug("Found {} messages for technical message type {} for the sender {}.",
-                                messageCountForTechnicalMessageType.getNumberOfMessages(),
-                                messageCountForTechnicalMessageType.getTechnicalMessageType(),
-                                messageCountForTechnicalMessageType.getSenderId());
-                        messageStatistics.addMessageStatisticEntry(messageCountForTechnicalMessageType.getSenderId(),
-                                new MessageStatistics.MessageStatistic.Entry(messageCountForTechnicalMessageType.getTechnicalMessageType(), messageCountForTechnicalMessageType.getNumberOfMessages()));
-                    }
-            );
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
-        }
+        final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        var messageCountForTechnicalMessageTypes = contentMessageRepository.countMessagesGroupedByTechnicalMessageType(endpoint.getAgrirouterEndpointId());
+        messageCountForTechnicalMessageTypes.forEach(messageCountForTechnicalMessageType -> {
+                    log.debug("Found {} messages for technical message type {} for the sender {}.",
+                            messageCountForTechnicalMessageType.getNumberOfMessages(),
+                            messageCountForTechnicalMessageType.getTechnicalMessageType(),
+                            messageCountForTechnicalMessageType.getSenderId());
+                    messageStatistics.addMessageStatisticEntry(messageCountForTechnicalMessageType.getSenderId(),
+                            new MessageStatistics.MessageStatistic.Entry(messageCountForTechnicalMessageType.getTechnicalMessageType(), messageCountForTechnicalMessageType.getNumberOfMessages()));
+                }
+        );
         return messageStatistics;
     }
 
@@ -179,24 +166,20 @@ public class SearchNonTelemetryDataService {
      * @param messageId          The ID of the message.
      */
     public void delete(String externalEndpointId, String messageId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var optionalContentMessage = contentMessageRepository.findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(optionalEndpoint.get().getAgrirouterEndpointId(), messageId);
-            if (optionalContentMessage.isPresent()) {
-                final var contentMessage = optionalContentMessage.get();
-                if (contentMessage.getContentMessageMetadata().getTotalChunks() > 1) {
-                    log.debug("Looks like we have multiple chunks for the content message. Assembling the message content first. There are {} chunks in total.", contentMessage.getContentMessageMetadata().getTotalChunks());
-                    deleteChunkedMessageContent(optionalEndpoint.get().getAgrirouterEndpointId(), contentMessage.getContentMessageMetadata().getChunkContextId());
-                } else {
-                    log.debug("This is a single message, therefore nothing else to do.");
-                    var i = contentMessageRepository.deleteByAgrirouterEndpointIdAndContentMessageMetadataMessageId(optionalEndpoint.get().getAgrirouterEndpointId(), messageId);
-                    log.debug("Deleted {} content message, no chunks were harmed.", i);
-                }
+        final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        final var optionalContentMessage = contentMessageRepository.findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(endpoint.getAgrirouterEndpointId(), messageId);
+        if (optionalContentMessage.isPresent()) {
+            final var contentMessage = optionalContentMessage.get();
+            if (contentMessage.getContentMessageMetadata().getTotalChunks() > 1) {
+                log.debug("Looks like we have multiple chunks for the content message. Assembling the message content first. There are {} chunks in total.", contentMessage.getContentMessageMetadata().getTotalChunks());
+                deleteChunkedMessageContent(endpoint.getAgrirouterEndpointId(), contentMessage.getContentMessageMetadata().getChunkContextId());
             } else {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
+                log.debug("This is a single message, therefore nothing else to do.");
+                var i = contentMessageRepository.deleteByAgrirouterEndpointIdAndContentMessageMetadataMessageId(endpoint.getAgrirouterEndpointId(), messageId);
+                log.debug("Deleted {} content message, no chunks were harmed.", i);
             }
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+            throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
         }
     }
 

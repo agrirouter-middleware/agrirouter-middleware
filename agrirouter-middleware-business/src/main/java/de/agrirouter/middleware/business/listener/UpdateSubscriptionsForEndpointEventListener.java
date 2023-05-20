@@ -6,10 +6,12 @@ import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.mqtt.SetSubscriptionService;
 import com.dke.data.agrirouter.api.service.parameters.SetSubscriptionParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SetSubscriptionServiceImpl;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
@@ -17,7 +19,6 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.common.SubscriptionParameterFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -34,20 +35,20 @@ import java.util.stream.Collectors;
 @Service
 public class UpdateSubscriptionsForEndpointEventListener {
 
-    private final EndpointRepository endpointRepository;
+    private final EndpointService endpointService;
     private final ApplicationRepository applicationRepository;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
     private final SubscriptionParameterFactory subscriptionParameterFactory;
 
-    public UpdateSubscriptionsForEndpointEventListener(EndpointRepository endpointRepository,
+    public UpdateSubscriptionsForEndpointEventListener(EndpointService endpointService,
                                                        ApplicationRepository applicationRepository,
                                                        MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                        MqttClientManagementService mqttClientManagementService,
                                                        BusinessOperationLogService businessOperationLogService,
                                                        SubscriptionParameterFactory subscriptionParameterFactory) {
-        this.endpointRepository = endpointRepository;
+        this.endpointService = endpointService;
         this.applicationRepository = applicationRepository;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -64,12 +65,12 @@ public class UpdateSubscriptionsForEndpointEventListener {
     @EventListener
     public void updateSubscriptionsForEndpoint(UpdateSubscriptionsForEndpointEvent updateSubscriptionsForEndpointEvent) {
         log.debug("Update subscriptions.");
-        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(updateSubscriptionsForEndpointEvent.getAgrirouterEndpointId());
-        if (optionalEndpoint.isPresent()) {
-            resendSubscriptions(optionalEndpoint.get().getExternalEndpointId());
-            businessOperationLogService.log(new EndpointLogInformation(optionalEndpoint.get().getExternalEndpointId(), optionalEndpoint.get().getAgrirouterEndpointId()), "Subscriptions updated.");
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+        try {
+            final var endpoint = endpointService.findByAgrirouterEndpointId(updateSubscriptionsForEndpointEvent.getAgrirouterEndpointId());
+            resendSubscriptions(endpoint.getExternalEndpointId());
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Subscriptions updated.");
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
     }
 
@@ -79,9 +80,8 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param externalEndpointId The ID of the endpoint.
      */
     private void resendSubscriptions(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
+        try {
+            final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
             final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
@@ -89,8 +89,8 @@ public class UpdateSubscriptionsForEndpointEventListener {
             } else {
                 log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
             }
-        } else {
-            log.error(ErrorMessageFactory.couldNotFindEndpoint().asLogMessage());
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
     }
 
