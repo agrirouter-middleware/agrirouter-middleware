@@ -36,10 +36,18 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     /**
      * Finding endpoint by the given endpoint ID .
      *
-     * @param endpointId The ID of the endpoint.
+     * @param externalEndpointId The ID of the endpoint.
      * @return -
      */
-    Optional<Endpoint> findByExternalEndpointId(String endpointId);
+    Optional<Endpoint> findByExternalEndpointId(String externalEndpointId);
+
+    /**
+     * Checks whether an endpoint with the given external endpoint ID exists.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @return True if the endpoint exists.
+     */
+    boolean existsByExternalEndpointId(String externalEndpointId);
 
     /**
      * Finding endpoints by the given internal application ID.
