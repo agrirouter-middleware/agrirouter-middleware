@@ -2,10 +2,8 @@ package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.TimeLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Repository to access the time logs within the MongoDB.
@@ -20,27 +18,30 @@ public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
     void deleteAllByAgrirouterEndpointId(String agrirouterEndpointId);
 
     /**
-     * Fetch all time logs for the dedicated team set context ID.
-     *
-     * @param teamSetContextId -
-     */
-    @Query(value = "{ 'teamSetContextId' : ?0 }", fields = "{ 'messageId' : 1, 'timestamp' : 1, 'teamSetContextId' : 1 }")
-    List<TimeLog> findForTeamSetContextId(String teamSetContextId);
-
-    /**
      * Fetch all time logs that are within the timestamp.
      *
-     * @param searchFrom -
-     * @param searchTo   -
+     * @param searchFrom The start of the search interval.
+     * @param searchTo   The end of the search interval.
+     * @return The time logs.
      */
     List<TimeLog> findAllByTimestampBetween(long searchFrom, long searchTo);
 
     /**
      * Fetch all time logs are within the timestamp and have the given team set context ID.
      *
-     * @param searchFrom -
-     * @param searchTo   -
+     * @param searchFrom       The start of the search interval.
+     * @param searchTo         The end of the search interval.
+     * @param teamSetContextId The team set context ID.
+     * @return The time logs.
      */
     List<TimeLog> findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(long searchFrom, long searchTo, String teamSetContextId);
+
+    /**
+     * Find all by team set context ID.
+     *
+     * @param teamSetContextId The team set context ID.
+     * @return The time logs.
+     */
+    List<TimeLog> findAllByTeamSetContextIdEqualsIgnoreCase(String teamSetContextId);
 
 }

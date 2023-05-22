@@ -250,7 +250,7 @@ public class TimeLogService {
             if (searchTimeLogPeriodsParameters.shouldFilterByTime()) {
                 timeLogs = timeLogRepository.findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault(), teamSetContextId);
             } else {
-                timeLogs = timeLogRepository.findForTeamSetContextId(teamSetContextId);
+                timeLogs = timeLogRepository.findAllByTeamSetContextIdEqualsIgnoreCase(teamSetContextId);
             }
             segmentedTimeLogs.put(teamSetContextId, timeLogs);
         });
