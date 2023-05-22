@@ -50,6 +50,14 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     boolean existsByExternalEndpointId(String externalEndpointId);
 
     /**
+     * Checks whether an endpoint with the given agrirouter endpoint ID exists.
+     *
+     * @param agrirouterEndpointId The agrirouter endpoint ID.
+     * @return True if the endpoint exists.
+     */
+    boolean existsByAgrirouterEndpointId(String agrirouterEndpointId);
+
+    /**
      * Finding endpoints by the given internal application ID.
      *
      * @param internalApplicationId The internal ID of the application.

@@ -92,7 +92,7 @@ public class SecuredOnboardProcessService {
             final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(onboardProcessParameters.getInternalApplicationId(), onboardProcessParameters.getTenantId());
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
-                final var existingEndpoint = endpointService.doesAlreadyExist(onboardProcessParameters.getExternalEndpointId());
+                final var existingEndpoint = endpointService.existsByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
                 if (existingEndpoint) {
                     log.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
                     final var endpoint = endpointService.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());

@@ -6,11 +6,11 @@ import com.dke.data.agrirouter.impl.messaging.mqtt.MessageHeaderQueryServiceImpl
 import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.query.LatestHeaderQueryResults;
 import de.agrirouter.middleware.domain.ConnectionState;
 import de.agrirouter.middleware.domain.EndpointStatus;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import de.agrirouter.middleware.persistence.EndpointStatusRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -25,20 +25,20 @@ import java.time.Instant;
 @Service
 public class EndpointStatusUpdateEventListener {
 
-    private final EndpointRepository endpointRepository;
+    private final EndpointService endpointService;
     private final EndpointStatusRepository endpointStatusRepository;
     private final DecodeMessageService decodeMessageService;
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
     private final LatestHeaderQueryResults latestHeaderQueryResults;
 
-    public EndpointStatusUpdateEventListener(EndpointRepository endpointRepository,
+    public EndpointStatusUpdateEventListener(EndpointService endpointService,
                                              EndpointStatusRepository endpointStatusRepository,
                                              DecodeMessageService decodeMessageService,
                                              MqttClientManagementService mqttClientManagementService,
                                              BusinessOperationLogService businessOperationLogService,
                                              LatestHeaderQueryResults latestHeaderQueryResults) {
-        this.endpointRepository = endpointRepository;
+        this.endpointService = endpointService;
         this.endpointStatusRepository = endpointStatusRepository;
         this.decodeMessageService = decodeMessageService;
         this.mqttClientManagementService = mqttClientManagementService;
@@ -54,9 +54,9 @@ public class EndpointStatusUpdateEventListener {
     @EventListener
     public void updateEndpointStatus(EndpointStatusUpdateEvent endpointStatusUpdateEvent) {
         log.debug("Update the endpoint status for the following AR endpoint '{}'.", endpointStatusUpdateEvent.getAgrirouterEndpointId());
-        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(endpointStatusUpdateEvent.getAgrirouterEndpointId());
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
+        final var existsByAgrirouterEndpointId = endpointService.existsByAgrirouterEndpointId(endpointStatusUpdateEvent.getAgrirouterEndpointId());
+        if (existsByAgrirouterEndpointId) {
+            final var endpoint = endpointService.findByAgrirouterEndpointId(endpointStatusUpdateEvent.getAgrirouterEndpointId());
             final var connectionState = mqttClientManagementService.getState(endpoint.asOnboardingResponse());
             if (null == endpoint.getEndpointStatus()) {
                 endpoint.setEndpointStatus(new EndpointStatus());
@@ -79,7 +79,7 @@ public class EndpointStatusUpdateEventListener {
             endpoint.getEndpointStatus().getConnectionState().setConnected(connectionState.connected());
             endpoint.getEndpointStatus().getConnectionState().setClientId(connectionState.clientId());
             endpointStatusRepository.save(endpoint.getEndpointStatus());
-            endpointRepository.save(endpoint);
+            endpointService.save(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint status information was successfully updated.");
         } else {
             log.warn("The endpoint was not found in the database, the message was deleted but not saved.");
