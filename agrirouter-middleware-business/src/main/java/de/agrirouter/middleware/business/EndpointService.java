@@ -598,4 +598,15 @@ public class EndpointService {
         internalEndpointCache.put(savedEndpoint.getExternalEndpointId(), savedEndpoint);
         return savedEndpoint;
     }
+
+    /**
+     * Find all endpoints and place them in the cache.
+     *
+     * @return The endpoints.
+     */
+    public List<Endpoint> findAll() {
+        var endpoints = endpointRepository.findAll();
+        endpoints.forEach(endpoint -> internalEndpointCache.put(endpoint.getExternalEndpointId(), endpoint));
+        return endpoints;
+    }
 }
