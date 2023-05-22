@@ -309,7 +309,7 @@ public class EndpointService {
      * @return True if the endpoint already exists.
      */
     public boolean doesAlreadyExist(String externalId) {
-        return endpointRepository.findByExternalEndpointId(externalId).isPresent();
+        return endpointRepository.existsByExternalEndpointId(externalId);
     }
 
     /**
