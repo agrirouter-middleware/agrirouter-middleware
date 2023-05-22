@@ -683,16 +683,15 @@ public class EndpointController implements SecuredApiController {
         }
         Map<String, Integer> endpointStatus = new HashMap<>();
         endpointHealthStatusRequest.getExternalEndpointIds().forEach(externalEndpointId -> {
-            final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
-            if (optionalEndpoint.isPresent()) {
-                final var endpoint = optionalEndpoint.get();
+            try {
+                final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
                 if (endpoint.isHealthy()) {
                     endpointStatus.put(externalEndpointId, HttpStatus.OK.value());
                 } else {
                     endpointStatus.put(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
                 }
-            } else {
-                endpointStatus.put(externalEndpointId, HttpStatus.NOT_FOUND.value());
+            } catch (BusinessException e) {
+                endpointStatus.put(externalEndpointId, e.getErrorMessage().getHttpStatus().value());
             }
         });
         return ResponseEntity.ok(new EndpointHealthStatusResponse(endpointStatus));

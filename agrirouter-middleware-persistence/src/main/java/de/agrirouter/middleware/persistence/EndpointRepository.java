@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.Endpoint;
-import de.agrirouter.middleware.domain.enums.EndpointType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,47 +34,28 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     Optional<Endpoint> findByAgrirouterEndpointIdAndIgnoreDeactivated(@Param("agrirouterEndpointId") String agrirouterEndpointId);
 
     /**
-     * Finding an endpoint by the given endpoint ID.
+     * Finding endpoint by the given endpoint ID .
      *
      * @param externalEndpointId The ID of the endpoint.
      * @return -
      */
-    @Query("from Endpoint e where lower(e.externalEndpointId) = lower(:externalEndpointId) and e.deactivated = false")
-    Optional<Endpoint> findByExternalEndpointIdAndIgnoreDeactivated(@Param("externalEndpointId") String externalEndpointId);
+    Optional<Endpoint> findByExternalEndpointId(String externalEndpointId);
 
     /**
-     * Finding endpoint by the given endpoint ID and a specific type.
+     * Checks whether an endpoint with the given external endpoint ID exists.
      *
-     * @param endpointId The ID of the endpoint.
-     * @return -
+     * @param externalEndpointId The external endpoint ID.
+     * @return True if the endpoint exists.
      */
-    @Query("from Endpoint e where e.externalEndpointId = :endpointId and e.endpointType = :endpointType and e.deactivated = false")
-    Optional<Endpoint> findByExternalEndpointIdAndEndpointType(@Param("endpointId") String endpointId, @Param("endpointType") EndpointType endpointType);
+    boolean existsByExternalEndpointId(String externalEndpointId);
 
     /**
-     * Finding endpoint by the given endpoint ID and a specific type.
+     * Checks whether an endpoint with the given agrirouter endpoint ID exists.
      *
-     * @param endpointId The ID of the endpoint.
-     * @return -
+     * @param agrirouterEndpointId The agrirouter endpoint ID.
+     * @return True if the endpoint exists.
      */
-    @Query("from Endpoint e where e.externalEndpointId = :endpointId and e.endpointType = :endpointType")
-    Optional<Endpoint> findAllByExternalEndpointIdAndEndpointType(@Param("endpointId") String endpointId, @Param("endpointType") EndpointType endpointType);
-
-    /**
-     * Finding endpoint by the given endpoint ID .
-     *
-     * @param endpointId The ID of the endpoint.
-     * @return -
-     */
-    Optional<Endpoint> findByExternalEndpointId(String endpointId);
-
-    /**
-     * Finding endpoints by the given endpoint IDs .
-     *
-     * @param endpointIds The IDs of the endpoints.
-     * @return -
-     */
-    List<Endpoint> findByExternalEndpointIdIsIn(List<String> endpointIds);
+    boolean existsByAgrirouterEndpointId(String agrirouterEndpointId);
 
     /**
      * Finding endpoints by the given internal application ID.

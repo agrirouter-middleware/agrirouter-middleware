@@ -13,13 +13,13 @@ import com.dke.data.agrirouter.impl.messaging.mqtt.SendMessageServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
+import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -36,19 +36,16 @@ public class SendMessageIntegrationService {
     private final MqttClientManagementService mqttClientManagementService;
     private final EncodeMessageService encodeMessageService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
-    private final EndpointRepository endpointRepository;
 
     private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public SendMessageIntegrationService(MqttClientManagementService mqttClientManagementService,
                                          EncodeMessageService encodeMessageService,
                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                         EndpointRepository endpointRepository,
                                          AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.encodeMessageService = encodeMessageService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.endpointRepository = endpointRepository;
         this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
@@ -57,43 +54,37 @@ public class SendMessageIntegrationService {
      *
      * @param messagingIntegrationParameters -
      */
-    public void publish(MessagingIntegrationParameters messagingIntegrationParameters) throws CriticalBusinessException {
+    public void publish(Endpoint endpoint, MessagingIntegrationParameters messagingIntegrationParameters) throws CriticalBusinessException {
         agrirouterStatusIntegrationService.checkCurrentStatus();
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointIdAndIgnoreDeactivated(messagingIntegrationParameters.externalEndpointId());
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            final var onboardingResponse = endpoint.asOnboardingResponse();
-            final var messageHeaderParameters = createMessageHeaderParameters(messagingIntegrationParameters, onboardingResponse);
-            final var payloadParameters = createPayloadParameters(messagingIntegrationParameters);
+        final var onboardingResponse = endpoint.asOnboardingResponse();
+        final var messageHeaderParameters = createMessageHeaderParameters(messagingIntegrationParameters, onboardingResponse);
+        final var payloadParameters = createPayloadParameters(messagingIntegrationParameters);
 
-            final var messageParameterTuples = encodeMessageService.chunkAndBase64EncodeEachChunk(messageHeaderParameters, payloadParameters, onboardingResponse);
-            final var encodedMessages = encodeMessageService.encode(messageParameterTuples);
+        final var messageParameterTuples = encodeMessageService.chunkAndBase64EncodeEachChunk(messageHeaderParameters, payloadParameters, onboardingResponse);
+        final var encodedMessages = encodeMessageService.encode(messageParameterTuples);
 
-            final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
-            if (iMqttClient.isEmpty()) {
-                throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
-            }
-            SendMessageServiceImpl sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
-            SendMessageParameters sendMessageParameters = new SendMessageParameters();
-            sendMessageParameters.setOnboardingResponse(onboardingResponse);
-            sendMessageParameters.setEncodedMessages(encodedMessages);
-            if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
-                sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.teamSetContextId());
-            }
-            sendMessageService.send(sendMessageParameters);
-
-            log.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
-            MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-            messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-            messageWaitingForAcknowledgement.setMessageId(messageHeaderParameters.getApplicationMessageId());
-            messageWaitingForAcknowledgement.setTechnicalMessageType(messagingIntegrationParameters.technicalMessageType().getKey());
-            if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
-                messageWaitingForAcknowledgement.getDynamicProperties().put(DynamicMessageProperties.TEAM_SET_CONTEXT_ID, messagingIntegrationParameters.teamSetContextId());
-            }
-            messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint());
+        final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
+        if (iMqttClient.isEmpty()) {
+            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
         }
+        SendMessageServiceImpl sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
+        SendMessageParameters sendMessageParameters = new SendMessageParameters();
+        sendMessageParameters.setOnboardingResponse(onboardingResponse);
+        sendMessageParameters.setEncodedMessages(encodedMessages);
+        if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
+            sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.teamSetContextId());
+        }
+        sendMessageService.send(sendMessageParameters);
+
+        log.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
+        MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+        messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+        messageWaitingForAcknowledgement.setMessageId(messageHeaderParameters.getApplicationMessageId());
+        messageWaitingForAcknowledgement.setTechnicalMessageType(messagingIntegrationParameters.technicalMessageType().getKey());
+        if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
+            messageWaitingForAcknowledgement.getDynamicProperties().put(DynamicMessageProperties.TEAM_SET_CONTEXT_ID, messagingIntegrationParameters.teamSetContextId());
+        }
+        messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
     }
 
     private PayloadParameters createPayloadParameters(MessagingIntegrationParameters messagingIntegrationParameters) {

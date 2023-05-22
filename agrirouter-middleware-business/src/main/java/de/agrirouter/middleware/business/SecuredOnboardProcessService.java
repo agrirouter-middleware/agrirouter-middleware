@@ -18,7 +18,6 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,7 +32,6 @@ public class SecuredOnboardProcessService {
 
     private final AuthorizationRequestService authorizationRequestService;
     private final OnboardStateContainer onboardStateContainer;
-    private final EndpointRepository endpointRepository;
     private final SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService;
     private final ApplicationRepository applicationRepository;
     private final EndpointService endpointService;
@@ -43,7 +41,6 @@ public class SecuredOnboardProcessService {
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
-                                        EndpointRepository endpointRepository,
                                         SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService,
                                         ApplicationRepository applicationRepository,
                                         EndpointService endpointService,
@@ -52,7 +49,6 @@ public class SecuredOnboardProcessService {
                                         Gson gson) {
         this.authorizationRequestService = authorizationRequestService;
         this.onboardStateContainer = onboardStateContainer;
-        this.endpointRepository = endpointRepository;
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
         this.applicationRepository = applicationRepository;
         this.endpointService = endpointService;
@@ -95,11 +91,11 @@ public class SecuredOnboardProcessService {
         try {
             final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(onboardProcessParameters.getInternalApplicationId(), onboardProcessParameters.getTenantId());
             if (optionalApplication.isPresent()) {
-                final var existingEndpoint = endpointRepository.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
                 final var application = optionalApplication.get();
-                if (existingEndpoint.isPresent()) {
+                final var existingEndpoint = endpointService.existsByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
+                if (existingEndpoint) {
                     log.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
-                    final var endpoint = existingEndpoint.get();
+                    final var endpoint = endpointService.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
 
                     if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
                         throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReOnboardingIsNotAllowed());
@@ -120,7 +116,7 @@ public class SecuredOnboardProcessService {
                         endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
                         endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                         endpoint.setDeactivated(false);
-                        endpointRepository.save(endpoint);
+                        endpointService.save(endpoint);
                         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was updated.");
                         endpointService.sendCapabilities(application, endpoint);
                         applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, endpoint.getAgrirouterEndpointId()));
@@ -141,7 +137,7 @@ public class SecuredOnboardProcessService {
                     endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                     endpoint.setOnboardResponse(gson.toJson(onboardingResponse));
                     endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
-                    endpointRepository.save(endpoint);
+                    endpointService.save(endpoint);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was created.");
                     application.getEndpoints().add(endpoint);
                     applicationRepository.save(application);
