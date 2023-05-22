@@ -34,34 +34,39 @@ public class EndpointStatusUIComponent {
     public OverallEndpointStatusForUi determineOverallStatus(Endpoint endpoint) {
         var metric = 100;
         final var toolTip = new StringBuilder();
-        if (!endpoint.getEndpointStatus().getConnectionState().isConnected()) {
-            metric -= 100;
-            toolTip.append("The endpoint is not connected");
+        if (null != endpoint.getEndpointStatus()) {
+            if (!endpoint.getEndpointStatus().getConnectionState().isConnected()) {
+                metric -= 100;
+                toolTip.append("The endpoint is not connected");
+            } else {
+                toolTip.append("The endpoint is connected. ");
+                int pendingDeliveryTokens = mqttClientManagementService.getNumberOfPendingDeliveryTokens(endpoint.asOnboardingResponse());
+                if (pendingDeliveryTokens > 0) {
+                    metric -= 75;
+                    toolTip.append("There are ").append(pendingDeliveryTokens).append(" pending delivery tokens. ");
+                } else {
+                    toolTip.append("There are no pending delivery tokens. ");
+                }
+
+                List<Error> errors = endpointService.getErrors(endpoint);
+                if (errors.size() > 0) {
+                    toolTip.append("There are ").append(errors.size()).append(" errors. ");
+                    metric -= errors.size() * 5;
+                } else {
+                    toolTip.append("There are no errors. ");
+                }
+
+                List<Warning> warnings = endpointService.getWarnings(endpoint);
+                if (warnings.size() > 0) {
+                    toolTip.append("There are ").append(warnings.size()).append(" warnings. ");
+                    metric -= warnings.size() * 3;
+                } else {
+                    toolTip.append("There are no warnings. ");
+                }
+            }
         } else {
-            toolTip.append("The endpoint is connected. ");
-            int pendingDeliveryTokens = mqttClientManagementService.getNumberOfPendingDeliveryTokens(endpoint.asOnboardingResponse());
-            if (pendingDeliveryTokens > 0) {
-                metric -= 75;
-                toolTip.append("There are ").append(pendingDeliveryTokens).append(" pending delivery tokens. ");
-            } else {
-                toolTip.append("There are no pending delivery tokens. ");
-            }
-
-            List<Error> errors = endpointService.getErrors(endpoint);
-            if (errors.size() > 0) {
-                toolTip.append("There are ").append(errors.size()).append(" errors. ");
-                metric -= errors.size() * 5;
-            } else {
-                toolTip.append("There are no errors. ");
-            }
-
-            List<Warning> warnings = endpointService.getWarnings(endpoint);
-            if (warnings.size() > 0) {
-                toolTip.append("There are ").append(warnings.size()).append(" warnings. ");
-                metric -= warnings.size() * 3;
-            } else {
-                toolTip.append("There are no warnings. ");
-            }
+            metric -= 100;
+            toolTip.append("There is no status for this endpoint.");
         }
         return OverallEndpointStatusForUi.fromMetric(metric, toolTip.toString());
     }
