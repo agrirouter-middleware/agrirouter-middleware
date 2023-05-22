@@ -28,16 +28,6 @@ public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
     List<TimeLog> findForTeamSetContextId(String teamSetContextId);
 
     /**
-     * Fetch all time logs for the dedicated team set context ID.
-     *
-     * @param teamSetContextId -
-     * @param searchFrom       -
-     * @param searchTo         -
-     */
-    @Query(value = "{'teamSetContextId' : ?0, 'timestamp' : {'$gt' : ?1, '$lt' : ?2}}", fields = "{ 'messageId' : 1, 'timestamp' : 1, 'teamSetContextId' : 1 }")
-    List<TimeLog> findForTeamSetContextIdAndTimestampBetween(String teamSetContextId, long searchFrom, long searchTo);
-
-    /**
      * Fetch all time logs that have the dedicated message ID.
      *
      * @param messageIds -
@@ -54,11 +44,19 @@ public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
     List<TimeLog> findAllByMessageIdInAndTimestampBetween(Set<String> messageIds, long searchFrom, long searchTo);
 
     /**
-     * Fetch all time logs that have the dedicated message ID.
+     * Fetch all time logs that are within the timestamp.
      *
      * @param searchFrom -
      * @param searchTo   -
      */
     List<TimeLog> findAllByTimestampBetween(long searchFrom, long searchTo);
+
+    /**
+     * Fetch all time logs are within the timestamp and have the given team set context ID.
+     *
+     * @param searchFrom -
+     * @param searchTo   -
+     */
+    List<TimeLog> findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(long searchFrom, long searchTo, String teamSetContextId);
 
 }

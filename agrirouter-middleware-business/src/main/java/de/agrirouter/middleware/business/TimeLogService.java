@@ -26,6 +26,7 @@ import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParam
 import de.agrirouter.middleware.persistence.TimeLogRepository;
 import efdi.GrpcEfdi;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -173,7 +174,11 @@ public class TimeLogService {
     public List<TimeLog> getMessagesForTimeLogPeriod(MessagesForTimeLogPeriodParameters messagesForTimeLogPeriodParameters) {
         List<TimeLog> timeLogs;
         if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
-            timeLogs = timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
+            if (StringUtils.isNotBlank(messagesForTimeLogPeriodParameters.getTeamSetContextId())) {
+                timeLogs = timeLogRepository.findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault(), messagesForTimeLogPeriodParameters.getTeamSetContextId());
+            } else {
+                timeLogs = timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
+            }
             if (null != messagesForTimeLogPeriodParameters.getDdisToList() && !messagesForTimeLogPeriodParameters.getDdisToList().isEmpty()) {
                 timeLogs.forEach(timeLog -> {
                     final var document = timeLog.getDocument();
@@ -243,7 +248,7 @@ public class TimeLogService {
         teamSetContextIds.forEach(teamSetContextId -> {
             final List<TimeLog> timeLogs;
             if (searchTimeLogPeriodsParameters.shouldFilterByTime()) {
-                timeLogs = timeLogRepository.findForTeamSetContextIdAndTimestampBetween(teamSetContextId, searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault());
+                timeLogs = timeLogRepository.findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault(), teamSetContextId);
             } else {
                 timeLogs = timeLogRepository.findForTeamSetContextId(teamSetContextId);
             }
