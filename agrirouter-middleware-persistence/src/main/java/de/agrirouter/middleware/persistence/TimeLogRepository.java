@@ -2,10 +2,8 @@ package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.TimeLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Repository to access the time logs within the MongoDB.
@@ -20,45 +18,30 @@ public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
     void deleteAllByAgrirouterEndpointId(String agrirouterEndpointId);
 
     /**
-     * Fetch all time logs for the dedicated team set context ID.
+     * Fetch all time logs that are within the timestamp.
      *
-     * @param teamSetContextId -
-     */
-    @Query(value = "{ 'teamSetContextId' : ?0 }", fields = "{ 'messageId' : 1, 'timestamp' : 1, 'teamSetContextId' : 1 }")
-    List<TimeLog> findForTeamSetContextId(String teamSetContextId);
-
-    /**
-     * Fetch all time logs for the dedicated team set context ID.
-     *
-     * @param teamSetContextId -
-     * @param searchFrom       -
-     * @param searchTo         -
-     */
-    @Query(value = "{'teamSetContextId' : ?0, 'timestamp' : {'$gt' : ?1, '$lt' : ?2}}", fields = "{ 'messageId' : 1, 'timestamp' : 1, 'teamSetContextId' : 1 }")
-    List<TimeLog> findForTeamSetContextIdAndTimestampBetween(String teamSetContextId, long searchFrom, long searchTo);
-
-    /**
-     * Fetch all time logs that have the dedicated message ID.
-     *
-     * @param messageIds -
-     */
-    List<TimeLog> findAllByMessageIdIn(Set<String> messageIds);
-
-    /**
-     * Fetch all time logs that have the dedicated message ID.
-     *
-     * @param messageIds -
-     * @param searchFrom -
-     * @param searchTo   -
-     */
-    List<TimeLog> findAllByMessageIdInAndTimestampBetween(Set<String> messageIds, long searchFrom, long searchTo);
-
-    /**
-     * Fetch all time logs that have the dedicated message ID.
-     *
-     * @param searchFrom -
-     * @param searchTo   -
+     * @param searchFrom The start of the search interval.
+     * @param searchTo   The end of the search interval.
+     * @return The time logs.
      */
     List<TimeLog> findAllByTimestampBetween(long searchFrom, long searchTo);
+
+    /**
+     * Fetch all time logs are within the timestamp and have the given team set context ID.
+     *
+     * @param searchFrom       The start of the search interval.
+     * @param searchTo         The end of the search interval.
+     * @param teamSetContextId The team set context ID.
+     * @return The time logs.
+     */
+    List<TimeLog> findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(long searchFrom, long searchTo, String teamSetContextId);
+
+    /**
+     * Find all by team set context ID.
+     *
+     * @param teamSetContextId The team set context ID.
+     * @return The time logs.
+     */
+    List<TimeLog> findAllByTeamSetContextIdEqualsIgnoreCase(String teamSetContextId);
 
 }
