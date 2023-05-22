@@ -6,11 +6,11 @@ import com.dke.data.agrirouter.impl.messaging.mqtt.MessageHeaderQueryServiceImpl
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
+import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
-import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -25,18 +25,18 @@ import java.time.temporal.ChronoUnit;
 @Component
 public class ScheduledStatusLogging {
 
-    private final EndpointRepository endpointRepository;
+    private final EndpointService endpointService;
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final BusinessOperationLogService businessOperationLogService;
     private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
-    public ScheduledStatusLogging(EndpointRepository endpointRepository,
+    public ScheduledStatusLogging(EndpointService endpointService,
                                   MqttClientManagementService mqttClientManagementService,
                                   MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                   BusinessOperationLogService businessOperationLogService,
                                   AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
-        this.endpointRepository = endpointRepository;
+        this.endpointService = endpointService;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessOperationLogService = businessOperationLogService;
@@ -50,7 +50,7 @@ public class ScheduledStatusLogging {
     public void scheduledStatusLogging() {
         if (agrirouterStatusIntegrationService.isOperational()) {
             log.debug("Scheduled status update for endpoints.");
-            endpointRepository.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
+            endpointService.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
                 final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
                 if (iMqttClient.isEmpty()) {
                     log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
