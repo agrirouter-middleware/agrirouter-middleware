@@ -28,22 +28,6 @@ public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
     List<TimeLog> findForTeamSetContextId(String teamSetContextId);
 
     /**
-     * Fetch all time logs that have the dedicated message ID.
-     *
-     * @param messageIds -
-     */
-    List<TimeLog> findAllByMessageIdIn(Set<String> messageIds);
-
-    /**
-     * Fetch all time logs that have the dedicated message ID.
-     *
-     * @param messageIds -
-     * @param searchFrom -
-     * @param searchTo   -
-     */
-    List<TimeLog> findAllByMessageIdInAndTimestampBetween(Set<String> messageIds, long searchFrom, long searchTo);
-
-    /**
      * Fetch all time logs that are within the timestamp.
      *
      * @param searchFrom -
