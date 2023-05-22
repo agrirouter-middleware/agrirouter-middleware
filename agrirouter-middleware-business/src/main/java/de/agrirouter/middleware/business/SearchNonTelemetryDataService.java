@@ -10,6 +10,7 @@ import de.agrirouter.middleware.persistence.ContentMessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -165,6 +166,7 @@ public class SearchNonTelemetryDataService {
      * @param externalEndpointId The external ID of the endpoint.
      * @param messageId          The ID of the message.
      */
+    @Transactional
     public void delete(String externalEndpointId, String messageId) {
         final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
         final var optionalContentMessage = contentMessageRepository.findFirstByAgrirouterEndpointIdAndContentMessageMetadataMessageId(endpoint.getAgrirouterEndpointId(), messageId);
