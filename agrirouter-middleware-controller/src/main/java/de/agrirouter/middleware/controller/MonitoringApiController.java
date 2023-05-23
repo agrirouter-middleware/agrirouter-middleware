@@ -9,16 +9,16 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
  * Base class for the private API controllers.
  */
 @SecurityScheme(
-        name = "secured",
-        description = "Default security scheme, used for the private flows.",
+        name = "monitoring",
+        description = "Default monitoring scheme, used for the monitoring and statistics.",
         type = SecuritySchemeType.HTTP,
         scheme = "basic"
 )
 @SecurityRequirement(
-        name = "secured-api"
+        name = "monitoring-api"
 )
-public interface SecuredApiController {
+public interface MonitoringApiController {
 
-    String API_PREFIX = Routes.SecuredRestEndpoints.ALL_REQUESTS;
+    String API_PREFIX = Routes.MonitoringEndpoints.ALL_REQUESTS;
 
 }

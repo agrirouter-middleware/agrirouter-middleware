@@ -28,7 +28,7 @@ public class HomeUIController {
     @GetMapping("/")
     public String navigation(Model model) {
         model.addAttribute("activeProfiles", "Active profiles = " + Arrays.stream(environment.getActiveProfiles()).toList());
-        return Routes.UI.HOME;
+        return Routes.UnsecuredEndpoints.HOME;
     }
 
 }

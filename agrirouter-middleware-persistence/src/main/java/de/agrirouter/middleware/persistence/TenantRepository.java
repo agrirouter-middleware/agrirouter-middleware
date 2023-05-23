@@ -29,10 +29,17 @@ public interface TenantRepository extends JpaRepository<Tenant, Long> {
     Optional<Tenant> findTenantByTenantId(String tenantId);
 
     /**
+     * Search for the default tenant.
+     *
+     * @return The default tenant, if available.
+     */
+    Optional<Tenant> findByDefaultTenantIsTrue();
+
+    /**
      * Search for the generated tenant.
      *
      * @return The generated tenant, if available.
      */
-    Optional<Tenant> findTenantByGeneratedTenantIsTrue();
+    Optional<Tenant> findByMonitoringAccessIsTrue();
 
 }

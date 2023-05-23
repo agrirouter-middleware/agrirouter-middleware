@@ -1,4 +1,4 @@
-package de.agrirouter.middleware.controller.unsecured;
+package de.agrirouter.middleware.controller.unsecured.maintenance;
 
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.TenantService;

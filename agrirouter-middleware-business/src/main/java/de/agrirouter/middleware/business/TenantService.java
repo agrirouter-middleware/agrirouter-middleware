@@ -42,12 +42,42 @@ public class TenantService implements UserDetailsService {
      * Initialize the default tenant.
      */
     @PostConstruct
-    protected void generateDefaultTenant() {
-        if (tenantRepository.findTenantByGeneratedTenantIsTrue().isEmpty()) {
+    protected void generateDefaultTenants() {
+        generateDefaultTenant();
+        generateDefaultMonitoringTenant();
+    }
+
+    private void generateDefaultMonitoringTenant() {
+        if (tenantRepository.findByMonitoringAccessIsTrue().isEmpty()) {
             Tenant tenant = new Tenant();
             tenant.setTenantId(IdFactory.tenantId());
             tenant.setName(generateAccessToken(24));
             tenant.setGeneratedTenant(true);
+            tenant.setMonitoringAccess(true);
+            final var accessToken = generateAccessToken(DEFAULT_ACCESS_TOKEN_LENGTH);
+            tenant.setAccessToken(passwordEncoder.encode(accessToken));
+            tenantRepository.save(tenant);
+            log.info("#######################################################################################################################################################");
+            log.info("#");
+            log.info("# Generated default tenant for monitoring!");
+            log.info("# Name: {}", tenant.getName());
+            log.info("# Tenant ID: {}", tenant.getTenantId());
+            log.info("# Access token: {}", accessToken);
+            log.info("#");
+            log.info("# NOTE");
+            log.info("# The password for the default monitoring tenant is stored as hash, therefore it will be printed only (!) THIS (!) time and never again.");
+            log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
+            log.info("#######################################################################################################################################################");
+        }
+    }
+
+    private void generateDefaultTenant() {
+        if (tenantRepository.findByDefaultTenantIsTrue().isEmpty()) {
+            Tenant tenant = new Tenant();
+            tenant.setTenantId(IdFactory.tenantId());
+            tenant.setName(generateAccessToken(24));
+            tenant.setGeneratedTenant(true);
+            tenant.setDefaultTenant(true);
             final var accessToken = generateAccessToken(DEFAULT_ACCESS_TOKEN_LENGTH);
             tenant.setAccessToken(passwordEncoder.encode(accessToken));
             tenantRepository.save(tenant);
@@ -60,19 +90,6 @@ public class TenantService implements UserDetailsService {
             log.info("#");
             log.info("# NOTE");
             log.info("# The password for the default tenant is stored as hash, therefore it will be printed only (!) THIS (!) time and never again.");
-            log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
-            log.info("#######################################################################################################################################################");
-        } else {
-            final var generatedTenant = tenantRepository.findTenantByGeneratedTenantIsTrue();
-            log.info("#######################################################################################################################################################");
-            log.info("#");
-            log.info("# Generated default tenant!");
-            //noinspection OptionalGetWithoutIsPresent
-            log.info("# Name: {}", generatedTenant.get().getName());
-            log.info("# Tenant ID: {}", generatedTenant.get().getTenantId());
-            log.info("#");
-            log.info("# NOTE");
-            log.info("# The password for the default tenant is stored as hash, therefore it will be printed only during setup.");
             log.info("# If you need to reset the password and generate a new one, remove the default tenant from the database so it will be generated and printed again.");
             log.info("#######################################################################################################################################################");
         }

@@ -1,5 +1,6 @@
-package de.agrirouter.middleware.controller.unsecured;
+package de.agrirouter.middleware.controller.monitoring;
 
+import de.agrirouter.middleware.controller.MonitoringApiController;
 import de.agrirouter.middleware.controller.UnsecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.VersionsResponse;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller for information purpose.
  */
 @RestController
-@RequestMapping(UnsecuredApiController.API_PREFIX + "/info")
+@RequestMapping(MonitoringApiController.API_PREFIX + "/info")
 @Tag(name = "info", description = "Operation for information purpose.")
 public class InfoController implements UnsecuredApiController {
 

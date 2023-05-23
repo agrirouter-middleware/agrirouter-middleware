@@ -47,7 +47,17 @@ public class Tenant extends BaseEntity {
     private Set<Application> applications;
 
     /**
-     * Marker if this tenant is the generated tenant for using the application even without a dedicated tenant.
+     * Marker if this tenant is a generated tenant.
      */
     private boolean generatedTenant = false;
+
+    /**
+     * Marker if this tenant has access to the monitoring.
+     */
+    private boolean monitoringAccess = false;
+
+    /**
+     * Marker if this tenant has access to the monitoring.
+     */
+    private boolean defaultTenant = false;
 }

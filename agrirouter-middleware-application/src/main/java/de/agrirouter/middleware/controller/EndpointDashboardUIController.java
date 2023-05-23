@@ -91,13 +91,13 @@ public class EndpointDashboardUIController {
                 model.addAttribute("messagesWaitingForAcknowledgement", messagesWaitingForAcknowledgement);
 
             } else {
-                return Routes.UI.ERROR;
+                return Routes.UnsecuredEndpoints.ERROR;
             }
         } catch (BusinessException e) {
             log.error(e.getErrorMessage().asLogMessage());
-            return Routes.UI.ERROR;
+            return Routes.UnsecuredEndpoints.ERROR;
         }
-        return Routes.UI.ENDPOINT_DASHBOARD;
+        return Routes.UserInterface.ENDPOINT_DASHBOARD;
     }
 
     /**
