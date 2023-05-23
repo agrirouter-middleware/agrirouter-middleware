@@ -1,13 +1,12 @@
 package de.agrirouter.middleware.controller;
 
 import de.agrirouter.middleware.api.Routes;
-import de.agrirouter.middleware.controller.CommonController;
 
 /**
  * Base class for the public API controllers.
  */
-public interface UnsecuredApiController extends CommonController {
+public interface UnsecuredApiController {
 
-    String API_PREFIX = Routes.Unsecured.API_PATH;
+    String API_PREFIX = Routes.UnsecuredEndpoints.ALL_REQUESTS;
 
 }

@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.config;
 
 import de.agrirouter.middleware.api.Routes;
+import de.agrirouter.middleware.business.security.Roles;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,15 +44,22 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     return configuration;
                 }).and()
                 .authorizeRequests()
-                .antMatchers(Routes.Secured.APPLICATIONS,
-                        Routes.Secured.APPLICATIONS + WILDCARD,
-                        Routes.Secured.ENDPOINTS,
-                        Routes.Secured.ENDPOINTS + WILDCARD,
-                        Routes.Secured.ENDPOINT_DASHBOARD,
-                        Routes.Secured.ENDPOINT_DASHBOARD + WILDCARD,
-                        Routes.Secured.API_PATH,
-                        Routes.Secured.API_PATH + WILDCARD).authenticated()
-                .anyRequest().permitAll()
+                // Secure all REST endpoints.
+                .antMatchers(Routes.SecuredRestEndpoints.ALL_REQUESTS + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
+                // Secure all monitoring endpoints.
+                .antMatchers(Routes.MonitoringEndpoints.ACTUATOR).hasAuthority(Roles.MONITORING.getKey())
+                .antMatchers(Routes.MonitoringEndpoints.ALL_REQUESTS + WILDCARD).hasAuthority(Roles.MONITORING.getKey())
+                .antMatchers(Routes.MonitoringEndpoints.ACTUATOR + WILDCARD).hasAuthority(Roles.MONITORING.getKey())
+                // Secure the user interface.
+                .antMatchers(Routes.UserInterface.APPLICATIONS).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.UserInterface.APPLICATIONS + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINT_DASHBOARD).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINT_DASHBOARD + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINTS).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINTS + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
+                // Define rules for any request.
+                .anyRequest()
+                .permitAll()
                 .and().httpBasic();
     }
 

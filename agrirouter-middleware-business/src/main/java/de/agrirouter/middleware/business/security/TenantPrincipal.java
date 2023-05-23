@@ -21,7 +21,13 @@ public class TenantPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.<GrantedAuthority>singletonList(new SimpleGrantedAuthority("User"));
+        if (tenant.isMonitoringAccess()) {
+            return Collections.<GrantedAuthority>singletonList(new SimpleGrantedAuthority(Roles.MONITORING.getKey()));
+        }
+        if (tenant.isDefaultTenant()) {
+            return Collections.<GrantedAuthority>singletonList(new SimpleGrantedAuthority(Roles.DEFAULT.getKey()));
+        }
+        return Collections.emptyList();
     }
 
     @Override
