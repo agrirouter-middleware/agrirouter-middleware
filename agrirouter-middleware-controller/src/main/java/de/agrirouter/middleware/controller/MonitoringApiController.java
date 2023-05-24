@@ -18,10 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @SecurityRequirement(
         name = "monitoring-api"
 )
-@Tag(
-        name = "monitoring",
-        description = "Monitoring for the middleware."
-)
 public interface MonitoringApiController {
 
     String API_PREFIX = Routes.MonitoringEndpoints.ALL_REQUESTS;

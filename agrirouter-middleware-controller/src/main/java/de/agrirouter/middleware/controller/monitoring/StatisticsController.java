@@ -41,6 +41,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
+@Tag(name = "monitoring")
 @RequestMapping(MonitoringApiController.API_PREFIX + "/statistics")
 public class StatisticsController implements SecuredApiController {
 
