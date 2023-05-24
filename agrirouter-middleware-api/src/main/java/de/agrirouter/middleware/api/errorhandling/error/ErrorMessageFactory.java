@@ -43,11 +43,11 @@ public final class ErrorMessageFactory {
     }
 
     public static ErrorMessage middlewareDoesNotSupportGateway(String gatewayId) {
-        return new ErrorMessage(ErrorKey.MIDDLEWARE_DOES_NOT_SUPPORT_GATEWAY, String.format("The middleware does not support the gateway with the ID '%s'.", gatewayId));
+        return new ErrorMessage(ErrorKey.MIDDLEWARE_DOES_NOT_SUPPORT_GATEWAY, String.format("The middleware does not support the gateway with the ID '%s'.", gatewayId), HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage invalidParameterForAction(String... names) {
-        return new ErrorMessage(ErrorKey.INVALID_PARAMETER_FOR_ACTION, String.format("The following parameters are in an error state, please check >>> [%s]", String.join(",", names)));
+        return new ErrorMessage(ErrorKey.INVALID_PARAMETER_FOR_ACTION, String.format("The following parameters are in an error state, please check >>> [%s]", String.join(",", names)), HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage tenantAlreadyExists(String name) {
@@ -71,11 +71,11 @@ public final class ErrorMessageFactory {
     }
 
     public static ErrorMessage couldNotParseDeviceDescription() {
-        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_DEVICE_DESCRIPTION, "Could not parse the given device description. Please check the format.");
+        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_DEVICE_DESCRIPTION, "Could not parse the given device description. Please check the format.", HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage couldNotParseTimeLog() {
-        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_TIME_LOG, "Could not parse the given time log. Please check the format.");
+        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_TIME_LOG, "Could not parse the given time log. Please check the format.", HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage endpointWithTheSameExternalIdIsPresent(String externalEndpointId) {
@@ -91,7 +91,7 @@ public final class ErrorMessageFactory {
     }
 
     public static ErrorMessage switchingAccountsWhenReOnboardingIsNotAllowed() {
-        return new ErrorMessage(ErrorKey.SWITCHING_ACCOUNTS_WHEN_REONBOARDING_IS_NOT_ALLOWED, "Switching accounts when performing the onboard process for an existing endpoint is not allowed.");
+        return new ErrorMessage(ErrorKey.SWITCHING_ACCOUNTS_WHEN_REONBOARDING_IS_NOT_ALLOWED, "Switching accounts when performing the onboard process for an existing endpoint is not allowed.", HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage missingRouterDeviceForApplication() {
@@ -99,11 +99,11 @@ public final class ErrorMessageFactory {
     }
 
     public static ErrorMessage missingFilterCriteriaForTimeLogSearch() {
-        return new ErrorMessage(ErrorKey.MISSING_FILTER_CRITERIA_FOR_TIME_LOG_SEARCH, "There has to be a criteria for searching for time logs. Either the time log period has to be given or there has to be a time interval.");
+        return new ErrorMessage(ErrorKey.MISSING_FILTER_CRITERIA_FOR_TIME_LOG_SEARCH, "There has to be a criteria for searching for time logs. Either the time log period has to be given or there has to be a time interval.", HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage parameterValidationProblem() {
-        return new ErrorMessage(ErrorKey.PARAMETER_VALIDATION_PROBLEM, "There was an error while validating the parameters for the request.");
+        return new ErrorMessage(ErrorKey.PARAMETER_VALIDATION_PROBLEM, "There was an error while validating the parameters for the request.", HttpStatus.BAD_REQUEST);
     }
 
     public static ErrorMessage couldNotAssembleChunks() {

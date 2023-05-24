@@ -2,8 +2,6 @@ package de.agrirouter.middleware.integration.mqtt.health;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
-import de.agrirouter.middleware.api.errorhandling.error.ErrorMessage;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +54,7 @@ public class HealthStatusIntegrationService {
                 }
             } else {
                 log.error("Could not publish the health check message. MQTT client is not connected.");
-                throw new BusinessException(ErrorMessageFactory.couldNotPublishHealthMessageSinceClientIsNotConnected()
+                throw new BusinessException(ErrorMessageFactory.couldNotPublishHealthMessageSinceClientIsNotConnected());
             }
         }, () -> log.warn("Could not find or create a MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId()));
     }
