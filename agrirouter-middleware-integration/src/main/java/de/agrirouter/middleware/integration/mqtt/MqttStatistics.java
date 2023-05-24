@@ -3,6 +3,7 @@ package de.agrirouter.middleware.integration.mqtt;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,6 +21,7 @@ public class MqttStatistics {
         connectionStatistics = new ConnectionStatistics();
         mqttMessageStatistics = new MqttMessageStatistics();
         contentMessageStatistics = new ContentMessageStatistics();
+        contentMessageStatistics.numberOfContentMessagesReceived = new HashMap<>();
     }
 
 
