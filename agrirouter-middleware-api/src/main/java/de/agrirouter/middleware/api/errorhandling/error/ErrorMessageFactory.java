@@ -137,4 +137,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage notAuthorized() {
         return new ErrorMessage(ErrorKey.NOT_AUTHORIZED, "Nice try, but the user is not authorized to perform this action.", HttpStatus.FORBIDDEN);
     }
+
+    public static ErrorMessage missingRouterDevice(String externalEndpointId) {
+        return new ErrorMessage(ErrorKey.MISSING_ROUTER_DEVICE, String.format("Could not find the router device for the endpoint with the external endpoint ID '%s'.", externalEndpointId), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

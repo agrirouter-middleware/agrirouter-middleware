@@ -92,7 +92,7 @@ public class Endpoint extends BaseEntity {
             if (StringUtils.isNotBlank(onboardResponseForRouterDevice)) {
                 return GSON.fromJson(onboardResponseForRouterDevice, OnboardingResponse.class);
             } else {
-                return GSON.fromJson(onboardResponse, OnboardingResponse.class);
+                throw new BusinessException(ErrorMessageFactory.missingRouterDevice(this.getExternalEndpointId()));
             }
         } catch (JsonParseException e) {
             throw new BusinessException(ErrorMessageFactory.couldNotParseOnboardResponse(), e);
