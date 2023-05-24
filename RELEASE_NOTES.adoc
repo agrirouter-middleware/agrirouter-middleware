@@ -7,6 +7,68 @@
 The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
 If there are any manual migrations necessary, the documentation can be found right here.
 
+== Release v7.0.0
+
+=== Monitoring endpoints are secured by default
+
+With the new release, the monitoring endpoints are secured by default.
+During startup, the middleware will generate a random password for the monitoring endpoints.
+You can see the password in the logs during startup, but it will be stored as a hash within the database.
+You can use the password to access the monitoring endpoints, like the health check, the metrics or the info endpoint.
+
+image::documentation/release_7_0/generated_default_pwd_for_monitoring.png[monitoring password,role="left]
+
+If you lost the password, either delete the monitoring tenant from the database or set the password via maintenance endpoint.
+
+=== Enhanced message statistics
+
+With the new release, the message statistics have been enhanced.
+There is more structure and some additional information.
+
+[source,json]
+----
+{
+    "connectionStatistics": {
+        "numberOfConnectionLosses": 0,
+        "numberOfCacheMisses": 1,
+        "numberOfClientInitializations": 1,
+        "numberOfDisconnects": 0
+    },
+    "mqttMessageStatistics": {
+        "numberOfMessagesArrived": 0,
+        "numberOfAcknowledgements": 0,
+        "numberOfPushNotifications": 0,
+        "numberOfCloudRegistrations": 0,
+        "numberOfEndpointListings": 0,
+        "numberOfUnknownMessages": 0
+    },
+    "contentMessageStatistics": {
+        "numberOfContentMessagesReceived": {}
+    },
+    "numberOfConnectedClients": 1,
+    "numberOfDisconnectedClients": 0
+}
+----
+
+=== Router device are mandatory for communication
+
+With this release it will be no longer allowed to send messages without a router device.
+This is necessary to improve the performance of the middleware and to reduce the load on the agrirouter.
+You will need to provide a router device once and all of the endpoints will be updated and connected using this router device.
+If you did not provide a router device, the middleware will reject the message.
+
+[source,text]
+----
+[ERR_00038] Could not find the router device for the endpoint with the external endpoint ID '492eda79-d787-46f5-a3b5-3bc9dcfe97fa'.
+----
+
+You can see those error messages during startup within the logs of the middleware.
+The middleware will automatically update the former endpoints and connect them to the router device if it is provided.
+
+image::documentation/release_7_0/log_messages_for_router_devices_during_startup.png[router device,role="left"]
+
+If you try to send a message without a router device, the middleware will reject the message.
+
 == Release v6.1.0
 
 === Caching for endpoints
