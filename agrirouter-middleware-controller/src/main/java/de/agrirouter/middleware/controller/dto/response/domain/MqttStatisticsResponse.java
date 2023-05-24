@@ -24,7 +24,14 @@ public class MqttStatisticsResponse {
     @Schema(description = "Statistics for the MQTT content messages.")
     private MqttStatistics.ContentMessageStatistics contentMessageStatistics;
 
+    @Schema(description = "Number of connected clients.")
+    private long numberOfConnectedClients;
+
+    @Schema(description = "Number of disconnected clients.")
+    private long numberOfDisconnectedClients;
+
     @Getter
+    @Setter
     public static class ConnectionStatistics {
         @Schema(description = "Number of connection losses.")
         private long numberOfConnectionLosses;
@@ -40,6 +47,7 @@ public class MqttStatisticsResponse {
     }
 
     @Getter
+    @Setter
     public static class MqttMessageStatistics {
         @Schema(description = "Number of messages arrived.")
         private long numberOfMessagesArrived;
@@ -61,9 +69,9 @@ public class MqttStatisticsResponse {
     }
 
     @Getter
+    @Setter
     public static class ContentMessageStatistics {
         @Schema(description = "Number of messages received.")
         private Map<String, Integer> numberOfContentMessagesReceived;
-
     }
 }
