@@ -60,6 +60,7 @@ public class Endpoint extends BaseEntity {
     /**
      * The connected virtual endpoints.
      */
+    @SuppressWarnings("JpaDataSourceORMInspection")
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_endpoint_id")
     @ToString.Exclude
@@ -92,7 +93,7 @@ public class Endpoint extends BaseEntity {
             if (StringUtils.isNotBlank(onboardResponseForRouterDevice)) {
                 return GSON.fromJson(onboardResponseForRouterDevice, OnboardingResponse.class);
             } else {
-                return GSON.fromJson(onboardResponse, OnboardingResponse.class);
+                throw new BusinessException(ErrorMessageFactory.missingRouterDevice(this.getExternalEndpointId()));
             }
         } catch (JsonParseException e) {
             throw new BusinessException(ErrorMessageFactory.couldNotParseOnboardResponse(), e);
@@ -119,9 +120,18 @@ public class Endpoint extends BaseEntity {
     /**
      * Checks whether the endpoint is a healthy at the moment.
      *
-     * @return -
+     * @return true if the endpoint is healthy, false otherwise.
      */
     public boolean isHealthy() {
-        return !isDeactivated() && getEndpointStatus() != null && getEndpointStatus().getConnectionState().isConnected();
+        return usesRouterDevice() && !isDeactivated() && getEndpointStatus() != null && getEndpointStatus().getConnectionState().isConnected();
+    }
+
+    /**
+     * Checks whether the endpoint uses a router device or not.
+     *
+     * @return true if the endpoint uses a router device, false otherwise.
+     */
+    public boolean usesRouterDevice() {
+        return StringUtils.isNotBlank(onboardResponseForRouterDevice);
     }
 }

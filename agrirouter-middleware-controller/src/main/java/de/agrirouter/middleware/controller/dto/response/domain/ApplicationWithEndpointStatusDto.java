@@ -44,10 +44,18 @@ public class ApplicationWithEndpointStatusDto {
     @Schema(description = "The version of the application. Each agrirouter© version creates a new application in the middleware.")
     private String versionId;
 
+
+    /**
+     * Marker if the application uses a router device.
+     */
+    @Schema(description = "Marker if the application uses a router device.")
+    private boolean usesRouterDevice;
+    
     /**
      * The status information for all endpoints within the application.
      */
     @Schema(description = "The status information for all endpoints within the application.")
     private List<EndpointWithStatusDto> endpointsWithStatus;
+
 
 }

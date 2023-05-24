@@ -479,6 +479,7 @@ public class ApplicationController implements SecuredApiController {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
+        applicationStatusResponse.setUsesRouterDevice(application.usesRouterDevice());
         applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
         application.getEndpoints()
                 .stream()

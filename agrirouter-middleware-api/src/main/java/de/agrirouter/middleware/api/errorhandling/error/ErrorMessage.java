@@ -24,12 +24,6 @@ public class ErrorMessage {
      */
     private final HttpStatus httpStatus;
 
-    public ErrorMessage(ErrorKey key, String message) {
-        this.key = key;
-        this.message = message;
-        this.httpStatus = HttpStatus.BAD_REQUEST;
-    }
-
     public ErrorMessage(ErrorKey key, String message, HttpStatus httpStatus) {
         this.key = key;
         this.message = message;
