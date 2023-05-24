@@ -70,10 +70,6 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.SECURED_ONBOARD_PROCESS_NOT_SUPPORTED, "The application does not support secured onboarding.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public static ErrorMessage couldNotFindVirtualEndpoint() {
-        return new ErrorMessage(ErrorKey.ENDPOINT_NOT_FOUND, "The virtual endpoint was not found.", HttpStatus.NOT_FOUND);
-    }
-
     public static ErrorMessage couldNotParseDeviceDescription() {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_DEVICE_DESCRIPTION, "Could not parse the given device description. Please check the format.");
     }
