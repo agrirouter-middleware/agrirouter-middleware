@@ -37,6 +37,7 @@ public class MessageHandlingCallback implements MqttCallback {
     private final HealthStatusMessages healthStatusMessages;
     private final ListEndpointsMessages listEndpointsMessages;
 
+
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                    DecodeMessageService decodeMessageService,
                                    MqttStatistics mqttStatistics,

@@ -19,6 +19,7 @@ import de.agrirouter.middleware.domain.taskdata.TaskDataTimeLogContainer;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import de.agrirouter.middleware.isoxml.TaskDataTimeLogService;
 import de.agrirouter.middleware.persistence.ContentMessageRepository;
 import de.agrirouter.middleware.persistence.TaskDataTimeLogContainerRepository;
@@ -49,6 +50,7 @@ public class PushMessageEventListener {
     private final ContentMessageRepository contentMessageRepository;
     private final TaskDataTimeLogService taskDataTimeLogService;
     private final BusinessOperationLogService businessOperationLogService;
+    private final MqttStatistics mqttStatistics;
 
     public PushMessageEventListener(MqttClientManagementService mqttClientManagementService,
                                     EndpointService endpointService,
@@ -59,7 +61,8 @@ public class PushMessageEventListener {
                                     DeviceDescriptionService deviceDescriptionService,
                                     ContentMessageRepository contentMessageRepository,
                                     TaskDataTimeLogService taskDataTimeLogService,
-                                    BusinessOperationLogService businessOperationLogService) {
+                                    BusinessOperationLogService businessOperationLogService,
+                                    MqttStatistics mqttStatistics) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointService = endpointService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
@@ -70,6 +73,7 @@ public class PushMessageEventListener {
         this.contentMessageRepository = contentMessageRepository;
         this.taskDataTimeLogService = taskDataTimeLogService;
         this.businessOperationLogService = businessOperationLogService;
+        this.mqttStatistics = mqttStatistics;
     }
 
     /**
@@ -85,6 +89,7 @@ public class PushMessageEventListener {
         final var receiverId = pushNotification.getMessages(0).getHeader().getReceiverId();
         pushNotification.getMessagesList().forEach(feedMessage -> {
             saveContentMessage(feedMessage);
+            mqttStatistics.increaseNumberOfContentMessagesReceived(feedMessage.getHeader().getTechnicalMessageType());
             messageIdsToConfirm.add(feedMessage.getHeader().getMessageId());
         });
         confirmMessages(receiverId, messageIdsToConfirm);

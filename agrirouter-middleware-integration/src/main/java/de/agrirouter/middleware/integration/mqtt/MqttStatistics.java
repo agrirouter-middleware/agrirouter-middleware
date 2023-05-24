@@ -2,81 +2,100 @@ package de.agrirouter.middleware.integration.mqtt;
 
 import lombok.Getter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.ApplicationScope;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Transient statistics for the MQTT connections.
  */
 @Getter
 @Component
-@ApplicationScope
 public class MqttStatistics {
 
-    private long numberOfConnectionLosses;
-    private long numberOfCacheMisses;
-    private long numberOfMessagesArrived;
-    private long numberOfAcknowledgements;
-    private long numberOfPushNotifications;
-    private int numberOfCloudRegistrations;
-    private long numberOfEndpointListings;
-    private int numberOfUnknownMessages;
-    private long numberOfClientInitializations;
-    private long numberOfDisconnects;
-    private long numberOfStaleConnectionsRemovals;
+    private final ConnectionStatistics connectionStatistics;
+    private final MqttMessageStatistics mqttMessageStatistics;
+    private final ContentMessageStatistics contentMessageStatistics;
 
-    /**
-     * Increase the number of connection losses.
-     */
+    public MqttStatistics() {
+        connectionStatistics = new ConnectionStatistics();
+        mqttMessageStatistics = new MqttMessageStatistics();
+        contentMessageStatistics = new ContentMessageStatistics();
+        contentMessageStatistics.numberOfContentMessagesReceived = new HashMap<>();
+    }
+
+
     public void increaseNumberOfConnectionLosses() {
-        numberOfConnectionLosses++;
+        connectionStatistics.numberOfConnectionLosses++;
     }
 
-    /**
-     * Increase the number of cache misses.
-     */
     public void increaseNumberOfCacheMisses() {
-        numberOfCacheMisses++;
-    }
-
-    /**
-     * Increase the number of messages arrived.
-     */
-    public void increaseNumberOfMessagesArrived() {
-        numberOfMessagesArrived++;
-    }
-
-    /**
-     * Increase the number of acknowledgements.
-     */
-    public void increaseNumberOfAcknowledgements() {
-        numberOfAcknowledgements++;
-    }
-
-    public void increaseNumberOfPushNotifications() {
-        numberOfPushNotifications++;
-    }
-
-    public void increaseNumberOfCloudRegistrations() {
-        numberOfCloudRegistrations++;
-    }
-
-    public void increaseNumberOfEndpointListings() {
-        numberOfEndpointListings++;
-    }
-
-    public void increaseNumberOfUnknownMessages() {
-        numberOfUnknownMessages++;
+        connectionStatistics.numberOfCacheMisses++;
     }
 
     public void increaseNumberOfClientInitializations() {
-        numberOfClientInitializations++;
+        connectionStatistics.numberOfClientInitializations++;
     }
 
     public void increaseNumberOfDisconnects() {
-        numberOfDisconnects++;
+        connectionStatistics.numberOfDisconnects++;
     }
 
-    public void increaseNumberOfStaleConnectionsRemovals() {
-        numberOfStaleConnectionsRemovals++;
+    public void increaseNumberOfMessagesArrived() {
+        mqttMessageStatistics.numberOfMessagesArrived++;
+    }
+
+    public void increaseNumberOfAcknowledgements() {
+        mqttMessageStatistics.numberOfAcknowledgements++;
+    }
+
+    public void increaseNumberOfPushNotifications() {
+        mqttMessageStatistics.numberOfPushNotifications++;
+    }
+
+    public void increaseNumberOfCloudRegistrations() {
+        mqttMessageStatistics.numberOfCloudRegistrations++;
+    }
+
+    public void increaseNumberOfEndpointListings() {
+        mqttMessageStatistics.numberOfEndpointListings++;
+    }
+
+    public void increaseNumberOfUnknownMessages() {
+        mqttMessageStatistics.numberOfUnknownMessages++;
+    }
+
+    public void increaseNumberOfContentMessagesReceived(String technicalMessageType) {
+        var counter = contentMessageStatistics.numberOfContentMessagesReceived.get(technicalMessageType);
+        if (counter == null) {
+            counter = 0;
+        }
+        counter++;
+        contentMessageStatistics.numberOfContentMessagesReceived.put(technicalMessageType, counter);
+    }
+
+
+    @Getter
+    public static class ConnectionStatistics {
+        private long numberOfConnectionLosses;
+        private long numberOfCacheMisses;
+        private long numberOfClientInitializations;
+        private long numberOfDisconnects;
+    }
+
+    @Getter
+    public static class MqttMessageStatistics {
+        private long numberOfMessagesArrived;
+        private long numberOfAcknowledgements;
+        private long numberOfPushNotifications;
+        private int numberOfCloudRegistrations;
+        private long numberOfEndpointListings;
+        private int numberOfUnknownMessages;
+    }
+
+    @Getter
+    public static class ContentMessageStatistics {
+        private Map<String, Integer> numberOfContentMessagesReceived;
+
     }
 }
