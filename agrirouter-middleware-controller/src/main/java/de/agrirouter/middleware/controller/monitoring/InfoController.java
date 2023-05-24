@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(MonitoringApiController.API_PREFIX + "/info")
-@Tag(name = "info", description = "Operation for information purpose.")
 public class InfoController implements UnsecuredApiController {
 
     /**

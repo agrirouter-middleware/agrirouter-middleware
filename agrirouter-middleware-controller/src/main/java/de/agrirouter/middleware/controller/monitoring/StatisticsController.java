@@ -39,10 +39,6 @@ import java.util.Optional;
 /**
  * Controller for statistics.
  */
-@Tag(
-        name = "statistics",
-        description = "Statistics for the whole application."
-)
 @Slf4j
 @RestController
 @RequestMapping(MonitoringApiController.API_PREFIX + "/statistics")

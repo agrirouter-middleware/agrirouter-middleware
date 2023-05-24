@@ -4,6 +4,7 @@ import de.agrirouter.middleware.api.Routes;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Base class for the private API controllers.
@@ -16,6 +17,10 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 )
 @SecurityRequirement(
         name = "monitoring-api"
+)
+@Tag(
+        name = "monitoring",
+        description = "Monitoring for the middleware."
 )
 public interface MonitoringApiController {
 
