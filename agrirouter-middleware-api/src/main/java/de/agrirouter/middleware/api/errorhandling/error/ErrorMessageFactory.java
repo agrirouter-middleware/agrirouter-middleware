@@ -135,6 +135,14 @@ public final class ErrorMessageFactory {
     }
 
     public static ErrorMessage missingRouterDevice(String externalEndpointId) {
-        return new ErrorMessage(ErrorKey.MISSING_ROUTER_DEVICE, String.format("Could not find the router device for the endpoint with the external endpoint ID '%s'.", externalEndpointId), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ErrorMessage(ErrorKey.MISSING_ROUTER_DEVICE, String.format("Could not find the router device for the endpoint with the external endpoint ID '%s'.", externalEndpointId), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    public static ErrorMessage couldNotPublishHealthMessage() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message.", HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    public static ErrorMessage couldNotPublishHealthMessageSinceClientIsNotConnected() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message. MQTT client is not connected.", HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
