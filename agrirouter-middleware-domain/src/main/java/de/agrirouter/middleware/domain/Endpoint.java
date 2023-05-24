@@ -60,6 +60,7 @@ public class Endpoint extends BaseEntity {
     /**
      * The connected virtual endpoints.
      */
+    @SuppressWarnings("JpaDataSourceORMInspection")
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_endpoint_id")
     @ToString.Exclude
