@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller for information purpose.
  */
 @RestController
+@Tag(name = "monitoring")
 @RequestMapping(MonitoringApiController.API_PREFIX + "/info")
-@Tag(name = "info", description = "Operation for information purpose.")
 public class InfoController implements UnsecuredApiController {
 
     /**
