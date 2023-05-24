@@ -37,14 +37,15 @@ public class VirtualOnboardProcessService {
      * @param virtualOnboardProcessParameters -
      */
     public void onboard(VirtualOnboardProcessParameters virtualOnboardProcessParameters) {
-        final var alreadyExistingEndpoint = endpointService.findByExternalEndpointId(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
-        if (alreadyExistingEndpoint != null) {
-            throw new BusinessException(ErrorMessageFactory.endpointWithTheSameExternalIdIsPresent(alreadyExistingEndpoint.getExternalEndpointId()));
+        final var alreadyExistingEndpoint = endpointService.existsByExternalEndpointId(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+        if (alreadyExistingEndpoint) {
+            throw new BusinessException(ErrorMessageFactory.endpointWithTheSameExternalIdIsPresent(virtualOnboardProcessParameters.getExternalEndpointId()));
+        } else {
+            final var endpoint = endpointService.findByExternalEndpointId(virtualOnboardProcessParameters.getExternalEndpointId());
+            final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(endpoint, virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+            virtualOnboardProcessIntegrationService.onboard(onboardVirtualEndpointParameters);
+            cloudOnboardingFailureCache.clear(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Virtual endpoint has been created.");
         }
-        final var endpoint = endpointService.findByExternalEndpointId(virtualOnboardProcessParameters.getExternalEndpointId());
-        final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(endpoint, virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
-        virtualOnboardProcessIntegrationService.onboard(onboardVirtualEndpointParameters);
-        cloudOnboardingFailureCache.clear(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Virtual endpoint has been created.");
     }
 }

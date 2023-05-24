@@ -405,7 +405,7 @@ public class DeviceDescriptionService {
                             asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
                             teamSetContextId);
                     try {
-                        var endpoint = endpointService.findByAgrirouterEndpointId(messagingIntegrationParameters.externalEndpointId());
+                        var endpoint = endpointService.findByExternalEndpointId(messagingIntegrationParameters.externalEndpointId());
                         sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
                         businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
                         lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
