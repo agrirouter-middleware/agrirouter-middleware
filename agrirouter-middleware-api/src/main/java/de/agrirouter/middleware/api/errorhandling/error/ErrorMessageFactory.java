@@ -94,8 +94,8 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.SWITCHING_ACCOUNTS_WHEN_REONBOARDING_IS_NOT_ALLOWED, "Switching accounts when performing the onboard process for an existing endpoint is not allowed.", HttpStatus.BAD_REQUEST);
     }
 
-    public static ErrorMessage missingRouterDeviceForApplication() {
-        return new ErrorMessage(ErrorKey.MISSING_ROUTER_DEVICE_FOR_APPLICATION, "The router device is missing, can not establish communication using router devices.", HttpStatus.INTERNAL_SERVER_ERROR);
+    public static ErrorMessage missingRouterDeviceForApplication(String internalApplicationId) {
+        return new ErrorMessage(ErrorKey.MISSING_ROUTER_DEVICE_FOR_APPLICATION, String.format("The router device for the application '%s' is missing, can not establish communication using router devices.", internalApplicationId), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public static ErrorMessage missingFilterCriteriaForTimeLogSearch() {

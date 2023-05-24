@@ -2,5 +2,3 @@ logging:
   level:
     root: info
     de.agrirouter.middleware: trace
-    org.hibernate.SQL: trace
-    org.hibernate.type: trace

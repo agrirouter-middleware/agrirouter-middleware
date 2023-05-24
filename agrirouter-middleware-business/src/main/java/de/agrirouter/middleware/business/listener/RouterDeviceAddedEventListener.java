@@ -55,7 +55,7 @@ public class RouterDeviceAddedEventListener {
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Disconnect endpoint to force usage of the router device.");
                 });
             } else {
-                log.error(ErrorMessageFactory.missingRouterDeviceForApplication().asLogMessage());
+                log.error(ErrorMessageFactory.missingRouterDeviceForApplication(application.getInternalApplicationId()).asLogMessage());
             }
         } else {
             log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
