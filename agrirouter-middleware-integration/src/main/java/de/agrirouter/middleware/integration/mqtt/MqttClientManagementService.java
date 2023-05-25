@@ -160,7 +160,7 @@ public class MqttClientManagementService {
      * @param onboardingResponse -
      * @return -
      */
-    public TechnicalConnectionState getTechnicalState(Application application, OnboardingResponse onboardingResponse) {
+    public TechnicalConnectionState getTechnicalState(OnboardingResponse onboardingResponse) {
         log.debug("Fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (cachedMqttClient != null) {
@@ -205,7 +205,7 @@ public class MqttClientManagementService {
                 }
             }
         } catch (BusinessException e) {
-            log.error("Error while fetching the number of pending delivery tokens for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
+            log.error("Error while fetching the number of pending delivery tokens for endpoint with the external endpoint ID '{}'. Skipping this one.", endpoint.getExternalEndpointId());
         }
         return 0;
     }

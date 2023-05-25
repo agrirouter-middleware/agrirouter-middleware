@@ -74,7 +74,7 @@ public class EndpointDashboardUIController {
                 errors.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
                 model.addAttribute("errors", errors);
 
-                final var technicalConnectionState = mqttClientManagementService.getTechnicalState(application, endpoint.asOnboardingResponse());
+                final var technicalConnectionState = mqttClientManagementService.getTechnicalState(endpoint.asOnboardingResponse());
                 model.addAttribute("technicalConnectionState", technicalConnectionState);
 
                 model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
