@@ -6,7 +6,7 @@ import lombok.Getter;
  * Roles for the application.
  */
 public enum Roles {
-    MONITORING("monitoring"), DEFAULT("default");
+    MONITORING("monitoring"), USER("user"), DEFAULT("default");
 
     @Getter
     private final String key;
