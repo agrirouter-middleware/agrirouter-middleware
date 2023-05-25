@@ -191,16 +191,21 @@ public class MqttClientManagementService {
     /**
      * Get all pending delivery tokens for the endpoint.
      *
-     * @param onboardingResponse The onboarding response.
+     * @param endpoint The endpoint.
      * @return The list of pending delivery tokens.
      */
-    public int getNumberOfPendingDeliveryTokens(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (cachedMqttClient != null) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                return iMqttClient.getPendingDeliveryTokens().length;
+    public int getNumberOfPendingDeliveryTokens(Endpoint endpoint) {
+        try {
+            final var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            if (cachedMqttClient != null) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                    return iMqttClient.getPendingDeliveryTokens().length;
+                }
             }
+        } catch (BusinessException e) {
+            log.error("Error while fetching the number of pending delivery tokens for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
         }
         return 0;
     }
