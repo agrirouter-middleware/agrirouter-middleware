@@ -45,18 +45,18 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 }).and()
                 .authorizeRequests()
                 // Secure all REST endpoints.
-                .antMatchers(Routes.SecuredRestEndpoints.ALL_REQUESTS + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.SecuredRestEndpoints.ALL_REQUESTS + WILDCARD).hasAuthority(Roles.USER.getKey())
                 // Secure all monitoring endpoints.
                 .antMatchers(Routes.MonitoringEndpoints.ACTUATOR).hasAuthority(Roles.MONITORING.getKey())
                 .antMatchers(Routes.MonitoringEndpoints.ALL_REQUESTS + WILDCARD).hasAuthority(Roles.MONITORING.getKey())
                 .antMatchers(Routes.MonitoringEndpoints.ACTUATOR + WILDCARD).hasAuthority(Roles.MONITORING.getKey())
                 // Secure the user interface.
-                .antMatchers(Routes.UserInterface.APPLICATIONS).hasAuthority(Roles.DEFAULT.getKey())
-                .antMatchers(Routes.UserInterface.APPLICATIONS + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
-                .antMatchers(Routes.UserInterface.ENDPOINT_DASHBOARD).hasAuthority(Roles.DEFAULT.getKey())
-                .antMatchers(Routes.UserInterface.ENDPOINT_DASHBOARD + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
-                .antMatchers(Routes.UserInterface.ENDPOINTS).hasAuthority(Roles.DEFAULT.getKey())
-                .antMatchers(Routes.UserInterface.ENDPOINTS + WILDCARD).hasAuthority(Roles.DEFAULT.getKey())
+                .antMatchers(Routes.UserInterface.APPLICATIONS).hasAuthority(Roles.USER.getKey())
+                .antMatchers(Routes.UserInterface.APPLICATIONS + WILDCARD).hasAuthority(Roles.USER.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINT_DASHBOARD).hasAuthority(Roles.USER.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINT_DASHBOARD + WILDCARD).hasAuthority(Roles.USER.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINTS).hasAuthority(Roles.USER.getKey())
+                .antMatchers(Routes.UserInterface.ENDPOINTS + WILDCARD).hasAuthority(Roles.USER.getKey())
                 // Define rules for any request.
                 .anyRequest()
                 .permitAll()
