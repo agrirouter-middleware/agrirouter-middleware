@@ -37,13 +37,13 @@ public class ReconnectAllOnboardResponsesEventListener {
         updateEndpoints();
         endpointService.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
             try {
-                final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+                final var iMqttClient = mqttClientManagementService.get(endpoint);
                 if (iMqttClient.isEmpty()) {
                     log.error("Could not reconnect onboard response for endpoint {}.", endpoint.getExternalEndpointId());
                 } else {
                     final var onboardingResponse = endpoint.asOnboardingResponse();
-                    log.debug("Connect MQTT client for endpoint with the ID '{}' and client ID '{}'.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
-                    final var mqttClient = mqttClientManagementService.get(onboardingResponse);
+                    log.debug("Connect MQTT client for endpoint with the ID '{}' and client ID '{}'.", endpoint.getAgrirouterEndpointId(), onboardingResponse.getConnectionCriteria().getClientId());
+                    final var mqttClient = mqttClientManagementService.get(endpoint);
                     mqttClient.ifPresentOrElse(mc -> log.debug("MQTT client for endpoint with the ID '{}' and client ID '{}' connected", onboardingResponse.getSensorAlternateId(), mc.getClientId()), () ->
                             log.error("Could not reconnect a client, please check the client to avoid data loss."));
                 }

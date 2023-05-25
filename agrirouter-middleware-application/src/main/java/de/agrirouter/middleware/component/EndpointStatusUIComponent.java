@@ -40,7 +40,7 @@ public class EndpointStatusUIComponent {
                 toolTip.append("The endpoint is not connected");
             } else {
                 toolTip.append("The endpoint is connected. ");
-                int pendingDeliveryTokens = mqttClientManagementService.getNumberOfPendingDeliveryTokens(endpoint.asOnboardingResponse());
+                int pendingDeliveryTokens = mqttClientManagementService.getNumberOfPendingDeliveryTokens(endpoint);
                 if (pendingDeliveryTokens > 0) {
                     metric -= 75;
                     toolTip.append("There are ").append(pendingDeliveryTokens).append(" pending delivery tokens. ");

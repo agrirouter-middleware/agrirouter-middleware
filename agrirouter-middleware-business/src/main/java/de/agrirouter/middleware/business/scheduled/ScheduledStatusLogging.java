@@ -51,7 +51,7 @@ public class ScheduledStatusLogging {
         if (agrirouterStatusIntegrationService.isOperational()) {
             log.debug("Scheduled status update for endpoints.");
             endpointService.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
-                final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+                final var iMqttClient = mqttClientManagementService.get(endpoint);
                 if (iMqttClient.isEmpty()) {
                     log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
                 } else {

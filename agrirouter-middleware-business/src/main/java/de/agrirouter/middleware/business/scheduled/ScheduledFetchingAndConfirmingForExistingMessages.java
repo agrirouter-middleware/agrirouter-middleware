@@ -63,7 +63,7 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
 
     private void fetchAndConfirmExistingMessages(Endpoint endpoint) {
         log.debug("Fetching and confirming existing messages for endpoint '{}'.", endpoint.getExternalEndpointId());
-        final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+        final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty()) {
             log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.asOnboardingResponse().getSensorAlternateId()).asLogMessage());
         } else {

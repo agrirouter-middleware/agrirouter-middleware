@@ -56,17 +56,16 @@ public class SendMessageIntegrationService {
      */
     public void publish(Endpoint endpoint, MessagingIntegrationParameters messagingIntegrationParameters) throws CriticalBusinessException {
         agrirouterStatusIntegrationService.checkCurrentStatus();
+        final var iMqttClient = mqttClientManagementService.get(endpoint);
+        if (iMqttClient.isEmpty()) {
+            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()));
+        }
         final var onboardingResponse = endpoint.asOnboardingResponse();
         final var messageHeaderParameters = createMessageHeaderParameters(messagingIntegrationParameters, onboardingResponse);
         final var payloadParameters = createPayloadParameters(messagingIntegrationParameters);
 
         final var messageParameterTuples = encodeMessageService.chunkAndBase64EncodeEachChunk(messageHeaderParameters, payloadParameters, onboardingResponse);
         final var encodedMessages = encodeMessageService.encode(messageParameterTuples);
-
-        final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
-        if (iMqttClient.isEmpty()) {
-            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
-        }
         SendMessageServiceImpl sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
         SendMessageParameters sendMessageParameters = new SendMessageParameters();
         sendMessageParameters.setOnboardingResponse(onboardingResponse);

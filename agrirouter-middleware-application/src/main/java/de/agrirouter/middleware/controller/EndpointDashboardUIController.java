@@ -74,14 +74,14 @@ public class EndpointDashboardUIController {
                 errors.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
                 model.addAttribute("errors", errors);
 
-                final var technicalConnectionState = mqttClientManagementService.getTechnicalState(application, endpoint.asOnboardingResponse());
+                final var technicalConnectionState = mqttClientManagementService.getTechnicalState(endpoint);
                 model.addAttribute("technicalConnectionState", technicalConnectionState);
 
                 model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
 
                 model.addAttribute("cloudOnboardingFailures", cloudOnboardingFailureCache.getAll(endpoint.getExternalEndpointId()));
 
-                model.addAttribute("pendingDeliveryTokens", mqttClientManagementService.getPendingDeliveryTokens(endpoint.asOnboardingResponse()));
+                model.addAttribute("pendingDeliveryTokens", mqttClientManagementService.getPendingDeliveryTokens(endpoint));
 
                 final var messagesWaitingForAcknowledgement = new ArrayList<>(messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
                         .stream()

@@ -156,7 +156,7 @@ public class PushMessageEventListener {
         log.trace("Message IDs >>> {}", messageIds);
         if (!messageIds.isEmpty()) {
             final var endpoint = endpointService.findByAgrirouterEndpointId(endpointId);
-            final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+            final var iMqttClient = mqttClientManagementService.get(endpoint);
             if (iMqttClient.isEmpty()) {
                 log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
             } else {

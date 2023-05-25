@@ -1,10 +1,10 @@
 package de.agrirouter.middleware.integration.mqtt.list_endpoints;
 
 import agrirouter.request.payload.account.Endpoints;
-import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.parameters.ListEndpointsParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.ListEndpointsServiceImpl;
+import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
@@ -37,14 +37,14 @@ public class ListEndpointsIntegrationService {
     /**
      * Publish a list endpoints message for the given onboarding response.
      *
-     * @param onboardingResponse -
+     * @param endpoint The endpoint.
      */
-    public void publishListEndpointsMessage(OnboardingResponse onboardingResponse) {
-        var iMqttClient = mqttClientManagementService.get(onboardingResponse);
+    public void publishListEndpointsMessage(Endpoint endpoint) {
+        var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isPresent()) {
             final var listEndpointsService = new ListEndpointsServiceImpl(iMqttClient.get());
             final var parameters = new ListEndpointsParameters();
-            parameters.setOnboardingResponse(onboardingResponse);
+            parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
             parameters.setDirection(Endpoints.ListEndpointsQuery.Direction.SEND);
             parameters.setTechnicalMessageType(SystemMessageType.EMPTY);
             parameters.setUnfilteredList(false);
@@ -52,17 +52,17 @@ public class ListEndpointsIntegrationService {
 
             var listEndpointsMessage = new ListEndpointsMessage();
             listEndpointsMessage.setTimestamp(Instant.now().toEpochMilli());
-            listEndpointsMessage.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+            listEndpointsMessage.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             listEndpointsMessages.put(listEndpointsMessage);
 
             log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-            messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+            messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageId);
             messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_LIST_ENDPOINTS.getKey());
             messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
         } else {
-            log.warn("Could not find MQTT client for endpoint {}.", onboardingResponse.getSensorAlternateId());
+            log.warn("Could not find MQTT client for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId());
         }
 
     }

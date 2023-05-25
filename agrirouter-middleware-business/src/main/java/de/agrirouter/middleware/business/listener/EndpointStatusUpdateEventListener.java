@@ -57,7 +57,7 @@ public class EndpointStatusUpdateEventListener {
         final var existsByAgrirouterEndpointId = endpointService.existsByAgrirouterEndpointId(endpointStatusUpdateEvent.getAgrirouterEndpointId());
         if (existsByAgrirouterEndpointId) {
             final var endpoint = endpointService.findByAgrirouterEndpointId(endpointStatusUpdateEvent.getAgrirouterEndpointId());
-            final var connectionState = mqttClientManagementService.getState(endpoint.asOnboardingResponse());
+            final var connectionState = mqttClientManagementService.getState(endpoint);
             if (null == endpoint.getEndpointStatus()) {
                 endpoint.setEndpointStatus(new EndpointStatus());
                 endpoint.getEndpointStatus().setConnectionState(new ConnectionState());

@@ -185,7 +185,7 @@ public class EndpointService {
 
     private void deleteEndpointWithAllDataFromTheMiddleware(Endpoint endpoint) {
         log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
+        mqttClientManagementService.disconnect(endpoint);
         log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
         endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
         deleteEndpointData(endpoint);
@@ -281,7 +281,7 @@ public class EndpointService {
      * @return -
      */
     public ConnectionState getConnectionState(Endpoint endpoint) {
-        return mqttClientManagementService.getState(endpoint.asOnboardingResponse());
+        return mqttClientManagementService.getState(endpoint);
     }
 
     /**
@@ -511,7 +511,7 @@ public class EndpointService {
      */
     public boolean isHealthy(String externalEndpointId) {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
-        healthStatusIntegrationService.publishHealthStatusMessage(endpoint.asOnboardingResponse());
+        healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
         if (healthStatusIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
             var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
             while (timer > 0) {
@@ -540,7 +540,7 @@ public class EndpointService {
     public Collection<MessageRecipient> getMessageRecipients(String externalEndpointId) {
         if (agrirouterStatusIntegrationService.isOperational()) {
             final var endpoint = findByExternalEndpointId(externalEndpointId);
-            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint.asOnboardingResponse());
+            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint);
             if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
                 var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
                 while (timer > 0) {

@@ -5,8 +5,8 @@ import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.CheckConnectionsEvent;
-import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,41 +51,49 @@ public class MqttClientManagementService {
      * Get or create an MQTT client for the given onboard response.
      * The client will be connected to the AR and subscribes to the available topics.
      *
-     * @param onboardingResponse -
-     * @return -
+     * @param endpoint The endpoint for which the MQTT client should be created.
+     * @return The MQTT client.
      */
-    public Optional<IMqttClient> get(OnboardingResponse onboardingResponse) {
-        if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
-            final CachedMqttClient cachedMqttClient = getCachedMqttClient(onboardingResponse);
-            IMqttClient mqttClientAfterInitialization = null;
-            if (!isConnected(cachedMqttClient)) {
-                try {
-                    log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
-                    cachedMqttClients.remove(cachedMqttClient.id());
-                    final var mqttClient = initMqttClient(onboardingResponse);
-                    final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
-                    cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
-                    mqttClientAfterInitialization = mqttClient;
-                } catch (Exception e) {
-                    cachedMqttClient.connectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
-                    cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
+    public Optional<IMqttClient> get(Endpoint endpoint) {
+        OnboardingResponse onboardingResponse = null;
+        try {
+            onboardingResponse = endpoint.asOnboardingResponse();
+        } catch (BusinessException e) {
+            log.error("Could not get onboarding response for endpoint '{}'.", endpoint, e);
+        }
+
+        if (onboardingResponse != null) {
+            if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
+                final CachedMqttClient cachedMqttClient = getCachedMqttClient(onboardingResponse);
+                IMqttClient mqttClientAfterInitialization = null;
+                if (!isConnected(cachedMqttClient)) {
+                    try {
+                        log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
+                        cachedMqttClients.remove(cachedMqttClient.id());
+                        final var mqttClient = initMqttClient(onboardingResponse);
+                        final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
+                        cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
+                        mqttClientAfterInitialization = mqttClient;
+                    } catch (Exception e) {
+                        cachedMqttClient.connectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
+                        cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
+                    }
+                } else {
+                    log.debug("Returning existing mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
+                    //noinspection OptionalGetWithoutIsPresent
+                    mqttClientAfterInitialization = cachedMqttClient.mqttClient().get();
+                }
+                if (null != mqttClientAfterInitialization) {
+                    if (mqttClientAfterInitialization.isConnected()) {
+                        return Optional.of(mqttClientAfterInitialization);
+                    } else {
+                        log.error("The mqtt client for endpoint '{}' with the MQTT client ID '{}' is not connected.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
+                    }
                 }
             } else {
-                log.debug("Returning existing mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-                //noinspection OptionalGetWithoutIsPresent
-                mqttClientAfterInitialization = cachedMqttClient.mqttClient().get();
+                log.debug("This onboard response is not MQTT ready, the gateway is set to {}.", onboardingResponse.getConnectionCriteria().getGatewayId());
             }
-            if (null != mqttClientAfterInitialization) {
-                if (mqttClientAfterInitialization.isConnected()) {
-                    return Optional.of(mqttClientAfterInitialization);
-                } else {
-                    log.error("The mqtt client for endpoint '{}' with the MQTT client ID '{}' is not connected.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
-                }
-            }
-        } else {
-            log.debug("This onboard response is not MQTT ready, the gateway is set to {}.", onboardingResponse.getConnectionCriteria().getGatewayId());
         }
-        log.info("Could not create a MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         return Optional.empty();
     }
 
@@ -134,63 +142,78 @@ public class MqttClientManagementService {
     /**
      * Get the state of a MQTT connection.
      *
-     * @param onboardingResponse -
-     * @return -
+     * @param endpoint The endpoint.
+     * @return The connection state.
      */
-    public ConnectionState getState(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null, cachedMqttClient != null,
-                cachedMqttClient != null && cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected(),
-                cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
+    public ConnectionState getState(Endpoint endpoint) {
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null, cachedMqttClient != null,
+                    cachedMqttClient != null && cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected(),
+                    cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
+            return new ConnectionState(null, false, false, Collections.emptyList());
+        }
     }
+
 
     /**
      * Determine the technical connection state.
      *
-     * @param onboardingResponse -
+     * @param endpoint -
      * @return -
      */
-    public TechnicalConnectionState getTechnicalState(Application application, OnboardingResponse onboardingResponse) {
-        log.debug("Fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (cachedMqttClient != null) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                final var nrOfPendingDeliveryTokens = iMqttClient.getPendingDeliveryTokens().length;
-                final var pendingDeliveryTokens = new ArrayList<PendingDeliveryToken>();
-                Arrays.stream(iMqttClient.getPendingDeliveryTokens()).forEach(token -> {
-                    try {
-                        final var messageId = token.getMessageId();
-                        final var grantedQos = token.getGrantedQos();
-                        final var topics = token.getTopics();
-                        final var complete = token.isComplete();
-                        final var message = token.getMessage();
-                        int qos = message.getQos();
-                        pendingDeliveryTokens.add(new PendingDeliveryToken(messageId, grantedQos, topics, complete, qos));
-                    } catch (Exception e) {
-                        log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
-                    }
-                });
-                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
+    public TechnicalConnectionState getTechnicalState(Endpoint endpoint) {
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            if (cachedMqttClient != null) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                    final var nrOfPendingDeliveryTokens = iMqttClient.getPendingDeliveryTokens().length;
+                    final var pendingDeliveryTokens = new ArrayList<PendingDeliveryToken>();
+                    Arrays.stream(iMqttClient.getPendingDeliveryTokens()).forEach(token -> {
+                        try {
+                            final var messageId = token.getMessageId();
+                            final var grantedQos = token.getGrantedQos();
+                            final var topics = token.getTopics();
+                            final var complete = token.isComplete();
+                            final var message = token.getMessage();
+                            int qos = message.getQos();
+                            pendingDeliveryTokens.add(new PendingDeliveryToken(messageId, grantedQos, topics, complete, qos));
+                        } catch (Exception e) {
+                            log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
+                        }
+                    });
+                    return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
+                }
             }
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
-        log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
     }
 
     /**
      * Get all pending delivery tokens for the endpoint.
      *
-     * @param onboardingResponse The onboarding response.
+     * @param endpoint The endpoint.
      * @return The list of pending delivery tokens.
      */
-    public int getNumberOfPendingDeliveryTokens(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (cachedMqttClient != null) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                return iMqttClient.getPendingDeliveryTokens().length;
+    public int getNumberOfPendingDeliveryTokens(Endpoint endpoint) {
+        try {
+            final var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            if (cachedMqttClient != null) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                    return iMqttClient.getPendingDeliveryTokens().length;
+                }
             }
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
         return 0;
     }
@@ -198,16 +221,21 @@ public class MqttClientManagementService {
     /**
      * Get all pending delivery tokens for the endpoint.
      *
-     * @param onboardingResponse The onboarding response.
+     * @param endpoint The endpoint.
      * @return The list of pending delivery tokens.
      */
-    public List<IMqttDeliveryToken> getPendingDeliveryTokens(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (cachedMqttClient != null) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                return Arrays.asList(iMqttClient.getPendingDeliveryTokens());
+    public List<IMqttDeliveryToken> getPendingDeliveryTokens(Endpoint endpoint) {
+        try {
+            final var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            if (cachedMqttClient != null) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                    return Arrays.asList(iMqttClient.getPendingDeliveryTokens());
+                }
             }
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
         return Collections.emptyList();
     }
@@ -215,10 +243,34 @@ public class MqttClientManagementService {
     /**
      * Disconnect an existing connection.
      *
-     * @param onboardingResponse -
+     * @param endpoint The endpoint.
      */
-    public void disconnect(OnboardingResponse onboardingResponse) {
+    public void disconnect(Endpoint endpoint) {
         mqttStatistics.increaseNumberOfDisconnects();
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
+            disconnect(onboardingResponse);
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
+        }
+    }
+
+    /**
+     * Disconnect an existing connection.
+     *
+     * @param endpoint The endpoint.
+     */
+    public void disconnectForOriginalOnboardingResponse(Endpoint endpoint) {
+        mqttStatistics.increaseNumberOfDisconnects();
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse(true);
+            disconnect(onboardingResponse);
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
+        }
+    }
+
+    private void disconnect(OnboardingResponse onboardingResponse) {
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (null != cachedMqttClient) {
             cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {
