@@ -511,7 +511,7 @@ public class EndpointService {
      */
     public boolean isHealthy(String externalEndpointId) {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
-        healthStatusIntegrationService.publishHealthStatusMessage(endpoint.asOnboardingResponse());
+        healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
         if (healthStatusIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
             var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
             while (timer > 0) {
@@ -540,7 +540,7 @@ public class EndpointService {
     public Collection<MessageRecipient> getMessageRecipients(String externalEndpointId) {
         if (agrirouterStatusIntegrationService.isOperational()) {
             final var endpoint = findByExternalEndpointId(externalEndpointId);
-            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint.asOnboardingResponse());
+            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint);
             if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
                 var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
                 while (timer > 0) {

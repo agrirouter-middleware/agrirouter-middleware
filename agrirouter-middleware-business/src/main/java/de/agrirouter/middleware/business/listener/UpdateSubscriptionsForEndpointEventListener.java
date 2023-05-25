@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business.listener;
 
-import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.mqtt.SetSubscriptionService;
@@ -106,7 +105,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
             log.debug("Handling MQTT onboard response updates.");
             final var subscriptions = subscriptionParameterFactory.create(application);
-            enableSubscriptions(onboardingResponse, subscriptions);
+            enableSubscriptions(endpoint, subscriptions);
             log.debug(String.format("The following subscriptions [%s] for the endpoint with the id '%s' are send.", subscriptions
                     .stream()
                     .filter(subscription -> null != subscription.getTechnicalMessageType())
@@ -123,24 +122,24 @@ public class UpdateSubscriptionsForEndpointEventListener {
     /**
      * Enabling the subscriptions for the onboard response using the onboard response.
      *
-     * @param onboardingResponse The onboard response.
-     * @param subscriptions      The subscriptions.
+     * @param endpoint      The endpoint.
+     * @param subscriptions The subscriptions.
      */
-    private void enableSubscriptions(OnboardingResponse onboardingResponse, List<SetSubscriptionParameters.Subscription> subscriptions) {
-        log.debug("Enable the subscriptions for the endpoint with the id '{}'.", onboardingResponse.getSensorAlternateId());
-        SetSubscriptionParameters parameters = new SetSubscriptionParameters();
-        parameters.setOnboardingResponse(onboardingResponse);
-        parameters.setSubscriptions(subscriptions);
-        final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
+    private void enableSubscriptions(Endpoint endpoint, List<SetSubscriptionParameters.Subscription> subscriptions) {
+        log.debug("Enable the subscriptions for the endpoint with the id '{}'.", endpoint.getExternalEndpointId());
+        final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty() || !iMqttClient.get().isConnected()) {
-            log.error("No MQTT client found for endpoint with ID '{}'.", onboardingResponse.getSensorAlternateId());
+            log.error("No MQTT client found for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId());
         } else {
+            SetSubscriptionParameters parameters = new SetSubscriptionParameters();
+            parameters.setOnboardingResponse(endpoint.asOnboardingResponse());
+            parameters.setSubscriptions(subscriptions);
             SetSubscriptionService setSubscriptionService = new SetSubscriptionServiceImpl(iMqttClient.get());
             final var messageId = setSubscriptionService.send(parameters);
 
             log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
             MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-            messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+            messageWaitingForAcknowledgement.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
             messageWaitingForAcknowledgement.setMessageId(messageId);
             messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_SUBSCRIPTION.getKey());
             messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);

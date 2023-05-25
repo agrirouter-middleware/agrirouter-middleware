@@ -158,7 +158,7 @@ public class MessageQueryResultEventListener {
         businessOperationLogService.log(new EndpointLogInformation(NA, agrirouterEndpointId), "Confirm messages with the following IDs >>> {} ", messageIds);
         if (!messageIds.isEmpty()) {
             final var endpoint = endpointService.findByAgrirouterEndpointId(agrirouterEndpointId);
-            final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+            final var iMqttClient = mqttClientManagementService.get(endpoint);
             if (iMqttClient.isEmpty()) {
                 log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
             } else {
@@ -192,7 +192,7 @@ public class MessageQueryResultEventListener {
         businessOperationLogService.log(new EndpointLogInformation(NA, agrirouterEndpointId), "Delete messages with the following IDs >>> {} ", messageIds);
         if (!messageIds.isEmpty()) {
             final var endpoint = endpointService.findByAgrirouterEndpointId(agrirouterEndpointId);
-            final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+            final var iMqttClient = mqttClientManagementService.get(endpoint);
             if (iMqttClient.isEmpty()) {
                 log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
             } else {
@@ -276,7 +276,7 @@ public class MessageQueryResultEventListener {
 
     private void fetchAndConfirmExistingMessages(Endpoint endpoint) {
         log.debug("Fetching and confirming additional existing messages for endpoint '{}'.", endpoint.getExternalEndpointId());
-        final var iMqttClient = mqttClientManagementService.get(endpoint.asOnboardingResponse());
+        final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty()) {
             log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()).asLogMessage());
         } else {

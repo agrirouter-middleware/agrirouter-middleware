@@ -46,11 +46,11 @@ public class VirtualOnboardProcessIntegrationService {
      */
     @Async
     public void onboard(VirtualOnboardProcessIntegrationParameters virtualOnboardProcessIntegrationParameters) {
-        final var onboardingResponse = virtualOnboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
-        final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
+        final var iMqttClient = mqttClientManagementService.get(virtualOnboardProcessIntegrationParameters.parentEndpoint());
         if (iMqttClient.isEmpty()) {
-            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
+            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(virtualOnboardProcessIntegrationParameters.parentEndpoint().getAgrirouterEndpointId()));
         }
+        final var onboardingResponse = virtualOnboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
         final var cloudOnboardingService = new CloudOnboardingServiceImpl(iMqttClient.get());
         final var parameters = new CloudOnboardingParameters();
         parameters.setOnboardingResponse(onboardingResponse);

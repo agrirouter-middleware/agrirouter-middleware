@@ -37,11 +37,12 @@ public class VirtualOffboardProcessIntegrationService {
      * @param virtualOffboardProcessIntegrationParameters The parameters for the offboard process.
      */
     public void offboard(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
-        final var onboardingResponse = virtualOffboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
-        final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
+        final var iMqttClient = mqttClientManagementService.get(virtualOffboardProcessIntegrationParameters.parentEndpoint());
         if (iMqttClient.isEmpty()) {
-            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()));
+            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(virtualOffboardProcessIntegrationParameters.parentEndpoint().getAgrirouterEndpointId()));
         }
+
+        var onboardingResponse = virtualOffboardProcessIntegrationParameters.parentEndpoint().asOnboardingResponse();
         final var cloudOffboardingService = new CloudOffboardingServiceImpl(iMqttClient.get());
         final var parameters = new CloudOffboardingParameters();
         parameters.setOnboardingResponse(onboardingResponse);
@@ -50,7 +51,7 @@ public class VirtualOffboardProcessIntegrationService {
 
         log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
-        messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+        messageWaitingForAcknowledgement.setAgrirouterEndpointId(virtualOffboardProcessIntegrationParameters.parentEndpoint().getAgrirouterEndpointId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
         messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
         final var dynamicProperties = new HashMap<String, Object>();

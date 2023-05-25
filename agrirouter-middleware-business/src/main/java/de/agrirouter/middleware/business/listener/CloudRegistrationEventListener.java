@@ -98,7 +98,7 @@ public class CloudRegistrationEventListener {
     private void offboard(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
         final var endpoint = virtualOffboardProcessIntegrationParameters.parentEndpoint();
         final var onboardingResponse = endpoint.asOnboardingResponse();
-        final var iMqttClient = mqttClientManagementService.get(onboardingResponse);
+        final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty()) {
             log.error(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()).asLogMessage());
         } else {
