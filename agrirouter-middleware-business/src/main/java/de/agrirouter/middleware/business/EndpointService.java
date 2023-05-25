@@ -281,7 +281,7 @@ public class EndpointService {
      * @return -
      */
     public ConnectionState getConnectionState(Endpoint endpoint) {
-        return mqttClientManagementService.getState(endpoint.asOnboardingResponse());
+        return mqttClientManagementService.getState(endpoint);
     }
 
     /**

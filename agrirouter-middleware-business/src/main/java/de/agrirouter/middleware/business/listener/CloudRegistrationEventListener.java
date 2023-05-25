@@ -97,11 +97,11 @@ public class CloudRegistrationEventListener {
      */
     private void offboard(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
         final var endpoint = virtualOffboardProcessIntegrationParameters.parentEndpoint();
-        final var onboardingResponse = endpoint.asOnboardingResponse();
         final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty()) {
-            log.error(ErrorMessageFactory.couldNotConnectMqttClient(onboardingResponse.getSensorAlternateId()).asLogMessage());
+            log.error(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getExternalEndpointId()).asLogMessage());
         } else {
+            final var onboardingResponse = endpoint.asOnboardingResponse();
             final var cloudOffboardingService = new CloudOffboardingServiceImpl(iMqttClient.get());
             final var parameters = new CloudOffboardingParameters();
             parameters.setOnboardingResponse(onboardingResponse);
@@ -153,41 +153,51 @@ public class CloudRegistrationEventListener {
                 final var application = optionalApplication.get();
                 final var optionalOnboardState = virtualEndpointOnboardStateContainer.pop(cloudRegistrationEvent.getApplicationMessageId());
                 if (optionalOnboardState.isPresent()) {
-                    final var onboardState = optionalOnboardState.get();
-                    final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), endpoint.asOnboardingResponse());
-                    if (cloudOnboardResponses.size() > 0) {
-                        log.debug("Cloud registration was successful, create virtual endpoints.");
-                        log.trace("There are {} cloud registration responses.", cloudOnboardResponses.size());
-                        log.trace("The cloud registration responses are for the following endpoints: {}", cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).collect(Collectors.joining(", ")));
-                        cloudOnboardResponses.forEach(cloudOnboardResponse -> {
-                            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Onboard process of the following virtual endpoint was successful >>> {}", cloudOnboardResponse.getSensorAlternateId());
-                            log.debug("Saving the following cloud onboard response to the database >>> {}", cloudOnboardResponse);
-                            var virtualEndpoint = new Endpoint();
-                            virtualEndpoint.setAgrirouterEndpointId(cloudOnboardResponse.getSensorAlternateId());
-                            virtualEndpoint.setExternalEndpointId(onboardState.externalEndpointId());
-                            virtualEndpoint.setOnboardResponse(gson.toJson(cloudOnboardResponse));
-                            virtualEndpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(virtualEndpoint.asOnboardingResponse(true)));
-                            virtualEndpoint.setEndpointType(EndpointType.VIRTUAL);
-                            virtualEndpoint = endpointService.save(virtualEndpoint);
-                            endpoint.getConnectedVirtualEndpoints().add(virtualEndpoint);
-                            endpointService.save(endpoint);
-                            application.getEndpoints().add(virtualEndpoint);
-                            applicationRepository.save(application);
-                            cloudOnboardingFailureCache.clear(virtualEndpoint.getExternalEndpointId());
-                            endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
-                            deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
-                            applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId()));
-                        });
-                    } else {
-                        log.warn("No cloud onboard response found, are there only errors during the cloud onboard process?");
+                    try {
+                        var onboardingResponse = endpoint.asOnboardingResponse();
+                        final var onboardState = optionalOnboardState.get();
+                        final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), onboardingResponse);
+                        if (cloudOnboardResponses.size() > 0) {
+                            log.debug("Cloud registration was successful, create virtual endpoints.");
+                            log.trace("There are {} cloud registration responses.", cloudOnboardResponses.size());
+                            log.trace("The cloud registration responses are for the following endpoints: {}", cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).collect(Collectors.joining(", ")));
+                            cloudOnboardResponses.forEach(cloudOnboardResponse -> {
+                                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Onboard process of the following virtual endpoint was successful >>> {}", cloudOnboardResponse.getSensorAlternateId());
+                                log.debug("Saving the following cloud onboard response to the database >>> {}", cloudOnboardResponse);
+                                var virtualEndpoint = new Endpoint();
+                                virtualEndpoint.setAgrirouterEndpointId(cloudOnboardResponse.getSensorAlternateId());
+                                virtualEndpoint.setExternalEndpointId(onboardState.externalEndpointId());
+                                virtualEndpoint.setOnboardResponse(gson.toJson(cloudOnboardResponse));
+                                virtualEndpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(virtualEndpoint.asOnboardingResponse(true)));
+                                virtualEndpoint.setEndpointType(EndpointType.VIRTUAL);
+                                virtualEndpoint = endpointService.save(virtualEndpoint);
+                                endpoint.getConnectedVirtualEndpoints().add(virtualEndpoint);
+                                endpointService.save(endpoint);
+                                application.getEndpoints().add(virtualEndpoint);
+                                applicationRepository.save(application);
+                                cloudOnboardingFailureCache.clear(virtualEndpoint.getExternalEndpointId());
+                                endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
+                                deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
+                                applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId()));
+                            });
+                        } else {
+                            log.warn("No cloud onboard response found, are there only errors during the cloud onboard process?");
+                        }
+                    } catch (BusinessException e) {
+                        log.error(e.getErrorMessage().asLogMessage());
                     }
                     handleCloudOnboardErrors(fetchMessageResponse, endpoint);
                 } else {
-                    log.warn("Since the state for the message ID '{}' has not been found the endpoints are removed from the AR to avoid problems.", cloudRegistrationEvent.getApplicationMessageId());
-                    final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), endpoint.asOnboardingResponse());
-                    final var endpointIds = cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).toList();
-                    final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters(endpoint, endpointIds);
-                    offboard(offboardVirtualEndpointParameters);
+                    try {
+                        var onboardingResponse = endpoint.asOnboardingResponse();
+                        log.warn("Since the state for the message ID '{}' has not been found the endpoints are removed from the AR to avoid problems.", cloudRegistrationEvent.getApplicationMessageId());
+                        final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), onboardingResponse);
+                        final var endpointIds = cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).toList();
+                        final var offboardVirtualEndpointParameters = new VirtualOffboardProcessIntegrationParameters(endpoint, endpointIds);
+                        offboard(offboardVirtualEndpointParameters);
+                    } catch (BusinessException e) {
+                        log.error(e.getErrorMessage().asLogMessage());
+                    }
                 }
             } else {
                 log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());

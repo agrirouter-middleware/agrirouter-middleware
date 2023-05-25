@@ -142,14 +142,19 @@ public class MqttClientManagementService {
     /**
      * Get the state of a MQTT connection.
      *
-     * @param onboardingResponse -
-     * @return -
+     * @param endpoint The endpoint.
+     * @return The connection state.
      */
-    public ConnectionState getState(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null, cachedMqttClient != null,
-                cachedMqttClient != null && cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected(),
-                cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
+    public ConnectionState getState(Endpoint endpoint) {
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null, cachedMqttClient != null,
+                    cachedMqttClient != null && cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected(),
+                    cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
+        }
     }
 
     /**
