@@ -154,8 +154,10 @@ public class MqttClientManagementService {
                     cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
         } catch (BusinessException e) {
             log.error(e.getErrorMessage().asLogMessage());
+            return new ConnectionState(null, false, false, Collections.emptyList());
         }
     }
+
 
     /**
      * Determine the technical connection state.
