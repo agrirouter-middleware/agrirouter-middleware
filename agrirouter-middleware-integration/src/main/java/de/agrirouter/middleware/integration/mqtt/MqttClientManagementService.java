@@ -7,7 +7,6 @@ import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.CheckConnectionsEvent;
-import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -157,34 +156,37 @@ public class MqttClientManagementService {
     /**
      * Determine the technical connection state.
      *
-     * @param onboardingResponse -
+     * @param endpoint -
      * @return -
      */
-    public TechnicalConnectionState getTechnicalState(OnboardingResponse onboardingResponse) {
-        log.debug("Fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (cachedMqttClient != null) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                final var nrOfPendingDeliveryTokens = iMqttClient.getPendingDeliveryTokens().length;
-                final var pendingDeliveryTokens = new ArrayList<PendingDeliveryToken>();
-                Arrays.stream(iMqttClient.getPendingDeliveryTokens()).forEach(token -> {
-                    try {
-                        final var messageId = token.getMessageId();
-                        final var grantedQos = token.getGrantedQos();
-                        final var topics = token.getTopics();
-                        final var complete = token.isComplete();
-                        final var message = token.getMessage();
-                        int qos = message.getQos();
-                        pendingDeliveryTokens.add(new PendingDeliveryToken(messageId, grantedQos, topics, complete, qos));
-                    } catch (Exception e) {
-                        log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
-                    }
-                });
-                return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
+    public TechnicalConnectionState getTechnicalState(Endpoint endpoint) {
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            if (cachedMqttClient != null) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                    final var nrOfPendingDeliveryTokens = iMqttClient.getPendingDeliveryTokens().length;
+                    final var pendingDeliveryTokens = new ArrayList<PendingDeliveryToken>();
+                    Arrays.stream(iMqttClient.getPendingDeliveryTokens()).forEach(token -> {
+                        try {
+                            final var messageId = token.getMessageId();
+                            final var grantedQos = token.getGrantedQos();
+                            final var topics = token.getTopics();
+                            final var complete = token.isComplete();
+                            final var message = token.getMessage();
+                            int qos = message.getQos();
+                            pendingDeliveryTokens.add(new PendingDeliveryToken(messageId, grantedQos, topics, complete, qos));
+                        } catch (Exception e) {
+                            log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
+                        }
+                    });
+                    return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
+                }
             }
+        } catch (BusinessException e) {
+            log.error("Error while fetching the technical state of the MQTT client for endpoint with the external endpoint ID '{}'. Skipping this one.", endpoint.getExternalEndpointId());
         }
-        log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
     }
 
