@@ -243,10 +243,34 @@ public class MqttClientManagementService {
     /**
      * Disconnect an existing connection.
      *
-     * @param onboardingResponse -
+     * @param endpoint The endpoint.
      */
-    public void disconnect(OnboardingResponse onboardingResponse) {
+    public void disconnect(Endpoint endpoint) {
         mqttStatistics.increaseNumberOfDisconnects();
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
+            disconnect(onboardingResponse);
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
+        }
+    }
+
+    /**
+     * Disconnect an existing connection.
+     *
+     * @param endpoint The endpoint.
+     */
+    public void disconnectForOriginalOnboardingResponse(Endpoint endpoint) {
+        mqttStatistics.increaseNumberOfDisconnects();
+        try {
+            var onboardingResponse = endpoint.asOnboardingResponse(true);
+            disconnect(onboardingResponse);
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
+        }
+    }
+
+    private void disconnect(OnboardingResponse onboardingResponse) {
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (null != cachedMqttClient) {
             cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {

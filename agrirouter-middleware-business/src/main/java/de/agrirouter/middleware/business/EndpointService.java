@@ -185,7 +185,7 @@ public class EndpointService {
 
     private void deleteEndpointWithAllDataFromTheMiddleware(Endpoint endpoint) {
         log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint.asOnboardingResponse());
+        mqttClientManagementService.disconnect(endpoint);
         log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
         endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
         deleteEndpointData(endpoint);

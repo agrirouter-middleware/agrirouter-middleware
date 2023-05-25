@@ -51,7 +51,7 @@ public class RouterDeviceAddedEventListener {
                 });
                 log.debug("Forcefully disconnect existing clients to prepare the usage of the router device.");
                 application.getEndpoints().forEach(endpoint -> {
-                    mqttClientManagementService.disconnect(endpoint.asOnboardingResponse(true));
+                    mqttClientManagementService.disconnectForOriginalOnboardingResponse(endpoint);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Disconnect endpoint to force usage of the router device.");
                 });
             } else {
