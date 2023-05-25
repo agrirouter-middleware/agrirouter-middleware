@@ -94,7 +94,6 @@ public class MqttClientManagementService {
                 log.debug("This onboard response is not MQTT ready, the gateway is set to {}.", onboardingResponse.getConnectionCriteria().getGatewayId());
             }
         }
-        log.info("Could not create a MQTT client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
         return Optional.empty();
     }
 
@@ -185,7 +184,7 @@ public class MqttClientManagementService {
                 }
             }
         } catch (BusinessException e) {
-            log.error("Error while fetching the technical state of the MQTT client for endpoint with the external endpoint ID '{}'. Skipping this one.", endpoint.getExternalEndpointId());
+            log.error(e.getErrorMessage().asLogMessage());
         }
         return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
     }
@@ -207,7 +206,7 @@ public class MqttClientManagementService {
                 }
             }
         } catch (BusinessException e) {
-            log.error("Error while fetching the number of pending delivery tokens for endpoint with the external endpoint ID '{}'. Skipping this one.", endpoint.getExternalEndpointId());
+            log.error(e.getErrorMessage().asLogMessage());
         }
         return 0;
     }
@@ -215,16 +214,21 @@ public class MqttClientManagementService {
     /**
      * Get all pending delivery tokens for the endpoint.
      *
-     * @param onboardingResponse The onboarding response.
+     * @param endpoint The endpoint.
      * @return The list of pending delivery tokens.
      */
-    public List<IMqttDeliveryToken> getPendingDeliveryTokens(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (cachedMqttClient != null) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                return Arrays.asList(iMqttClient.getPendingDeliveryTokens());
+    public List<IMqttDeliveryToken> getPendingDeliveryTokens(Endpoint endpoint) {
+        try {
+            final var onboardingResponse = endpoint.asOnboardingResponse();
+            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
+            if (cachedMqttClient != null) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
+                    return Arrays.asList(iMqttClient.getPendingDeliveryTokens());
+                }
             }
+        } catch (BusinessException e) {
+            log.error(e.getErrorMessage().asLogMessage());
         }
         return Collections.emptyList();
     }
