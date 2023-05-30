@@ -97,7 +97,7 @@ public class EndpointDashboardUIController {
             log.error(e.getErrorMessage().asLogMessage());
             return Routes.UnsecuredEndpoints.ERROR;
         }
-        return Routes.UserInterface.ENDPOINT_DASHBOARD;
+        return Routes.UserInterface.ThymeleafRouting.ENDPOINT_DASHBOARD;
     }
 
     /**

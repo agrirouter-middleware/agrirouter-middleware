@@ -31,7 +31,7 @@ public class ApplicationsUIController {
     public String navigation(Principal principal, Model model) {
         List<Application> applications = applicationService.findAll(principal);
         model.addAttribute("applications", applications);
-        return Routes.UserInterface.APPLICATIONS;
+        return Routes.UserInterface.ThymeleafRouting.APPLICATIONS;
     }
 
 }
