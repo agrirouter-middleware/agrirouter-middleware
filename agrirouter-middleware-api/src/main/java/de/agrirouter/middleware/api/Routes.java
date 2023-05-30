@@ -18,9 +18,9 @@ public class Routes {
     }
 
     public static class UserInterface {
-        public static final String APPLICATIONS = "applications";
-        public static final String ENDPOINTS = "endpoints";
-        public static final String ENDPOINT_DASHBOARD = "endpoint-dashboard";
+        public static final String APPLICATIONS = "/applications";
+        public static final String ENDPOINTS = "/endpoints";
+        public static final String ENDPOINT_DASHBOARD = "/endpoint-dashboard";
     }
 
 
