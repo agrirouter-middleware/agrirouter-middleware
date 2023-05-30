@@ -185,8 +185,10 @@ public class TimeLogService {
                     final var timeEntries = document.getList("time", Document.class);
                     timeEntries.forEach(timeEntry -> {
                         final var dataLogValues = timeEntry.getList("dataLogValue", Document.class);
-                        final var filteredDataLogValues = dataLogValues.stream().filter(d -> messagesForTimeLogPeriodParameters.getDdisToList().contains(d.getInteger("processDataDdi"))).toList();
-                        timeEntry.put("dataLogValue", filteredDataLogValues);
+                        if (null != dataLogValues && !dataLogValues.isEmpty()) {
+                            final var filteredDataLogValues = dataLogValues.stream().filter(d -> messagesForTimeLogPeriodParameters.getDdisToList().contains(d.getInteger("processDataDdi"))).toList();
+                            timeEntry.put("dataLogValue", filteredDataLogValues);
+                        }
                     });
                     document.put("time", timeEntries);
                 });
