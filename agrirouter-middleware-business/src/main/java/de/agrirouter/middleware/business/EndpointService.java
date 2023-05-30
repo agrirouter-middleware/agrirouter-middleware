@@ -190,7 +190,6 @@ public class EndpointService {
         endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
         deleteEndpointData(endpoint);
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
-        endpointRepository.delete(endpoint);
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
     }
 
@@ -223,6 +222,9 @@ public class EndpointService {
 
         log.debug("Remove time logs.");
         timeLogRepository.deleteAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+
+        log.debug("Remove endpoint from internal cache to avoid problems.");
+        internalEndpointCache.remove(endpoint.getExternalEndpointId());
     }
 
     /**
