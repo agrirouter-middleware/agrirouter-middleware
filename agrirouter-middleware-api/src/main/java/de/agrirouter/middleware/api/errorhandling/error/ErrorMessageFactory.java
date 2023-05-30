@@ -145,4 +145,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage couldNotPublishHealthMessageSinceClientIsNotConnected() {
         return new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message. MQTT client is not connected.", HttpStatus.SERVICE_UNAVAILABLE);
     }
+
+    public static ErrorMessage couldNotDecodeBase64EncodedMessageContent() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_DECODE_BASE64_ENCODED_MESSAGE_CONTENT, "Could not decode the base64 encoded message content.", HttpStatus.BAD_REQUEST);
+    }
 }
