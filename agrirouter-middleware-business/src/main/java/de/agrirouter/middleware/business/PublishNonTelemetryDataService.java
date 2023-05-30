@@ -3,6 +3,7 @@ package de.agrirouter.middleware.business;
 import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
@@ -116,6 +117,12 @@ public class PublishNonTelemetryDataService {
     }
 
     private ByteString asByteString(String base64EncodedMessageContent) {
-        return ByteString.copyFrom(Base64.getDecoder().decode(base64EncodedMessageContent));
+        try {
+            return ByteString.copyFrom(Base64.getDecoder().decode(base64EncodedMessageContent));
+        } catch (IllegalArgumentException e) {
+            log.debug("Could not decode base64 encoded message content.");
+            log.trace("Message content: {}", base64EncodedMessageContent);
+            throw new BusinessException(ErrorMessageFactory.couldNotDecodeBase64EncodedMessageContent());
+        }
     }
 }
