@@ -257,7 +257,7 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
             }
     )
     public ResponseEntity<Void> deleteEndpoint(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
-        endpointService.deleteAllEndpoints(externalEndpointId);
+        endpointService.delete(externalEndpointId);
         return ResponseEntity.ok().build();
     }
 
