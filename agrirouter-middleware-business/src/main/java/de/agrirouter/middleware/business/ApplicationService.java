@@ -179,8 +179,13 @@ public class ApplicationService {
      * @param endpoint -
      * @return -
      */
-    public Optional<Application> findByEndpoint(Endpoint endpoint) {
-        return applicationRepository.findByEndpointsContains(endpoint);
+    public Application findByEndpoint(Endpoint endpoint) {
+        var application = applicationRepository.findByEndpointsContains(endpoint);
+        if (application.isPresent()) {
+            return application.get();
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
+        }
     }
 
     /**
@@ -228,7 +233,6 @@ public class ApplicationService {
         Application application = find(internalApplicationId);
         application.getEndpoints().forEach(endpoint -> {
             endpointService.deleteEndpointData(endpoint.getExternalEndpointId());
-            endpointService.delete(endpoint);
         });
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application deleted.");
         applicationRepository.delete(application);

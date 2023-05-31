@@ -180,6 +180,8 @@ public class EndpointService {
      *
      * @param externalEndpointId The external endpoint ID.
      */
+    @Async
+    @Transactional
     public void deleteEndpointData(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {

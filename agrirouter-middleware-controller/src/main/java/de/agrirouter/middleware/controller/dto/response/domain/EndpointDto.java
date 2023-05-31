@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * The DTO for the representation of an endpoint.
  */
@@ -72,5 +74,11 @@ public class EndpointDto {
      */
     @Schema(description = "The connection state of the endpoint.")
     private ConnectionStateDto connectionState;
+
+    /**
+     * The virtual endpoints of the endpoint.
+     */
+    @Schema(description = "The virtual endpoints of the endpoint.")
+    private List<EndpointDto> virtualEndpoints;
 
 }
