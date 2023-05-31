@@ -50,12 +50,12 @@ public class ApplicationWithEndpointStatusDto {
      */
     @Schema(description = "Marker if the application uses a router device.")
     private boolean usesRouterDevice;
-    
+
     /**
      * The status information for all endpoints within the application.
      */
     @Schema(description = "The status information for all endpoints within the application.")
-    private List<EndpointWithStatusDto> endpointsWithStatus;
+    private List<EndpointDto> endpoints;
 
 
 }

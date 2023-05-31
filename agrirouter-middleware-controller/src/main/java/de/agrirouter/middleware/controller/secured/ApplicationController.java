@@ -2,6 +2,7 @@ package de.agrirouter.middleware.controller.secured;
 
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
+import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.controller.SecuredApiController;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Controller to manage applications.
@@ -47,14 +49,17 @@ import java.util.*;
 public class ApplicationController implements SecuredApiController {
 
     private final ApplicationService applicationService;
+    private final EndpointService endpointService;
     private final ModelMapper modelMapper;
 
     private final MessageCache messageCache;
 
     public ApplicationController(ApplicationService applicationService,
+                                 EndpointService endpointService,
                                  ModelMapper modelMapper,
                                  MessageCache messageCache) {
         this.applicationService = applicationService;
+        this.endpointService = endpointService;
         this.modelMapper = modelMapper;
         this.messageCache = messageCache;
     }
@@ -480,11 +485,11 @@ public class ApplicationController implements SecuredApiController {
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
         applicationStatusResponse.setUsesRouterDevice(application.usesRouterDevice());
-        applicationStatusResponse.setEndpointsWithStatus(new ArrayList<>());
-        application.getEndpoints()
+        var endpoints = application.getEndpoints()
                 .stream()
-                .map(endpoint -> EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageCache, endpoint))
-                .forEach(endpointWithStatusDto -> applicationStatusResponse.getEndpointsWithStatus().add(endpointWithStatusDto));
+                .map(endpoint -> EndpointStatusHelper.mapEndpointWithApplicationDetails(modelMapper, applicationService, endpointService, messageCache, endpoint))
+                .collect(Collectors.toList());
+        applicationStatusResponse.setEndpoints(endpoints);
         return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }
 

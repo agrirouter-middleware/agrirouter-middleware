@@ -31,10 +31,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Controller to manage applications.
@@ -135,9 +133,9 @@ public class EndpointController implements SecuredApiController {
             throw new ParameterValidationException(errors);
         }
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
-        final var mappedEndpoints = new HashMap<String, EndpointWithStatusDto>();
+        final var mappedEndpoints = new HashMap<String, EndpointDto>();
         endpoints.forEach(endpoint -> {
-            final var endpointWithStatusDto = EndpointStatusHelper.mapEndpointStatus(modelMapper, applicationService, messageCache, endpoint);
+            final var endpointWithStatusDto = EndpointStatusHelper.mapEndpointWithApplicationDetails(modelMapper, applicationService, endpointService, messageCache, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));

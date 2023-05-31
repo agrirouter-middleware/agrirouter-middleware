@@ -29,21 +29,22 @@ public class EndpointStatusHelper {
      * @param endpoint           -
      * @return -
      */
-    public static EndpointWithStatusDto mapEndpointStatus(ModelMapper modelMapper,
-                                                          ApplicationService applicationService,
-                                                          MessageCache messageCache,
-                                                          Endpoint endpoint) {
-        final var dto = new EndpointWithStatusDto();
+    public static EndpointDto mapEndpointWithApplicationDetails(ModelMapper modelMapper,
+                                                                ApplicationService applicationService,
+                                                                EndpointService endpointService,
+                                                                MessageCache messageCache,
+                                                                Endpoint endpoint) {
+        final var dto = new EndpointDto();
         modelMapper.map(endpoint, dto);
         final var optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
-            dto.
-                    setInternalApplicationId(application.getInternalApplicationId());
+            dto.setInternalApplicationId(application.getInternalApplicationId());
             dto.setApplicationId(application.getApplicationId());
             dto.setVersionId(application.getVersionId());
         }
         dto.setNrOfMessagesCached(messageCache.countCurrentMessageCacheEntries(endpoint.getAgrirouterEndpointId()));
+        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
         return dto;
     }
 
@@ -60,6 +61,7 @@ public class EndpointStatusHelper {
                                                                   Endpoint endpoint) {
         final var dto = new EndpointConnectionStatusDto();
         modelMapper.map(endpoint, dto);
+        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
         final var connectionErrors = new ArrayList<ConnectionErrorDto>();
         endpointService.getConnectionState(endpoint).connectionErrors().forEach(connectionError -> {
             final var connectionErrorDto = new ConnectionErrorDto();
@@ -67,8 +69,18 @@ public class EndpointStatusHelper {
             connectionErrors.add(connectionErrorDto);
         });
         dto.setConnectionErrors(connectionErrors);
-        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
         return dto;
+    }
+
+    private static ConnectionStateDto mapTechnicalConnectionState(EndpointService endpointService, Endpoint endpoint) {
+        var connectionState = endpointService.getConnectionState(endpoint);
+
+        var connectionStateDto = new ConnectionStateDto();
+        connectionStateDto.setConnected(connectionState.connected());
+        connectionStateDto.setCached(connectionState.cached());
+        connectionStateDto.setClientId(connectionState.clientId());
+
+        return connectionStateDto;
     }
 
     /**
@@ -90,7 +102,7 @@ public class EndpointStatusHelper {
             warnings.add(logEntryDto);
         });
         dto.setWarnings(warnings);
-        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
         return dto;
     }
 
@@ -113,7 +125,7 @@ public class EndpointStatusHelper {
             errors.add(logEntryDto);
         });
         dto.setErrors(errors);
-        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
         return dto;
     }
 
@@ -136,7 +148,7 @@ public class EndpointStatusHelper {
                 .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated()))))
                 .collect(Collectors.toList());
         dto.setMessagesWaitingForAck(messagesWaitingForAcknowledgement);
-        dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
         return dto;
     }
 
@@ -155,7 +167,7 @@ public class EndpointStatusHelper {
         Optional<Application> optionalApplication = applicationService.findByEndpoint(endpoint);
         if (optionalApplication.isPresent()) {
             dto.setTechnicalConnectionState(mqttClientManagementService.getTechnicalState(endpoint));
-            dto.setConnectionState(modelMapper.map(endpointService.getConnectionState(endpoint), ConnectionStateDto.class));
+            dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
         }
         return dto;
     }
