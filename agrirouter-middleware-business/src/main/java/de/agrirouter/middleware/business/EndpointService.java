@@ -196,6 +196,7 @@ public class EndpointService {
         log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
         endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
         deleteEndpointData(endpoint);
+        endpointRepository.delete(endpoint);
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
     }
@@ -319,16 +320,6 @@ public class EndpointService {
      */
     public boolean existsByExternalEndpointId(String externalId) {
         return endpointRepository.existsByExternalEndpointId(externalId);
-    }
-
-    /**
-     * Check if the endpoint already exists.
-     *
-     * @param externalId The external ID.
-     * @return True if the endpoint already exists.
-     */
-    public boolean existsByAgrirouterEndpointId(String externalId) {
-        return endpointRepository.existsByAgrirouterEndpointId(externalId);
     }
 
     /**
@@ -623,9 +614,7 @@ public class EndpointService {
         Map<String, Integer> endpointStatus = new HashMap<>();
         try {
             var callables = new ArrayList<Callable<TaskResult>>();
-            externalEndpointIds.forEach(externalEndpointId -> {
-                callables.add(createHealthCheckTask(externalEndpointId));
-            });
+            externalEndpointIds.forEach(externalEndpointId -> callables.add(createHealthCheckTask(externalEndpointId)));
             var executorService = Executors.newFixedThreadPool(externalEndpointIds.size());
             var futures = executorService.invokeAll(callables);
             waitUntilAllTasksAreDone(futures);
@@ -655,6 +644,7 @@ public class EndpointService {
     private void waitUntilAllTasksAreDone(List<Future<TaskResult>> futures) {
         while (futures.stream().anyMatch(future -> !future.isDone())) {
             try {
+                //noinspection BusyWait
                 Thread.sleep(pollingIntervall);
             } catch (InterruptedException e) {
                 log.error("Error while waiting for the health check tasks to finish.", e);
