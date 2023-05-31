@@ -642,6 +642,7 @@ public class EndpointService {
     private void waitUntilAllTasksAreDone(List<Future<TaskResult>> futures) {
         while (futures.stream().anyMatch(future -> !future.isDone())) {
             try {
+                //noinspection BusyWait
                 Thread.sleep(pollingIntervall);
             } catch (InterruptedException e) {
                 log.error("Error while waiting for the health check tasks to finish.", e);
