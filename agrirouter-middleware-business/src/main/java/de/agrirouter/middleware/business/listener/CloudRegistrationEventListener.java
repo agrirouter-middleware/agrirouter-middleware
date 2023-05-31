@@ -13,7 +13,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.CloudRegistrationEvent;
-import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
@@ -29,7 +28,6 @@ import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +52,6 @@ public class CloudRegistrationEventListener {
     private final EndpointService endpointService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
     private final DeviceDescriptionService deviceDescriptionService;
     private final DecodeMessageService decodeMessageService;
@@ -69,7 +66,6 @@ public class CloudRegistrationEventListener {
                                           EndpointService endpointService,
                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                           VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer,
-                                          ApplicationEventPublisher applicationEventPublisher,
                                           BusinessOperationLogService businessOperationLogService,
                                           DeviceDescriptionService deviceDescriptionService,
                                           DecodeMessageService decodeMessageService,
@@ -82,7 +78,6 @@ public class CloudRegistrationEventListener {
         this.endpointService = endpointService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
-        this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
         this.deviceDescriptionService = deviceDescriptionService;
         this.decodeMessageService = decodeMessageService;
@@ -178,7 +173,6 @@ public class CloudRegistrationEventListener {
                                 cloudOnboardingFailureCache.clear(virtualEndpoint.getExternalEndpointId());
                                 endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
                                 deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
-                                applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId()));
                             });
                         } else {
                             log.warn("No cloud onboard response found, are there only errors during the cloud onboard process?");

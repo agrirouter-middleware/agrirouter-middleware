@@ -78,12 +78,6 @@ public class Endpoint extends BaseEntity {
     private EndpointType endpointType = EndpointType.NON_VIRTUAL;
 
     /**
-     * The current endpoint status.
-     */
-    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private EndpointStatus endpointStatus;
-
-    /**
      * Deliver the internal JSON as DTO.
      *
      * @return -
@@ -115,15 +109,6 @@ public class Endpoint extends BaseEntity {
         } catch (JsonParseException e) {
             throw new BusinessException(ErrorMessageFactory.couldNotParseOnboardResponse(), e);
         }
-    }
-
-    /**
-     * Checks whether the endpoint is a healthy at the moment.
-     *
-     * @return true if the endpoint is healthy, false otherwise.
-     */
-    public boolean isHealthy() {
-        return usesRouterDevice() && !isDeactivated() && getEndpointStatus() != null && getEndpointStatus().getConnectionState().isConnected();
     }
 
     /**

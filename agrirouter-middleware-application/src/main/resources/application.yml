@@ -45,15 +45,14 @@ app:
       synchronous:
         response:
           wait:
-            time: 5000
+            time: 3000
           polling:
-            intervall: 50
+            intervall: 100
   fetch-messages:
     max-tries: 5
     interval: 1000
   scheduled:
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
-    status-logging: "0 */15 * * * *"
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
     statuspage-check-interval: "*/30 * * * * *"

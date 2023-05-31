@@ -62,7 +62,7 @@ public class PublishNonTelemetryDataService {
                 null);
         try {
             agrirouterStatusIntegrationService.checkCurrentStatus();
-            if (checkConnectionForEndpoint(publishNonTelemetryDataParameters.getExternalEndpointId())) {
+            if (endpointService.isHealthy(publishNonTelemetryDataParameters.getExternalEndpointId())) {
                 checkAndUpdateRecipients(publishNonTelemetryDataParameters);
                 var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
@@ -100,19 +100,6 @@ public class PublishNonTelemetryDataService {
                 log.warn("Could not find endpoint with external endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
                 log.info("This might be because the endpoint is not yet registered. The recipients are not updated.");
             }
-        }
-    }
-
-
-    private boolean checkConnectionForEndpoint(String externalEndpointId) {
-        try {
-            final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
-            return null != endpoint.getEndpointStatus() && endpoint.getEndpointStatus().getConnectionState().isConnected();
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
-            log.warn("Could not find endpoint with external endpoint ID: {}", externalEndpointId);
-            log.info("This might be because the endpoint is not yet registered. The message is cached and will be sent when the endpoint is registered / connected.");
-            return false;
         }
     }
 

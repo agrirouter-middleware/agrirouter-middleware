@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.controller.dto.response;
 
-import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithStatusDto;
+import de.agrirouter.middleware.controller.dto.response.domain.EndpointDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -21,6 +21,6 @@ public class EndpointStatusResponse extends Response {
      * The endpoints with their status.
      */
     @Schema(description = "The endpoints found for the request, each one represented by its ID and the belonging status.")
-    Map<String, EndpointWithStatusDto> endpoints;
+    Map<String, EndpointDto> endpoints;
 
 }

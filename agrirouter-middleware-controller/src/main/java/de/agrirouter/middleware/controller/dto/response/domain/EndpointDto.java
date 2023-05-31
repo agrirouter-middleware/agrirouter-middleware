@@ -26,21 +26,51 @@ public class EndpointDto {
     private String externalEndpointId;
 
     /**
-     * The type of the endpoint.
+     * The current status of an endpoint, could be active or deactivated.
      */
-    @Schema(description = "The type of the endpoint.")
-    private EndpointType endpointType;
+    @Schema(description = "The current status of an endpoint, could be active or deactivated.")
+    private boolean deactivated;
 
     /**
-     * Marks an endpoint as deactivated.
+     * The internal ID of the application.
      */
-    @Schema(description = "Marks an endpoint as deactivated.")
-    private boolean deactivated;
+    @Schema(description = "The internal ID of the application.")
+    private String internalApplicationId;
+
+    /**
+     * The ID of the application.
+     */
+    @Schema(description = "The ID of the application.")
+    private String applicationId;
+
+    /**
+     * The ID of the application version.
+     */
+    @Schema(description = "The ID of the application version.")
+    private String versionId;
 
     /**
      * The account ID for this endpoint.
      */
     @Schema(description = "The account ID for this endpoint.")
     private String agrirouterAccountId;
+
+    /**
+     * The type of the endpoint.
+     */
+    @Schema(description = "The type of the endpoint.")
+    private EndpointType endpointType;
+
+    /**
+     * Number of messages that are currently cached.
+     */
+    @Schema(description = "Nr. of messages that are cached.")
+    private long nrOfMessagesCached;
+
+    /**
+     * The connection state of the endpoint.
+     */
+    @Schema(description = "The connection state of the endpoint.")
+    private ConnectionStateDto connectionState;
 
 }

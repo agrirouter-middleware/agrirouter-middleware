@@ -236,10 +236,6 @@ public class MessageQueryResultEventListener {
         try {
             final var endpoint = endpointService.findByAgrirouterEndpointId(fetchMessageResponse.getSensorAlternateId());
             saveLatestQueryResult(endpoint.getExternalEndpointId(), messageQueryResponse);
-            final var nrOfMessagesWithinTheInbox = endpoint.getEndpointStatus().getNrOfMessagesWithinTheInbox();
-            if (nrOfMessagesWithinTheInbox > messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery()) {
-                log.warn("The number of messages within the inbox (last status update was {}) is higher than the number of messages in the query. This is not expected. There are {} messages in the inbox and {} messages in the query.", endpoint.getEndpointStatus().getLastUpdate(), nrOfMessagesWithinTheInbox, messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
-            }
             confirmMessages(agrirouterEndpointId, messageIds);
             if (messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery() > messageQueryResponse.getQueryMetrics().getMaxCountRestriction()) {
                 log.debug("There are {} messages in total, the current count restriction is {}. Sending out another event to fetch the messages.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery(), messageQueryResponse.getQueryMetrics().getMaxCountRestriction());
