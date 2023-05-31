@@ -13,7 +13,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.CloudRegistrationEvent;
-import de.agrirouter.middleware.api.events.EndpointStatusUpdateEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.DeviceDescriptionService;
@@ -178,7 +177,6 @@ public class CloudRegistrationEventListener {
                                 cloudOnboardingFailureCache.clear(virtualEndpoint.getExternalEndpointId());
                                 endpointIntegrationService.sendCapabilities(application, virtualEndpoint);
                                 deviceDescriptionService.checkAndSendCachedDeviceDescription(virtualEndpoint.getExternalEndpointId());
-                                applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, virtualEndpoint.getAgrirouterEndpointId()));
                             });
                         } else {
                             log.warn("No cloud onboard response found, are there only errors during the cloud onboard process?");

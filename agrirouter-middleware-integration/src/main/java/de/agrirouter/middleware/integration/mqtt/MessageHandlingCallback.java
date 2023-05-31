@@ -98,12 +98,6 @@ public class MessageHandlingCallback implements MqttCallback {
                 applicationEventPublisher.publishEvent(new MessageQueryResultEvent(this, fetchMessageResponse));
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
             }
-            case ACK_FOR_FEED_HEADER_LIST -> {
-                log.trace("This was a query result for a message header query that is used.");
-                mqttStatistics.increaseNumberOfAcknowledgements();
-                applicationEventPublisher.publishEvent(new EndpointStatusUpdateEvent(this, fetchMessageResponse.getSensorAlternateId(), fetchMessageResponse));
-                applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
-            }
             case CLOUD_REGISTRATIONS -> {
                 log.trace("This was a cloud registration.");
                 mqttStatistics.increaseNumberOfCloudRegistrations();
@@ -117,7 +111,7 @@ public class MessageHandlingCallback implements MqttCallback {
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
             }
             default -> {
-                log.trace("This was a unknown message.");
+                log.trace("This was a unknown / unsupported message.");
                 mqttStatistics.increaseNumberOfUnknownMessages();
                 applicationEventPublisher.publishEvent(new UnknownMessageEvent(this, fetchMessageResponse));
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
