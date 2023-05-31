@@ -118,15 +118,6 @@ public class Endpoint extends BaseEntity {
     }
 
     /**
-     * Checks whether the endpoint is a healthy at the moment.
-     *
-     * @return true if the endpoint is healthy, false otherwise.
-     */
-    public boolean isHealthy() {
-        return usesRouterDevice() && !isDeactivated() && getEndpointStatus() != null && getEndpointStatus().getConnectionState().isConnected();
-    }
-
-    /**
      * Checks whether the endpoint uses a router device or not.
      *
      * @return true if the endpoint uses a router device, false otherwise.
