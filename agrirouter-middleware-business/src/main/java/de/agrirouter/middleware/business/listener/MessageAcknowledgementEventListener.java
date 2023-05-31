@@ -89,6 +89,14 @@ public class MessageAcknowledgementEventListener {
                         log.debug("Looks like there are no recipients for the device description. But the AR received the device description and it was valid. Trigger activation.");
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
+                    if (SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType()) && message.getMessageCode().equals("VAL_000011")) {
+                        log.warn("Looks like this was a cloud offboarding for a non existing endpoint. This is not an error. The endpoint is deleted in the AR.");
+                        try {
+                            endpointService.deleteEndpointDataFromTheMiddlewareByAgrirouterId(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
+                        } catch (BusinessException e) {
+                            log.debug("The endpoint does not exist anymore. There is nothing to do.");
+                        }
+                    }
                 }
             }
             messageWaitingForAcknowledgementService.delete(messageWaitingForAcknowledgement);
