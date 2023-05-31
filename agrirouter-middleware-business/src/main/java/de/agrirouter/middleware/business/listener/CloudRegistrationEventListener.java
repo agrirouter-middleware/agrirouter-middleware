@@ -53,7 +53,6 @@ public class CloudRegistrationEventListener {
     private final EndpointService endpointService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
     private final DeviceDescriptionService deviceDescriptionService;
     private final DecodeMessageService decodeMessageService;
@@ -68,7 +67,6 @@ public class CloudRegistrationEventListener {
                                           EndpointService endpointService,
                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                           VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer,
-                                          ApplicationEventPublisher applicationEventPublisher,
                                           BusinessOperationLogService businessOperationLogService,
                                           DeviceDescriptionService deviceDescriptionService,
                                           DecodeMessageService decodeMessageService,
@@ -81,7 +79,6 @@ public class CloudRegistrationEventListener {
         this.endpointService = endpointService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
-        this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
         this.deviceDescriptionService = deviceDescriptionService;
         this.decodeMessageService = decodeMessageService;

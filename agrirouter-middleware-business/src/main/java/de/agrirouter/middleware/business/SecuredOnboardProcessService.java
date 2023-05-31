@@ -19,7 +19,6 @@ import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessInte
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,7 +33,6 @@ public class SecuredOnboardProcessService {
     private final SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService;
     private final ApplicationRepository applicationRepository;
     private final EndpointService endpointService;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
     private final Gson gson;
 
@@ -43,7 +41,6 @@ public class SecuredOnboardProcessService {
                                         SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService,
                                         ApplicationRepository applicationRepository,
                                         EndpointService endpointService,
-                                        ApplicationEventPublisher applicationEventPublisher,
                                         BusinessOperationLogService businessOperationLogService,
                                         Gson gson) {
         this.authorizationRequestService = authorizationRequestService;
@@ -51,7 +48,6 @@ public class SecuredOnboardProcessService {
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
         this.applicationRepository = applicationRepository;
         this.endpointService = endpointService;
-        this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
         this.gson = gson;
     }
