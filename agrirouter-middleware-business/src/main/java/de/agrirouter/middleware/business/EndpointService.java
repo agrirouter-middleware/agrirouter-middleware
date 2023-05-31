@@ -612,9 +612,7 @@ public class EndpointService {
         Map<String, Integer> endpointStatus = new HashMap<>();
         try {
             var callables = new ArrayList<Callable<TaskResult>>();
-            externalEndpointIds.forEach(externalEndpointId -> {
-                callables.add(createHealthCheckTask(externalEndpointId));
-            });
+            externalEndpointIds.forEach(externalEndpointId -> callables.add(createHealthCheckTask(externalEndpointId)));
             var executorService = Executors.newFixedThreadPool(externalEndpointIds.size());
             var futures = executorService.invokeAll(callables);
             waitUntilAllTasksAreDone(futures);
