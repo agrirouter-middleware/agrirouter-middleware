@@ -78,12 +78,6 @@ public class Endpoint extends BaseEntity {
     private EndpointType endpointType = EndpointType.NON_VIRTUAL;
 
     /**
-     * The current endpoint status.
-     */
-    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private EndpointStatus endpointStatus;
-
-    /**
      * Deliver the internal JSON as DTO.
      *
      * @return -
