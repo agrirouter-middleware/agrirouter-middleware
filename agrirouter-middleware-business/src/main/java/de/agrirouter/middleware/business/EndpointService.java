@@ -321,16 +321,6 @@ public class EndpointService {
     }
 
     /**
-     * Check if the endpoint already exists.
-     *
-     * @param externalId The external ID.
-     * @return True if the endpoint already exists.
-     */
-    public boolean existsByAgrirouterEndpointId(String externalId) {
-        return endpointRepository.existsByAgrirouterEndpointId(externalId);
-    }
-
-    /**
      * Find the endpoint by its external ID.
      *
      * @param externalEndpointId -
