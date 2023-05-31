@@ -112,7 +112,7 @@ public class CloudRegistrationEventListener {
             messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey());
             messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
 
-            virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(endpointService::deleteEndpointData);
+            virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(endpointService::delete);
         }
     }
 

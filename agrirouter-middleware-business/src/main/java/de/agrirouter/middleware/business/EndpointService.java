@@ -165,10 +165,10 @@ public class EndpointService {
     @Async
     @Transactional
     public void deleteEndpointDataFromTheMiddlewareByAgrirouterId(String agrirouterEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointIdAndIgnoreDeactivated(agrirouterEndpointId);
+        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            deleteEndpointData(optionalEndpoint.get().getExternalEndpointId());
+            delete(optionalEndpoint.get().getExternalEndpointId());
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data incl. the endpoint was deleted.");
         } else {
             log.warn("Endpoint with agrirouter endpoint ID {} not found.", agrirouterEndpointId);
@@ -180,37 +180,26 @@ public class EndpointService {
      *
      * @param externalEndpointId The external endpoint ID.
      */
-    public void deleteEndpointData(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            deleteEndpointWithAllDataFromTheMiddleware(endpoint);
-        }
-    }
-
-    private void deleteEndpointWithAllDataFromTheMiddleware(Endpoint endpoint) {
-        log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint);
-        log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
-        endpoint.getConnectedVirtualEndpoints().forEach(this::deleteEndpointData);
-        deleteEndpointData(endpoint);
-        endpointRepository.delete(endpoint);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
-    }
-
-    /**
-     * Delete the endpoint and remove all the data.
-     *
-     * @param externalEndpointId The external endpoint ID.
-     */
     @Async
     @Transactional
-    public void deleteAllEndpoints(String externalEndpointId) {
-        endpointRepository.findAllByExternalEndpointId(externalEndpointId).forEach(this::deleteEndpointWithAllDataFromTheMiddleware);
+    public void delete(String externalEndpointId) {
+        endpointRepository.findAllByExternalEndpointId(externalEndpointId).forEach(endpoint -> {
+            log.debug("Disconnect the endpoint.");
+            mqttClientManagementService.disconnect(endpoint);
+            log.debug("Remove the data for each connected virtual CU  incl. status, errors, warnings and so on.");
+            endpoint.getConnectedVirtualEndpoints().forEach(this::deleteData);
+
+            log.debug("Remove the data for the endpoint incl. status, errors, warnings and so on.");
+            deleteData(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint data has been deleted.");
+
+            log.debug("Remove the endpoint.");
+            endpointRepository.delete(endpoint);
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was deleted.");
+        });
     }
 
-    private void deleteEndpointData(Endpoint endpoint) {
+    private void deleteData(Endpoint endpoint) {
         final var sensorAlternateId = endpoint.asOnboardingResponse().getSensorAlternateId();
 
         log.debug("Remove all unprocessed messages.");
@@ -367,7 +356,7 @@ public class EndpointService {
                     final var application = optionalApplication.get();
                     revokeProcessIntegrationService.revoke(application, endpoint);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was revoked.");
-                    deleteEndpointData(externalEndpointId);
+                    delete(externalEndpointId);
                 } else {
                     throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
                 }
@@ -387,16 +376,6 @@ public class EndpointService {
      */
     public List<Endpoint> findAll(String internalApplicationId) {
         return endpointRepository.findAllByInternalApplicationId(internalApplicationId);
-    }
-
-    /**
-     * Delete an endpoint.
-     *
-     * @param endpoint The endpoint.
-     */
-    public void delete(Endpoint endpoint) {
-        endpointRepository.deleteByExternalEndpointId(endpoint.getExternalEndpointId());
-        internalEndpointCache.remove(endpoint.getExternalEndpointId());
     }
 
     /**
@@ -432,23 +411,6 @@ public class EndpointService {
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warnings were reset.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
-        }
-    }
-
-    /**
-     * Deactivate an endpoint.
-     *
-     * @param agrirouterEndpointId The ID of the endpoint.
-     */
-    @Transactional
-    public void deactivateEndpointByAgrirouterId(String agrirouterEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            endpoint.setDeactivated(true);
-            endpointRepository.save(endpoint);
-        } else {
-            log.warn("Could not find endpoint with agrirouter ID {}.", agrirouterEndpointId);
         }
     }
 

@@ -554,7 +554,7 @@ public class EndpointController implements SecuredApiController {
         final var endpoints = endpointService.findByExternalEndpointIds(endpointStatusRequest.getExternalEndpointIds());
         final var mappedEndpoints = new HashMap<String, TechnicalConnectionStateDto>();
         endpoints.forEach(endpoint -> {
-            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper, applicationService, endpointService, mqttClientManagementService, endpoint);
+            final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper, endpointService, mqttClientManagementService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), technicalConnectionStateDto);
         });
         return ResponseEntity.ok(new TechnicalConnectionStateResponse(mappedEndpoints));

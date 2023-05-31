@@ -29,7 +29,6 @@ public class CloudOffboardingEventListener {
     @Transactional
     public void offboardCloudEndpoint(CloudOffboardingEvent cloudOffboardingEvent) {
         log.debug("Incoming event for cloud offboarding.");
-        cloudOffboardingEvent.getVirtualEndpointIds().forEach(endpointService::deactivateEndpointByAgrirouterId);
         cloudOffboardingEvent.getVirtualEndpointIds().forEach(endpointService::deleteEndpointDataFromTheMiddlewareByAgrirouterId);
     }
 }
