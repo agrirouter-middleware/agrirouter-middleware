@@ -45,9 +45,9 @@ app:
       synchronous:
         response:
           wait:
-            time: 5000
+            time: 3000
           polling:
-            intervall: 50
+            intervall: 100
   fetch-messages:
     max-tries: 5
     interval: 1000

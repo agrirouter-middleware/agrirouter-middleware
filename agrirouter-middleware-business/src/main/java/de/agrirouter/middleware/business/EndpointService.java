@@ -27,12 +27,17 @@ import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationSe
 import de.agrirouter.middleware.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Business operations regarding the endpoints.
@@ -610,5 +615,66 @@ public class EndpointService {
         var endpoints = endpointRepository.findAll();
         endpoints.forEach(endpoint -> internalEndpointCache.put(endpoint.getExternalEndpointId(), endpoint));
         return endpoints;
+    }
+
+    public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
+        Map<String, Integer> endpointStatus = new HashMap<>();
+        try {
+            var callables = new ArrayList<Callable<TaskResult>>();
+            externalEndpointIds.forEach(externalEndpointId -> {
+                callables.add(createHealthCheckTask(externalEndpointId));
+            });
+            var executorService = Executors.newFixedThreadPool(externalEndpointIds.size());
+            var futures = executorService.invokeAll(callables);
+            waitUntilAllTasksAreDone(futures);
+            futures.forEach(future -> {
+                try {
+                    var taskResult = future.get();
+                    endpointStatus.put(taskResult.externalEndpointId, taskResult.status);
+                } catch (InterruptedException | ExecutionException e) {
+                    log.error("Error while waiting for the health check tasks to finish.", e);
+                }
+            });
+        } catch (InterruptedException e) {
+            log.error("Error while waiting for the health check tasks to finish.", e);
+        }
+        return endpointStatus;
+    }
+
+    /**
+     * Internal class as a wrapper for the result of the health check.
+     *
+     * @param externalEndpointId The external endpoint id.
+     * @param status             The status of the endpoint.
+     */
+    private record TaskResult(String externalEndpointId, Integer status) {
+    }
+
+    private void waitUntilAllTasksAreDone(List<Future<TaskResult>> futures) {
+        while (futures.stream().anyMatch(future -> !future.isDone())) {
+            try {
+                Thread.sleep(pollingIntervall);
+            } catch (InterruptedException e) {
+                log.error("Error while waiting for the health check tasks to finish.", e);
+            }
+        }
+    }
+
+    private Callable<TaskResult> createHealthCheckTask(String externalEndpointId) {
+        return () -> {
+            if (agrirouterStatusIntegrationService.isOperational()) {
+                try {
+                    if (isHealthy(externalEndpointId)) {
+                        return new TaskResult(externalEndpointId, HttpStatus.OK.value());
+                    } else {
+                        return new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
+                    }
+                } catch (BusinessException e) {
+                    return new TaskResult(externalEndpointId, e.getErrorMessage().getHttpStatus().value());
+                }
+            } else {
+                return new TaskResult(externalEndpointId, HttpStatus.BAD_GATEWAY.value());
+            }
+        };
     }
 }
