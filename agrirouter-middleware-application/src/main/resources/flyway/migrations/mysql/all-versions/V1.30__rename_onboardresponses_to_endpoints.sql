@@ -1,0 +1,1 @@
+alter table endpoint rename column onboard_responses_id to application_id;
