@@ -43,3 +43,6 @@ message-cache
 *.dat
 *.ptd
 *.sft
+
+# HTTP CLIENT PRIVATE ENVIRONMENT VARIABLES
+*.env.json
