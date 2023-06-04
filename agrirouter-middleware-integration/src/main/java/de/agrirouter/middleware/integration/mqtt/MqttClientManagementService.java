@@ -197,28 +197,6 @@ public class MqttClientManagementService {
      * @param endpoint The endpoint.
      * @return The list of pending delivery tokens.
      */
-    public int getNumberOfPendingDeliveryTokens(Endpoint endpoint) {
-        try {
-            final var onboardingResponse = endpoint.asOnboardingResponse();
-            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-            if (cachedMqttClient != null) {
-                if (cachedMqttClient.mqttClient().isPresent()) {
-                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                    return iMqttClient.getPendingDeliveryTokens().length;
-                }
-            }
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
-        }
-        return 0;
-    }
-
-    /**
-     * Get all pending delivery tokens for the endpoint.
-     *
-     * @param endpoint The endpoint.
-     * @return The list of pending delivery tokens.
-     */
     public List<IMqttDeliveryToken> getPendingDeliveryTokens(Endpoint endpoint) {
         try {
             final var onboardingResponse = endpoint.asOnboardingResponse();
