@@ -7,6 +7,38 @@
 The release workflow has switched to a continuous delivery workflow, where every commit will trigger a new release and result in a new artifact.
 If there are any manual migrations necessary, the documentation can be found right here.
 
+== Release v8.0.0
+
+== Release v7.4.0
+
+=== Live status checking for multiple endpoints
+
+The former functionality of the status checking for endpoints has been enhanced.
+The status is now checked with the same mechanism as it is done for a single endpoint.
+This increases the reliability of the status checks since the internal caching is disabled and has removed the scheduled status checks from the middleware.
+
+=== Show virtual endpoints
+
+With the new release it is possible to see the virtual endpoints for a parent endpoint.
+
+image::documentation/release_7_4/show_virtual_endpoints_in_the_status.png[virtual endpoints,role="left]
+
+== Release v7.3.0
+
+Just a small release with some bugfixes.
+
+== Release v7.2.0
+
+Just a small release with some bugfixes.
+
+== Release v7.1.0
+
+=== Monitoring endpoint for the agrirouter status
+
+With the new release, the middleware will provide a monitoring endpoint for the agrirouter status.
+
+image::documentation/release_7_1/endpoint_for_agrirouter_status.png[monitoring endpoint for agrirouter status,role="left]
+
 == Release v7.0.0
 
 === Monitoring endpoints are secured by default
