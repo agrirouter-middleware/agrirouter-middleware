@@ -117,6 +117,13 @@
                 <version>3.0.7</version>
             </dependency>
 
+            <!-- MYSQL -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.29</version>
+            </dependency>
+
             <!-- HIKARI -->
             <dependency>
                 <groupId>com.zaxxer</groupId>

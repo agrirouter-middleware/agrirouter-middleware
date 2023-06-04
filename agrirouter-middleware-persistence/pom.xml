@@ -25,6 +25,10 @@
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
             <groupId>de.agrirouter.middleware</groupId>
             <artifactId>agrirouter-middleware-domain</artifactId>
         </dependency>
