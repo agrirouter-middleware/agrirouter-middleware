@@ -1,4 +1,7 @@
 logging:
   level:
-    root: info
-    de.agrirouter.middleware: info
+    root: warn
+    de.agrirouter.middleware: warn
+    org.eclipse.paho.client.mqttv3.internal.CommsReceiver: off
+    org.eclipse.paho.client: trace
+

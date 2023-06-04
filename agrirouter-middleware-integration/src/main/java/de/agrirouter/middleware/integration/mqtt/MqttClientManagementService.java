@@ -10,10 +10,7 @@ import de.agrirouter.middleware.api.events.CheckConnectionsEvent;
 import de.agrirouter.middleware.domain.Endpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -116,8 +113,6 @@ public class MqttClientManagementService {
         mqttStatistics.increaseNumberOfClientInitializations();
         IMqttClient mqttClient = createMqttClient(onboardingResponse);
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
-        mqttConnectOptions.setConnectionTimeout(60);
-        mqttConnectOptions.setKeepAliveInterval(60);
         mqttClient.connect(mqttConnectOptions);
         mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
         mqttClient.setCallback(messageHandlingCallback);
@@ -194,28 +189,6 @@ public class MqttClientManagementService {
             log.error(e.getErrorMessage().asLogMessage());
         }
         return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
-    }
-
-    /**
-     * Get all pending delivery tokens for the endpoint.
-     *
-     * @param endpoint The endpoint.
-     * @return The list of pending delivery tokens.
-     */
-    public int getNumberOfPendingDeliveryTokens(Endpoint endpoint) {
-        try {
-            final var onboardingResponse = endpoint.asOnboardingResponse();
-            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-            if (cachedMqttClient != null) {
-                if (cachedMqttClient.mqttClient().isPresent()) {
-                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                    return iMqttClient.getPendingDeliveryTokens().length;
-                }
-            }
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
-        }
-        return 0;
     }
 
     /**

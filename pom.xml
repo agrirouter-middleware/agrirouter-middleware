@@ -13,7 +13,7 @@
 
     <groupId>de.agrirouter.middleware</groupId>
     <artifactId>agrirouter-middleware</artifactId>
-    <version>7.3.0</version>
+    <version>8.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -115,6 +115,13 @@
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
                 <version>3.0.7</version>
+            </dependency>
+
+            <!-- MYSQL -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.29</version>
             </dependency>
 
             <!-- HIKARI -->

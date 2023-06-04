@@ -1,0 +1,34 @@
+alter table application
+    drop column version;
+alter table application_settings
+    drop column version;
+alter table authentication
+    drop column version;
+alter table connection_criteria
+    drop column version;
+alter table connection_state
+    drop column version;
+alter table content_message
+    drop column version;
+alter table content_message_metadata
+    drop column version;
+alter table ddi_combination_to_subscribe_for
+    drop column version;
+alter table endpoint
+    drop column version;
+alter table endpoint_status
+    drop column version;
+alter table error
+    drop column version;
+alter table message_recipient
+    drop column version;
+alter table router_device
+    drop column version;
+alter table supported_technical_message_type
+    drop column version;
+alter table tenant
+    drop column version;
+alter table unprocessed_message
+    drop column version;
+alter table warning
+    drop column version;

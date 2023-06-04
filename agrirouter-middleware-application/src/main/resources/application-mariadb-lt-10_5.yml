@@ -1,0 +1,3 @@
+spring:
+  flyway:
+    locations: classpath:flyway/migrations/mariadb/all-versions,classpath:flyway/migrations/mariadb/lt-10.5
