@@ -33,7 +33,8 @@ management:
 
 logging:
   level:
-    root: info
+    # Ensure that the initial tenant information is logged.
+    de.agrirouter.middleware.business.TenantService: info
 
 app:
   version: '@project.version@'
