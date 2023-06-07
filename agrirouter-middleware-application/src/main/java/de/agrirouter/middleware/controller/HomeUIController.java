@@ -12,7 +12,7 @@ import java.util.Arrays;
  * The custom home controller.
  */
 @Controller
-public class HomeUIController {
+public class HomeUIController extends UIController {
 
     private final Environment environment;
 
@@ -27,7 +27,7 @@ public class HomeUIController {
      */
     @GetMapping("/")
     public String navigation(Model model) {
-        model.addAttribute("activeProfiles", "Active profiles = " + Arrays.stream(environment.getActiveProfiles()).toList());
+        model.addAttribute("activeProfiles", getActiveProfiles());
         return Routes.UnsecuredEndpoints.HOME;
     }
 
