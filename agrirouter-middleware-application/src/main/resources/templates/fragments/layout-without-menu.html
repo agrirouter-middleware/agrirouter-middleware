@@ -14,6 +14,18 @@
 <div class="container">
     <main th:replace="${content}">
     </main>
+    <footer class="mdl-mini-footer">
+        <div class="mdl-mini-footer__bottom-section">
+            <ul class="mdl-mini-footer__link-list">
+                <li><!--suppress HtmlUnknownTarget -->
+                    <a target="_blank" href="https://www.agrirouter-middleware.com"
+                       th:text="#{layout.footer.visit-us}"></a></li>
+                <li>
+                    <span th:text="${activeProfiles}"></span>
+                </li>
+            </ul>
+        </div>
+    </footer>
 </div>
 </body>
 </html>
