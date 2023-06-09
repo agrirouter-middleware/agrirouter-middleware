@@ -11,6 +11,7 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.domain.*;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.RouterDeviceRepository;
 import de.agrirouter.middleware.persistence.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -35,17 +36,20 @@ public class ApplicationService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final BusinessOperationLogService businessOperationLogService;
     private final EndpointService endpointService;
+    private final RouterDeviceRepository routerDeviceRepository;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               TenantRepository tenantRepository,
                               ApplicationEventPublisher applicationEventPublisher,
                               BusinessOperationLogService businessOperationLogService,
-                              EndpointService endpointService) {
+                              EndpointService endpointService,
+                              RouterDeviceRepository routerDeviceRepository) {
         this.applicationRepository = applicationRepository;
         this.tenantRepository = tenantRepository;
         this.applicationEventPublisher = applicationEventPublisher;
         this.businessOperationLogService = businessOperationLogService;
         this.endpointService = endpointService;
+        this.routerDeviceRepository = routerDeviceRepository;
     }
 
     /**
@@ -193,10 +197,20 @@ public class ApplicationService {
      *
      * @param addRouterDeviceParameters -
      */
+    @Transactional
     public void addRouterDevice(AddRouterDeviceParameters addRouterDeviceParameters) {
         Optional<Application> optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(addRouterDeviceParameters.getInternalApplicationId(), addRouterDeviceParameters.getTenantId());
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
+            if (application.usesRouterDevice()) {
+                if (routerDeviceRepository.existsByIdNotAndConnectionCriteria_ClientId(application.getApplicationSettings().getRouterDevice().getId(), addRouterDeviceParameters.getClientId())) {
+                    throw new BusinessException(ErrorMessageFactory.routerDeviceAlreadyExists(addRouterDeviceParameters.getClientId()));
+                } else {
+                    log.debug("The current application already has a router device, therefore updating it.");
+                    var formerRouterDevice = application.getApplicationSettings().getRouterDevice();
+                    routerDeviceRepository.delete(formerRouterDevice);
+                }
+            }
             final var routerDevice = new RouterDevice();
             routerDevice.setDeviceAlternateId(addRouterDeviceParameters.getDeviceAlternateId());
             final var authentication = new Authentication();
@@ -220,6 +234,7 @@ public class ApplicationService {
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
+
     }
 
     /**
