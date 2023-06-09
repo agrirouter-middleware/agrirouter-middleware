@@ -677,7 +677,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest, @Parameter(hidden = true) Errors errors) throws InterruptedException {
+    public ResponseEntity<EndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest,
+                                                               @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
