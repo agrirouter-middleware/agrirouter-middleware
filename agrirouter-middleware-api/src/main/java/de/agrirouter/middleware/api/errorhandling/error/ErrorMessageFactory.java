@@ -149,4 +149,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage couldNotDecodeBase64EncodedMessageContent() {
         return new ErrorMessage(ErrorKey.COULD_NOT_DECODE_BASE64_ENCODED_MESSAGE_CONTENT, "Could not decode the base64 encoded message content.", HttpStatus.BAD_REQUEST);
     }
+
+    public static ErrorMessage routerDeviceAlreadyExists(String clientId) {
+        return new ErrorMessage(ErrorKey.ROUTER_DEVICE_ALREADY_EXISTS, String.format("The router device with the client ID '%s' does already exist.", clientId), HttpStatus.CONFLICT);
+    }
 }
