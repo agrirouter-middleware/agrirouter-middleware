@@ -197,37 +197,44 @@ public class ApplicationService {
      *
      * @param addRouterDeviceParameters -
      */
+    @Transactional
     public void addRouterDevice(AddRouterDeviceParameters addRouterDeviceParameters) {
-        if (routerDeviceRepository.existsByConnectionCriteria_ClientId(addRouterDeviceParameters.getClientId())) {
-            throw new BusinessException(ErrorMessageFactory.routerDeviceAlreadyExists(addRouterDeviceParameters.getClientId()));
-        } else {
-            Optional<Application> optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(addRouterDeviceParameters.getInternalApplicationId(), addRouterDeviceParameters.getTenantId());
-            if (optionalApplication.isPresent()) {
-                final var application = optionalApplication.get();
-                final var routerDevice = new RouterDevice();
-                routerDevice.setDeviceAlternateId(addRouterDeviceParameters.getDeviceAlternateId());
-                final var authentication = new Authentication();
-                authentication.setCertificate(addRouterDeviceParameters.getCertificate());
-                authentication.setSecret(addRouterDeviceParameters.getSecret());
-                authentication.setType(addRouterDeviceParameters.getType());
-                routerDevice.setAuthentication(authentication);
-                final var connectionCriteria = new ConnectionCriteria();
-                connectionCriteria.setClientId(addRouterDeviceParameters.getClientId());
-                connectionCriteria.setHost(addRouterDeviceParameters.getHost());
-                connectionCriteria.setPort(addRouterDeviceParameters.getPort());
-                routerDevice.setConnectionCriteria(connectionCriteria);
-                if (null == application.getApplicationSettings()) {
-                    log.debug("The current application did not have application settings, therefore creating new ones.");
-                    application.setApplicationSettings(new ApplicationSettings());
+        Optional<Application> optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(addRouterDeviceParameters.getInternalApplicationId(), addRouterDeviceParameters.getTenantId());
+        if (optionalApplication.isPresent()) {
+            final var application = optionalApplication.get();
+            if (application.usesRouterDevice()) {
+                if (routerDeviceRepository.existsByIdNotAndConnectionCriteria_ClientId(application.getApplicationSettings().getRouterDevice().getId(), addRouterDeviceParameters.getClientId())) {
+                    throw new BusinessException(ErrorMessageFactory.routerDeviceAlreadyExists(addRouterDeviceParameters.getClientId()));
+                } else {
+                    log.debug("The current application already has a router device, therefore updating it.");
+                    var formerRouterDevice = application.getApplicationSettings().getRouterDevice();
+                    routerDeviceRepository.delete(formerRouterDevice);
                 }
-                application.getApplicationSettings().setRouterDevice(routerDevice);
-                final var savedApplication = applicationRepository.save(application);
-                businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Added router device to the application.");
-                applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
-            } else {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
             }
+            final var routerDevice = new RouterDevice();
+            routerDevice.setDeviceAlternateId(addRouterDeviceParameters.getDeviceAlternateId());
+            final var authentication = new Authentication();
+            authentication.setCertificate(addRouterDeviceParameters.getCertificate());
+            authentication.setSecret(addRouterDeviceParameters.getSecret());
+            authentication.setType(addRouterDeviceParameters.getType());
+            routerDevice.setAuthentication(authentication);
+            final var connectionCriteria = new ConnectionCriteria();
+            connectionCriteria.setClientId(addRouterDeviceParameters.getClientId());
+            connectionCriteria.setHost(addRouterDeviceParameters.getHost());
+            connectionCriteria.setPort(addRouterDeviceParameters.getPort());
+            routerDevice.setConnectionCriteria(connectionCriteria);
+            if (null == application.getApplicationSettings()) {
+                log.debug("The current application did not have application settings, therefore creating new ones.");
+                application.setApplicationSettings(new ApplicationSettings());
+            }
+            application.getApplicationSettings().setRouterDevice(routerDevice);
+            final var savedApplication = applicationRepository.save(application);
+            businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Added router device to the application.");
+            applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
+        } else {
+            throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
+
     }
 
     /**

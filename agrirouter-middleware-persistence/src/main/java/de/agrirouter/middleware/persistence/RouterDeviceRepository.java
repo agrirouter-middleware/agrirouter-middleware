@@ -13,8 +13,9 @@ public interface RouterDeviceRepository extends JpaRepository<RouterDevice, Long
     /**
      * Check if a router device exists by the given client ID.
      *
+     * @param id       the ID
      * @param clientId the client ID
      * @return true if the router device exists, otherwise false
      */
-    boolean existsByConnectionCriteria_ClientId(String clientId);
+    boolean existsByIdNotAndConnectionCriteria_ClientId(Long id, String clientId);
 }
