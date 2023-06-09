@@ -236,4 +236,12 @@ public class ApplicationService {
         applicationRepository.delete(application);
     }
 
+    /**
+     * Count the number of applications.
+     *
+     * @return Number of applications.
+     */
+    public long getNrOfApplications() {
+        return applicationRepository.count();
+    }
 }

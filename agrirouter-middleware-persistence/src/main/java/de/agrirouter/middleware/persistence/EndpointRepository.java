@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.Endpoint;
+import de.agrirouter.middleware.domain.enums.EndpointType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,17 +22,8 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
      * @param agrirouterEndpointId The ID of the endpoint.
      * @return -
      */
-    @Query("from Endpoint e where e.agrirouterEndpointId = :agrirouterEndpointId and e.deactivated = false")
-    Optional<Endpoint> findByAgrirouterEndpointId(@Param("agrirouterEndpointId") String agrirouterEndpointId);
-
-    /**
-     * Finding an endpoint by the given agrirouter© endpoint ID and ignore deactivated.
-     *
-     * @param agrirouterEndpointId The ID of the endpoint.
-     * @return -
-     */
     @Query("from Endpoint e where e.agrirouterEndpointId = :agrirouterEndpointId")
-    Optional<Endpoint> findByAgrirouterEndpointIdAndIgnoreDeactivated(@Param("agrirouterEndpointId") String agrirouterEndpointId);
+    Optional<Endpoint> findByAgrirouterEndpointId(@Param("agrirouterEndpointId") String agrirouterEndpointId);
 
     /**
      * Finding endpoint by the given endpoint ID .
@@ -50,14 +42,6 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     boolean existsByExternalEndpointId(String externalEndpointId);
 
     /**
-     * Checks whether an endpoint with the given agrirouter endpoint ID exists.
-     *
-     * @param agrirouterEndpointId The agrirouter endpoint ID.
-     * @return True if the endpoint exists.
-     */
-    boolean existsByAgrirouterEndpointId(String agrirouterEndpointId);
-
-    /**
      * Finding endpoints by the given internal application ID.
      *
      * @param internalApplicationId The internal ID of the application.
@@ -67,16 +51,18 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     List<Endpoint> findAllByInternalApplicationId(String internalApplicationId);
 
     /**
-     * Delete the endpoint by its internal endpoint ID.
-     *
-     * @param externalEndpointId The external endpoint ID.
-     */
-    void deleteByExternalEndpointId(String externalEndpointId);
-
-    /**
      * Find all endpoints by the given external endpoint ID.
      *
      * @return The endpoints.
      */
     List<Endpoint> findAllByExternalEndpointId(String externalEndpointId);
+
+    /**
+     * Count all endpoints by the given endpoint type.
+     *
+     * @param endpointType The endpoint type.
+     * @return The number of endpoints.
+     */
+    long countByEndpointType(EndpointType endpointType);
+
 }

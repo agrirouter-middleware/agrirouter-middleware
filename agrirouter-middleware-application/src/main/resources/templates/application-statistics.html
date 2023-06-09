@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title},~{::main})}" lang="en"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+    <title th:text="#{application.statistics.title}"></title>
+</head>
+<body>
+<main class="mdl-layout__content">
+
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.agrirouter-status}"></h3>
+                </div>
+                <div th:if="#{agrirouterStatus}" class="mdl-card__supporting-text">
+                    <h2>UP & RUNNING</h2>
+                </div>
+                <div th:unless="#{agrirouterStatus}" class="mdl-card__supporting-text">
+                    <h2 CURRENTLY NOT WORKING</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.number-of-applications}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${applicationStatistics.nrOfApplications}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.number-of-tenants}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${applicationStatistics.nrOfTenants}"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.number-of-endpoints}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${applicationStatistics.nrOfEndpoints}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.number-of-virtual-endpoints}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${applicationStatistics.nrOfVirtualEndpoints}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.number-of-connected-clients}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${applicationStatistics.nrOfConnectedClients}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.number-of-disconnected-clients}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${applicationStatistics.nrOfDisconnectedClients}"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-connection-losses}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.connectionStatistics.numberOfConnectionLosses}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-cache-misses}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.connectionStatistics.numberOfCacheMisses}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-client-initializations}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.connectionStatistics.numberOfClientInitializations}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-disconnects}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.connectionStatistics.numberOfDisconnects}"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

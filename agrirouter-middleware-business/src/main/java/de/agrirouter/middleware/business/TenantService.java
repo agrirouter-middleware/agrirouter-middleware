@@ -186,4 +186,13 @@ public class TenantService implements UserDetailsService {
             return accessToken;
         }
     }
+
+    /**
+     * Count the number of tenants.
+     *
+     * @return The number of tenants.
+     */
+    public long getNrOfTenants() {
+        return tenantRepository.count();
+    }
 }

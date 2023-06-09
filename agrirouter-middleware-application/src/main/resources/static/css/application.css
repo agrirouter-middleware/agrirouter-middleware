@@ -17,3 +17,12 @@
     width: 350px;
     padding-top: 50px;
 }
+
+.mdl-card {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.mdl-card__supporting-text {
+    width: 100% !important;
+}
