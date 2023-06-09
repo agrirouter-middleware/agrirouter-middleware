@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.GetMapping;
  * The custom home controller.
  */
 @Controller
-public class HomeUIController extends UIController {
+public class ErrorUIController extends UIController {
 
     /**
-     * The home / landing page.
+     * The error page.
      *
      * @return -
      */
-    @GetMapping("/")
+    @GetMapping("/error")
     public String navigation(Model model) {
         model.addAttribute("activeProfiles", getActiveProfiles());
-        return Routes.UnsecuredEndpoints.HOME;
+        return Routes.UnsecuredEndpoints.ERROR;
     }
 
 }

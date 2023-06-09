@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Date;
  */
 @Slf4j
 @Controller
-public class EndpointDashboardUIController {
+public class EndpointDashboardUIController extends UIController {
 
     private final EndpointService endpointService;
     private final MqttClientManagementService mqttClientManagementService;
@@ -87,6 +88,7 @@ public class EndpointDashboardUIController {
                     .peek(messageWaitingForAcknowledgementDto -> messageWaitingForAcknowledgementDto.setHumanReadableCreated(Date.from(Instant.ofEpochSecond(messageWaitingForAcknowledgementDto.getCreated())))).toList());
             messagesWaitingForAcknowledgement.sort((o1, o2) -> Long.compare(o2.getCreated(), o1.getCreated()));
             model.addAttribute("messagesWaitingForAcknowledgement", messagesWaitingForAcknowledgement);
+            model.addAttribute("activeProfiles", getActiveProfiles());
         } catch (BusinessException e) {
             log.error(e.getErrorMessage().asLogMessage());
             return Routes.UnsecuredEndpoints.ERROR;

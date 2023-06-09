@@ -593,6 +593,19 @@ public class EndpointService {
     }
 
     /**
+     * Get the number of endpoints.
+     *
+     * @return The number of endpoints.
+     */
+    public long getNrOfEndpoints() {
+        return endpointRepository.countByEndpointType(EndpointType.NON_VIRTUAL);
+    }
+
+    public long getNrOfVirtualEndpoints() {
+        return endpointRepository.countByEndpointType(EndpointType.VIRTUAL);
+    }
+
+    /**
      * Internal class as a wrapper for the result of the health check.
      *
      * @param externalEndpointId The external endpoint id.

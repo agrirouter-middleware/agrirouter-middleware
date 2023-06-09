@@ -14,7 +14,7 @@ import java.util.List;
  * The applications' controller.
  */
 @Controller
-public class ApplicationsUIController {
+public class ApplicationsUIController extends UIController {
 
     private final ApplicationService applicationService;
 
@@ -31,6 +31,7 @@ public class ApplicationsUIController {
     public String navigation(Principal principal, Model model) {
         List<Application> applications = applicationService.findAll(principal);
         model.addAttribute("applications", applications);
+        model.addAttribute("activeProfiles", getActiveProfiles());
         return Routes.UserInterface.ThymeleafRouting.APPLICATIONS;
     }
 

@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * The endpoints controller.
  */
 @Controller
-public class EndpointsUIController {
+public class EndpointsUIController extends UIController {
 
     private final EndpointService endpointService;
 
@@ -33,6 +34,7 @@ public class EndpointsUIController {
     public String navigation(Principal principal, @RequestParam(value = "internalApplicationId") String internalApplicationId, Model model) {
         List<Endpoint> endpoints = endpointService.findAll(internalApplicationId);
         model.addAttribute("endpoints", endpoints);
+        model.addAttribute("activeProfiles", getActiveProfiles());
         return Routes.UserInterface.ThymeleafRouting.ENDPOINTS;
     }
 
