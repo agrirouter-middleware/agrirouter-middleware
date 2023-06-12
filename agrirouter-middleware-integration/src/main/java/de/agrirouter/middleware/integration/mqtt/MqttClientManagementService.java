@@ -6,7 +6,9 @@ import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
@@ -31,15 +33,18 @@ public class MqttClientManagementService {
     private final MessageHandlingCallback messageHandlingCallback;
     private final MqttStatistics mqttStatistics;
     private final Environment environment;
+    private final ApplicationRepository applicationRepository;
 
     public MqttClientManagementService(MqttOptionService mqttOptionService,
                                        MessageHandlingCallback messageHandlingCallback,
                                        MqttStatistics mqttStatistics,
-                                       Environment environment) {
+                                       Environment environment,
+                                       ApplicationRepository applicationRepository) {
         this.mqttOptionService = mqttOptionService;
         this.messageHandlingCallback = messageHandlingCallback;
         this.mqttStatistics = mqttStatistics;
         this.environment = environment;
+        this.applicationRepository = applicationRepository;
         this.cachedMqttClients = new HashMap<>();
     }
 
@@ -66,7 +71,7 @@ public class MqttClientManagementService {
                     try {
                         log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
                         cachedMqttClients.remove(cachedMqttClient.id());
-                        final var mqttClient = initMqttClient(onboardingResponse);
+                        final var mqttClient = initMqttClient(endpoint);
                         final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
                         cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
                         mqttClientAfterInitialization = mqttClient;
@@ -108,9 +113,10 @@ public class MqttClientManagementService {
         return cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
     }
 
-    private IMqttClient initMqttClient(OnboardingResponse onboardingResponse) throws MqttException {
+    private IMqttClient initMqttClient(Endpoint endpoint) throws MqttException {
         mqttStatistics.increaseNumberOfClientInitializations();
-        IMqttClient mqttClient = createMqttClient(onboardingResponse);
+        final var mqttClient = createMqttClient(endpoint);
+        var onboardingResponse = endpoint.asOnboardingResponse();
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttClient.connect(mqttConnectOptions);
         mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
@@ -118,11 +124,24 @@ public class MqttClientManagementService {
         return mqttClient;
     }
 
-    private IMqttClient createMqttClient(OnboardingResponse onboardingResponse) {
+    private IMqttClient createMqttClient(Endpoint endpoint) {
         try {
+            var onboardingResponse = endpoint.asOnboardingResponse();
             var host = onboardingResponse.getConnectionCriteria().getHost();
             var port = onboardingResponse.getConnectionCriteria().getPort();
-            var clientId = onboardingResponse.getConnectionCriteria().getClientId();
+            final String clientId;
+            if (!endpoint.usesRouterDevice()) {
+                clientId = onboardingResponse.getConnectionCriteria().getClientId();
+            } else {
+                log.debug("The endpoint '{}' uses a router device, therefore the client ID will be set.", endpoint);
+                Optional<Application> optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
+                if (optionalApplication.isPresent()) {
+                    clientId = optionalApplication.get().getInternalApplicationId();
+                } else {
+                    log.debug("The endpoint '{}' does not belong to an application, therefore the client ID will be set to the original client ID.", endpoint);
+                    clientId = onboardingResponse.getConnectionCriteria().getClientId();
+                }
+            }
             if (StringUtils.isAnyBlank(host, port, clientId)) {
                 throw new CouldNotCreateMqttClientException("Currently there are parameters missing. Did you onboard correctly - host, port or client id are missing.");
             } else {
