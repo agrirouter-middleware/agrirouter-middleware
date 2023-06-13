@@ -147,6 +147,7 @@ public class MqttClientManagementService {
         mqttConnectOptions.setCleanSession(false);
         mqttClient.connect(mqttConnectOptions);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
+        messageHandlingCallback.setMqttClient(mqttClient);
         mqttClient.setCallback(messageHandlingCallback);
         return mqttClient;
     }

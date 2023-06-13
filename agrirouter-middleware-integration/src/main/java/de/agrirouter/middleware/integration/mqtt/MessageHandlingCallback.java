@@ -12,12 +12,11 @@ import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessage;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.charset.StandardCharsets;
@@ -36,6 +35,10 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final MqttStatistics mqttStatistics;
     private final HealthStatusMessages healthStatusMessages;
     private final ListEndpointsMessages listEndpointsMessages;
+
+    @Setter
+    @Getter
+    private IMqttClient mqttClient;
 
 
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
