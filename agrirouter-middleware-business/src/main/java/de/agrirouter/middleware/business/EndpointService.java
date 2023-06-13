@@ -68,6 +68,9 @@ public class EndpointService {
     @Value("${app.agrirouter.mqtt.synchronous.response.wait.time}")
     private int nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
 
+    @Value("${app.agrirouter.mqtt.synchronous.health.response.wait.time}")
+    private int nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
+
     @Value("${app.agrirouter.mqtt.synchronous.response.polling.intervall}")
     private int pollingIntervall;
 
@@ -463,7 +466,7 @@ public class EndpointService {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
         healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
         if (healthStatusIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
-            var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+            var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
             while (timer > 0) {
                 try {
                     Thread.sleep(pollingIntervall);
