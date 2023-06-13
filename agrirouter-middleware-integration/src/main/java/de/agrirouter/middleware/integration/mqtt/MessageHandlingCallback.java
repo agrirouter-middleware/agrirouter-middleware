@@ -55,6 +55,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable throwable) {
+        log.error("Connection lost for client {}.", this.mqttClient.getClientId());
         mqttStatistics.increaseNumberOfConnectionLosses();
     }
 
@@ -185,9 +186,10 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
-        log.debug("Connected to MQTT broker at {}.", serverURI);
         if (reconnect) {
-            log.debug("Reconnected to MQTT broker at {}.", serverURI);
+            log.debug("Reconnected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
+        } else {
+            log.debug("Connected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
         }
     }
 }
