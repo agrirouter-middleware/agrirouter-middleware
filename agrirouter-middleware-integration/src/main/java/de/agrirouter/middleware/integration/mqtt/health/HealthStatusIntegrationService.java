@@ -74,7 +74,7 @@ public class HealthStatusIntegrationService {
         }
         var hasBeenReturned = healthStatusMessage.isHasBeenReturned();
         if (!hasBeenReturned) {
-            log.warn("Health status message for endpoint ID {} has not been returned.", agrirouterEndpointId);
+            log.debug("Health status message for endpoint ID {} has not been returned.", agrirouterEndpointId);
         } else {
             log.info("Health status message for endpoint ID {} has been returned.", agrirouterEndpointId);
             healthStatusMessages.remove(agrirouterEndpointId);
