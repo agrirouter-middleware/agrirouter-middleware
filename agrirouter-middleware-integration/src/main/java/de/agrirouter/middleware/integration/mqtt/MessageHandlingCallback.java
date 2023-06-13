@@ -15,7 +15,7 @@ import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Callback for all MQTT connections to the agrirouter.
  */
 @Slf4j
-public class MessageHandlingCallback implements MqttCallback {
+public class MessageHandlingCallback implements MqttCallbackExtended {
 
     private static final Gson GSON = new Gson();
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -180,4 +180,11 @@ public class MessageHandlingCallback implements MqttCallback {
         }
     }
 
+    @Override
+    public void connectComplete(boolean reconnect, String serverURI) {
+        log.debug("Connected to MQTT broker at {}.", serverURI);
+        if (reconnect) {
+            log.debug("Reconnected to MQTT broker at {}.", serverURI);
+        }
+    }
 }
