@@ -6,6 +6,7 @@ import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
@@ -30,6 +31,7 @@ import java.util.*;
 public class MqttClientManagementService {
 
     private final Map<String, CachedMqttClient> cachedMqttClients;
+    private final Map<String, Boolean> subscriptionsSent;
     private final MqttOptionService mqttOptionService;
     private final MessageHandlingCallback messageHandlingCallback;
     private final MqttStatistics mqttStatistics;
@@ -47,6 +49,7 @@ public class MqttClientManagementService {
         this.environment = environment;
         this.applicationRepository = applicationRepository;
         this.cachedMqttClients = new HashMap<>();
+        this.subscriptionsSent = new HashMap<>();
     }
 
     /**
@@ -87,6 +90,7 @@ public class MqttClientManagementService {
                 }
                 if (null != mqttClientAfterInitialization) {
                     if (mqttClientAfterInitialization.isConnected()) {
+                        subscribeIfNecessary(onboardingResponse, mqttClientAfterInitialization);
                         return Optional.of(mqttClientAfterInitialization);
                     } else {
                         log.error("The mqtt client for endpoint '{}' with the MQTT client ID '{}' is not connected.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
@@ -97,6 +101,26 @@ public class MqttClientManagementService {
             }
         }
         return Optional.empty();
+    }
+
+    private void subscribeIfNecessary(OnboardingResponse onboardingResponse, IMqttClient mqttClient) {
+        try {
+            var subscriptionSent = subscriptionsSent.get(onboardingResponse.getSensorAlternateId());
+            if (null != subscriptionSent && subscriptionSent) {
+                log.debug("Already sent subscriptions for endpoint '{}', not sending again.", onboardingResponse.getSensorAlternateId());
+            } else {
+                log.debug("Sending subscriptions for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
+                subscriptionsSent.put(onboardingResponse.getSensorAlternateId(), true);
+                var iMqttToken = mqttClient.subscribeWithResponse(onboardingResponse.getConnectionCriteria().getCommands());
+                if (iMqttToken.isComplete()) {
+                    log.debug("Successfully subscribed to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
+                } else {
+                    log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
+                }
+            }
+        } catch (MqttException e) {
+            log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), e);
+        }
     }
 
     private boolean isConnected(CachedMqttClient cachedMqttClient) {
@@ -121,7 +145,6 @@ public class MqttClientManagementService {
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setCleanSession(false);
         mqttClient.connect(mqttConnectOptions);
-        mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
         mqttClient.setCallback(messageHandlingCallback);
         return mqttClient;
     }
@@ -133,15 +156,17 @@ public class MqttClientManagementService {
             var port = onboardingResponse.getConnectionCriteria().getPort();
             final String clientId;
             if (!endpoint.usesRouterDevice()) {
-                clientId = onboardingResponse.getConnectionCriteria().getClientId();
+                log.error("The endpoint '{}' does not use a router device, therefore the client ID will be set to the original client ID. This should not be the case.", endpoint);
+                throw new BusinessException(ErrorMessageFactory.missingRouterDevice(endpoint.getExternalEndpointId()));
             } else {
                 log.debug("The endpoint '{}' uses a router device, therefore the client ID will be set.", endpoint);
                 Optional<Application> optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
                 if (optionalApplication.isPresent()) {
-                    clientId = optionalApplication.get().getInternalApplicationId();
+                    log.debug("We are using a unique client ID to avoid problems in case the router device has been used multiple times.");
+                    clientId = MqttClient.generateClientId();
                 } else {
                     log.debug("The endpoint '{}' does not belong to an application, therefore the client ID will be set to the original client ID.", endpoint);
-                    clientId = onboardingResponse.getConnectionCriteria().getClientId();
+                    throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
                 }
             }
             if (StringUtils.isAnyBlank(host, port, clientId)) {
@@ -164,12 +189,14 @@ public class MqttClientManagementService {
         try {
             var onboardingResponse = endpoint.asOnboardingResponse();
             final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-            return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null, cachedMqttClient != null,
+            return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null,
+                    cachedMqttClient != null,
                     cachedMqttClient != null && cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected(),
+                    subscriptionsSent.get(onboardingResponse.getSensorAlternateId()) != null ? subscriptionsSent.get(onboardingResponse.getSensorAlternateId()) : false,
                     cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
         } catch (BusinessException e) {
             log.error(e.getErrorMessage().asLogMessage());
-            return new ConnectionState(null, false, false, Collections.emptyList());
+            return new ConnectionState("n.a.", false, false, false, Collections.emptyList());
         }
     }
 

@@ -25,9 +25,16 @@ public class ConnectionStateDto {
     private boolean connected;
 
     /**
+     * Has the subscription been sent?
+     */
+    @Schema(description = "Has the subscription been sent?")
+    private boolean subscriptionSent;
+
+    /**
      * The client ID of the connection.
      */
     @Schema(description = "The client ID of the connection.")
     private String clientId;
+
 
 }

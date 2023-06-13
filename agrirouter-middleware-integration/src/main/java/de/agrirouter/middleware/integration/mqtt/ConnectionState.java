@@ -8,8 +8,9 @@ import java.util.List;
  * @param clientId         The client ID that is used for the connection.
  * @param cached           Is the connection available and cached?
  * @param connected        Is the connection still connected to the AR?
+ * @param subscriptionSent Has the subscription been sent?
  * @param connectionErrors The connections errors.
  */
-public record ConnectionState(String clientId, boolean cached, boolean connected,
+public record ConnectionState(String clientId, boolean cached, boolean connected, boolean subscriptionSent,
                               List<ConnectionError> connectionErrors) {
 }
