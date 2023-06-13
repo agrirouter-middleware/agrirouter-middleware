@@ -137,8 +137,14 @@
                         th:text="${status.key}"></h3>
                 </div>
                 <div class="mdl-card__supporting-text">
-                    <p th:text="${status.clientId}"></p>
-                    <p th:text="${status.connectionStatus}"></p>
+                    <div class="mdl-grid">
+                        <div class="mdl-cell--2-col" th:text="#{application.statistics.client-id}"></div>
+                        <div th:text="${status.clientId}"></div>
+                    </div>
+                    <div class="mdl-grid">
+                        <div class="mdl-cell--2-col" th:text="#{application.statistics.connection-state}"></div>
+                        <div th:text="${status.connectionStatus}"></div>
+                    </div>
                 </div>
             </div>
         </div>
