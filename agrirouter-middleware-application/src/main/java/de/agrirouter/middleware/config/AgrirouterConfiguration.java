@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 /**
  * The internal configuration for the agrirouter© connection.
@@ -128,6 +129,7 @@ public class AgrirouterConfiguration {
      * @return -
      */
     @Bean
+    @Scope("prototype")
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,

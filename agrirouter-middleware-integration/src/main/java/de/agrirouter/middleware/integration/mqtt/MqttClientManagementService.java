@@ -18,6 +18,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -33,21 +34,21 @@ public class MqttClientManagementService {
     private final Map<String, CachedMqttClient> cachedMqttClients;
     private final Map<String, Boolean> subscriptionsSent;
     private final MqttOptionService mqttOptionService;
-    private final MessageHandlingCallback messageHandlingCallback;
     private final MqttStatistics mqttStatistics;
     private final Environment environment;
     private final ApplicationRepository applicationRepository;
+    private final ApplicationContext applicationContext;
 
     public MqttClientManagementService(MqttOptionService mqttOptionService,
-                                       MessageHandlingCallback messageHandlingCallback,
                                        MqttStatistics mqttStatistics,
                                        Environment environment,
-                                       ApplicationRepository applicationRepository) {
+                                       ApplicationRepository applicationRepository,
+                                       ApplicationContext applicationContext) {
         this.mqttOptionService = mqttOptionService;
-        this.messageHandlingCallback = messageHandlingCallback;
         this.mqttStatistics = mqttStatistics;
         this.environment = environment;
         this.applicationRepository = applicationRepository;
+        this.applicationContext = applicationContext;
         this.cachedMqttClients = new HashMap<>();
         this.subscriptionsSent = new HashMap<>();
     }
@@ -145,6 +146,7 @@ public class MqttClientManagementService {
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setCleanSession(false);
         mqttClient.connect(mqttConnectOptions);
+        var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
         mqttClient.setCallback(messageHandlingCallback);
         return mqttClient;
     }
