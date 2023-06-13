@@ -8,6 +8,7 @@ import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
+import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -306,4 +307,22 @@ public class MqttClientManagementService {
         return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected()).count();
     }
 
+    /**
+     * Get the connection status for all MQTT clients.
+     *
+     * @return The connection status for all MQTT clients.
+     */
+    public List<MqttConnectionStatus> getMqttConnectionStatus() {
+        var mqttConnectionStatus = new ArrayList<MqttConnectionStatus>();
+        cachedMqttClients.forEach((key, cachedMqttClient) -> {
+            if (cachedMqttClient.mqttClient().isPresent()) {
+                var iMqttClient = cachedMqttClient.mqttClient().get();
+                var status = iMqttClient.isConnected() ? "CONNECTED" : "DISCONNECTED";
+                mqttConnectionStatus.add(MqttConnectionStatus.builder().key(key).clientId(iMqttClient.getClientId()).connectionStatus(status).build());
+            } else {
+                mqttConnectionStatus.add(MqttConnectionStatus.builder().key(key).clientId("n.a.").connectionStatus("EMPTY").build());
+            }
+        });
+        return mqttConnectionStatus;
+    }
 }
