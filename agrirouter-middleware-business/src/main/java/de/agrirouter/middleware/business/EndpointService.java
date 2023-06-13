@@ -477,7 +477,7 @@ public class EndpointService {
             }
 
         } else {
-            log.warn("There is no pending health status response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+            log.debug("There is no pending health status response for endpoint {}.", endpoint.getAgrirouterEndpointId());
         }
         return false;
     }
@@ -510,7 +510,7 @@ public class EndpointService {
                     timer = timer - pollingIntervall;
                 }
             } else {
-                log.warn("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
             }
             log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
             var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
