@@ -568,7 +568,8 @@ public class EndpointService {
         try {
             var callables = new ArrayList<Callable<TaskResult>>();
             externalEndpointIds.forEach(externalEndpointId -> callables.add(createHealthCheckTask(externalEndpointId)));
-            var executorService = Executors.newFixedThreadPool(externalEndpointIds.size());
+            // Looks like the topic is not able to handle more than 2 threads for sending health status messages.
+            var executorService = Executors.newFixedThreadPool(2);
             var futures = executorService.invokeAll(callables);
             waitUntilAllTasksAreDone(futures);
             futures.forEach(future -> {

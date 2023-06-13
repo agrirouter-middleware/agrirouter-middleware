@@ -119,6 +119,7 @@ public class MqttClientManagementService {
         final var mqttClient = createMqttClient(endpoint);
         var onboardingResponse = endpoint.asOnboardingResponse();
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
+        mqttConnectOptions.setCleanSession(false);
         mqttClient.connect(mqttConnectOptions);
         mqttClient.subscribe(onboardingResponse.getConnectionCriteria().getCommands());
         mqttClient.setCallback(messageHandlingCallback);
