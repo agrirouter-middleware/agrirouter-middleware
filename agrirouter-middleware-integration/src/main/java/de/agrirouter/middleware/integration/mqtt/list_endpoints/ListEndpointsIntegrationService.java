@@ -92,7 +92,7 @@ public class ListEndpointsIntegrationService {
         }
         var hasBeenReturned = listEndpointsMessage.isHasBeenReturned();
         if (!hasBeenReturned) {
-            log.warn("List endpoints message for endpoint ID {} has not been returned.", agrirouterEndpointId);
+            log.debug("List endpoints message for endpoint ID {} has not been returned.", agrirouterEndpointId);
         } else {
             log.info("List endpoints message for endpoint ID {} has been returned.", agrirouterEndpointId);
             listEndpointsMessages.remove(agrirouterEndpointId);

@@ -18,6 +18,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -31,25 +32,26 @@ import java.util.*;
 public class MqttClientManagementService {
 
     private final Map<String, CachedMqttClient> cachedMqttClients;
-    private final Map<String, Boolean> subscriptionsSent;
     private final MqttOptionService mqttOptionService;
-    private final MessageHandlingCallback messageHandlingCallback;
     private final MqttStatistics mqttStatistics;
     private final Environment environment;
     private final ApplicationRepository applicationRepository;
+    private final ApplicationContext applicationContext;
+    private final SubscriptionsForMqttClient subscriptionsForMqttClient;
 
     public MqttClientManagementService(MqttOptionService mqttOptionService,
-                                       MessageHandlingCallback messageHandlingCallback,
                                        MqttStatistics mqttStatistics,
                                        Environment environment,
-                                       ApplicationRepository applicationRepository) {
+                                       ApplicationRepository applicationRepository,
+                                       ApplicationContext applicationContext,
+                                       SubscriptionsForMqttClient subscriptionsForMqttClient) {
         this.mqttOptionService = mqttOptionService;
-        this.messageHandlingCallback = messageHandlingCallback;
         this.mqttStatistics = mqttStatistics;
         this.environment = environment;
         this.applicationRepository = applicationRepository;
+        this.applicationContext = applicationContext;
+        this.subscriptionsForMqttClient = subscriptionsForMqttClient;
         this.cachedMqttClients = new HashMap<>();
-        this.subscriptionsSent = new HashMap<>();
     }
 
     /**
@@ -104,15 +106,15 @@ public class MqttClientManagementService {
     }
 
     private void subscribeIfNecessary(OnboardingResponse onboardingResponse, IMqttClient mqttClient) {
+        var topic = onboardingResponse.getConnectionCriteria().getCommands();
         try {
-            var subscriptionSent = subscriptionsSent.get(onboardingResponse.getSensorAlternateId());
-            if (null != subscriptionSent && subscriptionSent) {
+            if (subscriptionsForMqttClient.exists(mqttClient.getClientId(), topic)) {
                 log.debug("Already sent subscriptions for endpoint '{}', not sending again.", onboardingResponse.getSensorAlternateId());
             } else {
                 log.debug("Sending subscriptions for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
-                subscriptionsSent.put(onboardingResponse.getSensorAlternateId(), true);
-                var iMqttToken = mqttClient.subscribeWithResponse(onboardingResponse.getConnectionCriteria().getCommands());
+                var iMqttToken = mqttClient.subscribeWithResponse(topic);
                 if (iMqttToken.isComplete()) {
+                    subscriptionsForMqttClient.add(mqttClient.getClientId(), topic);
                     log.debug("Successfully subscribed to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
                 } else {
                     log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
@@ -145,6 +147,8 @@ public class MqttClientManagementService {
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
         mqttConnectOptions.setCleanSession(false);
         mqttClient.connect(mqttConnectOptions);
+        var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
+        messageHandlingCallback.setMqttClient(mqttClient);
         mqttClient.setCallback(messageHandlingCallback);
         return mqttClient;
     }
@@ -189,17 +193,27 @@ public class MqttClientManagementService {
         try {
             var onboardingResponse = endpoint.asOnboardingResponse();
             final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-            return new ConnectionState(cachedMqttClient != null ? cachedMqttClient.id() : null,
-                    cachedMqttClient != null,
-                    cachedMqttClient != null && cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected(),
-                    subscriptionsSent.get(onboardingResponse.getSensorAlternateId()) != null ? subscriptionsSent.get(onboardingResponse.getSensorAlternateId()) : false,
-                    cachedMqttClient != null ? cachedMqttClient.connectionErrors() : Collections.emptyList());
+            if (null != cachedMqttClient) {
+                if (cachedMqttClient.mqttClient().isPresent()) {
+                    var iMqttClient = cachedMqttClient.mqttClient().get();
+                    return new ConnectionState(cachedMqttClient.id(),
+                            true,
+                            iMqttClient.isConnected(),
+                            subscriptionsForMqttClient.exists(iMqttClient.getClientId(), onboardingResponse.getConnectionCriteria().getCommands()),
+                            cachedMqttClient.connectionErrors());
+                } else {
+                    return new ConnectionState(cachedMqttClient.id(),
+                            true,
+                            false,
+                            false, cachedMqttClient.connectionErrors());
+                }
+            }
         } catch (BusinessException e) {
             log.error(e.getErrorMessage().asLogMessage());
             return new ConnectionState("n.a.", false, false, false, Collections.emptyList());
         }
+        return new ConnectionState("n.a.", false, false, false, Collections.emptyList());
     }
-
 
     /**
      * Determine the technical connection state.

@@ -12,12 +12,11 @@ import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessage;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.charset.StandardCharsets;
@@ -36,22 +35,30 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final MqttStatistics mqttStatistics;
     private final HealthStatusMessages healthStatusMessages;
     private final ListEndpointsMessages listEndpointsMessages;
+    private final SubscriptionsForMqttClient subscriptionsForMqttClient;
+
+    @Setter
+    @Getter
+    private IMqttClient mqttClient;
 
 
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                    DecodeMessageService decodeMessageService,
                                    MqttStatistics mqttStatistics,
                                    HealthStatusMessages healthStatusMessages,
-                                   ListEndpointsMessages listEndpointsMessages) {
+                                   ListEndpointsMessages listEndpointsMessages,
+                                   SubscriptionsForMqttClient subscriptionsForMqttClient) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
         this.mqttStatistics = mqttStatistics;
         this.healthStatusMessages = healthStatusMessages;
         this.listEndpointsMessages = listEndpointsMessages;
+        this.subscriptionsForMqttClient = subscriptionsForMqttClient;
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
+        log.error("Connection lost for client {}.", this.mqttClient.getClientId());
         mqttStatistics.increaseNumberOfConnectionLosses();
     }
 
@@ -182,9 +189,26 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
-        log.debug("Connected to MQTT broker at {}.", serverURI);
         if (reconnect) {
-            log.debug("Reconnected to MQTT broker at {}.", serverURI);
+            log.debug("Reconnected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
+            var allFormerTopics = subscriptionsForMqttClient.getAll(mqttClient.getClientId());
+            subscriptionsForMqttClient.clear(mqttClient.getClientId());
+            allFormerTopics.forEach(topic -> {
+                try {
+                    var iMqttToken = mqttClient.subscribeWithResponse(topic);
+                    if (iMqttToken.isComplete()) {
+                        subscriptionsForMqttClient.add(mqttClient.getClientId(), topic);
+                    } else {
+                        log.warn("Could not subscribe to topic '{}'.", topic);
+                    }
+                } catch (MqttException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+        } else {
+            log.info("Since this was a first connect and the subscription is done in the subscribe method, we do not need to do anything here.");
+            log.debug("Connected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
         }
     }
 }

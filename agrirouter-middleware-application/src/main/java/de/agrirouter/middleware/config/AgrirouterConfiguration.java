@@ -20,12 +20,14 @@ import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceI
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
+import de.agrirouter.middleware.integration.mqtt.SubscriptionsForMqttClient;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 /**
  * The internal configuration for the agrirouter© connection.
@@ -128,16 +130,19 @@ public class AgrirouterConfiguration {
      * @return -
      */
     @Bean
+    @Scope("prototype")
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
                                                            HealthStatusMessages healthStatusMessages,
-                                                           ListEndpointsMessages listEndpointsMessages) {
+                                                           ListEndpointsMessages listEndpointsMessages,
+                                                           SubscriptionsForMqttClient subscriptionsForMqttClient) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
                 healthStatusMessages,
-                listEndpointsMessages);
+                listEndpointsMessages, subscriptionsForMqttClient);
+
     }
 
     /**
