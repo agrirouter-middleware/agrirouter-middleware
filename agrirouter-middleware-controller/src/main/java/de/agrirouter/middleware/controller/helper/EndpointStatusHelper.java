@@ -106,6 +106,7 @@ public class EndpointStatusHelper {
         connectionStateDto.setConnected(connectionState.connected());
         connectionStateDto.setCached(connectionState.cached());
         connectionStateDto.setClientId(connectionState.clientId());
+        connectionStateDto.setSubscriptionSent(connectionState.subscriptionSent());
 
         return connectionStateDto;
     }
