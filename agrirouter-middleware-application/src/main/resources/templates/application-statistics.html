@@ -128,6 +128,21 @@
             </div>
         </div>
     </div>
+
+    <div class="mdl-grid">
+        <div th:each="status: ${mqttConnectionStatus}" class="mdl-cell mdl-cell--12-col">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="${status.key}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <p th:text="${status.clientId}"></p>
+                    <p th:text="${status.connectionStatus}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 </body>
 </html>

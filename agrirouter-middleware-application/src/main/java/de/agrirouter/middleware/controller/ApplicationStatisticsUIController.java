@@ -58,6 +58,7 @@ public class ApplicationStatisticsUIController extends UIController {
         addMqttStatisticsToModel(model);
         model.addAttribute("activeProfiles", getActiveProfiles());
         model.addAttribute("agrirouterStatus", agrirouterStatusIntegrationService.isOperational());
+        model.addAttribute("mqttConnectionStatus", mqttClientManagementService.getMqttConnectionStatus());
         return Routes.UserInterface.ThymeleafRouting.APPLICATION_STATISTICS;
     }
 
