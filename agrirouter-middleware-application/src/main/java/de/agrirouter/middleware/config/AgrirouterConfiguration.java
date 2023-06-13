@@ -20,6 +20,7 @@ import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceI
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
+import de.agrirouter.middleware.integration.mqtt.SubscriptionsForMqttClient;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import org.springframework.context.ApplicationEventPublisher;
@@ -134,12 +135,14 @@ public class AgrirouterConfiguration {
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
                                                            HealthStatusMessages healthStatusMessages,
-                                                           ListEndpointsMessages listEndpointsMessages) {
+                                                           ListEndpointsMessages listEndpointsMessages,
+                                                           SubscriptionsForMqttClient subscriptionsForMqttClient) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
                 healthStatusMessages,
-                listEndpointsMessages);
+                listEndpointsMessages, subscriptionsForMqttClient);
+
     }
 
     /**

@@ -35,6 +35,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final MqttStatistics mqttStatistics;
     private final HealthStatusMessages healthStatusMessages;
     private final ListEndpointsMessages listEndpointsMessages;
+    private final SubscriptionsForMqttClient subscriptionsForMqttClient;
 
     @Setter
     @Getter
@@ -45,12 +46,14 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
                                    DecodeMessageService decodeMessageService,
                                    MqttStatistics mqttStatistics,
                                    HealthStatusMessages healthStatusMessages,
-                                   ListEndpointsMessages listEndpointsMessages) {
+                                   ListEndpointsMessages listEndpointsMessages,
+                                   SubscriptionsForMqttClient subscriptionsForMqttClient) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
         this.mqttStatistics = mqttStatistics;
         this.healthStatusMessages = healthStatusMessages;
         this.listEndpointsMessages = listEndpointsMessages;
+        this.subscriptionsForMqttClient = subscriptionsForMqttClient;
     }
 
     @Override
@@ -188,7 +191,9 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     public void connectComplete(boolean reconnect, String serverURI) {
         if (reconnect) {
             log.debug("Reconnected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
+
         } else {
+            log.info("Since this was a first connect and the subscription is done in the subscribe method, we do not need to do anything here.");
             log.debug("Connected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
         }
     }
