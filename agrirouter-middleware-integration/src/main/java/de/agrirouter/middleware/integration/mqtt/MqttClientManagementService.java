@@ -374,7 +374,7 @@ public class MqttClientManagementService {
      *
      * @param clientId The client ID.
      */
-    public void disconnectAndRemoveFromCache(String clientId) {
+    public void kill(String clientId) {
         var cachedMqttClient = cachedMqttClients.get(clientId);
         if (cachedMqttClient != null) {
             cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {
