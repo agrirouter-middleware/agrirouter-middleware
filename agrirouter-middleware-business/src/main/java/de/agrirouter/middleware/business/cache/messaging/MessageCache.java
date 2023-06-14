@@ -66,10 +66,11 @@ public class MessageCache {
             log.debug("Still messages to send, therefore sending the remaining messages after a short break.");
             try {
                 ThreadUtils.sleep(Duration.ofSeconds(sleepTimeSeconds));
+                log.debug("Sending remaining messages.");
+                sendMessages();
             } catch (InterruptedException e) {
                 log.error("There was an error while waiting for the next batch of messages to be sent.", e);
             }
-            sendMessages();
         }
     }
 
