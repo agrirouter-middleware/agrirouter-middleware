@@ -42,6 +42,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
     private final MqttClientManagementService mqttClientManagementService;
     private final Bucket bucket;
+    private boolean currentlyDisconnecting = false;
 
     @Setter
     @Getter
@@ -73,12 +74,15 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable throwable) {
-        if (bucket.tryConsume(1)) {
-            log.info("Connection lost for client {}, but rate limit was not exceeded. There are {} token left before the limit will be hit.", this.mqttClient.getClientId(), bucket.getAvailableTokens());
-            mqttStatistics.increaseNumberOfConnectionLosses();
-        } else {
-            log.error("Connection lost for client {} and the rate limit exceeded. Forcefully disconnecting the client and removing it from the cache.", this.mqttClient.getClientId());
-            mqttClientManagementService.disconnectAndRemoveFromCache(clientIdOfTheRouterDevice);
+        if (!currentlyDisconnecting) {
+            if (bucket.tryConsume(1)) {
+                log.info("Connection lost for client {}, but rate limit was not exceeded. There are {} token left before the limit will be hit.", this.mqttClient.getClientId(), bucket.getAvailableTokens());
+                mqttStatistics.increaseNumberOfConnectionLosses();
+            } else {
+                log.error("Connection lost for client {} and the rate limit exceeded. Forcefully disconnecting the client and removing it from the cache.", this.mqttClient.getClientId());
+                currentlyDisconnecting = true;
+                mqttClientManagementService.kill(clientIdOfTheRouterDevice);
+            }
         }
     }
 
@@ -209,26 +213,28 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
-        if (reconnect) {
-            log.debug("Reconnected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
-            var allFormerTopics = subscriptionsForMqttClient.getAll(mqttClient.getClientId());
-            subscriptionsForMqttClient.clear(mqttClient.getClientId());
-            allFormerTopics.forEach(topic -> {
-                try {
-                    var iMqttToken = mqttClient.subscribeWithResponse(topic);
-                    if (iMqttToken.isComplete()) {
-                        subscriptionsForMqttClient.add(mqttClient.getClientId(), topic);
-                    } else {
-                        log.warn("Could not subscribe to topic '{}'.", topic);
+        if (!currentlyDisconnecting) {
+            if (reconnect) {
+                log.debug("Reconnected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
+                var allFormerTopics = subscriptionsForMqttClient.getAll(mqttClient.getClientId());
+                subscriptionsForMqttClient.clear(mqttClient.getClientId());
+                allFormerTopics.forEach(topic -> {
+                    try {
+                        var iMqttToken = mqttClient.subscribeWithResponse(topic);
+                        if (iMqttToken.isComplete()) {
+                            subscriptionsForMqttClient.add(mqttClient.getClientId(), topic);
+                        } else {
+                            log.warn("Could not subscribe to topic '{}'.", topic);
+                        }
+                    } catch (MqttException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (MqttException e) {
-                    throw new RuntimeException(e);
-                }
 
-            });
-        } else {
-            log.info("Since this was a first connect and the subscription is done in the subscribe method, we do not need to do anything here.");
-            log.debug("Connected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
+                });
+            } else {
+                log.info("Since this was a first connect and the subscription is done in the subscribe method, we do not need to do anything here.");
+                log.debug("Connected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
+            }
         }
     }
 }
