@@ -10,22 +10,12 @@ import lombok.Setter;
 @Setter
 public class HealthStatusMessage {
 
-    public static final String MESSAGE_PREFIX = "de.agrirouter.middleware.health-status";
-
-    /**
-     * The timestamp of the message.
-     */
-    private long timestamp;
+    public static final String MESSAGE_PREFIX = "d.a.m.health";
 
     /**
      * The ID of the external endpoint.
      */
     private String agrirouterEndpointId;
-
-    /**
-     * The health status of the connection.
-     */
-    private String reason;
 
     /**
      * Flag to indicate if the message has been returned from the MQTT broker.
@@ -38,7 +28,7 @@ public class HealthStatusMessage {
      * @return The JSON representation.
      */
     public String asJson() {
-        return MESSAGE_PREFIX + " {\"timestamp\":\"" + timestamp + "\",\"agrirouterEndpointId\":\"" + agrirouterEndpointId + "\",\"reason\":\"" + reason + "\"}";
+        return MESSAGE_PREFIX + " {\"agrirouterEndpointId\":\"" + agrirouterEndpointId + "\"}";
     }
 
 }

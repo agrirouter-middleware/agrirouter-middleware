@@ -42,8 +42,6 @@ public class HealthStatusIntegrationService {
                     var onboardingResponse = endpoint.asOnboardingResponse();
                     var healthMessage = new MqttMessage();
                     var healthStatusMessage = new HealthStatusMessage();
-                    healthStatusMessage.setTimestamp(Instant.now().toEpochMilli());
-                    healthStatusMessage.setReason("HEALTH CHECK");
                     healthStatusMessage.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
                     healthMessage.setPayload(healthStatusMessage.asJson().getBytes());
                     healthMessage.setQos(0);
