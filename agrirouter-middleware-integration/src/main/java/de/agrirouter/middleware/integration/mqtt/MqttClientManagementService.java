@@ -379,6 +379,8 @@ public class MqttClientManagementService {
         if (cachedMqttClient != null) {
             cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {
                 try {
+                    log.warn("Remove the existing callback to prevent looping.");
+                    iMqttClient.setCallback(null);
                     log.warn("Disconnecting the client, remove it from the cache and clear the former subscriptions. Next connect will be done, when there is an endpoint asking for it.");
                     iMqttClient.disconnectForcibly();
                     cachedMqttClients.remove(clientId);
