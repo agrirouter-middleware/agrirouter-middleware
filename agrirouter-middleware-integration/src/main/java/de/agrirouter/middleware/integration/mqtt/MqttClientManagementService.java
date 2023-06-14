@@ -149,6 +149,7 @@ public class MqttClientManagementService {
         mqttClient.connect(mqttConnectOptions);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
         messageHandlingCallback.setMqttClient(mqttClient);
+        messageHandlingCallback.setClientIdOfTheRouterDevice(onboardingResponse.getConnectionCriteria().getClientId());
         mqttClient.setCallback(messageHandlingCallback);
         return mqttClient;
     }
@@ -366,6 +367,26 @@ public class MqttClientManagementService {
             }
         });
         return mqttConnectionStatus;
+    }
+
+    /**
+     * Disconnect and remove the MQTT client from the cache.
+     *
+     * @param clientId The client ID.
+     */
+    public void disconnectAndRemoveFromCache(String clientId) {
+        var cachedMqttClient = cachedMqttClients.get(clientId);
+        if (cachedMqttClient != null) {
+            cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {
+                try {
+                    iMqttClient.disconnectForcibly();
+                    cachedMqttClients.remove(clientId);
+                    subscriptionsForMqttClient.clear(clientId);
+                } catch (MqttException e) {
+                    log.error("Could not disconnect the MQTT client for client ID {}.", clientId, e);
+                }
+            });
+        }
     }
 
 }

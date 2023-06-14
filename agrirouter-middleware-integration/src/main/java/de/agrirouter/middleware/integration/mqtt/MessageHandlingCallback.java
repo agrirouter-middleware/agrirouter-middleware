@@ -47,6 +47,10 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     @Getter
     private IMqttClient mqttClient;
 
+    @Setter
+    @Getter
+    private String clientIdOfTheRouterDevice;
+
 
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                    DecodeMessageService decodeMessageService,
