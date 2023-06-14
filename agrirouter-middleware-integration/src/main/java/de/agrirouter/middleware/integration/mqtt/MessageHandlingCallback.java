@@ -78,6 +78,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
             mqttStatistics.increaseNumberOfConnectionLosses();
         } else {
             log.error("Connection lost for client {} and the rate limit exceeded. Forcefully disconnecting the client and removing it from the cache.", this.mqttClient.getClientId());
+            mqttClientManagementService.disconnectAndRemoveFromCache(clientIdOfTheRouterDevice);
         }
     }
 
