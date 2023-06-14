@@ -4,10 +4,12 @@ import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
+import org.apache.commons.lang3.ThreadUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Collection;
 
 /**
@@ -22,6 +24,9 @@ public class MessageCache {
 
     @Value("${app.cache.message-cache.batch-size}")
     private int batchSize;
+
+    @Value("${app.cache.message-cache.batch-sleep-time-seconds}")
+    private int sleepTimeSeconds;
 
     protected MessageCache(ApplicationEventPublisher applicationEventPublisher, EmbeddedStorageManager storageManager) {
         this.applicationEventPublisher = applicationEventPublisher;
@@ -57,6 +62,20 @@ public class MessageCache {
                 log.debug("Message cache entry has not been removed from the cache, therefore not sending this one.");
             }
         }
+        if (stillHasMessagesToSent()) {
+            log.debug("Still messages to send, therefore sending the remaining messages after a short break.");
+            try {
+                ThreadUtils.sleep(Duration.ofSeconds(sleepTimeSeconds));
+                log.debug("Sending remaining messages.");
+                sendMessages();
+            } catch (InterruptedException e) {
+                log.error("There was an error while waiting for the next batch of messages to be sent.", e);
+            }
+        }
+    }
+
+    private boolean stillHasMessagesToSent() {
+        return getCacheRoot().getMessageCache().size() > 0;
     }
 
     private Collection<MessageCacheEntry> getOldestCacheEntries() {
