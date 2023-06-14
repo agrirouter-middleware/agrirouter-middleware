@@ -13,42 +13,30 @@ import java.util.Map;
 public class MqttStatisticsResponse {
 
     private ConnectionStatistics connectionStatistics;
-
     private MqttMessageStatistics mqttMessageStatistics;
-
-    private ContentMessageStatistics contentMessageStatistics;
 
     @Getter
     @Setter
     public static class ConnectionStatistics {
         private long numberOfConnectionLosses;
-
         private long numberOfCacheMisses;
-
         private long numberOfClientInitializations;
-
         private long numberOfDisconnects;
+        private long numberOfConnects;
+        private long numberOfReconnects;
     }
 
     @Getter
     @Setter
     public static class MqttMessageStatistics {
+        public long payloadReceived;
+        private long numberOfMessagesPublished;
         private long numberOfMessagesArrived;
-
         private long numberOfAcknowledgements;
-
         private long numberOfPushNotifications;
-
         private int numberOfCloudRegistrations;
-
         private long numberOfEndpointListings;
-
         private int numberOfUnknownMessages;
     }
 
-    @Getter
-    @Setter
-    public static class ContentMessageStatistics {
-        private Map<String, Integer> numberOfContentMessagesReceived;
-    }
 }
