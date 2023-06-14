@@ -19,6 +19,7 @@ import com.dke.data.agrirouter.impl.onboard.OnboardingServiceImpl;
 import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceImpl;
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
+import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import de.agrirouter.middleware.integration.mqtt.SubscriptionsForMqttClient;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
@@ -136,12 +137,15 @@ public class AgrirouterConfiguration {
                                                            MqttStatistics mqttStatistics,
                                                            HealthStatusMessages healthStatusMessages,
                                                            ListEndpointsMessages listEndpointsMessages,
-                                                           SubscriptionsForMqttClient subscriptionsForMqttClient) {
+                                                           SubscriptionsForMqttClient subscriptionsForMqttClient,
+                                                           MqttClientManagementService mqttClientManagementService) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
                 healthStatusMessages,
-                listEndpointsMessages, subscriptionsForMqttClient);
+                listEndpointsMessages,
+                subscriptionsForMqttClient,
+                mqttClientManagementService);
 
     }
 
