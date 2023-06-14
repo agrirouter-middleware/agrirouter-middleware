@@ -88,6 +88,7 @@
             </div>
         </div>
     </div>
+
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
@@ -124,6 +125,88 @@
                 </div>
                 <div class="mdl-card__supporting-text">
                     <h2 th:text="${mqttStatistics.connectionStatistics.numberOfDisconnects}"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-connects}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.connectionStatistics.numberOfConnects}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-reconnects}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.connectionStatistics.numberOfReconnects}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.payload-received}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.mqttMessageStatistics.payloadReceived}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-messages-published}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.mqttMessageStatistics.numberOfMessagesPublished}"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-messages-arrived}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.mqttMessageStatistics.numberOfMessagesArrived}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-acks}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.mqttMessageStatistics.numberOfAcknowledgements}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-push-notifications}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.mqttMessageStatistics.numberOfPushNotifications}"></h2>
+                </div>
+            </div>
+            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                <div class="mdl-card__title">
+                    <h3 class="mdl-card__title-text"
+                        th:text="#{application.statistics.mqtt.statistics.details.number-of-unknown-messages}"></h3>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <h2 th:text="${mqttStatistics.mqttMessageStatistics.numberOfUnknownMessages}"></h2>
                 </div>
             </div>
         </div>
