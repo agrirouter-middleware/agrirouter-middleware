@@ -11,4 +11,4 @@ WORKDIR /opt/application
 
 ENV JAVA_OPTS=""
 
-CMD java $JAVA_OPTS -jar application.jar
+CMD java $JAVA_OPTS --add-exports java.base/jdk.internal.misc=ALL-UNNAMED -jar application.jar
