@@ -202,9 +202,11 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
         log.debug("Delivery for message '{}' complete.", iMqttDeliveryToken.getMessageId());
+        mqttStatistics.increaseNumberOfMessagesPublished();
         try {
             if (null != iMqttDeliveryToken.getMessage()) {
                 log.trace("Message payload for message '{}' >>> {}", iMqttDeliveryToken.getMessageId(), StringUtils.toEncodedString(iMqttDeliveryToken.getMessage().getPayload(), StandardCharsets.UTF_8));
+                mqttStatistics.increasePayloadReceived(iMqttDeliveryToken.getMessage().getPayload().length);
             }
         } catch (MqttException e) {
             log.error("Could not log message content.", e);
@@ -215,6 +217,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     public void connectComplete(boolean reconnect, String serverURI) {
         if (!currentlyDisconnecting) {
             if (reconnect) {
+                mqttStatistics.increaseNumberOfReconnects();
                 log.debug("Reconnected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
                 var allFormerTopics = subscriptionsForMqttClient.getAll(mqttClient.getClientId());
                 subscriptionsForMqttClient.clear(mqttClient.getClientId());
@@ -232,6 +235,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
                 });
             } else {
+                mqttStatistics.increaseNumberOfConnects();
                 log.info("Since this was a first connect and the subscription is done in the subscribe method, we do not need to do anything here.");
                 log.debug("Connected client {} to MQTT broker at {}.", mqttClient.getClientId(), serverURI);
             }

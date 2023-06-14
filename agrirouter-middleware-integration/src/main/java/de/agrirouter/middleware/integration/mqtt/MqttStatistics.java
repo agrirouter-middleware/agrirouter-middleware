@@ -41,8 +41,20 @@ public class MqttStatistics {
         connectionStatistics.numberOfDisconnects++;
     }
 
+    public void increaseNumberOfConnects() {
+        connectionStatistics.numberOfConnects++;
+    }
+
+    public void increaseNumberOfReconnects() {
+        connectionStatistics.numberOfReconnects++;
+    }
+
     public void increaseNumberOfMessagesArrived() {
         mqttMessageStatistics.numberOfMessagesArrived++;
+    }
+
+    public void increaseNumberOfMessagesPublished() {
+        mqttMessageStatistics.numberOfMessagesPublished++;
     }
 
     public void increaseNumberOfAcknowledgements() {
@@ -74,6 +86,10 @@ public class MqttStatistics {
         contentMessageStatistics.numberOfContentMessagesReceived.put(technicalMessageType, counter);
     }
 
+    public void increasePayloadReceived(int length) {
+        mqttMessageStatistics.payloadReceived += length;
+    }
+
 
     @Getter
     public static class ConnectionStatistics {
@@ -81,10 +97,14 @@ public class MqttStatistics {
         private long numberOfCacheMisses;
         private long numberOfClientInitializations;
         private long numberOfDisconnects;
+        private long numberOfConnects;
+        private long numberOfReconnects;
     }
 
     @Getter
     public static class MqttMessageStatistics {
+        public long payloadReceived;
+        private long numberOfMessagesPublished;
         private long numberOfMessagesArrived;
         private long numberOfAcknowledgements;
         private long numberOfPushNotifications;
@@ -96,6 +116,5 @@ public class MqttStatistics {
     @Getter
     public static class ContentMessageStatistics {
         private Map<String, Integer> numberOfContentMessagesReceived;
-
     }
 }
