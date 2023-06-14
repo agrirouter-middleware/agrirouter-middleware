@@ -67,14 +67,14 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         this.subscriptionsForMqttClient = subscriptionsForMqttClient;
         this.mqttClientManagementService = mqttClientManagementService;
 
-        var limit = Bandwidth.classic(60, Refill.greedy(60, Duration.ofMinutes(1)));
+        var limit = Bandwidth.classic(2, Refill.intervally(60, Duration.ofMinutes(1)));
         this.bucket = Bucket.builder().addLimit(limit).build();
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
         if (bucket.tryConsume(1)) {
-            log.info("Connection lost for client {}, but rate limit was not exceeded. There are {} token left before the limit will be hit.", bucket.getAvailableTokens(), this.mqttClient.getClientId());
+            log.info("Connection lost for client {}, but rate limit was not exceeded. There are {} token left before the limit will be hit.", this.mqttClient.getClientId(),bucket.getAvailableTokens());
             mqttStatistics.increaseNumberOfConnectionLosses();
         } else {
             log.error("Connection lost for client {} and the rate limit exceeded. Forcefully disconnecting the client and removing it from the cache.", this.mqttClient.getClientId());

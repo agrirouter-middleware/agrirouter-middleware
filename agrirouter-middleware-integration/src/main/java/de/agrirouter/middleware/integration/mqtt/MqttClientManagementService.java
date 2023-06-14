@@ -379,6 +379,7 @@ public class MqttClientManagementService {
         if (cachedMqttClient != null) {
             cachedMqttClient.mqttClient().ifPresent(iMqttClient -> {
                 try {
+                    log.warn("Disconnecting the client, remove it from the cache and clear the former subscriptions. Next connect will be done, when there is an endpoint asking for it.");
                     iMqttClient.disconnectForcibly();
                     cachedMqttClients.remove(clientId);
                     subscriptionsForMqttClient.clear(clientId);
