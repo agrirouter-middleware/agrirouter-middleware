@@ -14,6 +14,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.ThreadUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,6 +40,9 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
     @Value("${app.scheduled.sleep-time-between-queries-seconds}")
     private long sleepTimeBetweenQueries;
 
+    @Value("${app.scheduled.random-delay-minutes}")
+    private long randomDelayForTheStartOfTheScheduledTask;
+
     public ScheduledFetchingAndConfirmingForExistingMessages(EndpointService endpointService,
                                                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                              MqttClientManagementService mqttClientManagementService,
@@ -57,6 +61,13 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
     @Scheduled(cron = "${app.scheduled.fetching-and-confirming-existing-messages}")
     public void scheduleFetchingAndConfirmingExistingMessagesForAllEndpoints() {
         if (agrirouterStatusIntegrationService.isOperational()) {
+            try {
+                long waitTime = RandomUtils.nextLong(1, randomDelayForTheStartOfTheScheduledTask);
+                log.debug("Sleeping for {} minutes before fetching and confirming existing messages.", waitTime);
+                ThreadUtils.sleep(Duration.ofMinutes(waitTime));
+            } catch (InterruptedException e) {
+                log.error("Could not sleep before fetching and confirming existing messages.");
+            }
             log.debug("Scheduled fetching and confirming for existing messages.");
             endpointService.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
                 this.fetchAndConfirmExistingMessages(endpoint);
