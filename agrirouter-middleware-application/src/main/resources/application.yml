@@ -58,6 +58,7 @@ app:
     interval: 1000
   scheduled:
     fetching-and-confirming-existing-messages: "0 */15 * * * *"
+    sleep-time-between-queries-seconds: 3
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
     statuspage-check-interval: "*/30 * * * * *"
