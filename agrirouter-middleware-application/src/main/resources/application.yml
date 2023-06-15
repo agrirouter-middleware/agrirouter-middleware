@@ -25,6 +25,11 @@ spring:
     enabled: true
     locations: classpath:flyway/migrations/mariadb/all-versions,classpath:flyway/migrations/mariadb/gt-10.5
 
+  task:
+    scheduling:
+      pool:
+        size: 5
+
 management:
   endpoints:
     web:
