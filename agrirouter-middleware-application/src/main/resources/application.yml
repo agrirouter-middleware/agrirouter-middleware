@@ -63,6 +63,7 @@ app:
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
     statuspage-check-interval: "*/30 * * * * *"
+    log-mqtt-statistics: "*/30 * * * * *"
   branding:
     favicon: "/img/favicon.ico"
   cache:
