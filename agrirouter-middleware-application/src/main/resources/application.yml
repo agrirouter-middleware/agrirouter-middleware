@@ -25,6 +25,11 @@ spring:
     enabled: true
     locations: classpath:flyway/migrations/mariadb/all-versions,classpath:flyway/migrations/mariadb/gt-10.5
 
+  task:
+    scheduling:
+      pool:
+        size: 5
+
 management:
   endpoints:
     web:
@@ -35,6 +40,8 @@ logging:
   level:
     # Ensure that the initial tenant information is logged.
     de.agrirouter.middleware.business.TenantService: info
+    # Ensure that the MQTT statistics are logged.
+    de.agrirouter.middleware.integration.mqtt.MqttStatistics: info
 
 app:
   version: '@project.version@'
@@ -63,6 +70,7 @@ app:
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
     statuspage-check-interval: "*/30 * * * * *"
+    log-mqtt-statistics: "*/30 * * * * *"
   branding:
     favicon: "/img/favicon.ico"
   cache:
