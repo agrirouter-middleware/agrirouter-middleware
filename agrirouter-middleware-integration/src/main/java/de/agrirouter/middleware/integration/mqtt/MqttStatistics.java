@@ -1,6 +1,9 @@
 package de.agrirouter.middleware.integration.mqtt;
 
 import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -9,7 +12,9 @@ import java.util.Map;
 /**
  * Transient statistics for the MQTT connections.
  */
+@Slf4j
 @Getter
+@ToString
 @Component
 public class MqttStatistics {
 
@@ -23,7 +28,6 @@ public class MqttStatistics {
         contentMessageStatistics = new ContentMessageStatistics();
         contentMessageStatistics.numberOfContentMessagesReceived = new HashMap<>();
     }
-
 
     public void increaseNumberOfConnectionLosses() {
         connectionStatistics.numberOfConnectionLosses++;
@@ -92,6 +96,7 @@ public class MqttStatistics {
 
 
     @Getter
+    @ToString
     public static class ConnectionStatistics {
         private long numberOfConnectionLosses;
         private long numberOfCacheMisses;
@@ -102,6 +107,7 @@ public class MqttStatistics {
     }
 
     @Getter
+    @ToString
     public static class MqttMessageStatistics {
         public long payloadReceived;
         private long numberOfMessagesPublished;
@@ -114,7 +120,13 @@ public class MqttStatistics {
     }
 
     @Getter
+    @ToString
     public static class ContentMessageStatistics {
         private Map<String, Integer> numberOfContentMessagesReceived;
+    }
+
+    @Scheduled(cron = "${app.scheduled.log-mqtt-statistics}")
+    public void log() {
+        log.info("MQTT statistics: {}", this);
     }
 }
