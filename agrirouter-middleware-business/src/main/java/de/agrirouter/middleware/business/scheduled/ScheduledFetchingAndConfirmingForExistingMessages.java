@@ -14,9 +14,12 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ThreadUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -32,6 +35,9 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
     private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
+
+    @Value("${app.scheduled.sleep-time-between-queries-seconds}")
+    private long sleepTimeBetweenQueries;
 
     public ScheduledFetchingAndConfirmingForExistingMessages(EndpointService endpointService,
                                                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
@@ -55,6 +61,11 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
             endpointService.findAll().stream().filter(endpoint -> !endpoint.isDeactivated()).forEach(endpoint -> {
                 this.fetchAndConfirmExistingMessages(endpoint);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Scheduled fetching and confirming of existing messages.");
+                try {
+                    ThreadUtils.sleep(Duration.ofSeconds(sleepTimeBetweenQueries));
+                } catch (InterruptedException e) {
+                    log.error("Could not sleep between queries.");
+                }
             });
         } else {
             log.debug("Agrirouter is not operational. Skipping scheduled fetching and confirming for existing messages.");

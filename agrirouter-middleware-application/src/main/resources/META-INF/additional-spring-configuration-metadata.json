@@ -104,6 +104,11 @@
       "name": "app.cache.message-cache.batch-sleep-time-seconds",
       "type": "java.lang.String",
       "description": "The sleep time between two batches of the message cache."
+    },
+    {
+      "name": "app.scheduled.sleep-time-between-queries-seconds",
+      "type": "java.lang.String",
+      "description": "Wait time between two message queries."
     }
   ]
 }
