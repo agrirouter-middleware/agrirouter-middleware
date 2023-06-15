@@ -35,6 +35,8 @@ logging:
   level:
     # Ensure that the initial tenant information is logged.
     de.agrirouter.middleware.business.TenantService: info
+    # Ensure that the MQTT statistics are logged.
+    de.agrirouter.middleware.integration.mqtt.MqttStatistics: info
 
 app:
   version: '@project.version@'
