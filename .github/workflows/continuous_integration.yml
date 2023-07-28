@@ -29,3 +29,4 @@ jobs:
         if: success() || failure()
         with:
           report_paths: '**/target/surefire-reports/*.xml'
+          detailed_summary: true
