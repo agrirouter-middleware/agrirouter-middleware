@@ -3,8 +3,11 @@ package de.agrirouter.middleware.integration;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.CertificationType;
 import com.dke.data.agrirouter.api.enums.Gateway;
+import com.dke.data.agrirouter.api.exception.OnboardingException;
 import com.dke.data.agrirouter.api.service.onboard.secured.OnboardingService;
 import com.dke.data.agrirouter.api.service.parameters.SecuredOnboardingParameters;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,21 +36,25 @@ public class SecuredOnboardProcessIntegrationService {
      * @return -
      */
     public OnboardingResponse onboard(SecuredOnboardProcessIntegrationParameters securedOnboardProcessIntegrationParameters) {
-        final var parameters = new SecuredOnboardingParameters();
-        parameters.setUuid(securedOnboardProcessIntegrationParameters.externalEndpointId());
-        parameters.setApplicationId(securedOnboardProcessIntegrationParameters.applicationId());
-        parameters.setCertificationVersionId(securedOnboardProcessIntegrationParameters.versionId());
-        parameters.setGatewayId(Gateway.MQTT.getKey());
-        parameters.setCertificationType(CertificationType.P12);
-        parameters.setRegistrationCode(securedOnboardProcessIntegrationParameters.registrationCode());
-        parameters.setPrivateKey(securedOnboardProcessIntegrationParameters.privateKey());
-        parameters.setPublicKey(securedOnboardProcessIntegrationParameters.publicKey());
-        if (disableVerification) {
-            log.warn("Signature verification is disabled. this could only be useful for development or testing.");
-        } else {
-            onboardingService.verify(parameters);
+        try {
+            final var parameters = new SecuredOnboardingParameters();
+            parameters.setUuid(securedOnboardProcessIntegrationParameters.externalEndpointId());
+            parameters.setApplicationId(securedOnboardProcessIntegrationParameters.applicationId());
+            parameters.setCertificationVersionId(securedOnboardProcessIntegrationParameters.versionId());
+            parameters.setGatewayId(Gateway.MQTT.getKey());
+            parameters.setCertificationType(CertificationType.P12);
+            parameters.setRegistrationCode(securedOnboardProcessIntegrationParameters.registrationCode());
+            parameters.setPrivateKey(securedOnboardProcessIntegrationParameters.privateKey());
+            parameters.setPublicKey(securedOnboardProcessIntegrationParameters.publicKey());
+            if (disableVerification) {
+                log.warn("Signature verification is disabled. this could only be useful for development or testing.");
+            } else {
+                onboardingService.verify(parameters);
+            }
+            return onboardingService.onboard(parameters);
+        }catch(OnboardingException e){
+            throw new BusinessException(ErrorMessageFactory.unknownError(e.getMessage()));
         }
-        return onboardingService.onboard(parameters);
     }
 
 }

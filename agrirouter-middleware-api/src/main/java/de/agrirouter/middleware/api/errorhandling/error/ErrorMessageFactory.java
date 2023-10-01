@@ -153,4 +153,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage routerDeviceAlreadyExists(String clientId) {
         return new ErrorMessage(ErrorKey.ROUTER_DEVICE_ALREADY_EXISTS, String.format("The router device with the client ID '%s' does already exist.", clientId), HttpStatus.CONFLICT);
     }
+
+    public static ErrorMessage unknownError(String message) {
+        return new ErrorMessage(ErrorKey.UNKNOWN_ERROR, message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
