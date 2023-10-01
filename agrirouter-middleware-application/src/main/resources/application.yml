@@ -85,3 +85,5 @@ app:
       range:
         start: 0
         end: 675
+  signature-verification:
+    disable: false

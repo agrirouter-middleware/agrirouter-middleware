@@ -6,15 +6,21 @@ import com.dke.data.agrirouter.api.enums.Gateway;
 import com.dke.data.agrirouter.api.service.onboard.secured.OnboardingService;
 import com.dke.data.agrirouter.api.service.parameters.SecuredOnboardingParameters;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
  * Integration service to handle the onboard requests.
  */
+@Slf4j
 @Service
 public class SecuredOnboardProcessIntegrationService {
 
     private final OnboardingService onboardingService;
+
+    @Value("${app.signature-verification.disable:false}")
+    private boolean disableVerification;
 
     public SecuredOnboardProcessIntegrationService(OnboardingService onboardingService) {
         this.onboardingService = onboardingService;
@@ -36,7 +42,11 @@ public class SecuredOnboardProcessIntegrationService {
         parameters.setRegistrationCode(securedOnboardProcessIntegrationParameters.registrationCode());
         parameters.setPrivateKey(securedOnboardProcessIntegrationParameters.privateKey());
         parameters.setPublicKey(securedOnboardProcessIntegrationParameters.publicKey());
-        onboardingService.verify(parameters);
+        if (disableVerification) {
+            log.warn("Signature verification is disabled. this could only be useful for development or testing.");
+        } else {
+            onboardingService.verify(parameters);
+        }
         return onboardingService.onboard(parameters);
     }
 
