@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.Callable;
+
 import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PREFIX;
 
 /**
@@ -87,9 +89,9 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> resendCapabilitiesAndSubscriptions(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<Void>> resendCapabilitiesAndSubscriptions(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resendCapabilities(externalEndpointId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -143,9 +145,9 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> resetErrors(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<Void>> resetErrors(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resetErrors(externalEndpointId);
-        return ResponseEntity.ok().build();
+        return () -> ResponseEntity.ok().build();
     }
 
     /**
@@ -199,9 +201,9 @@ public class EndpointMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> resetWarnings(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<Void>> resetWarnings(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.resetWarnings(externalEndpointId);
-        return ResponseEntity.ok().build();
+        return () -> ResponseEntity.ok().build();
     }
 
 }
