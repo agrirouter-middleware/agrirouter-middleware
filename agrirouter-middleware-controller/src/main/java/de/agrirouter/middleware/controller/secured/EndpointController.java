@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 /**
  * Controller to manage applications.
@@ -127,8 +128,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointStatusResponse> status(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                         @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<EndpointStatusResponse>> status(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                   @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -138,7 +139,7 @@ public class EndpointController implements SecuredApiController {
             final var endpointWithStatusDto = EndpointStatusHelper.mapEndpointWithApplicationDetails(modelMapper, applicationService, endpointService, messageCache, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
-        return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
+        return () -> ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
     }
 
     /**
@@ -201,7 +202,7 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<CloudOnboardingFailureResponse> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
+    public Callable<ResponseEntity<CloudOnboardingFailureResponse>> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
         Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry = cloudOnboardingFailureCache.get(externalVirtualEndpointId);
         if (optionalFailureEntry.isPresent()) {
             CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
@@ -211,9 +212,9 @@ public class EndpointController implements SecuredApiController {
             cloudOnboardFailure.setExternalEndpointId(failureEntry.externalEndpointId());
             cloudOnboardFailure.setTimestamp(failureEntry.timestamp());
             cloudOnboardFailure.setVirtualExternalEndpointId(failureEntry.virtualExternalEndpointId());
-            return ResponseEntity.ok(new CloudOnboardingFailureResponse(cloudOnboardFailure));
+            return () -> ResponseEntity.ok(new CloudOnboardingFailureResponse(cloudOnboardFailure));
         } else {
-            return ResponseEntity.noContent().build();
+            return () -> ResponseEntity.noContent().build();
         }
     }
 
@@ -271,8 +272,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointConnectionStatusResponse> connectionStatus(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                                             @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<EndpointConnectionStatusResponse>> connectionStatus(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                                       @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -282,7 +283,7 @@ public class EndpointController implements SecuredApiController {
             final var endpointWithStatusDto = EndpointStatusHelper.mapConnectionStatus(modelMapper, endpointService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
-        return ResponseEntity.ok(new EndpointConnectionStatusResponse(mappedEndpoints));
+        return () -> ResponseEntity.ok(new EndpointConnectionStatusResponse(mappedEndpoints));
     }
 
     /**
@@ -339,8 +340,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointWarningsResponse> warnings(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                             @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<EndpointWarningsResponse>> warnings(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                       @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -350,7 +351,7 @@ public class EndpointController implements SecuredApiController {
             final var endpointWithStatusDto = EndpointStatusHelper.mapWarnings(modelMapper, endpointService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
-        return ResponseEntity.ok(new EndpointWarningsResponse(mappedEndpoints));
+        return () -> ResponseEntity.ok(new EndpointWarningsResponse(mappedEndpoints));
     }
 
     /**
@@ -408,8 +409,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointErrorsResponse> errors(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                         @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<EndpointErrorsResponse>> errors(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                   @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -419,7 +420,7 @@ public class EndpointController implements SecuredApiController {
             final var endpointWithStatusDto = EndpointStatusHelper.mapErrors(modelMapper, endpointService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
-        return ResponseEntity.ok(new EndpointErrorsResponse(mappedEndpoints));
+        return () -> ResponseEntity.ok(new EndpointErrorsResponse(mappedEndpoints));
     }
 
     /**
@@ -477,8 +478,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<MissingAcknowledgementsResponse> missingAcknowledgements(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                                                   @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<MissingAcknowledgementsResponse>> missingAcknowledgements(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                                             @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -488,7 +489,7 @@ public class EndpointController implements SecuredApiController {
             final var endpointWithStatusDto = EndpointStatusHelper.mapMissingAcknowledgements(modelMapper, endpointService, messageWaitingForAcknowledgementService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
-        return ResponseEntity.ok(new MissingAcknowledgementsResponse(mappedEndpoints));
+        return () -> ResponseEntity.ok(new MissingAcknowledgementsResponse(mappedEndpoints));
     }
 
     /**
@@ -546,8 +547,8 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<TechnicalConnectionStateResponse> technicalConnectionState(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
-                                                                                     @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<TechnicalConnectionStateResponse>> technicalConnectionState(@Parameter(description = "The to search for one or multiple endpoints.", required = true) @Valid @RequestBody EndpointStatusRequest endpointStatusRequest,
+                                                                                               @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -557,7 +558,7 @@ public class EndpointController implements SecuredApiController {
             final var technicalConnectionStateDto = EndpointStatusHelper.mapTechnicalConnectionState(modelMapper, endpointService, mqttClientManagementService, endpoint);
             mappedEndpoints.put(endpoint.getExternalEndpointId(), technicalConnectionStateDto);
         });
-        return ResponseEntity.ok(new TechnicalConnectionStateResponse(mappedEndpoints));
+        return () -> ResponseEntity.ok(new TechnicalConnectionStateResponse(mappedEndpoints));
     }
 
     /**
@@ -611,23 +612,23 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<Void>> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         if (agrirouterStatusIntegrationService.isOperational()) {
             try {
                 if (endpointService.isHealthy(externalEndpointId)) {
-                    return ResponseEntity.status(HttpStatus.OK).build();
+                    return () -> ResponseEntity.status(HttpStatus.OK).build();
                 } else {
-                    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+                    return () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
                 }
             } catch (BusinessException e) {
                 if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    return () -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 } else {
                     throw e;
                 }
             }
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+            return () -> ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
         }
     }
 
@@ -677,12 +678,12 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest,
-                                                               @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<EndpointHealthStatusResponse>> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest,
+                                                                         @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
-        return ResponseEntity.ok(new EndpointHealthStatusResponse(endpointService.areHealthy(endpointHealthStatusRequest.getExternalEndpointIds())));
+        return () -> ResponseEntity.ok(new EndpointHealthStatusResponse(endpointService.areHealthy(endpointHealthStatusRequest.getExternalEndpointIds())));
     }
 
     /**
@@ -734,12 +735,12 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<EndpointRecipientsResponse> recipients(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<EndpointRecipientsResponse>> recipients(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         final var messageRecipientDtos = endpointService.getMessageRecipients(externalEndpointId)
                 .stream()
                 .map(messageRecipient -> modelMapper.map(messageRecipient, MessageRecipientDto.class))
                 .toList();
-        return ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
+        return () -> ResponseEntity.ok(new EndpointRecipientsResponse(messageRecipientDtos));
     }
 
     @GetMapping(
@@ -785,9 +786,9 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<BusinessEventsResponse> events(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<BusinessEventsResponse>> events(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         final var businessEvents = endpointService.getBusinessEvents(externalEndpointId);
-        return ResponseEntity.status(HttpStatus.OK).body(new BusinessEventsResponse(externalEndpointId, businessEvents));
+        return () -> ResponseEntity.status(HttpStatus.OK).body(new BusinessEventsResponse(externalEndpointId, businessEvents));
     }
 
     /**
@@ -841,9 +842,9 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> deleteEndpoint(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<Void>> deleteEndpoint(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         endpointService.delete(externalEndpointId);
-        return ResponseEntity.ok().build();
+        return () -> ResponseEntity.ok().build();
     }
 
 
