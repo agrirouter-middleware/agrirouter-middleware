@@ -220,3 +220,22 @@ If you are using the profiles for full URL configuration, you can use the follow
 To build the project from scratch you need to authenticate for GitHub packages.
 Please see the following https://docs.github.com/en/packages/guides/configuring-apache-maven-for-use-with-github-packages[website]
 for more details.
+
+=== Error codes
+
+You will get the following HTTP status codes when calling the endpoints of the middleware.
+For more details, please see the Swagger documentation for the specific endpoints.
+
+[cols="1,3"]
+|===
+    |HTTP Status Code |Description
+
+    |200 |Will be returned for successful requests.
+    |201 |Will be returned for successful requests, i.e. defining the capabilities of an application or adding a router device.
+    |400 |In case there is a bad request, i.e. missing parameters or wrong values.
+    |401 |In case you did not provide the credentials for the HTTP basic authentication for this tenant.
+    |403 |In case you are not allowed to access the requested resource, i.e. from another tenant.
+    |404 |In case the requested resource was not found.
+    |500 |In case of an internal server error.
+    |503 |In case the middleware is not ready to handle requests, i.e. the agrirouter© is not available or the middleware is not connected to the database.
+|===
