@@ -24,12 +24,4 @@ public class GlobalBeanConfiguration {
         return GSON;
     }
 
-    /**
-     * Define a task executor for the asynchronous tasks.
-     */
-    @Bean
-    public ThreadPoolExecutor taskExecutor() {
-        return new ThreadPoolExecutor(10, 10, 0L, java.util.concurrent.TimeUnit.MILLISECONDS, new java.util.concurrent.LinkedBlockingQueue<>());
-    }
-
 }

@@ -21,8 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ThreadPoolExecutor;
-
 /**
  * The service for the onboard process.
  */
@@ -37,7 +35,6 @@ public class SecuredOnboardProcessService {
     private final EndpointService endpointService;
     private final BusinessOperationLogService businessOperationLogService;
     private final Gson gson;
-    private final ThreadPoolExecutor taskExecutor;
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
@@ -45,8 +42,7 @@ public class SecuredOnboardProcessService {
                                         ApplicationRepository applicationRepository,
                                         EndpointService endpointService,
                                         BusinessOperationLogService businessOperationLogService,
-                                        Gson gson,
-                                        ThreadPoolExecutor taskExecutor) {
+                                        Gson gson) {
         this.authorizationRequestService = authorizationRequestService;
         this.onboardStateContainer = onboardStateContainer;
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
@@ -54,7 +50,6 @@ public class SecuredOnboardProcessService {
         this.endpointService = endpointService;
         this.businessOperationLogService = businessOperationLogService;
         this.gson = gson;
-        this.taskExecutor = taskExecutor;
     }
 
     /**
@@ -116,11 +111,9 @@ public class SecuredOnboardProcessService {
                         endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
                         endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                         endpoint.setDeactivated(false);
-                        taskExecutor.execute(() -> {
-                            endpointService.save(endpoint);
-                            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was updated.");
-                            endpointService.sendCapabilities(application, endpoint);
-                        });
+                        endpointService.save(endpoint);
+                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was updated.");
+                        endpointService.sendCapabilities(application, endpoint);
                     }
                 } else {
                     log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
@@ -138,14 +131,12 @@ public class SecuredOnboardProcessService {
                     endpoint.setAgrirouterAccountId(onboardProcessParameters.getAccountId());
                     endpoint.setOnboardResponse(gson.toJson(onboardingResponse));
                     endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
-                    taskExecutor.execute(() -> {
-                        endpointService.save(endpoint);
-                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was created.");
-                        application.getEndpoints().add(endpoint);
-                        applicationRepository.save(application);
-                        businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "The endpoint was added to the application.");
-                        endpointService.sendCapabilities(application, endpoint);
-                    });
+                    endpointService.save(endpoint);
+                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Endpoint was created.");
+                    application.getEndpoints().add(endpoint);
+                    applicationRepository.save(application);
+                    businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "The endpoint was added to the application.");
+                    endpointService.sendCapabilities(application, endpoint);
                 }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());

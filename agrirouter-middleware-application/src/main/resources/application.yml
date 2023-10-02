@@ -30,6 +30,10 @@ spring:
       pool:
         size: 5
 
+  mvc:
+    async:
+      request-timeout: 10 # 1 minute
+
 management:
   endpoints:
     web:
