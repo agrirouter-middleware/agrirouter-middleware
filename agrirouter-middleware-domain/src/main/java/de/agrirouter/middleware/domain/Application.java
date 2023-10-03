@@ -48,7 +48,7 @@ public class Application extends BaseEntity {
      * The supported technical message types for this version of the application.
      */
     @JoinColumn
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes;
 
