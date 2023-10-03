@@ -38,7 +38,7 @@ public class SecuredOnboardProcessService {
     private final EndpointService endpointService;
     private final BusinessOperationLogService businessOperationLogService;
     private final Gson gson;
-    private ThreadPoolExecutor threadPoolExecutor;
+    private final ThreadPoolExecutor threadPoolExecutor;
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
