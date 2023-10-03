@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.Callable;
+
 /**
  * Controller for agrirouter© status monitoring.
  */
@@ -61,14 +63,14 @@ public class AgrirouterStatusController implements MonitoringApiController {
             }
     )
     @GetMapping("/status")
-    public ResponseEntity<AgrirouterStatusResponse> status() {
+    public Callable<ResponseEntity<AgrirouterStatusResponse>> status() {
         boolean operational = agrirouterStatusIntegrationService.isOperational();
         if (operational) {
             log.info("Agrirouter© is operational.");
-            return ResponseEntity.ok(new AgrirouterStatusResponse());
+            return () -> ResponseEntity.ok(new AgrirouterStatusResponse());
         } else {
             log.warn("Agrirouter© is not operational.");
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new AgrirouterStatusResponse());
+            return () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new AgrirouterStatusResponse());
         }
     }
 

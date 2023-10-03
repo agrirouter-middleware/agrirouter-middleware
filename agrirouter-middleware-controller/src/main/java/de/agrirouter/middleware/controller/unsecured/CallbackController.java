@@ -126,7 +126,6 @@ public class CallbackController implements UnsecuredApiController {
             final var onboardState = optionalOnboardState.get();
             final var application = applicationService.find(onboardState.getInternalApplicationId());
             if (StringUtils.isBlank(error)) {
-                // FIXME Check the signature of the AR.
                 log.debug("Checking for state >>> {}", state);
                 log.debug("Proceeding callback for the onboard process of the following application [{}]",
                         onboardState.getInternalApplicationId());
@@ -147,7 +146,7 @@ public class CallbackController implements UnsecuredApiController {
                 }
             } else {
                 log.error("There was an error during the onboard process. Could not handle the request. The error was '{}'", error);
-                return redirect(onboardState, application, OnboardProcessResult.FAILURE, "The error was '" + error + "'");
+                return redirect(onboardState, application, OnboardProcessResult.FAILURE, error);
             }
         } else {
             log.error("The state for the onboard process was not found, skipping the callback.");
@@ -177,6 +176,7 @@ public class CallbackController implements UnsecuredApiController {
                     .fromUriString(externalRedirectUrl)
                     .queryParam("onboardProcessResult", result)
                     .queryParam("errorMessage", Base64.getEncoder().encodeToString(errorMessage.getBytes(StandardCharsets.UTF_8)))
+                    .queryParam("errorMessageDetails", Base64.getEncoder().encodeToString(errorMessage.getBytes(StandardCharsets.UTF_8)))
                     .build().toUriString();
             return new RedirectView(redirectUrl);
         }

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
@@ -117,9 +118,9 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<RegisterApplicationResponse> register(Principal principal,
-                                                                @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest,
-                                                                @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<RegisterApplicationResponse>> register(Principal principal,
+                                                                          @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest,
+                                                                          @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -143,7 +144,7 @@ public class ApplicationController implements SecuredApiController {
 
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
+        return () -> ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
     }
 
     /**
@@ -199,8 +200,8 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<RegisterApplicationResponse> update(@Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
-                                                              @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<RegisterApplicationResponse>> update(@Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
+                                                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -231,7 +232,7 @@ public class ApplicationController implements SecuredApiController {
 
         final var applicationDto = new ApplicationDto();
         modelMapper.map(existingApplication, applicationDto);
-        return ResponseEntity.status(HttpStatus.OK).body(new RegisterApplicationResponse(applicationDto));
+        return () -> ResponseEntity.status(HttpStatus.OK).body(new RegisterApplicationResponse(applicationDto));
     }
 
     /**
@@ -286,10 +287,10 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
-                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
-                                                                     @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
-                                                                     @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<Void>> defineSupportedTechnicalMessageTypes(Principal principal,
+                                                                               @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
+                                                                               @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
+                                                                               @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -301,7 +302,7 @@ public class ApplicationController implements SecuredApiController {
             supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
         });
         applicationService.defineSupportedTechnicalMessageTypes(principal, internalApplicationId, supportedTechnicalMessageTypes);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -356,10 +357,10 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<Void> addRouterDevice(Principal principal,
-                                                @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
-                                                @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
-                                                @Parameter(hidden = true) Errors errors) {
+    public Callable<ResponseEntity<Void>> addRouterDevice(Principal principal,
+                                                          @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
+                                                          @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
+                                                          @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -374,7 +375,7 @@ public class ApplicationController implements SecuredApiController {
         addRouterDeviceParameters.setPort(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getPort());
         addRouterDeviceParameters.setClientId(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getClientId());
         applicationService.addRouterDevice(addRouterDeviceParameters);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -424,12 +425,12 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<FindApplicationResponse> find(Principal principal,
-                                                        @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
+    public Callable<ResponseEntity<FindApplicationResponse>> find(Principal principal,
+                                                                  @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
-        return ResponseEntity.ok(new FindApplicationResponse(applicationDto));
+        return () -> ResponseEntity.ok(new FindApplicationResponse(applicationDto));
     }
 
     /**
@@ -479,8 +480,8 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<ApplicationStatusResponse> status(Principal principal,
-                                                            @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+    public Callable<ResponseEntity<ApplicationStatusResponse>> status(Principal principal,
+                                                                      @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
@@ -490,7 +491,7 @@ public class ApplicationController implements SecuredApiController {
                 .map(endpoint -> EndpointStatusHelper.mapEndpointWithApplicationDetails(modelMapper, applicationService, endpointService, messageCache, endpoint))
                 .collect(Collectors.toList());
         applicationStatusResponse.setEndpoints(endpoints);
-        return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
+        return () -> ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }
 
     /**
@@ -538,7 +539,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<FindApplicationsResponse> findAll(Principal principal) {
+    public Callable<ResponseEntity<FindApplicationsResponse>> findAll(Principal principal) {
         List<Application> applications = applicationService.findAll(principal);
         List<ApplicationDto> findApplicationsResponse = new ArrayList<>();
         applications.forEach(application -> {
@@ -546,7 +547,7 @@ public class ApplicationController implements SecuredApiController {
             modelMapper.map(application, applicationDto);
             findApplicationsResponse.add(applicationDto);
         });
-        return ResponseEntity.ok(new FindApplicationsResponse(findApplicationsResponse));
+        return () -> ResponseEntity.ok(new FindApplicationsResponse(findApplicationsResponse));
     }
 
     /**
@@ -595,8 +596,8 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
-                                                                                           @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+    public Callable<ResponseEntity<FindEndpointsForApplicationResponse>> findEndpointsForApplication(Principal principal,
+                                                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
         application.getEndpoints().forEach(endpoint -> {
@@ -604,7 +605,7 @@ public class ApplicationController implements SecuredApiController {
             modelMapper.map(endpoint, dto);
             endpointWithChildrenDtos.add(dto);
         });
-        return ResponseEntity.ok(new FindEndpointsForApplicationResponse(endpointWithChildrenDtos));
+        return () -> ResponseEntity.ok(new FindEndpointsForApplicationResponse(endpointWithChildrenDtos));
     }
 
 }

@@ -35,6 +35,7 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 /**
  * Controller for statistics.
@@ -94,11 +95,11 @@ public class StatisticsController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<MqttStatisticsResponse> getMqttStatistics() {
+    public Callable<ResponseEntity<MqttStatisticsResponse>> getMqttStatistics() {
         var mqttStatisticsResponse = modelMapper.map(mqttStatistics, MqttStatisticsResponse.class);
         mqttStatisticsResponse.setNumberOfConnectedClients(mqttClientManagementService.getNumberOfActiveConnections());
         mqttStatisticsResponse.setNumberOfDisconnectedClients(mqttClientManagementService.getNumberOfInactiveConnections());
-        return ResponseEntity.ok(mqttStatisticsResponse);
+        return () -> ResponseEntity.ok(mqttStatisticsResponse);
     }
 
     @GetMapping(value = {"/latest-query-results", "/latest-query-results/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -138,8 +139,8 @@ public class StatisticsController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<?> getLatestQueryResults(Principal principal,
-                                                   @PathVariable Optional<String> internalApplicationId) {
+    public Callable<ResponseEntity<?>> getLatestQueryResults(Principal principal,
+                                                             @PathVariable Optional<String> internalApplicationId) {
         var latestQueryResultsResponse = new LatestQueryResultsResponse();
         final List<Application> applications;
         if (internalApplicationId.isPresent()) {
@@ -147,7 +148,7 @@ public class StatisticsController implements SecuredApiController {
                 applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
             } else {
                 var errorMessage = ErrorMessageFactory.notAuthorized();
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+                return () -> ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
             }
         } else {
             applications = applicationService.findAll(principal);
@@ -162,7 +163,7 @@ public class StatisticsController implements SecuredApiController {
                 latestQueryResultsResponse.add(application.getInternalApplicationId(), endpoint.getExternalEndpointId(), null);
             }
         }));
-        return ResponseEntity.ok(latestQueryResultsResponse);
+        return () -> ResponseEntity.ok(latestQueryResultsResponse);
     }
 
     @GetMapping(value = {"/latest-header-query-results", "/latest-header-query-results/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -202,8 +203,8 @@ public class StatisticsController implements SecuredApiController {
                     )
             }
     )
-    public ResponseEntity<?> getLatestHeaderQueryResults(Principal principal,
-                                                         @PathVariable Optional<String> internalApplicationId) {
+    public Callable<ResponseEntity<?>> getLatestHeaderQueryResults(Principal principal,
+                                                                   @PathVariable Optional<String> internalApplicationId) {
         var latestHeaderQueryResultsResponse = new LatestHeaderQueryResultsResponse();
         final List<Application> applications;
         if (internalApplicationId.isPresent()) {
@@ -211,7 +212,7 @@ public class StatisticsController implements SecuredApiController {
                 applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
             } else {
                 var errorMessage = ErrorMessageFactory.notAuthorized();
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+                return () -> ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
             }
         } else {
             applications = applicationService.findAll(principal);
@@ -226,12 +227,48 @@ public class StatisticsController implements SecuredApiController {
                 latestHeaderQueryResultsResponse.add(application.getInternalApplicationId(), endpoint.getExternalEndpointId(), null);
             }
         }));
-        return ResponseEntity.ok(latestHeaderQueryResultsResponse);
+        return () -> ResponseEntity.ok(latestHeaderQueryResultsResponse);
     }
 
     @GetMapping(value = {"/message-count", "/message-count/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getMessageStatistics(Principal principal,
-                                                  @PathVariable Optional<String> internalApplicationId) {
+    @Operation(
+            operationId = "statistics.message-count",
+            description = "Get the statistics for the message count.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The statistics for the message count.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = MessageStatisticsGroupedByApplicationResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public Callable<ResponseEntity<?>> getMessageStatistics(Principal principal,
+                                                            @PathVariable Optional<String> internalApplicationId) {
         var messageStatisticsRespose = new MessageStatisticsGroupedByApplicationResponse();
         final List<Application> applications;
         if (internalApplicationId.isPresent()) {
@@ -239,7 +276,7 @@ public class StatisticsController implements SecuredApiController {
                 applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
             } else {
                 var errorMessage = ErrorMessageFactory.notAuthorized();
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+                return () -> ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
             }
         } else {
             applications = applicationService.findAll(principal);
@@ -250,7 +287,7 @@ public class StatisticsController implements SecuredApiController {
             messageStatisticsRespose.add(application.getInternalApplicationId(), modelMapper.map(messageStatistics, MessageStatisticsGroupedByApplicationResponse.MessageStatisticGroupedBySender.class));
         }));
 
-        return ResponseEntity.ok(messageStatisticsRespose);
+        return () -> ResponseEntity.ok(messageStatisticsRespose);
     }
 
 }

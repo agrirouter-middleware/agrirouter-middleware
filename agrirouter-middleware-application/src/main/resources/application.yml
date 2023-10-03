@@ -30,6 +30,10 @@ spring:
       pool:
         size: 5
 
+  mvc:
+    async:
+      request-timeout: 60000 # 1 minute
+
 management:
   endpoints:
     web:
@@ -85,3 +89,5 @@ app:
       range:
         start: 0
         end: 675
+  signature-verification:
+    disable: false
