@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout-without-menu :: layout(~{::title},~{::main})}"
+      lang="en">
+<head>
+    <title th:text="#{landing_page.title}"></title>
+</head>
+<body>
+<main>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--4-col">
+        </div>
+        <div class="mdl-cell mdl-cell--4-col mdl-typography--text-center">
+            <img th:src="@{/img/landing_page/loading.gif}"/>
+        </div>
+        <div class="mdl-cell mdl-cell--4-col">
+        </div>
+
+        <div class="mdl-cell mdl-cell--4-col">
+        </div>
+        <div class="mdl-cell mdl-cell--4-col mdl-typography--text-center">
+            <h4 th:text="${loadingMessage}"></h4>
+        </div>
+        <div class="mdl-cell mdl-cell--4-col">
+        </div>
+
+    </div>
+    <script th:inline="javascript">
+        setTimeout(function () {
+            window.location.href = [[${redirectUrl}]] + '?state=' + [[${state}]] +
+            '&token=' + [[${token}]] +
+            '&signature=' + [[${signature}]] +
+            '&error=' + [[${error}]]
+        }, 3000);
+    </script>
+</main>
+</body>
+</html>

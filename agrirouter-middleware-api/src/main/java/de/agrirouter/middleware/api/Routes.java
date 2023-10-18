@@ -10,7 +10,8 @@ public class Routes {
         public static final String ERROR = "error";
         public static final String HOME = "home";
         public static final String ONBOARD_PROCESS_RESULT = "onboard-process-result";
-
+        public static final String LANDINGPAGE = "/landing_page";
+        public static final String CALLBACK_PROCESSOR = ALL_REQUESTS + "/callback-processor";
     }
 
     public static final class SecuredRestEndpoints {
@@ -21,11 +22,14 @@ public class Routes {
         public static final String APPLICATIONS = "/applications";
         public static final String ENDPOINTS = "/endpoints";
         public static final String ENDPOINT_DASHBOARD = "/endpoint-dashboard";
+
         public static class ThymeleafRouting {
             public static final String APPLICATIONS = "applications";
             public static final String ENDPOINTS = "endpoints";
             public static final String ENDPOINT_DASHBOARD = "endpoint-dashboard";
             public static final String APPLICATION_STATISTICS = "application-statistics";
+            public static final String LANDINGPAGE = "landing_page";
+
         }
     }
 

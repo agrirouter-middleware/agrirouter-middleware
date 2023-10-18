@@ -17,9 +17,6 @@ import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -79,22 +76,7 @@ public class StatisticsController implements SecuredApiController {
      * @return Statistics for the MQTT connections.
      */
     @GetMapping(value = "/mqtt", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-            operationId = "statistics.mqtt",
-            description = "Get the statistics for the MQTT connections.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "The statistics for the MQTT connections.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = MqttStatisticsResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    )
-            }
-    )
+    @Operation(hidden = true)
     public Callable<ResponseEntity<MqttStatisticsResponse>> getMqttStatistics() {
         var mqttStatisticsResponse = modelMapper.map(mqttStatistics, MqttStatisticsResponse.class);
         mqttStatisticsResponse.setNumberOfConnectedClients(mqttClientManagementService.getNumberOfActiveConnections());
@@ -103,42 +85,7 @@ public class StatisticsController implements SecuredApiController {
     }
 
     @GetMapping(value = {"/latest-query-results", "/latest-query-results/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-            operationId = "statistics.latest-query-results",
-            description = "Get the statistics for the latest query results.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "The statistics for the latest query results.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = LatestQueryResultsResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a business exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "In case of an unknown error.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    )
-            }
-    )
+    @Operation(hidden = true)
     public Callable<ResponseEntity<?>> getLatestQueryResults(Principal principal,
                                                              @PathVariable Optional<String> internalApplicationId) {
         var latestQueryResultsResponse = new LatestQueryResultsResponse();
@@ -167,42 +114,7 @@ public class StatisticsController implements SecuredApiController {
     }
 
     @GetMapping(value = {"/latest-header-query-results", "/latest-header-query-results/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-            operationId = "statistics.latest-query-results",
-            description = "Get the statistics for the latest query results.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "The statistics for the latest query results.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = LatestQueryResultsResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a business exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "In case of an unknown error.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    )
-            }
-    )
+    @Operation(hidden = true)
     public Callable<ResponseEntity<?>> getLatestHeaderQueryResults(Principal principal,
                                                                    @PathVariable Optional<String> internalApplicationId) {
         var latestHeaderQueryResultsResponse = new LatestHeaderQueryResultsResponse();
@@ -231,42 +143,7 @@ public class StatisticsController implements SecuredApiController {
     }
 
     @GetMapping(value = {"/message-count", "/message-count/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-            operationId = "statistics.message-count",
-            description = "Get the statistics for the message count.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "The statistics for the message count.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = MessageStatisticsGroupedByApplicationResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a business exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "In case of an unknown error.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    )
-            }
-    )
+    @Operation(hidden = true)
     public Callable<ResponseEntity<?>> getMessageStatistics(Principal principal,
                                                             @PathVariable Optional<String> internalApplicationId) {
         var messageStatisticsRespose = new MessageStatisticsGroupedByApplicationResponse();
