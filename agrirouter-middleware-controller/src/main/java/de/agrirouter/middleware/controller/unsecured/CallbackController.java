@@ -26,7 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 )
 public class CallbackController implements UnsecuredApiController {
 
-    @Value("${app.agrirouter.redirect-delay:5000}")
+    @Value("${app.agrirouter.redirect-delay:500}")
     private Long redirectDelay;
 
     /**
