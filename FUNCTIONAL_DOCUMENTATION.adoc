@@ -30,7 +30,9 @@ image::documentation/integration.png[integration]
 ==== Set up an instance of the middleware
 
 There are two possible options when setting up an instance of the middleware.
-The first one is to set up the whole environment by yourself and the second one would be to have a look at a commercial offer, like the https://www.lmis.de/connectivity-service-for-agrirouter/["Connectivity Service for agrirouter©"], which is based on the middleware and provides multiple packages for different needs.
+The first one is to set up the whole environment by yourself.
+The second one would be to have a look at a commercial offer, like the https://www.lmis.de/connectivity-service-for-agrirouter/["Connectivity Service for agrirouter©"]
+which is based on the middleware and provides multiple packages for different needs.
 
 ==== Configuration of the callbacks and the certificates within the agrirouter©
 
@@ -43,7 +45,7 @@ image::documentation/configure_callback.png[callback]
 
 The callback endpoint is part of the middleware and has to be reachable as redirect target for the onboard process.
 
-After you configured the callback, you need to generate the certificates.
+After you configure the callback, you need to generate the certificates.
 Both certificates, the public and the private one are needed for the next steps.
 So please save them to a keystore, a notepad or something else.
 
@@ -54,7 +56,7 @@ There is a dedicated endpoint to register a new application, please see the Swag
 
 ==== Define the capabilities of the application
 
-Each application version has its own capabilities and therefore, they have to be configured during the setup process.
+Each application version has its own capabilities, and therefore, they have to be configured during the setup process.
 An example could be:
 
 [source,json]
@@ -73,10 +75,10 @@ An example could be:
 }
 ----
 
-In this case the application would be able to send ISO11783 task data and shape files.
+In this case, the application would be able to send ISO11783 task data and shape files.
 If you need more details, please see the Swagger documentation.
 
-Regarding the capabilities, the middleware is able to handle the following technical message types (content message types):
+Regarding the capabilities, the middleware is able to handle the following technical message (content message types):
 
 [cols="1,3"]
 |===
@@ -108,9 +110,39 @@ Regarding the capabilities, the middleware is able to handle the following techn
 
 |===
 
+==== Define the mandatory router device
+
+Since router devices are mandatory to use the middleware to connect to the agrirouter©, you have to add at least one router device to your application.
+You can create a router device using your developer account within the agrirouter©.
+At first you have to navigate to the "Router Devices" section.
+
+image::documentation/router_devices/navigate_to_router_device_management.png[router devices]
+
+Afterward, you are able to create a new router device.
+
+image::documentation/router_devices/create_new_router_device.png[create router device]
+
+The router device will be created, and you can see the details of the device.
+You are now able to download the connection details of the router device.
+
+image::documentation/router_devices/download_connection_details.png[download connection details]
+
+By clicking the button, a new window will open, and you can download the connection details as a JSON.
+
+image::documentation/router_devices/connection_details.png[connection details]
+
+You can either use a PEM or a P12 certificate for the connection to the agrirouter©.
+The middleware is able to handle both of them.
+
+image::documentation/router_devices/select_certificate.png[certificate]
+
+After downloading the connection details, you can add the router device to your application within the middleware.
+Use the corresponding endpoint and provide the connection details as JSON.
+You can use the whole content of the JSON file which you downloaded from the agrirouter© and provide it as the body of the request.
+
 ==== Onboard process for new endpoints
 
-The middleware provides endpoints for the onboard process for farming software and telemetry platforms, communication units are not supported, since they are not in the main scope of server side software.
+The middleware provides endpoints for the onboard process for farming software and telemetry platforms; communication units are not supported since they are not in the main scope of server side software.
 The endpoints for the onboard process will redirect the user to the agrirouter© interface.
 If you do not define a redirect URL when calling the endpoint, then the redirect will be to a page within the agrirouter middleware.
 Otherwise, the priority for redirect urls is as follows:
@@ -124,17 +156,18 @@ After you created you own endpoint with your chosen `externalEndpointId`, the `e
 === Profiles
 
 There are three main profiles, the `dev` profile, the `qa` profile and the `prod` profile.
-The profiles define which log level is set or which job intervals are configured.You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable.
+The profiles define which log level is set or which job intervals are configured.
+You can activate those profiles via https://www.baeldung.com/spring-profiles[Spring Boot configuration] on the command line or via environment variable.
 
-In addition, there are two profiles which activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`.
+In addition, there are two profiles that activate the maintenance mode to access additional REST endpoints = this is the  `maintenance` profile - or enable the access to the PROD environment of the agrirouter© - the profile `connect-agrirouter-prod`.
 Those profiles can be set in addition to the main profiles.
 
-1. `-Dspring.profiles.active=dev` - Running the middleware in DEV mode with access to the QA environment of the agrirouter©.
-2. `-Dspring.profiles.active=qa` - Running the middleware in QA mode with access to the QA environment of the agrirouter©.
-3. `-Dspring.profiles.active=prod` - Running the middleware in PROD mode with access to the QA environment of the agrirouter©.
-4. `-Dspring.profiles.active=maintenance` - Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
-5. `-Dspring.profiles.active=connect-agrirouter-qa` - This mode injects a QA environment with specific URLs for the agrirouter©.
-6. `-Dspring.profiles.active=connect-agrirouter-prod` - This mode injects a production environment with specific URLs for the agrirouter©.
+1. `-Dspring.profiles.active=dev` — Running the middleware in DEV mode with access to the QA environment of the agrirouter©.
+2. `-Dspring.profiles.active=qa` — Running the middleware in QA mode with access to the QA environment of the agrirouter©.
+3. `-Dspring.profiles.active=prod` — Running the middleware in PROD mode with access to the QA environment of the agrirouter©.
+4. `-Dspring.profiles.active=maintenance` — Running the middleware in QA and in maintenance mode with access to the QA environment of the agrirouter©.
+5. `-Dspring.profiles.active=connect-agrirouter-qa` — This mode injects a QA environment with specific URLs for the agrirouter©.
+6. `-Dspring.profiles.active=connect-agrirouter-prod` — This mode injects a production environment with specific URLs for the agrirouter©.
 
 === Logging for Business operations
 
@@ -143,7 +176,7 @@ The log contains the following information:
 
 * ID of the endpoint (`externalEndpointId` [eid] and `agriroputerEndpointId` [aid]).
 * ID of the application (`internalApplicationId` [iid] `applicationId` [aid]).
-* Log message for the business operation.
+* Log a message for the business operation.
 
 ==== Trace of business operations
 
@@ -184,8 +217,8 @@ When running the project locally, the Swagger-UI can be found http://localhost:8
 === Setting up the database for local development using `docker-compose`
 
 To have a rapid start into developing, you can use the `docker compose` script located within the `agrirouter-middleware-local` folder.
-The script created both of the necessary databases and after this you are ready to start the development.
-In addition, there is a run configuration for IDEA with all environment variables set - ready, steady, go!
+The script created both of the necessary databases, and after this you are ready to start the development.
+In addition, there is a run configuration for IDEA with all environment variables set—ready, steady, go!
 
 === Environment variables
 
@@ -195,7 +228,7 @@ To run the application, the following environment variables have to be set.
 |Name |Description
 
 |`MONGODB_HOST` |Host for the MongoDB.
-|`MONGODB_PASSWORD` |Password for the MongoDB.
+|`MONGODB_PASSWORD` |Password for MongoDB.
 |`MONGODB_PORT` |Port for the MongoDB.
 |`MONGODB_SCHEMA` |Schema / Database for the MongoDB.
 |`MONGODB_USER` |User for the MongoDB.
@@ -215,9 +248,9 @@ If you are using the profiles for full URL configuration, you can use the follow
 |'MONGODB_URI' |URI for the MongoDB.
 |===
 
-=== Authentication for the GitHub packages
+=== Authentication for GitHub packages
 
-To build the project from scratch you need to authenticate for GitHub packages.
+To build the project from scratch, you need to authenticate for GitHub packages.
 Please see the following https://docs.github.com/en/packages/guides/configuring-apache-maven-for-use-with-github-packages[website]
 for more details.
 
