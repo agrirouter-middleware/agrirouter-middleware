@@ -114,6 +114,16 @@
       "name": "app.scheduled.random-delay-minutes",
       "type": "java.lang.String",
       "description": "The random delay that will be added to the CRON."
+    },
+    {
+      "name": "app.actuator.tenant-id",
+      "type": "java.lang.String",
+      "description": "The tenant id for the actuator."
+    },
+    {
+      "name": "app.actuator.access-token",
+      "type": "java.lang.String",
+      "description": "The access token for the actuator."
     }
   ]
 }
