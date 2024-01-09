@@ -26,3 +26,7 @@
 .mdl-card__supporting-text {
     width: 100% !important;
 }
+
+.has-the-same-color-as-the-background {
+    color: #fff;
+}

@@ -89,6 +89,16 @@
                         <div class="mdl-cell--8-col mdl-typography--text-left">
                             <p th:text="${technicalConnectionState.connectionErrors.size}"></p>
                         </div>
+
+                        <div class="mdl-cell--12-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold has-the-same-color-as-the-background"
+                               th:text="#{dummy.placeholder}"></p>
+                        </div>
+
+                        <div class="mdl-cell--12-col mdl-typography--text-left">
+                            <p class="mdl-typography--font-bold has-the-same-color-as-the-background"
+                               th:text="#{dummy.placeholder}"></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,9 +120,6 @@
                                 th:text="#{domain.endpoint.external-endpoint-id}"></th>
                             <th class="mdl-data-table__cell--non-numeric"
                                 th:text="#{domain.endpoint.agrirouter-endpoint-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.endpoint.messages.nr}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.overall-status}"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -122,18 +129,6 @@
                                    th:text="${vcu.deactivated}?'block':'check_small'"></i></td>
                             <td th:text="${vcu.externalEndpointId}"></td>
                             <td th:text="${vcu.agrirouterEndpointId}"></td>
-                            <td th:text="${endpoint.endpointStatus.nrOfMessagesWithinTheInbox}"></td>
-                            <td th:with="endpointStatus=${@endpointStatusUIComponent.determineOverallStatus(endpoint)}">
-                                <i th:if="${endpointStatus.status.name == 'OK'}" th:title="${endpointStatus.toolTip}"
-                                   class="material-icons mdl-color-text--green">sentiment_very_satisfied</i>
-
-                                <i th:if="${endpointStatus.status.name == 'WARNING'}"
-                                   th:title="${endpointStatus.toolTip}"
-                                   class="material-icons mdl-color-text--orange">sentiment_dissatisfied</i>
-
-                                <i th:if="${endpointStatus.status.name == 'ERROR'}" th:title="${endpointStatus.toolTip}"
-                                   class="material-icons mdl-color-text--red">sentiment_very_dissatisfied</i>
-                            </td>
                         </tr>
                         </tbody>
                     </table>
