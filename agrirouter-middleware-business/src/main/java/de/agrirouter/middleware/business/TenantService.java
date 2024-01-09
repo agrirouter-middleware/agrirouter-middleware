@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,6 +32,12 @@ public class TenantService implements UserDetailsService {
 
     private final TenantRepository tenantRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.actuator.tenant-id:NONE}")
+    private String externalActuatorTenantId;
+
+    @Value("${app.actuator.access-token:NONE}")
+    private String externalActuatorAccessToken;
 
     public TenantService(TenantRepository tenantRepository,
                          PasswordEncoder passwordEncoder) {
@@ -142,6 +149,20 @@ public class TenantService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String tenantId) throws UsernameNotFoundException {
+        if (StringUtils.isNotBlank(externalActuatorTenantId) && StringUtils.isNotBlank(externalActuatorAccessToken) &&
+                !externalActuatorTenantId.equals("NONE") && !externalActuatorAccessToken.equals("NONE")) {
+            if (externalActuatorTenantId.equals(tenantId)) {
+                var externalActuatorTenant = new Tenant();
+                externalActuatorTenant.setTenantId(externalActuatorTenantId);
+                externalActuatorTenant.setAccessToken(passwordEncoder.encode(externalActuatorAccessToken));
+                externalActuatorTenant.setMonitoringAccess(true);
+                return new TenantPrincipal(externalActuatorTenant);
+            } else {
+                log.info("This was not the external actuator tenant ID. Using the generated tenant information instead.");
+            }
+        } else {
+            log.info("External actuator tenant is not configured. If you want to use the actuator, please configure the tenant ID and access token and use the defined profile.");
+        }
         final var optionalTenant = tenantRepository.findTenantByTenantId(tenantId);
         if (optionalTenant.isEmpty()) {
             throw new UsernameNotFoundException(String.format("Tenant with name '%s' has not been found.", tenantId));

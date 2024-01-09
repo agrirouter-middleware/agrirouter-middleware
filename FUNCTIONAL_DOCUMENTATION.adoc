@@ -20,6 +20,17 @@ During the first startup of the middleware, a default tenant is generated and pr
 You have to store the credentials at a safe place to authenticate again.
 ====
 
+=== External credentials for the actuator endpoints
+
+If you do not want to use the generated credentials for the actuator endpoints, you can define your own credentials.
+You need to activate the profile `actuator-credentials` and set the following environment variables:
+
+|===
+|Name |Description
+|`ACTUATOR_TENANT_ID` | The ID of the tenant to use for the actuator endpoints.
+|`ACTUATOR_TENANT_TOKEN` | The access token of the tenant to use for the actuator endpoints.
+|===
+
 === How to integrate the middleware in your project?
 
 If you have a running instance, the integration is quite easy.
