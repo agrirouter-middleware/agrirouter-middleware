@@ -283,3 +283,26 @@ For more details, please see the Swagger documentation for the specific endpoint
     |500 |In case of an internal server error.
     |503 |In case the middleware is not ready to handle requests, i.e. the agrirouter© is not available or the middleware is not connected to the database.
 |===
+
+=== Using the API for telemetry data
+
+If your application version supports message type _ISO_11783_TASKDATA_ZIP_ or _ISO_11783_DEVICE_DESCRIPTION_ *and* _ISO_11783_TIME_LOG_, you are able to receive machine date.
+
+For requesting telemetry data like machine data (message type _ISO_11783_TASKDATA_ZIP_ or _ISO_11783_TIME_LOG_) you first need to get the ID of the endpoint (`externalEndpointId`).
+You can find this information e.g., when using `secured/api/application/{internalApplicationId}/endpoints`.
+
+==== Machines
+
+With `secured/api/telemetry-data/search/machines` you can query which machines are known by the endpoint, identified by the ID of the endpoint (`externalEndpointId`). You can filter for specific machines (by `internalDeviceIds`) and you can decide if you want to see the latest known device description of this machine (by `withCurrentDeviceDescription`). The provided `internalDeviceId` of the machine shall be used for subsequent requests.
+
+Once your agrirouter endpoint received and processed a message of type _ISO_11783_TASKDATA_ZIP_ or _ISO_11783_DEVICE_DESCRIPTION_ you should be able to see this machine in the response of a machine request.
+
+==== Time Periods
+
+With `secured/api/telemetry-data/search/time-periods` you can query for which time periods machine data is available, identified by the ID of the endpoint (`externalEndpointId`). You can filter for specific machines (by `internalDeviceIds`), remove empty entries from response (by `filterEmptyEntries`) and time period you are interested in (by `sendFrom` and `sendTo` as Unix timestamps). The response contains a list of devices/machines with a list of time periods for which machine data is available. To request machine data for a specific time log period, you shall use the provided `teamSetContextId` and the timestamps `begin` and `end`.
+
+==== Time Logs
+
+With `secured/api/telemetry-data/search/time-logs` you can query the machine data for a specific machine (by `internalDeviceId`). You also need to provide the `teamSetContextId` given in the previous time periods request. The timestamps `sendFrom` and `sendTo` need to be within the time log period of the previous time periods request. With `ddisToList` you can define the list of DDIs you are interested in. If you do not provide a list, the value defined in `app.subscriptions.ddi.range.start` and `app.subscriptions.ddi.range.end` are used. Which specific machine data is identified by which DDI number can be looked up on https://www.isobus.net/isobus/dDEntity[isobus.net]. The response contains a list of time logs with a list of time elements. Those time elements contain information to time and GPS position of the collected machine data. The machine data itself can be found within the list of data log values, identified by the DDI number.
+
+The endpoint `secured/api/telemetry-data/search/time-logs` provides additional information like messageId, sender and receiver of the time log message. Endpoint `secured/api/telemetry-data/search/time-logs/raw` does not provide this information.
