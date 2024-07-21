@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.config;
 
+import com.dke.data.agrirouter.api.env.Ar2QA;
 import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.env.Production;
 import com.dke.data.agrirouter.api.env.QA;
@@ -42,7 +43,19 @@ public class AgrirouterConfiguration {
      * @return -
      */
     @Bean
-    @Profile("!connect-agrirouter-prod")
+    @Profile("connect-agrirouter-new-qa")
+    public Environment newQa() {
+        return new Ar2QA() {
+        };
+    }
+
+    /**
+     * Create an instance of the QA environment for dependency injection.
+     *
+     * @return -
+     */
+    @Bean
+    @Profile("connect-agrirouter-qa")
     public Environment qa() {
         return new QA() {
         };
