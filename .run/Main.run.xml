@@ -9,6 +9,7 @@
       <env name="MYSQL_SCHEMA" value="agriroutermiddleware" />
       <env name="MYSQL_URL" value="jdbc:mariadb://localhost:3306/agriroutermiddleware?useUnicode=true&amp;characterEncoding=UTF-8" />
       <env name="MYSQL_USER" value="mysqluser" />
+      <env name="AGRIROUTER_STATUS_SKIP_CHECK" value="false" />
     </envs>
     <module name="agrirouter-middleware-application" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="de.agrirouter.middleware.Main" />
