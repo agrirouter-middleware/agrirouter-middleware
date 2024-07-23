@@ -56,6 +56,7 @@ app:
     redirect-delay: 250
     status:
       url: https://status.agrirouter.com/api/v2/components.json
+      skip-check: ${AGRIROUTER_STATUS_SKIP_CHECK}
     mqtt:
       synchronous:
         health:

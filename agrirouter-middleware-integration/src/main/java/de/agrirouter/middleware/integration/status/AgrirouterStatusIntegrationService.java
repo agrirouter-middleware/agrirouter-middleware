@@ -6,6 +6,7 @@ import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.integration.status.dto.AgrirouterStatusResponse;
 import de.agrirouter.middleware.integration.status.dto.Component;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,16 +22,18 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AgrirouterStatusIntegrationService {
 
     @Value("${app.agrirouter.status.url}")
     private String url;
-    private Component latestStatus;
-    private final Gson gson;
 
-    public AgrirouterStatusIntegrationService(Gson gson) {
-        this.gson = gson;
-    }
+    @Value("${app.agrirouter.status.skip-check}")
+    private boolean skipStatusCheck;
+
+    private Component latestStatus;
+
+    private final Gson gson;
 
     @PostConstruct
     public void init() {
@@ -82,6 +85,10 @@ public class AgrirouterStatusIntegrationService {
      * @return - true if the agrirouter© is available.
      */
     public boolean isOperational() {
-        return latestStatus != null && latestStatus.getComponentStatus() != null && latestStatus.getComponentStatus().isOperational();
+        if (skipStatusCheck) {
+            log.debug("Skipping status check, should only be used for development or temporary purposes.");
+            return true;
+        } else
+            return latestStatus != null && latestStatus.getComponentStatus() != null && latestStatus.getComponentStatus().isOperational();
     }
 }
