@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev, mysql-by-url, mongodb-by-uri" />
+    <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-new-qa, dev, mysql-by-url, mongodb-by-uri" />
     <envs>
       <env name="MESSAGE_CACHE_DATA_DIRECTORY" value="C:\Users\SDO\.message-cache" />
       <env name="MONGODB_SCHEMA" value="agriroutermiddleware" />

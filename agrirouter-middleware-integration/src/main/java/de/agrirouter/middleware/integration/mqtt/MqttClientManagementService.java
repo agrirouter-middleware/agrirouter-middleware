@@ -169,8 +169,7 @@ public class MqttClientManagementService {
                 log.debug("The endpoint '{}' uses a router device, therefore the client ID will be set.", endpoint);
                 Optional<Application> optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
                 if (optionalApplication.isPresent()) {
-                    log.debug("We are using a unique client ID to avoid problems in case the router device has been used multiple times.");
-                    clientId = MqttClient.generateClientId();
+                    clientId = onboardingResponse.getConnectionCriteria().getClientId();
                 } else {
                     log.debug("The endpoint '{}' does not belong to an application, therefore the client ID will be set to the original client ID.", endpoint);
                     throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
