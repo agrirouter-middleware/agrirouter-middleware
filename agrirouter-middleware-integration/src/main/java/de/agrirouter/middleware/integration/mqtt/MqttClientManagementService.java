@@ -107,6 +107,8 @@ public class MqttClientManagementService {
 
     private void subscribeIfNecessary(OnboardingResponse onboardingResponse, IMqttClient mqttClient) {
         var topic = onboardingResponse.getConnectionCriteria().getCommands();
+        log.debug("Checking if the subscriptions for endpoint '{}' are already sent.", onboardingResponse.getSensorAlternateId());
+        log.debug("The topic for the incoming commands is '{}'.", topic);
         try {
             if (subscriptionsForMqttClient.exists(mqttClient.getClientId(), topic)) {
                 log.debug("Already sent subscriptions for endpoint '{}', not sending again.", onboardingResponse.getSensorAlternateId());
