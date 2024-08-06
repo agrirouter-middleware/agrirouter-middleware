@@ -1,4 +1,4 @@
-name: Release
+name: Publish Docker Image | Develop
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: ${{ github.ref_type == 'tag' }}
+          push: true
           file: .github/dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
