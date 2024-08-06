@@ -68,6 +68,10 @@ app:
             time: 3000
           polling:
             intervall: 100
+      options:
+        clean-session: true
+        keep-alive-interval: 30
+        connection-timeout: 120
   fetch-messages:
     max-tries: 5
     interval: 1000
