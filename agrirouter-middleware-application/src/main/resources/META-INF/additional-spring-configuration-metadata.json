@@ -124,6 +124,21 @@
       "name": "app.actuator.access-token",
       "type": "java.lang.String",
       "description": "The access token for the actuator."
+    },
+    {
+      "name": "app.agrirouter.mqtt.options.clean-session",
+      "type": "java.lang.String",
+      "description": "The clean session option for the MQTT client."
+    },
+    {
+      "name": "app.agrirouter.mqtt.options.keep-alive-interval",
+      "type": "java.lang.String",
+      "description": "The keep alive interval for the MQTT client."
+    },
+    {
+      "name": "app.agrirouter.mqtt.options.connection-timeout",
+      "type": "java.lang.String",
+      "description": "The connection timeout for the MQTT client."
     }
   ]
 }

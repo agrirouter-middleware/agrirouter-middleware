@@ -11,6 +11,7 @@ import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
@@ -18,6 +19,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +31,10 @@ import java.util.*;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MqttClientManagementService {
 
-    private final Map<String, CachedMqttClient> cachedMqttClients;
+    private final Map<String, CachedMqttClient> cachedMqttClients = new HashMap<>();
     private final MqttOptionService mqttOptionService;
     private final MqttStatistics mqttStatistics;
     private final Environment environment;
@@ -39,20 +42,15 @@ public class MqttClientManagementService {
     private final ApplicationContext applicationContext;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
 
-    public MqttClientManagementService(MqttOptionService mqttOptionService,
-                                       MqttStatistics mqttStatistics,
-                                       Environment environment,
-                                       ApplicationRepository applicationRepository,
-                                       ApplicationContext applicationContext,
-                                       SubscriptionsForMqttClient subscriptionsForMqttClient) {
-        this.mqttOptionService = mqttOptionService;
-        this.mqttStatistics = mqttStatistics;
-        this.environment = environment;
-        this.applicationRepository = applicationRepository;
-        this.applicationContext = applicationContext;
-        this.subscriptionsForMqttClient = subscriptionsForMqttClient;
-        this.cachedMqttClients = new HashMap<>();
-    }
+    @Value("${app.agrirouter.mqtt.options.clean-session}")
+    private boolean cleanSession;
+
+    @Value("${app.agrirouter.mqtt.options.keep-alive-interval}")
+    private int keepAliveInterval;
+
+    @Value("${app.agrirouter.mqtt.options.connection-timeout}")
+    private int connectionTimeout;
+
 
     /**
      * Get or create an MQTT client for the given onboard response.
@@ -107,6 +105,8 @@ public class MqttClientManagementService {
 
     private void subscribeIfNecessary(OnboardingResponse onboardingResponse, IMqttClient mqttClient) {
         var topic = onboardingResponse.getConnectionCriteria().getCommands();
+        log.debug("Checking if the subscriptions for endpoint '{}' are already sent.", onboardingResponse.getSensorAlternateId());
+        log.debug("The topic for the incoming commands is '{}'.", topic);
         try {
             if (subscriptionsForMqttClient.exists(mqttClient.getClientId(), topic)) {
                 log.debug("Already sent subscriptions for endpoint '{}', not sending again.", onboardingResponse.getSensorAlternateId());
@@ -145,9 +145,9 @@ public class MqttClientManagementService {
         final var mqttClient = createMqttClient(endpoint);
         var onboardingResponse = endpoint.asOnboardingResponse();
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
-        mqttConnectOptions.setCleanSession(false);
-        mqttConnectOptions.setKeepAliveInterval(30);
-        mqttConnectOptions.setConnectionTimeout(120);
+        mqttConnectOptions.setCleanSession(cleanSession);
+        mqttConnectOptions.setKeepAliveInterval(keepAliveInterval);
+        mqttConnectOptions.setConnectionTimeout(connectionTimeout);
         mqttClient.connect(mqttConnectOptions);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
         messageHandlingCallback.setMqttClient(mqttClient);
