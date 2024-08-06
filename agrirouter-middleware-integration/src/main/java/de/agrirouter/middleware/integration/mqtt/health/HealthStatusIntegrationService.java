@@ -45,6 +45,9 @@ public class HealthStatusIntegrationService {
                     healthStatusMessage.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
                     healthMessage.setPayload(healthStatusMessage.asJson().getBytes());
                     healthMessage.setQos(0);
+                    log.debug("Publishing health check message for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId());
+                    log.debug("Health check message: {}", healthStatusMessage.asJson());
+                    log.debug("Commands topic: {}", onboardingResponse.getConnectionCriteria().getCommands());
                     client.publish(onboardingResponse.getConnectionCriteria().getCommands(), healthMessage);
                     healthStatusMessages.put(healthStatusMessage);
                 } catch (MqttException e) {
