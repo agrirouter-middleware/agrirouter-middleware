@@ -56,7 +56,7 @@ app:
     redirect-delay: 250
     status:
       url: https://status.agrirouter.com/api/v2/components.json
-      skip-check: ${AGRIROUTER_STATUS_SKIP_CHECK}
+      skip-check: false
     mqtt:
       synchronous:
         health:
@@ -69,7 +69,7 @@ app:
           polling:
             intervall: 100
       options:
-        clean-session: true
+        clean-session: false
         keep-alive-interval: 30
         connection-timeout: 120
   fetch-messages:
