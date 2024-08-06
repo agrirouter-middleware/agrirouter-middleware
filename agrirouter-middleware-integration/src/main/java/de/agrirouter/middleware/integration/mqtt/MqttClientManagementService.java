@@ -60,44 +60,49 @@ public class MqttClientManagementService {
      * @return The MQTT client.
      */
     public Optional<IMqttClient> get(Endpoint endpoint) {
-        OnboardingResponse onboardingResponse = null;
-        try {
-            onboardingResponse = endpoint.asOnboardingResponse();
-        } catch (BusinessException e) {
-            log.error("Could not get onboarding response for endpoint '{}'.", endpoint, e);
-        }
-
-        if (onboardingResponse != null) {
-            if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
-                final CachedMqttClient cachedMqttClient = getCachedMqttClient(onboardingResponse);
-                IMqttClient mqttClientAfterInitialization = null;
-                if (!isConnected(cachedMqttClient)) {
-                    try {
-                        log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
-                        cachedMqttClients.remove(cachedMqttClient.id());
-                        final var mqttClient = initMqttClient(endpoint);
-                        final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
-                        cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
-                        mqttClientAfterInitialization = mqttClient;
-                    } catch (Exception e) {
-                        cachedMqttClient.connectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
-                        cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
+        if (endpoint.isDeactivated()) {
+            log.warn("The endpoint '{}' is deactivated, therefore no MQTT client will be created.", endpoint.getExternalEndpointId());
+            log.warn("Disconnecting the existing client, if there is one.");
+            disconnect(endpoint);
+        } else {
+            OnboardingResponse onboardingResponse = null;
+            try {
+                onboardingResponse = endpoint.asOnboardingResponse();
+            } catch (BusinessException e) {
+                log.error("Could not get onboarding response for endpoint '{}'.", endpoint, e);
+            }
+            if (onboardingResponse != null) {
+                if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
+                    final CachedMqttClient cachedMqttClient = getCachedMqttClient(onboardingResponse);
+                    IMqttClient mqttClientAfterInitialization = null;
+                    if (!isConnected(cachedMqttClient)) {
+                        try {
+                            log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
+                            cachedMqttClients.remove(cachedMqttClient.id());
+                            final var mqttClient = initMqttClient(endpoint);
+                            final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
+                            cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
+                            mqttClientAfterInitialization = mqttClient;
+                        } catch (Exception e) {
+                            cachedMqttClient.connectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
+                            cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
+                        }
+                    } else {
+                        log.debug("Returning existing mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
+                        //noinspection OptionalGetWithoutIsPresent
+                        mqttClientAfterInitialization = cachedMqttClient.mqttClient().get();
+                    }
+                    if (null != mqttClientAfterInitialization) {
+                        if (mqttClientAfterInitialization.isConnected()) {
+                            subscribeIfNecessary(onboardingResponse, mqttClientAfterInitialization);
+                            return Optional.of(mqttClientAfterInitialization);
+                        } else {
+                            log.error("The mqtt client for endpoint '{}' with the MQTT client ID '{}' is not connected.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
+                        }
                     }
                 } else {
-                    log.debug("Returning existing mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
-                    //noinspection OptionalGetWithoutIsPresent
-                    mqttClientAfterInitialization = cachedMqttClient.mqttClient().get();
+                    log.debug("This onboard response is not MQTT ready, the gateway is set to {}.", onboardingResponse.getConnectionCriteria().getGatewayId());
                 }
-                if (null != mqttClientAfterInitialization) {
-                    if (mqttClientAfterInitialization.isConnected()) {
-                        subscribeIfNecessary(onboardingResponse, mqttClientAfterInitialization);
-                        return Optional.of(mqttClientAfterInitialization);
-                    } else {
-                        log.error("The mqtt client for endpoint '{}' with the MQTT client ID '{}' is not connected.", onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId());
-                    }
-                }
-            } else {
-                log.debug("This onboard response is not MQTT ready, the gateway is set to {}.", onboardingResponse.getConnectionCriteria().getGatewayId());
             }
         }
         return Optional.empty();
