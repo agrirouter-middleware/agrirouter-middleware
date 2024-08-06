@@ -145,9 +145,9 @@ public class MqttClientManagementService {
         final var mqttClient = createMqttClient(endpoint);
         var onboardingResponse = endpoint.asOnboardingResponse();
         final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(onboardingResponse);
-        mqttConnectOptions.setCleanSession(false);
-        mqttConnectOptions.setKeepAliveInterval(30);
-        mqttConnectOptions.setConnectionTimeout(120);
+        mqttConnectOptions.setCleanSession(cleanSession);
+        mqttConnectOptions.setKeepAliveInterval(keepAliveInterval);
+        mqttConnectOptions.setConnectionTimeout(connectionTimeout);
         mqttClient.connect(mqttConnectOptions);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
         messageHandlingCallback.setMqttClient(mqttClient);
