@@ -153,11 +153,11 @@ public class MqttClientManagementService {
         mqttConnectOptions.setCleanSession(cleanSession);
         mqttConnectOptions.setKeepAliveInterval(keepAliveInterval);
         mqttConnectOptions.setConnectionTimeout(connectionTimeout);
-        mqttClient.connect(mqttConnectOptions);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
         messageHandlingCallback.setMqttClient(mqttClient);
         messageHandlingCallback.setClientIdOfTheRouterDevice(onboardingResponse.getConnectionCriteria().getClientId());
         mqttClient.setCallback(messageHandlingCallback);
+        mqttClient.connect(mqttConnectOptions);
         return mqttClient;
     }
 

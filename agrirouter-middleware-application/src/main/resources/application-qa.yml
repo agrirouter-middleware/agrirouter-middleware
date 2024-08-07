@@ -12,4 +12,4 @@ app:
       skip-check: true
     mqtt:
       options:
-        clean-session: true
+        clean-session: false
