@@ -63,7 +63,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         this.subscriptionsForMqttClient = subscriptionsForMqttClient;
         this.mqttClientManagementService = mqttClientManagementService;
 
-        var limit = Bandwidth.classic(10, Refill.intervally(60, Duration.ofMinutes(1)));
+        @SuppressWarnings("deprecation") var limit = Bandwidth.classic(10, Refill.intervally(60, Duration.ofMinutes(1)));
         this.bucket = Bucket.builder().addLimit(limit).build();
     }
 
