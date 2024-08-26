@@ -463,7 +463,7 @@ public class EndpointService {
      * Check whether the endpoint is healthy or not. The method will publish a message on
      *
      * @param externalEndpointId The external ID of the endpoint.
-     * @return True if the endpoint is healthy, false otherwise.
+     * @return The health status.
      */
     public HealthStatus determineHealthStatus(String externalEndpointId) {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
