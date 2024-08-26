@@ -148,7 +148,6 @@ public class AgrirouterConfiguration {
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
-                                                           HealthStatusMessages healthStatusMessages,
                                                            ListEndpointsMessages listEndpointsMessages,
                                                            SubscriptionsForMqttClient subscriptionsForMqttClient,
                                                            MqttClientManagementService mqttClientManagementService) {
