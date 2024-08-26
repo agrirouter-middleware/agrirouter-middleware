@@ -10,6 +10,7 @@ import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,8 @@ public class PublishNonTelemetryDataService {
                 null);
         try {
             agrirouterStatusIntegrationService.checkCurrentStatus();
-            if (endpointService.isHealthy(publishNonTelemetryDataParameters.getExternalEndpointId())) {
+            var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
+            if (healthStatus.equals(HealthStatus.HEALTHY)) {
                 checkAndUpdateRecipients(publishNonTelemetryDataParameters);
                 var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);

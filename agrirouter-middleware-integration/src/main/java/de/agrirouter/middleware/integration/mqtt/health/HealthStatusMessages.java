@@ -13,15 +13,15 @@ import java.util.Map;
 @Component
 public class HealthStatusMessages {
 
-    private final Map<String, HealthStatusMessage> healthStatusMessages = new HashMap<>();
+    private final Map<String, HealthStatusMessageWaitingForAck> healthStatusMessages = new HashMap<>();
 
     /**
      * Place the health status message for the given endpoint ID within the container.
      *
-     * @param healthStatusMessage The health status message.
+     * @param healthStatusMessageWaitingForAck The health status message.
      */
-    public void put(HealthStatusMessage healthStatusMessage) {
-        healthStatusMessages.put(healthStatusMessage.getAgrirouterEndpointId(), healthStatusMessage);
+    public void put(HealthStatusMessageWaitingForAck healthStatusMessageWaitingForAck) {
+        healthStatusMessages.put(healthStatusMessageWaitingForAck.getAgrirouterEndpointId(), healthStatusMessageWaitingForAck);
     }
 
     /**
@@ -42,7 +42,7 @@ public class HealthStatusMessages {
      * @param agrirouterEndpointId The endpoint ID.
      * @return The health status message.
      */
-    public HealthStatusMessage get(String agrirouterEndpointId) {
+    public HealthStatusMessageWaitingForAck get(String agrirouterEndpointId) {
         var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
         if (healthStatusMessage == null) {
             log.warn("No health status message found for endpoint ID {}.", agrirouterEndpointId);

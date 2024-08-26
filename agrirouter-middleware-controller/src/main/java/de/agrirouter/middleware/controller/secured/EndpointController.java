@@ -579,8 +579,8 @@ public class EndpointController implements SecuredApiController {
                             description = "The endpoint is connected and is able to communicate."
                     ),
                     @ApiResponse(
-                            responseCode = "404",
-                            description = "In case that the endpoint was not found."
+                            responseCode = "102",
+                            description = "The response for the health status is still pending and was not returned in time"
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -593,12 +593,16 @@ public class EndpointController implements SecuredApiController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "503",
-                            description = "In case the endpoint is currently not connected."
+                            responseCode = "404",
+                            description = "In case that the endpoint was not found."
                     ),
                     @ApiResponse(
                             responseCode = "502",
                             description = "In case the endpoint is currently not able to communicate due to problems with the agrirouter."
+                    ),
+                    @ApiResponse(
+                            responseCode = "503",
+                            description = "In case the endpoint is currently not connected."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -612,14 +616,20 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public Callable<ResponseEntity<DetailedEndpointHealthStatusResponse>> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         if (agrirouterStatusIntegrationService.isOperational()) {
             try {
-                if (endpointService.isHealthy(externalEndpointId)) {
-                    return () -> ResponseEntity.status(HttpStatus.OK).build();
-                } else {
-                    return () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-                }
+                var healthStatus = endpointService.determineHealthStatus(externalEndpointId);
+                return switch (healthStatus) {
+                    case HEALTHY ->
+                            () -> ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                    case PENDING ->
+                            () -> ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                    case UNHEALTHY ->
+                            () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                    case UNKNOWN ->
+                            () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                };
             } catch (BusinessException e) {
                 if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
                     return () -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
