@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.*;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessageWaitingForAck;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
@@ -37,7 +36,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
-    private final HealthStatusMessages healthStatusMessages;
     private final ListEndpointsMessages listEndpointsMessages;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
     private final MqttClientManagementService mqttClientManagementService;
@@ -63,7 +61,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
         this.mqttStatistics = mqttStatistics;
-        this.healthStatusMessages = healthStatusMessages;
         this.listEndpointsMessages = listEndpointsMessages;
         this.subscriptionsForMqttClient = subscriptionsForMqttClient;
         this.mqttClientManagementService = mqttClientManagementService;

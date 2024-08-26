@@ -62,7 +62,7 @@ public class HealthStatusIntegrationService {
      * Check if the endpoint is healthy. In this case would mean that the last health status message was received from the agrirouter.
      *
      * @param agrirouterEndpointId The endpoint ID.
-     * @return True if the endpoint is healthy, false otherwise.
+     * @return The health status.
      */
     public HealthStatus determineHealthStatus(String agrirouterEndpointId) {
         var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
