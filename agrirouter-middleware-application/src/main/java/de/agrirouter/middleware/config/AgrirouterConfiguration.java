@@ -155,7 +155,6 @@ public class AgrirouterConfiguration {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
-                healthStatusMessages,
                 listEndpointsMessages,
                 subscriptionsForMqttClient,
                 mqttClientManagementService);
