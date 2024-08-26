@@ -33,6 +33,7 @@ import java.util.Objects;
 @Service
 @Deprecated(since = "9.0.0", forRemoval = true)
 @RequiredArgsConstructor
+@SuppressWarnings("DeprecatedIsStillUsed")
 public class PingService implements MessageBodyCreator {
 
     private final EncodeMessageService encodeMessageService;
