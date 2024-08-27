@@ -21,6 +21,7 @@ import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusWithLastKnownHealthyStatus;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.cache.MessageRecipientCache;
@@ -465,7 +466,7 @@ public class EndpointService {
      * @param externalEndpointId The external ID of the endpoint.
      * @return The health status.
      */
-    public HealthStatus determineHealthStatus(String externalEndpointId) {
+    public HealthStatusWithLastKnownHealthyStatus determineHealthStatus(String externalEndpointId) {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
         healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
         var healthStatus = HealthStatus.PENDING;
@@ -482,7 +483,14 @@ public class EndpointService {
             }
             timer = timer - pollingIntervall;
         }
-        return healthStatus;
+        var lastKnownHealthyStatus = healthStatusIntegrationService.getLastKnownHealthyStatus(endpoint.getAgrirouterEndpointId());
+        if (lastKnownHealthyStatus.isPresent()) {
+            log.debug("Last known healthy status for endpoint '{}': {}.", externalEndpointId, lastKnownHealthyStatus.get());
+            return new HealthStatusWithLastKnownHealthyStatus(healthStatus, lastKnownHealthyStatus.get());
+        } else {
+            log.debug("No last known healthy status found for endpoint '{}'.", externalEndpointId);
+            return new HealthStatusWithLastKnownHealthyStatus(healthStatus, null);
+        }
     }
 
     /**
@@ -624,7 +632,7 @@ public class EndpointService {
             if (agrirouterStatusIntegrationService.isOperational()) {
                 try {
                     var healthStatus = determineHealthStatus(externalEndpointId);
-                    return switch (healthStatus) {
+                    return switch (healthStatus.getHealthStatus()) {
                         case HEALTHY -> new TaskResult(externalEndpointId, HttpStatus.OK.value());
                         case PENDING -> new TaskResult(externalEndpointId, HttpStatus.PROCESSING.value());
                         case UNHEALTHY -> new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());

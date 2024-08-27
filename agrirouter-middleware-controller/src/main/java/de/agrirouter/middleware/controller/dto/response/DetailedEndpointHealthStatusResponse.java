@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 
+import java.time.Instant;
+
 /**
  * Response class for better API design.
  */
@@ -22,5 +24,11 @@ public class DetailedEndpointHealthStatusResponse extends Response {
      */
     @Schema(description = "The status for a single endpoint, could be either a HTTP 200, if the endpoint is connected, a HTTP 503 if the endpoints has some problems or a HTTP 404 otherwise.")
     HealthStatus healthStatus;
+
+    /**
+     * The last known healthy status for the endpoint.
+     */
+    @Schema(description = "The last known healthy status for the endpoint, could be the same as the current status or a previous one.")
+    Instant lastKnownHealthyStatus;
 
 }

@@ -620,15 +620,15 @@ public class EndpointController implements SecuredApiController {
         if (agrirouterStatusIntegrationService.isOperational()) {
             try {
                 var healthStatus = endpointService.determineHealthStatus(externalEndpointId);
-                return switch (healthStatus) {
+                return switch (healthStatus.getHealthStatus()) {
                     case HEALTHY ->
-                            () -> ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                            () -> ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                     case PENDING ->
-                            () -> ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                            () -> ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                     case UNHEALTHY ->
-                            () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                            () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                     case UNKNOWN ->
-                            () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus));
+                            () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                 };
             } catch (BusinessException e) {
                 if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {

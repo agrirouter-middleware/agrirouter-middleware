@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -27,6 +28,7 @@ public class HealthStatusIntegrationService {
     private final HealthStatusMessages healthStatusMessages;
     private final PingService pingService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
+    private final LastKnownHealthyMessages lastKnownHealthyMessages;
 
     /**
      * Publish a health status message to the internal topic.
@@ -99,6 +101,7 @@ public class HealthStatusIntegrationService {
         if (healthStatusMessage != null) {
             healthStatusMessage.setHealthStatus(HealthStatus.HEALTHY);
             healthStatusMessages.put(healthStatusMessage);
+            lastKnownHealthyMessages.put(agrirouterEndpointId);
         }
     }
 
@@ -113,5 +116,15 @@ public class HealthStatusIntegrationService {
             healthStatusMessage.setHealthStatus(HealthStatus.UNHEALTHY);
             healthStatusMessages.put(healthStatusMessage);
         }
+    }
+
+    /**
+     * Get the last known healthy status for the given agrirouter endpoint ID.
+     *
+     * @param agrirouterEndpointId The endpoint ID.
+     * @return The last known healthy status.
+     */
+    public Optional<Instant> getLastKnownHealthyStatus(String agrirouterEndpointId) {
+        return lastKnownHealthyMessages.get(agrirouterEndpointId);
     }
 }
