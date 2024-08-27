@@ -19,6 +19,7 @@ import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
@@ -462,29 +463,26 @@ public class EndpointService {
      * Check whether the endpoint is healthy or not. The method will publish a message on
      *
      * @param externalEndpointId The external ID of the endpoint.
-     * @return True if the endpoint is healthy, false otherwise.
+     * @return The health status.
      */
-    public boolean isHealthy(String externalEndpointId) {
+    public HealthStatus determineHealthStatus(String externalEndpointId) {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
         healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
-        if (healthStatusIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
-            var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
-            while (timer > 0) {
-                try {
-                    Thread.sleep(pollingIntervall);
-                    if (healthStatusIntegrationService.isHealthy(endpoint.getAgrirouterEndpointId())) {
-                        return true;
-                    }
-                } catch (InterruptedException e) {
-                    log.error("Error while waiting for health status response.", e);
+        var healthStatus = HealthStatus.PENDING;
+        var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
+        while (timer > 0) {
+            try {
+                Thread.sleep(pollingIntervall);
+                healthStatus = healthStatusIntegrationService.determineHealthStatus(endpoint.getAgrirouterEndpointId());
+                if (!HealthStatus.PENDING.equals(healthStatus) && !HealthStatus.UNKNOWN.equals(healthStatus)) {
+                    break;
                 }
-                timer = timer - pollingIntervall;
+            } catch (InterruptedException e) {
+                log.error("Error while waiting for health status response.", e);
             }
-
-        } else {
-            log.debug("There is no pending health status response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+            timer = timer - pollingIntervall;
         }
-        return false;
+        return healthStatus;
     }
 
     /**
@@ -625,11 +623,13 @@ public class EndpointService {
         return () -> {
             if (agrirouterStatusIntegrationService.isOperational()) {
                 try {
-                    if (isHealthy(externalEndpointId)) {
-                        return new TaskResult(externalEndpointId, HttpStatus.OK.value());
-                    } else {
-                        return new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
-                    }
+                    var healthStatus = determineHealthStatus(externalEndpointId);
+                    return switch (healthStatus) {
+                        case HEALTHY -> new TaskResult(externalEndpointId, HttpStatus.OK.value());
+                        case PENDING -> new TaskResult(externalEndpointId, HttpStatus.PROCESSING.value());
+                        case UNHEALTHY -> new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
+                        case UNKNOWN -> new TaskResult(externalEndpointId, HttpStatus.BAD_REQUEST.value());
+                    };
                 } catch (BusinessException e) {
                     return new TaskResult(externalEndpointId, e.getErrorMessage().getHttpStatus().value());
                 }

@@ -1,13 +1,16 @@
 package de.agrirouter.middleware.integration.mqtt.health;
 
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.Endpoint;
+import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
+import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import de.agrirouter.middleware.integration.mqtt.health.internal.PingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,16 +20,13 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HealthStatusIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final HealthStatusMessages healthStatusMessages;
-
-    public HealthStatusIntegrationService(MqttClientManagementService mqttClientManagementService,
-                                          HealthStatusMessages healthStatusMessages) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.healthStatusMessages = healthStatusMessages;
-    }
+    private final PingService pingService;
+    private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
 
     /**
      * Publish a health status message to the internal topic.
@@ -37,22 +37,20 @@ public class HealthStatusIntegrationService {
         Optional<IMqttClient> mqttClient = mqttClientManagementService.get(endpoint);
         mqttClient.ifPresentOrElse(client -> {
             if (client.isConnected()) {
-                try {
-                    var onboardingResponse = endpoint.asOnboardingResponse();
-                    var healthMessage = new MqttMessage();
-                    var healthStatusMessage = new HealthStatusMessage();
-                    healthStatusMessage.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
-                    healthMessage.setPayload(healthStatusMessage.asJson().getBytes());
-                    healthMessage.setQos(0);
-                    log.debug("Publishing health check message for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId());
-                    log.debug("Health check message: {}", healthStatusMessage.asJson());
-                    log.debug("Commands topic: {}", onboardingResponse.getConnectionCriteria().getCommands());
-                    client.publish(onboardingResponse.getConnectionCriteria().getCommands(), healthMessage);
-                    healthStatusMessages.put(healthStatusMessage);
-                } catch (MqttException e) {
-                    log.error("Could not publish the health check message.", e);
-                    throw new BusinessException(ErrorMessageFactory.couldNotPublishHealthMessage());
-                }
+                var onboardingResponse = endpoint.asOnboardingResponse();
+                var messageId = pingService.send(client, onboardingResponse);
+                var healthStatusMessage = HealthStatusMessageWaitingForAck.builder()
+                        .agrirouterEndpointId(endpoint.getAgrirouterEndpointId())
+                        .messageId(messageId)
+                        .healthStatus(HealthStatus.PENDING)
+                        .build();
+                healthStatusMessages.put(healthStatusMessage);
+                log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+                MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
+                messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
+                messageWaitingForAcknowledgement.setMessageId(messageId);
+                messageWaitingForAcknowledgement.setTechnicalMessageType(SystemMessageType.DKE_PING.getKey());
+                messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
             } else {
                 log.error("Could not publish the health check message. MQTT client is not connected.");
                 throw new BusinessException(ErrorMessageFactory.couldNotPublishHealthMessageSinceClientIsNotConnected());
@@ -64,32 +62,56 @@ public class HealthStatusIntegrationService {
      * Check if the endpoint is healthy. In this case would mean that the last health status message was received from the agrirouter.
      *
      * @param agrirouterEndpointId The endpoint ID.
-     * @return True if the endpoint is healthy, false otherwise.
+     * @return The health status.
      */
-    public boolean isHealthy(String agrirouterEndpointId) {
+    public HealthStatus determineHealthStatus(String agrirouterEndpointId) {
         var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
         if (healthStatusMessage == null) {
             log.warn("No health status message found for endpoint ID {}.", agrirouterEndpointId);
-            return false;
-        }
-        var hasBeenReturned = healthStatusMessage.isHasBeenReturned();
-        if (!hasBeenReturned) {
-            log.debug("Health status message for endpoint ID {} has not been returned.", agrirouterEndpointId);
         } else {
-            log.info("Health status message for endpoint ID {} has been returned.", agrirouterEndpointId);
-            healthStatusMessages.remove(agrirouterEndpointId);
+
+            if (healthStatusMessage.getHealthStatus().equals(HealthStatus.PENDING)) {
+                log.debug("Health status message for endpoint ID {} is still pending.", agrirouterEndpointId);
+                return HealthStatus.PENDING;
+            }
+
+            if (healthStatusMessage.getHealthStatus().equals(HealthStatus.HEALTHY)) {
+                log.debug("Health status message for endpoint ID {} is healthy.", agrirouterEndpointId);
+                healthStatusMessages.remove(agrirouterEndpointId);
+                return HealthStatus.HEALTHY;
+            }
+
+            if (healthStatusMessage.getHealthStatus().equals(HealthStatus.UNHEALTHY)) {
+                log.debug("Health status message for endpoint ID {} is no longer available.", agrirouterEndpointId);
+                return HealthStatus.UNHEALTHY;
+            }
         }
-        return hasBeenReturned;
+        return HealthStatus.UNKNOWN;
     }
 
     /**
-     * Check if there is a pending health status response for the given endpoint ID.
+     * Marks a health status message as received for the given agrirouter endpoint ID.
      *
-     * @param agrirouterEndpointId The endpoint ID.
-     * @return True if there is a pending health status response, false otherwise.
+     * @param agrirouterEndpointId The ID of the agrirouter endpoint for which the health status message is to be marked as received.
      */
-    public boolean hasPendingResponse(String agrirouterEndpointId) {
+    public void markHealthMessageAsReceived(String agrirouterEndpointId) {
         var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
-        return healthStatusMessage != null;
+        if (healthStatusMessage != null) {
+            healthStatusMessage.setHealthStatus(HealthStatus.HEALTHY);
+            healthStatusMessages.put(healthStatusMessage);
+        }
+    }
+
+    /**
+     * Marks a health status message as lost for the given agrirouter endpoint ID.
+     *
+     * @param agrirouterEndpointId The ID of the agrirouter endpoint for which the health status message is to be marked as lost.
+     */
+    public void markHealthMessageAsLost(String agrirouterEndpointId) {
+        var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
+        if (healthStatusMessage != null) {
+            healthStatusMessage.setHealthStatus(HealthStatus.UNHEALTHY);
+            healthStatusMessages.put(healthStatusMessage);
+        }
     }
 }

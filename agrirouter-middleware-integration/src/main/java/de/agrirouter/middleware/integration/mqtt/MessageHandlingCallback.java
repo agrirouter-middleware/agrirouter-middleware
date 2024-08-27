@@ -8,8 +8,6 @@ import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.*;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessage;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import io.github.bucket4j.Bandwidth;
@@ -37,7 +35,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
-    private final HealthStatusMessages healthStatusMessages;
     private final ListEndpointsMessages listEndpointsMessages;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
     private final MqttClientManagementService mqttClientManagementService;
@@ -56,19 +53,17 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                    DecodeMessageService decodeMessageService,
                                    MqttStatistics mqttStatistics,
-                                   HealthStatusMessages healthStatusMessages,
                                    ListEndpointsMessages listEndpointsMessages,
                                    SubscriptionsForMqttClient subscriptionsForMqttClient,
                                    MqttClientManagementService mqttClientManagementService) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
         this.mqttStatistics = mqttStatistics;
-        this.healthStatusMessages = healthStatusMessages;
         this.listEndpointsMessages = listEndpointsMessages;
         this.subscriptionsForMqttClient = subscriptionsForMqttClient;
         this.mqttClientManagementService = mqttClientManagementService;
 
-        var limit = Bandwidth.classic(10, Refill.intervally(60, Duration.ofMinutes(1)));
+        @SuppressWarnings("deprecation") var limit = Bandwidth.classic(10, Refill.intervally(60, Duration.ofMinutes(1)));
         this.bucket = Bucket.builder().addLimit(limit).build();
     }
 
@@ -93,13 +88,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
             log.trace("Message payload for message '{}' >>> {}", mqttMessage.getId(), StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8));
             mqttStatistics.increaseNumberOfMessagesArrived();
             var payload = StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8);
-            if (StringUtils.isNotBlank(payload)) {
-                if (StringUtils.startsWith(payload, HealthStatusMessage.MESSAGE_PREFIX)) {
-                    handleHealthStatusMessage(payload);
-                } else {
-                    handleAgrirouterMessage(payload);
-                }
-            }
+            handleAgrirouterMessage(payload);
         } catch (BusinessException e) {
             log.error("An internal business exception occurred.", e);
         } catch (Exception e) {
@@ -183,19 +172,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
             }
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse list endpoints response.", e);
-        }
-    }
-
-    private void handleHealthStatusMessage(String payload) {
-        log.info("Received health status message: {}", payload);
-        var strippedPayload = StringUtils.removeStart(payload, HealthStatusMessage.MESSAGE_PREFIX).trim();
-        var healthStatusMessage = GSON.fromJson(strippedPayload, HealthStatusMessage.class);
-        var existingHealthStatusMessage = healthStatusMessages.get(healthStatusMessage.getAgrirouterEndpointId());
-        if (null != existingHealthStatusMessage) {
-            existingHealthStatusMessage.setHasBeenReturned(true);
-            healthStatusMessages.put(existingHealthStatusMessage);
-        } else {
-            log.warn("Received health status message for unknown former message for endpoint: {}", healthStatusMessage.getAgrirouterEndpointId());
         }
     }
 

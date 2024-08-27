@@ -23,7 +23,6 @@ import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import de.agrirouter.middleware.integration.mqtt.SubscriptionsForMqttClient;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -148,14 +147,12 @@ public class AgrirouterConfiguration {
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
-                                                           HealthStatusMessages healthStatusMessages,
                                                            ListEndpointsMessages listEndpointsMessages,
                                                            SubscriptionsForMqttClient subscriptionsForMqttClient,
                                                            MqttClientManagementService mqttClientManagementService) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
-                healthStatusMessages,
                 listEndpointsMessages,
                 subscriptionsForMqttClient,
                 mqttClientManagementService);
