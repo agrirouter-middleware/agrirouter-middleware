@@ -61,7 +61,7 @@ public class RequestTimeFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
             var end = Instant.now();
-            log.info("The request to '{}' took {} ms", servletRequest.getServletContext().getContextPath(), end.toEpochMilli() - start.toEpochMilli());
+            log.trace("The request to '{}' took {} ms", servletRequest.getServletContext().getContextPath(), end.toEpochMilli() - start.toEpochMilli());
         }
     }
 }
