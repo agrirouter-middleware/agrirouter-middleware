@@ -127,6 +127,6 @@ public class MqttStatistics {
 
     @Scheduled(cron = "${app.scheduled.log-mqtt-statistics}")
     public void log() {
-        log.info("{}", this);
+        log.debug("{}", this);
     }
 }
