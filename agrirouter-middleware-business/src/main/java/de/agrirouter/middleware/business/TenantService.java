@@ -158,10 +158,10 @@ public class TenantService implements UserDetailsService {
                 externalActuatorTenant.setMonitoringAccess(true);
                 return new TenantPrincipal(externalActuatorTenant);
             } else {
-                log.info("This was not the external actuator tenant ID. Using the generated tenant information instead.");
+                log.trace("This was not the external actuator tenant ID. Using the generated tenant information instead.");
             }
         } else {
-            log.info("External actuator tenant is not configured. If you want to use the actuator, please configure the tenant ID and access token and use the defined profile.");
+            log.trace("External actuator tenant is not configured. If you want to use the actuator, please configure the tenant ID and access token and use the defined profile.");
         }
         final var optionalTenant = tenantRepository.findTenantByTenantId(tenantId);
         if (optionalTenant.isEmpty()) {
