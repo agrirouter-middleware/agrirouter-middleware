@@ -43,7 +43,7 @@ public class AgrirouterStatusIntegrationService {
     protected Component fetchCurrentStatus() {
         var restTemplate = new RestTemplate();
         var response = restTemplate.getForObject(url, String.class);
-        AgrirouterStatusResponse agrirouterStatusResponse = gson.fromJson(response, AgrirouterStatusResponse.class);
+        var agrirouterStatusResponse = gson.fromJson(response, AgrirouterStatusResponse.class);
         List<Component> components = Objects.requireNonNull(agrirouterStatusResponse)
                 .getComponents();
         if (components != null && !components.isEmpty()) {

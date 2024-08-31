@@ -22,13 +22,12 @@ import lombok.Setter;
  * "status": "partial_outage",
  * "updated_at": "2014-05-14T20:34:43.340Z"
  */
+@Setter
 public class Component {
 
-    @Setter
     @Getter
     private String name;
 
-    @Setter
     private String status;
 
     public ComponentStatus getComponentStatus() {
