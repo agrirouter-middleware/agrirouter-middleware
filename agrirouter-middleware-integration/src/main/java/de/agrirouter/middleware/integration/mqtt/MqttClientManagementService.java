@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Centralized management for all the applications.
@@ -51,6 +53,7 @@ public class MqttClientManagementService {
     @Value("${app.agrirouter.mqtt.options.connection-timeout}")
     private int connectionTimeout;
 
+    private final Lock lock = new ReentrantLock();
 
     /**
      * Get or create an MQTT client for the given onboard response.
@@ -73,19 +76,31 @@ public class MqttClientManagementService {
             }
             if (onboardingResponse != null) {
                 if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
-                    final CachedMqttClient cachedMqttClient = getCachedMqttClient(onboardingResponse);
+                    final var cachedMqttClient = getCachedMqttClient(onboardingResponse);
                     IMqttClient mqttClientAfterInitialization = null;
                     if (!isConnected(cachedMqttClient)) {
                         try {
-                            log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
-                            cachedMqttClients.remove(cachedMqttClient.id());
-                            final var mqttClient = initMqttClient(endpoint);
-                            final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
-                            cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
-                            mqttClientAfterInitialization = mqttClient;
+                            log.info("The endpoint '{}' is not connected, therefore trying to connect.", onboardingResponse.getSensorAlternateId());
+                            log.info("Ensure that this part is thread safe and only called once at a time.");
+                            lock.lock();
+                            final var cachedMqttClientAfterLock = getCachedMqttClient(onboardingResponse);
+                            if (isConnected(cachedMqttClientAfterLock)) {
+                                //noinspection OptionalGetWithoutIsPresent
+                                mqttClientAfterInitialization = cachedMqttClientAfterLock.mqttClient().get();
+                                log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is now connected, therefore returning this one.", onboardingResponse.getConnectionCriteria().getClientId());
+                            } else {
+                                log.debug("The existing mqtt client connection for endpoint with the MQTT client ID '{}' is no longer connected, therefore removing this one from the cache and reconnecting the endpoint.", onboardingResponse.getConnectionCriteria().getClientId());
+                                cachedMqttClients.remove(cachedMqttClient.id());
+                                final var mqttClient = initMqttClient(endpoint);
+                                final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.of(mqttClient), cachedMqttClient.connectionErrors());
+                                cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
+                                mqttClientAfterInitialization = mqttClient;
+                            }
                         } catch (Exception e) {
                             cachedMqttClient.connectionErrors().add(new ConnectionError(Instant.now(), String.format("There was an error while connecting the client, the error message was '%s'.", e.getMessage())));
                             cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), cachedMqttClient);
+                        } finally {
+                            lock.unlock();
                         }
                     } else {
                         log.debug("Returning existing mqtt client for endpoint with the MQTT client ID '{}'.", onboardingResponse.getConnectionCriteria().getClientId());
