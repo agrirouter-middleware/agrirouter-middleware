@@ -32,7 +32,7 @@ services:
 
 
   agrirouter-middleware:
-    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:8.11.0
+    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:develop
     platform: linux/amd64
     environment:
       - MONGODB_HOST=mongo
@@ -45,8 +45,10 @@ services:
       - MYSQL_PORT=3306
       - MYSQL_SCHEMA=agriroutermiddleware
       - MYSQL_USER=mysqluser
-      - MESSAGE_CACHE_DATA_DIRECTORY=/tmp/.message-cache
-      - SPRING_PROFILES_ACTIVE=qa,connect-agrirouter-prod
+      - MESSAGE_CACHE_DATA_DIRECTORY=/tmp/.message-cache # This is a temporary solution, please use a PVC for production
+      - SPRING_PROFILES_ACTIVE=prod,connect-agrirouter-prod
+      - JAVA_OPTS=-Xms1024m -Xmx3276m -Xss10m
+      - AGRIROUTER_STATUS_SKIP_CHECK=true
     ports:
       - "8080:8080"
     networks:
