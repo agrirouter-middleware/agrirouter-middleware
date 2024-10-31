@@ -20,7 +20,7 @@ import java.util.List;
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageCacheEntry {
+public class MessageCacheEntry extends NoSqlBaseEntity {
     private String externalEndpointId;
     private TechnicalMessageType technicalMessageType;
     private List<String> recipients;
