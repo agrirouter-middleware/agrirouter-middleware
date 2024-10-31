@@ -1,11 +1,10 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
 
 /**
  * Connection details for a router device.

@@ -3,11 +3,11 @@ package de.agrirouter.middleware.domain;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.google.gson.Gson;
 import de.agrirouter.middleware.domain.enums.ApplicationType;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.Set;
 
 /**

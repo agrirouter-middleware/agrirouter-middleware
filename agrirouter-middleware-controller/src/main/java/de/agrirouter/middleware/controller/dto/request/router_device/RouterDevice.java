@@ -1,11 +1,11 @@
 package de.agrirouter.middleware.controller.dto.request.router_device;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.OneToOne;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 

@@ -1,10 +1,9 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.Entity;
 
 /**
  * The current state of the connection.
