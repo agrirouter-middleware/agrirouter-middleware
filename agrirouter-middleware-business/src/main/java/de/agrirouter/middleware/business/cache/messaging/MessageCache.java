@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Cache for messages.
@@ -105,7 +106,8 @@ public class MessageCache {
                 messagingIntegrationParameters.filename(),
                 messagingIntegrationParameters.message(),
                 messagingIntegrationParameters.teamSetContextId(),
-                System.currentTimeMillis()
+                Instant.now(),
+                Instant.now().plus(Duration.ofDays(14))
         );
         messageCacheEntryRepository.save(messageCacheEntry);
     }
