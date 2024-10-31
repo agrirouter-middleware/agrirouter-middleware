@@ -2,12 +2,14 @@ package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.DeviceDescription;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 /**
  * Repository to access the time logs within the MongoDB.
  */
+@Repository
 public interface DeviceDescriptionRepository extends MongoRepository<DeviceDescription, String> {
 
     /**
