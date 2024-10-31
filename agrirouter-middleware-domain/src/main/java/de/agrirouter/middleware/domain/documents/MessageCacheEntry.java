@@ -1,7 +1,8 @@
-package de.agrirouter.middleware.domain;
+package de.agrirouter.middleware.domain.documents;
 
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
+import de.agrirouter.middleware.domain.NoSqlBaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

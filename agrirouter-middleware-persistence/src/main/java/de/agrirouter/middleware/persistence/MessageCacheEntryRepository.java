@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.persistence;
 
-import de.agrirouter.middleware.domain.MessageCacheEntry;
+import de.agrirouter.middleware.domain.documents.MessageCacheEntry;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

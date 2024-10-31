@@ -1,7 +1,7 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
-import de.agrirouter.middleware.domain.MessageCacheEntry;
+import de.agrirouter.middleware.domain.documents.MessageCacheEntry;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.MessageCacheEntryRepository;
 import lombok.RequiredArgsConstructor;
