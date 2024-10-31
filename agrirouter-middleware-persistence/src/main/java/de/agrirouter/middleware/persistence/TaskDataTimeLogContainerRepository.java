@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.persistence;
 
-import de.agrirouter.middleware.domain.taskdata.TaskDataTimeLogContainer;
+import de.agrirouter.middleware.domain.documents.TaskDataTimeLogContainer;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

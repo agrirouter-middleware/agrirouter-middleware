@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.persistence;
 
-import de.agrirouter.middleware.domain.Device;
+import de.agrirouter.middleware.domain.documents.Device;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

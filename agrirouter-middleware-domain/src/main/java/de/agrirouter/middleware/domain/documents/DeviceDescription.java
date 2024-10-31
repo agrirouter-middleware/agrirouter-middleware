@@ -1,15 +1,16 @@
-package de.agrirouter.middleware.domain;
+package de.agrirouter.middleware.domain.documents;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.bson.Document;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Telemetry data, stored in the document storage.
  */
 @Data
 @ToString
+@Document
 @EqualsAndHashCode(callSuper = true)
 public class DeviceDescription extends NoSqlBaseEntity {
 
@@ -46,7 +47,7 @@ public class DeviceDescription extends NoSqlBaseEntity {
     /**
      * The original time log or device description.
      */
-    private Document document;
+    private org.bson.Document document;
 
     /**
      * The team set context id.

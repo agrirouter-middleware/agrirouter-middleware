@@ -16,9 +16,9 @@ import de.agrirouter.middleware.business.cache.registration.TransientMachineRegi
 import de.agrirouter.middleware.business.parameters.CreateDeviceDescriptionParameters;
 import de.agrirouter.middleware.business.parameters.RegisterMachineParameters;
 import de.agrirouter.middleware.domain.ContentMessage;
-import de.agrirouter.middleware.domain.Device;
-import de.agrirouter.middleware.domain.DeviceDescription;
 import de.agrirouter.middleware.domain.Endpoint;
+import de.agrirouter.middleware.domain.documents.Device;
+import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.DeviceDescriptionRepository;

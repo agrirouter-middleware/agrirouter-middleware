@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.dto.timelog.periods;
 
-import de.agrirouter.middleware.domain.Device;
+import de.agrirouter.middleware.domain.documents.Device;
 import lombok.Getter;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package de.agrirouter.middleware.domain;
+package de.agrirouter.middleware.domain.documents;
 
 import lombok.Data;
 import lombok.ToString;

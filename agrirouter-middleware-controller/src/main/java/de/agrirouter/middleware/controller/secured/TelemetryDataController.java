@@ -22,7 +22,7 @@ import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.T
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodDtosForDevice;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodDtosForTeamSet;
 import de.agrirouter.middleware.controller.dto.response.domain.timelog.periods.TimeLogPeriodsDto;
-import de.agrirouter.middleware.domain.DeviceDescription;
+import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

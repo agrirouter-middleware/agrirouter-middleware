@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.persistence;
 
-import de.agrirouter.middleware.domain.TimeLog;
+import de.agrirouter.middleware.domain.documents.TimeLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

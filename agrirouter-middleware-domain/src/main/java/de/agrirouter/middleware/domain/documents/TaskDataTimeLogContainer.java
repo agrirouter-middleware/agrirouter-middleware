@@ -1,11 +1,10 @@
-package de.agrirouter.middleware.domain.taskdata;
+package de.agrirouter.middleware.domain.documents;
 
 import de.agrirouter.middleware.domain.ContentMessage;
-import de.agrirouter.middleware.domain.NoSqlBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.bson.Document;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
@@ -14,6 +13,7 @@ import java.util.List;
  */
 @Data
 @ToString
+@Document
 @EqualsAndHashCode(callSuper = true)
 public class TaskDataTimeLogContainer extends NoSqlBaseEntity {
 
@@ -45,9 +45,9 @@ public class TaskDataTimeLogContainer extends NoSqlBaseEntity {
     /**
      * The original time log.
      */
-    private List<Document> timeLogs;
+    private List<org.bson.Document> timeLogs;
 
-    public TaskDataTimeLogContainer(ContentMessage contentMessage, List<Document> timeLogs) {
+    public TaskDataTimeLogContainer(ContentMessage contentMessage, List<org.bson.Document> timeLogs) {
         this.setEndpointId(contentMessage.getAgrirouterEndpointId());
         this.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
         this.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
