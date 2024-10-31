@@ -1,10 +1,9 @@
 package de.agrirouter.middleware.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Logging the incoming requests.
