@@ -1,7 +1,7 @@
 package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.business.parameters.SearchMachinesParameters;
-import de.agrirouter.middleware.domain.Device;
+import de.agrirouter.middleware.domain.documents.Device;
 import de.agrirouter.middleware.persistence.DeviceRepository;
 import org.springframework.stereotype.Service;
 

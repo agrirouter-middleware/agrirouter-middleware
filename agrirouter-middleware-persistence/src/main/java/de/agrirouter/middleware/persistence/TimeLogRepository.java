@@ -1,13 +1,15 @@
 package de.agrirouter.middleware.persistence;
 
-import de.agrirouter.middleware.domain.TimeLog;
+import de.agrirouter.middleware.domain.documents.TimeLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * Repository to access the time logs within the MongoDB.
  */
+@Repository
 public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
 
     /**

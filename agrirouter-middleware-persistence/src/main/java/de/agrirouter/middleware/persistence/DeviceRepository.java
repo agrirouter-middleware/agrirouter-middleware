@@ -1,7 +1,8 @@
 package de.agrirouter.middleware.persistence;
 
-import de.agrirouter.middleware.domain.Device;
+import de.agrirouter.middleware.domain.documents.Device;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.Optional;
 /**
  * Access the devices saved within the database.
  */
+@Repository
 public interface DeviceRepository extends MongoRepository<Device, String> {
 
     /**

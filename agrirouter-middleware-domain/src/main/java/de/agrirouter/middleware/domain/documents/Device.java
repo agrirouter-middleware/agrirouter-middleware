@@ -1,9 +1,10 @@
-package de.agrirouter.middleware.domain;
+package de.agrirouter.middleware.domain.documents;
 
 import de.saschadoemer.iso11783.clientname.ClientName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  */
 @Data
 @ToString
+@Document
 @EqualsAndHashCode(callSuper = true)
 public class Device extends NoSqlBaseEntity {
 

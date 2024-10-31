@@ -28,7 +28,7 @@ import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.Endpoint;
-import de.agrirouter.middleware.domain.taskdata.TaskDataTimeLogContainer;
+import de.agrirouter.middleware.domain.documents.TaskDataTimeLogContainer;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
