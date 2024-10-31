@@ -2,12 +2,12 @@ package de.agrirouter.middleware.controller.dto.request;
 
 import com.dke.data.agrirouter.impl.common.UtcTimeService;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
