@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   mysql:
-    image: mariadb:10.7
+    image: mariadb:10.11
     environment:
       - MYSQL_ROOT_PASSWORD=changeit
       - MYSQL_DATABASE=agriroutermiddleware
