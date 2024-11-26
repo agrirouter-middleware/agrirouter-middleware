@@ -2,7 +2,6 @@ package de.agrirouter.middleware.controller.monitoring;
 
 import de.agrirouter.middleware.controller.MonitoringApiController;
 import de.agrirouter.middleware.controller.dto.response.AgrirouterStatusResponse;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

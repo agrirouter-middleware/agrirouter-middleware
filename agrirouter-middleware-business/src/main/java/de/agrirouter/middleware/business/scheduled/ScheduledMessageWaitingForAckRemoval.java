@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business.scheduled;
 
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

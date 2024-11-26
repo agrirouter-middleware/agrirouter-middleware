@@ -8,7 +8,6 @@ import de.agrirouter.middleware.controller.dto.ApplicationStatisticsResponse;
 import de.agrirouter.middleware.controller.dto.MqttStatisticsResponse;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

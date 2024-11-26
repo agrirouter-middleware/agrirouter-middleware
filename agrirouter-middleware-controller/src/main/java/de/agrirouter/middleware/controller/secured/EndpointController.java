@@ -15,7 +15,6 @@ import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

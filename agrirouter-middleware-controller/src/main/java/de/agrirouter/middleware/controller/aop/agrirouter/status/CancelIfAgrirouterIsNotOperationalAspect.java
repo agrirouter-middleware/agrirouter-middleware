@@ -2,7 +2,6 @@ package de.agrirouter.middleware.controller.aop.agrirouter.status;
 
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

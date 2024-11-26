@@ -12,7 +12,6 @@ import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParam
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;

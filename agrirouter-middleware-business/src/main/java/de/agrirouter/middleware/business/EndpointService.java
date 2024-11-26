@@ -25,7 +25,6 @@ import de.agrirouter.middleware.integration.mqtt.health.HealthStatusWithLastKnow
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.cache.MessageRecipientCache;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import de.agrirouter.middleware.persistence.ApplicationRepository;
 import de.agrirouter.middleware.persistence.EndpointRepository;
 import de.agrirouter.middleware.persistence.ErrorRepository;

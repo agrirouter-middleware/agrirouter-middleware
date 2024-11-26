@@ -12,7 +12,6 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.ThreadUtils;
