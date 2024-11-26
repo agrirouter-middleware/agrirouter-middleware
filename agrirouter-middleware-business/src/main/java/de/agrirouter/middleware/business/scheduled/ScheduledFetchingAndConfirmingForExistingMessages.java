@@ -34,7 +34,6 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
     private final BusinessOperationLogService businessOperationLogService;
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     @Value("${app.scheduled.sleep-time-between-queries-seconds}")
     private long sleepTimeBetweenQueries;
@@ -45,13 +44,11 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
     public ScheduledFetchingAndConfirmingForExistingMessages(EndpointService endpointService,
                                                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                                                              MqttClientManagementService mqttClientManagementService,
-                                                             BusinessOperationLogService businessOperationLogService,
-                                                             AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
+                                                             BusinessOperationLogService businessOperationLogService) {
         this.endpointService = endpointService;
         this.mqttClientManagementService = mqttClientManagementService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
         this.businessOperationLogService = businessOperationLogService;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -59,7 +56,6 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
      */
     @Scheduled(cron = "${app.scheduled.fetching-and-confirming-existing-messages}")
     public void scheduleFetchingAndConfirmingExistingMessagesForAllEndpoints() {
-        if (agrirouterStatusIntegrationService.isOperational()) {
             try {
                 long waitTime = RandomUtils.nextLong(1, randomDelayForTheStartOfTheScheduledTask);
                 log.debug("Sleeping for {} minutes before fetching and confirming existing messages.", waitTime);
@@ -77,9 +73,6 @@ public class ScheduledFetchingAndConfirmingForExistingMessages {
                     log.error("Could not sleep between queries.");
                 }
             });
-        } else {
-            log.debug("Agrirouter is not operational. Skipping scheduled fetching and confirming for existing messages.");
-        }
     }
 
     private void fetchAndConfirmExistingMessages(Endpoint endpoint) {
