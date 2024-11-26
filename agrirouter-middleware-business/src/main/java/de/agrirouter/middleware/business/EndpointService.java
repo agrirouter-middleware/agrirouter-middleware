@@ -62,7 +62,6 @@ public class EndpointService {
     private final BusinessEventsCache businessEventsCache;
     private final ListEndpointsIntegrationService listEndpointsIntegrationService;
     private final MessageRecipientCache messageRecipientCache;
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
     private final InternalEndpointCache internalEndpointCache;
     private final RemoveEndpointDataService removeEndpointDataService;
 
@@ -89,7 +88,6 @@ public class EndpointService {
                            BusinessEventsCache businessEventsCache,
                            ListEndpointsIntegrationService listEndpointsIntegrationService,
                            MessageRecipientCache messageRecipientCache,
-                           AgrirouterStatusIntegrationService agrirouterStatusIntegrationService,
                            InternalEndpointCache internalEndpointCache,
                            RemoveEndpointDataService removeEndpointDataService) {
         this.endpointRepository = endpointRepository;
@@ -106,7 +104,6 @@ public class EndpointService {
         this.businessEventsCache = businessEventsCache;
         this.listEndpointsIntegrationService = listEndpointsIntegrationService;
         this.messageRecipientCache = messageRecipientCache;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
         this.internalEndpointCache = internalEndpointCache;
         this.removeEndpointDataService = removeEndpointDataService;
     }
@@ -498,38 +495,32 @@ public class EndpointService {
      * @return The recipients for the endpoint.
      */
     public Collection<MessageRecipient> getMessageRecipients(String externalEndpointId) {
-        if (agrirouterStatusIntegrationService.isOperational()) {
-            final var endpoint = findByExternalEndpointId(externalEndpointId);
-            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint);
-            if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
-                var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
-                while (timer > 0) {
-                    try {
-                        Thread.sleep(pollingIntervall);
-                        var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
-                        if (recipients.isPresent()) {
-                            log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
-                            Collection<MessageRecipient> messageRecipients = recipients.get();
-                            log.debug("Recipients: {}.", messageRecipients);
-                            messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
-                            return messageRecipients;
-                        }
-                    } catch (InterruptedException e) {
-                        log.error("Error while waiting for list endpoints / message recipients response.", e);
+        final var endpoint = findByExternalEndpointId(externalEndpointId);
+        listEndpointsIntegrationService.publishListEndpointsMessage(endpoint);
+        if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
+            var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+            while (timer > 0) {
+                try {
+                    Thread.sleep(pollingIntervall);
+                    var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
+                    if (recipients.isPresent()) {
+                        log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                        Collection<MessageRecipient> messageRecipients = recipients.get();
+                        log.debug("Recipients: {}.", messageRecipients);
+                        messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
+                        return messageRecipients;
                     }
-                    timer = timer - pollingIntervall;
+                } catch (InterruptedException e) {
+                    log.error("Error while waiting for list endpoints / message recipients response.", e);
                 }
-            } else {
-                log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                timer = timer - pollingIntervall;
             }
-            log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
-            var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
-            return optionalMessageRecipients.orElse(Collections.emptyList());
         } else {
-            log.debug("Agrirouter is not operational, using the cached recipients.");
-            var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
-            return optionalMessageRecipients.orElse(Collections.emptyList());
+            log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
         }
+        log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
+        var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
+        return optionalMessageRecipients.orElse(Collections.emptyList());
     }
 
     /**
@@ -628,20 +619,16 @@ public class EndpointService {
 
     private Callable<TaskResult> createHealthCheckTask(String externalEndpointId) {
         return () -> {
-            if (agrirouterStatusIntegrationService.isOperational()) {
-                try {
-                    var healthStatus = determineHealthStatus(externalEndpointId);
-                    return switch (healthStatus.getHealthStatus()) {
-                        case HEALTHY -> new TaskResult(externalEndpointId, HttpStatus.OK.value());
-                        case PENDING -> new TaskResult(externalEndpointId, HttpStatus.PROCESSING.value());
-                        case UNHEALTHY -> new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
-                        case UNKNOWN -> new TaskResult(externalEndpointId, HttpStatus.BAD_REQUEST.value());
-                    };
-                } catch (BusinessException e) {
-                    return new TaskResult(externalEndpointId, e.getErrorMessage().getHttpStatus().value());
-                }
-            } else {
-                return new TaskResult(externalEndpointId, HttpStatus.BAD_GATEWAY.value());
+            try {
+                var healthStatus = determineHealthStatus(externalEndpointId);
+                return switch (healthStatus.getHealthStatus()) {
+                    case HEALTHY -> new TaskResult(externalEndpointId, HttpStatus.OK.value());
+                    case PENDING -> new TaskResult(externalEndpointId, HttpStatus.PROCESSING.value());
+                    case UNHEALTHY -> new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
+                    case UNKNOWN -> new TaskResult(externalEndpointId, HttpStatus.BAD_REQUEST.value());
+                };
+            } catch (BusinessException e) {
+                return new TaskResult(externalEndpointId, e.getErrorMessage().getHttpStatus().value());
             }
         };
     }
