@@ -9,7 +9,6 @@ import de.agrirouter.middleware.business.SecuredOnboardProcessService;
 import de.agrirouter.middleware.business.global.OnboardStateContainer;
 import de.agrirouter.middleware.business.parameters.OnboardProcessParameters;
 import de.agrirouter.middleware.controller.UnsecuredApiController;
-import de.agrirouter.middleware.controller.aop.agrirouter.status.CancelIfAgrirouterIsNotOperational;
 import de.agrirouter.middleware.controller.dto.response.enums.OnboardProcessResult;
 import de.agrirouter.middleware.domain.Application;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,7 +63,6 @@ public class CallbackProcessorController implements UnsecuredApiController {
     @SuppressWarnings("unused")
     @GetMapping()
     @Operation(hidden = true)
-    @CancelIfAgrirouterIsNotOperational
     public RedirectView callback(@Parameter(description = "The state to identify the request internally.", required =
             true) @RequestParam(value = "state") String state,
                                  @Parameter(description = "Token containing the information for the onboard process, " +

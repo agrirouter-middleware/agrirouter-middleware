@@ -12,7 +12,6 @@ import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParam
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
@@ -34,18 +33,15 @@ public class PublishNonTelemetryDataService {
     private final BusinessOperationLogService businessOperationLogService;
     private final EndpointService endpointService;
     private final MessageCache messageCache;
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public PublishNonTelemetryDataService(SendMessageIntegrationService sendMessageIntegrationService,
                                           BusinessOperationLogService businessOperationLogService,
                                           EndpointService endpointService,
-                                          MessageCache messageCache,
-                                          AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
+                                          MessageCache messageCache) {
         this.sendMessageIntegrationService = sendMessageIntegrationService;
         this.businessOperationLogService = businessOperationLogService;
         this.endpointService = endpointService;
         this.messageCache = messageCache;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -62,9 +58,8 @@ public class PublishNonTelemetryDataService {
                 asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
                 null);
         try {
-            agrirouterStatusIntegrationService.checkCurrentStatus();
             var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
-            if (healthStatus.equals(HealthStatus.HEALTHY)) {
+            if (healthStatus.getHealthStatus().equals(HealthStatus.HEALTHY)) {
                 checkAndUpdateRecipients(publishNonTelemetryDataParameters);
                 var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);

@@ -19,7 +19,6 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -37,16 +36,12 @@ public class SendMessageIntegrationService {
     private final EncodeMessageService encodeMessageService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
 
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
-
     public SendMessageIntegrationService(MqttClientManagementService mqttClientManagementService,
                                          EncodeMessageService encodeMessageService,
-                                         MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                         AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
+                                         MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
         this.mqttClientManagementService = mqttClientManagementService;
         this.encodeMessageService = encodeMessageService;
         this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -55,7 +50,6 @@ public class SendMessageIntegrationService {
      * @param messagingIntegrationParameters -
      */
     public void publish(Endpoint endpoint, MessagingIntegrationParameters messagingIntegrationParameters) throws CriticalBusinessException {
-        agrirouterStatusIntegrationService.checkCurrentStatus();
         final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty()) {
             throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()));

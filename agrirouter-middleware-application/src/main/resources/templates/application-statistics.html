@@ -13,23 +13,6 @@
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
                     <h3 class="mdl-card__title-text"
-                        th:text="#{application.statistics.agrirouter-status}"></h3>
-                </div>
-                <div th:if="#{agrirouterStatus}" class="mdl-card__supporting-text">
-                    <h2>UP & RUNNING</h2>
-                </div>
-                <div th:unless="#{agrirouterStatus}" class="mdl-card__supporting-text">
-                    <h2>CURRENTLY NOT WORKING AS EXPECTED</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mdl-grid">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h3 class="mdl-card__title-text"
                         th:text="#{application.statistics.number-of-applications}"></h3>
                 </div>
                 <div class="mdl-card__supporting-text">

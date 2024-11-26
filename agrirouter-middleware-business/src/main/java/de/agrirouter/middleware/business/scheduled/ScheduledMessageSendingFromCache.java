@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business.scheduled;
 
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,11 +13,9 @@ import org.springframework.stereotype.Component;
 public class ScheduledMessageSendingFromCache {
 
     private final MessageCache messageCache;
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
-    public ScheduledMessageSendingFromCache(MessageCache messageCache, AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
+    public ScheduledMessageSendingFromCache(MessageCache messageCache) {
         this.messageCache = messageCache;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -26,11 +23,7 @@ public class ScheduledMessageSendingFromCache {
      */
     @Scheduled(cron = "${app.scheduled.empty-message-cache}")
     public void sendMessagesFromCache() {
-        if (agrirouterStatusIntegrationService.isOperational()) {
-            log.debug("Scheduled message sending from cache.");
-            messageCache.sendMessages();
-        } else {
-            log.debug("Scheduled message sending from cache skipped because agrirouter is not operational.");
-        }
+        log.debug("Scheduled message sending from cache.");
+        messageCache.sendMessages();
     }
 }
