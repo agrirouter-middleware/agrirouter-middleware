@@ -16,11 +16,12 @@ public interface DeviceRepository extends MongoRepository<Device, String> {
     /**
      * Find an existing machine.
      *
-     * @param manufacturerCode -
-     * @param serialNumber     -
+     * @param manufacturerCode   -
+     * @param serialNumber       -
+     * @param externalEndpointId -
      * @return -
      */
-    Optional<Device> findByClientName_ManufacturerCodeAndSerialNumber(int manufacturerCode, String serialNumber);
+    Optional<Device> findByClientName_ManufacturerCodeAndSerialNumberAndExternalEndpointId(int manufacturerCode, String serialNumber, String externalEndpointId);
 
     /**
      * Find all devices for the given internal endpoint id.
