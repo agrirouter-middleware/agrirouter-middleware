@@ -15,13 +15,15 @@ In addition, the agrirouter© middleware provides simple data conversion from IS
 
 == Why Should You Use It?
 
-=== TL;DR ===
+=== TL;DR
 
 The agrirouter© middleware is a reliable and stable solution for your agrirouter© connection.
 The middleware is OEM certified and there are no additional costs for the certification process.
 Using the middleware to connect to the agrirouter© will speed up the whole process and you can focus on your business logic.
 
-=== And The Long Version? ===
+image::oem/speed-up.webp[Speed up the process]
+
+=== And The Long Version?
 
 The agrirouter© middleware is OEM certified, what does this mean?
 By using the agrirouter© middleware you are ready to speed up the whole process, since all the certification requirements are already fulfilled by the middleware.
@@ -44,7 +46,7 @@ Reach out by sending an email to mailto:agrirouter-certification@lmis.de[agrirou
 During the integration of the middleware into your solution we will have a look at your integration, since this is part of the OEM certification rules.
 We check if the integration is done correctly and if there are any issues, we will help you to solve them.
 
-=== How Could You Host It? ===
+== How Could You Host It?
 
 https://lmis.de[LMIS AG] is providing a free QA environment for the agrirouter© middleware.
 This environment is used for testing and integration purposes.
