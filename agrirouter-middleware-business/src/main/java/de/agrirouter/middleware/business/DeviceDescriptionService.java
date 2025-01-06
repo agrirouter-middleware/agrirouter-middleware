@@ -153,7 +153,7 @@ public class DeviceDescriptionService {
                         if (StringUtils.isBlank(d.getDeviceSerialNumber())) {
                             log.warn("The device serial number is empty, this could lead to problems with the identification of the machines.");
                         }
-                        final var optionalDevice = deviceRepository.findByClientName_ManufacturerCodeAndSerialNumber(cn.getManufacturerCode(), d.getDeviceSerialNumber());
+                        final var optionalDevice = deviceRepository.findByClientName_ManufacturerCodeAndSerialNumberAndExternalEndpointId(cn.getManufacturerCode(), d.getDeviceSerialNumber(), endpoint.getExternalEndpointId());
                         optionalDevice.ifPresentOrElse(device -> {
                             log.debug("The device has been found, using the already existing device.");
                             if (StringUtils.isBlank(device.getInternalDeviceId())) {
