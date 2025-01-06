@@ -93,9 +93,52 @@ On the other hand the connection to the agrirouter© is based on the faster MQTT
 The messages from the agrirouter© are fetched, confirmed and stored within an internal database.
 There is no need to implement the business process on your own.
 
-== Release Notes
+== Why Should You Use It?
 
-The release notes can be found within this repository, please have a look at the following document - https://github.com/agrirouter-middleware/agrirouter-middleware/blob/main/RELEASE_NOTES.adoc[Release Notes].
+The agrirouter© middleware is ready for certification.
+What does this mean?
+By using the agrirouter© middleware you are ready to speed up the certification process, since most of the requirements are already fulfilled by the middleware.
+To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
+
+[cols="1,1,1"]
+|===
+|Certification criteria |Status |Comment
+
+|Secured Onboarding
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware covers the whole onboarding process. You only need to integrate a button to call one of the endpoints and add the status checking. After this you are ready to go.
+
+|Authorization
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware ships customizable redirect pages and everything you need to connect to the agrirouter© and pass the certiciation.
+
+|Verfication
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware verifies the response from the agrirouter© and adds that extra bit of security.
+
+|Revoking
+a|image::readme/thumb_up.png[ready,25,role="left]
+|If the user wants to disconnect the endpoint, the agrirouter© brings all you need to add this functionality.
+
+|Using / Updating router devices
+a|image::readme/thumb_up.png[ready,25,role="left]
+|The agrirouter© middleware is ready to use router devices and provides an easy way to update the router device.
+
+|VCU onboarding / off-boarding
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Using the agrirouter© middleware to run your telemetry platform you are able to register your machines as virtual endpoints.
+
+|agrirouter© commands
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Since the agrirouter© middleware is based on the agrirouter© SDKs, all the commands are supported and implemented.
+
+|Chunking
+a|image::readme/thumb_up.png[ready,25,role="left]
+|Chunking is necessary for all formats that transport "non-telemetry" data (ISOXML, SHAPE, images, videos, ...) and the agrirouter© middleware is capable of it.
+
+|Encoding
+a|image::readme/thumb_up.png[ready,25,role="left]
+|All messages are encoded correctly, therefore no need to worry.
 
 == Full Functional Documentation
 
