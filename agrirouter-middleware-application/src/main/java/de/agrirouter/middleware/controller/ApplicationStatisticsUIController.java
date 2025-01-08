@@ -8,7 +8,6 @@ import de.agrirouter.middleware.controller.dto.ApplicationStatisticsResponse;
 import de.agrirouter.middleware.controller.dto.MqttStatisticsResponse;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,22 +27,19 @@ public class ApplicationStatisticsUIController extends UIController {
     private final ApplicationService applicationService;
     private final TenantService tenantService;
     private final ModelMapper modelMapper;
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public ApplicationStatisticsUIController(MqttStatistics mqttStatistics,
                                              MqttClientManagementService mqttClientManagementService,
                                              EndpointService endpointService,
                                              ApplicationService applicationService,
                                              TenantService tenantService,
-                                             ModelMapper modelMapper,
-                                             AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
+                                             ModelMapper modelMapper) {
         this.mqttStatistics = mqttStatistics;
         this.mqttClientManagementService = mqttClientManagementService;
         this.endpointService = endpointService;
         this.applicationService = applicationService;
         this.tenantService = tenantService;
         this.modelMapper = modelMapper;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -57,7 +53,6 @@ public class ApplicationStatisticsUIController extends UIController {
         addApplicationStatisticsToModel(model);
         addMqttStatisticsToModel(model);
         model.addAttribute("activeProfiles", getActiveProfiles());
-        model.addAttribute("agrirouterStatus", agrirouterStatusIntegrationService.isOperational());
         model.addAttribute("mqttConnectionStatus", mqttClientManagementService.getMqttConnectionStatus());
         return Routes.UserInterface.ThymeleafRouting.APPLICATION_STATISTICS;
     }

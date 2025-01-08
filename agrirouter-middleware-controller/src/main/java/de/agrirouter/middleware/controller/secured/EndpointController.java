@@ -15,7 +15,6 @@ import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.integration.status.AgrirouterStatusIntegrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -54,7 +53,6 @@ public class EndpointController implements SecuredApiController {
     private final MessageCache messageCache;
     private final MqttClientManagementService mqttClientManagementService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
-    private final AgrirouterStatusIntegrationService agrirouterStatusIntegrationService;
 
     public EndpointController(ApplicationService applicationService,
                               EndpointService endpointService,
@@ -62,8 +60,7 @@ public class EndpointController implements SecuredApiController {
                               MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
                               MessageCache messageCache,
                               MqttClientManagementService mqttClientManagementService,
-                              CloudOnboardingFailureCache cloudOnboardingFailureCache,
-                              AgrirouterStatusIntegrationService agrirouterStatusIntegrationService) {
+                              CloudOnboardingFailureCache cloudOnboardingFailureCache) {
         this.applicationService = applicationService;
         this.endpointService = endpointService;
         this.modelMapper = modelMapper;
@@ -71,7 +68,6 @@ public class EndpointController implements SecuredApiController {
         this.messageCache = messageCache;
         this.mqttClientManagementService = mqttClientManagementService;
         this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
-        this.agrirouterStatusIntegrationService = agrirouterStatusIntegrationService;
     }
 
     /**
@@ -617,28 +613,24 @@ public class EndpointController implements SecuredApiController {
             }
     )
     public Callable<ResponseEntity<DetailedEndpointHealthStatusResponse>> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
-        if (agrirouterStatusIntegrationService.isOperational()) {
-            try {
-                var healthStatus = endpointService.determineHealthStatus(externalEndpointId);
-                return switch (healthStatus.getHealthStatus()) {
-                    case HEALTHY ->
-                            () -> ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
-                    case PENDING ->
-                            () -> ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
-                    case UNHEALTHY ->
-                            () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
-                    case UNKNOWN ->
-                            () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
-                };
-            } catch (BusinessException e) {
-                if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
-                    return () -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                } else {
-                    throw e;
-                }
+        try {
+            var healthStatus = endpointService.determineHealthStatus(externalEndpointId);
+            return switch (healthStatus.getHealthStatus()) {
+                case HEALTHY ->
+                        () -> ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                case PENDING ->
+                        () -> ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                case UNHEALTHY ->
+                        () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                case UNKNOWN ->
+                        () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+            };
+        } catch (BusinessException e) {
+            if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
+                return () -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            } else {
+                throw e;
             }
-        } else {
-            return () -> ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
         }
     }
 

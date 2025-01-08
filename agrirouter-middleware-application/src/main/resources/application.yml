@@ -54,9 +54,6 @@ app:
   build: '@maven.build.timestamp@'
   agrirouter:
     redirect-delay: 250
-    status:
-      url: https://status.agrirouter.com/api/v2/components.json
-      skip-check: false
     mqtt:
       synchronous:
         health:
