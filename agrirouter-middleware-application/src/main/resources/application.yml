@@ -13,8 +13,6 @@ spring:
       password: ${MONGODB_PASSWORD}
 
   jpa:
-    hibernate:
-      ddl-auto: validate
     database: default
     properties:
       hibernate:
