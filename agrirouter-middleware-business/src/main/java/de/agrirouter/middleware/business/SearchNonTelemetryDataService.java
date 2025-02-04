@@ -6,7 +6,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.dto.MessageStatistics;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
-import de.agrirouter.middleware.persistence.ContentMessageRepository;
+import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

@@ -23,7 +23,7 @@ import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import de.agrirouter.middleware.domain.documents.TimeLog;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
-import de.agrirouter.middleware.persistence.TimeLogRepository;
+import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
 import efdi.GrpcEfdi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

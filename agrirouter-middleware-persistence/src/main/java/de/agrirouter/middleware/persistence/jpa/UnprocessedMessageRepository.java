@@ -1,4 +1,4 @@
-package de.agrirouter.middleware.persistence;
+package de.agrirouter.middleware.persistence.jpa;
 
 import de.agrirouter.middleware.domain.UnprocessedMessage;
 import org.springframework.data.jpa.repository.JpaRepository;

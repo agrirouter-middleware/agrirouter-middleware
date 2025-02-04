@@ -1,4 +1,4 @@
-package de.agrirouter.middleware.persistence;
+package de.agrirouter.middleware.persistence.mongo;
 
 import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import org.springframework.data.mongodb.repository.MongoRepository;

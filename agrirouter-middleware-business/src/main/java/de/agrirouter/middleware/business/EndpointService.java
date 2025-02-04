@@ -25,10 +25,10 @@ import de.agrirouter.middleware.integration.mqtt.health.HealthStatusWithLastKnow
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.cache.MessageRecipientCache;
-import de.agrirouter.middleware.persistence.ApplicationRepository;
-import de.agrirouter.middleware.persistence.EndpointRepository;
-import de.agrirouter.middleware.persistence.ErrorRepository;
-import de.agrirouter.middleware.persistence.WarningRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
+import de.agrirouter.middleware.persistence.jpa.ErrorRepository;
+import de.agrirouter.middleware.persistence.jpa.WarningRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
