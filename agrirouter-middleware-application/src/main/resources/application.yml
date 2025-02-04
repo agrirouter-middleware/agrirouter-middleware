@@ -59,12 +59,12 @@ app:
         health:
           response:
             wait:
-              time: 1500
+              time: 300
         response:
           wait:
-            time: 3000
+            time: 1500
           polling:
-            intervall: 100
+            intervall: 50
       options:
         clean-session: false
         keep-alive-interval: 30
