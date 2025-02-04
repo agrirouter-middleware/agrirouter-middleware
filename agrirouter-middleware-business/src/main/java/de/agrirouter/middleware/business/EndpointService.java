@@ -563,7 +563,7 @@ public class EndpointService {
 
     public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
         Map<String, Integer> endpointStatus = new HashMap<>();
-        try (var executorService = Executors.newCachedThreadPool()) {
+        try (ExecutorService executorService = Executors.newCachedThreadPool()) {
             var callables = new ArrayList<Callable<TaskResult>>();
             externalEndpointIds.forEach(externalEndpointId -> callables.add(createHealthCheckTask(externalEndpointId)));
             var futures = executorService.invokeAll(callables);
