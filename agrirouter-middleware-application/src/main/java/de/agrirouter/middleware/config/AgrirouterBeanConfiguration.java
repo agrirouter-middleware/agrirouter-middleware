@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Scope;
  * The internal configuration for the agrirouter© connection.
  */
 @Configuration
-public class AgrirouterConfiguration {
+public class AgrirouterBeanConfiguration {
 
     /**
      * Create an instance of the QA environment for dependency injection.

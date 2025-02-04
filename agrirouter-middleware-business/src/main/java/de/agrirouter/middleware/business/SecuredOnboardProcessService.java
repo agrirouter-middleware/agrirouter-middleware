@@ -17,7 +17,7 @@ import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
-import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

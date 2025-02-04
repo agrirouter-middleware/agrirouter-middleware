@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.security;
 
-import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
