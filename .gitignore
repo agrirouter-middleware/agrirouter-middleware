@@ -46,3 +46,6 @@ message-cache
 
 # HTTP CLIENT PRIVATE ENVIRONMENT VARIABLES
 *.env.json
+
+# MAC_OS #
+.DS_Store
