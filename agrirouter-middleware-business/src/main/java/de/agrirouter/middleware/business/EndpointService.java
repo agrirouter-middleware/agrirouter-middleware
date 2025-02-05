@@ -72,7 +72,7 @@ public class EndpointService {
     private int nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
 
     @Value("${app.agrirouter.mqtt.synchronous.response.polling.intervall}")
-    private int pollingIntervall; //FIXME
+    private int pollingInterval; //FIXME
 
     @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
     private int fixedThreadPoolSize;
@@ -472,7 +472,7 @@ public class EndpointService {
         var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
         while (timer > 0) {
             try {
-                Thread.sleep(pollingIntervall);
+                Thread.sleep(pollingInterval);
                 healthStatus = healthStatusIntegrationService.determineHealthStatus(endpoint.getAgrirouterEndpointId());
                 if (!HealthStatus.PENDING.equals(healthStatus) && !HealthStatus.UNKNOWN.equals(healthStatus)) {
                     break;
@@ -480,7 +480,7 @@ public class EndpointService {
             } catch (InterruptedException e) {
                 log.error("Error while waiting for health status response.", e);
             }
-            timer = timer - pollingIntervall;
+            timer = timer - pollingInterval;
         }
         var lastKnownHealthyStatus = healthStatusIntegrationService.getLastKnownHealthyStatus(endpoint.getAgrirouterEndpointId());
         if (lastKnownHealthyStatus.isPresent()) {
@@ -504,7 +504,7 @@ public class EndpointService {
             var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
             while (timer > 0) {
                 try {
-                    Thread.sleep(pollingIntervall);
+                    Thread.sleep(pollingInterval);
                     var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
                     if (recipients.isPresent()) {
                         log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
@@ -516,7 +516,7 @@ public class EndpointService {
                 } catch (InterruptedException e) {
                     log.error("Error while waiting for list endpoints / message recipients response.", e);
                 }
-                timer = timer - pollingIntervall;
+                timer = timer - pollingInterval;
             }
         } else {
             log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
@@ -611,7 +611,7 @@ public class EndpointService {
         while (futures.stream().anyMatch(future -> !future.isDone())) {
             try {
                 //noinspection BusyWait
-                Thread.sleep(pollingIntervall);
+                Thread.sleep(pollingInterval);
             } catch (InterruptedException e) {
                 log.error("Error while waiting for the health check tasks to finish.", e);
             }
