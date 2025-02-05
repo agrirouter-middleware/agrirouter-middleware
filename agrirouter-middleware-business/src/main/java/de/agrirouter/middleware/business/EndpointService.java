@@ -43,6 +43,7 @@ import java.util.concurrent.*;
 
 /**
  * Business operations regarding the endpoints.
+ *
  */
 @Slf4j
 @Service
