@@ -53,6 +53,9 @@ public class MqttClientManagementService {
     @Value("${app.agrirouter.mqtt.options.connection-timeout}")
     private int connectionTimeout;
 
+    @Value("${app.agrirouter.mqtt.options.max-in-flight}")
+    private int maxInFlight;
+
     private final Lock lock = new ReentrantLock();
 
     /**
@@ -168,6 +171,7 @@ public class MqttClientManagementService {
         mqttConnectOptions.setCleanSession(cleanSession);
         mqttConnectOptions.setKeepAliveInterval(keepAliveInterval);
         mqttConnectOptions.setConnectionTimeout(connectionTimeout);
+        mqttConnectOptions.setMaxInflight(maxInFlight);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
         messageHandlingCallback.setMqttClient(mqttClient);
         messageHandlingCallback.setClientIdOfTheRouterDevice(onboardingResponse.getConnectionCriteria().getClientId());

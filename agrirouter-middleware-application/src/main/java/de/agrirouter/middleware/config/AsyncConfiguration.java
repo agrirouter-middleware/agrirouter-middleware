@@ -6,9 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @EnableAsync
@@ -40,10 +39,9 @@ public class AsyncConfiguration {
      * @return -
      */
     @Bean
-    public ThreadPoolExecutor threadPoolExecutor() {
-        var threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(QUEUE_CAPACITY));
+    public ExecutorService threadPoolExecutor() {
         log.info("Creating thread pool executor, using a core pool size of 5, a max pool size of 10, a queue capacity of 25 and a keep alive time of o.");
-        return threadPoolExecutor;
+        return Executors.newFixedThreadPool(10);
     }
 
 }
