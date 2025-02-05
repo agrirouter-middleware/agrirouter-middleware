@@ -139,6 +139,11 @@
       "name": "app.agrirouter.mqtt.options.connection-timeout",
       "type": "java.lang.String",
       "description": "The connection timeout for the MQTT client."
+    },
+    {
+      "name": "app.agrirouter.mqtt.options.max-in-flight",
+      "type": "java.lang.String",
+      "description": "The max in flight for the MQTT client."
     }
   ]
 }

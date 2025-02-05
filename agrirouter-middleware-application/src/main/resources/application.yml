@@ -69,6 +69,7 @@ app:
         clean-session: false
         keep-alive-interval: 30
         connection-timeout: 120
+        max-in-flight: 1000
   fetch-messages:
     max-tries: 5
     interval: 1000
