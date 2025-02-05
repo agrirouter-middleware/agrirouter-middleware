@@ -31,3 +31,10 @@ jobs:
           report_paths: '**/target/surefire-reports/*.xml'
           detailed_summary: true
           include_passed: true
+      - name: Docker Build
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          file: .github/dockerfile
+          tags: ${{ github.sha }}

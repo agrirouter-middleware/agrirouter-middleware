@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM amazoncorretto:21-alpine
 
 ADD agrirouter-middleware-application/target/agrirouter-middleware.jar /opt/application/application.jar
 
