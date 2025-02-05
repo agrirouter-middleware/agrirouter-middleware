@@ -54,7 +54,7 @@ app:
   build: '@maven.build.timestamp@'
   agrirouter:
     threading:
-      fixed-thread-pool-size: 200; # Number of threads in the fixed thread pool, default is 200. This has to be less than the max-in-flight value of the MQTT configuration.
+      fixed-thread-pool-size: 200 #Number of threads in the fixed thread pool, default is 200. This has to be less than the max-in-flight value of the MQTT configuration.
     redirect-delay: 250
     mqtt:
       synchronous:
