@@ -22,11 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Java 17
+      - name: Java Setup
         uses: actions/setup-java@v4
         with:
           java-version: 21
-          distribution: coretto
+          distribution: corretto
 
       - name: Maven Build
         env:
