@@ -72,7 +72,10 @@ public class EndpointService {
     private int nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
 
     @Value("${app.agrirouter.mqtt.synchronous.response.polling.intervall}")
-    private int pollingIntervall;
+    private int pollingIntervall; //FIXME
+
+    @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
+    private int fixedThreadPoolSize;
 
     public EndpointService(EndpointRepository endpointRepository,
                            DecodeMessageService decodeMessageService,
@@ -563,7 +566,7 @@ public class EndpointService {
 
     public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
         Map<String, Integer> endpointStatus = new HashMap<>();
-        try (ExecutorService executorService = Executors.newCachedThreadPool()) {
+        try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
             var callables = new ArrayList<Callable<TaskResult>>();
             externalEndpointIds.forEach(externalEndpointId -> callables.add(createHealthCheckTask(externalEndpointId)));
             var futures = executorService.invokeAll(callables);
