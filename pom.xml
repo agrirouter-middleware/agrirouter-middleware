@@ -30,8 +30,8 @@
 
     <properties>
         <project.build.finalName>agrirouter-middleware</project.build.finalName>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <project.encoding>UTF-8</project.encoding>
     </properties>

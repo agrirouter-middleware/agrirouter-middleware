@@ -14,17 +14,17 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Java 17
+      - uses: actions/checkout@v4
+      - name: Java Setup
         uses: actions/setup-java@v3
         with:
-          java-version: 17
-          distribution: microsoft
-      - name: Build with Maven
+          java-version: 21
+          distribution: corretto
+      - name: Maven Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B verify --file pom.xml --settings ci/github-settings.xml
-      - name: Publish Test Report
+      - name: Report
         uses: mikepenz/action-junit-report@v3
         if: success() || failure()
         with:
