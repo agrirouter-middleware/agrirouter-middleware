@@ -72,7 +72,7 @@ public class EndpointService {
     private int nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
 
     @Value("${app.agrirouter.mqtt.synchronous.response.polling.intervall}")
-    private int pollingInterval; //FIXME
+    private int pollingInterval;
 
     @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
     private int fixedThreadPoolSize;
