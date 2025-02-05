@@ -20,9 +20,11 @@ import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessInte
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The service for the onboard process.
@@ -38,7 +40,9 @@ public class SecuredOnboardProcessService {
     private final EndpointService endpointService;
     private final BusinessOperationLogService businessOperationLogService;
     private final Gson gson;
-    private final ThreadPoolExecutor threadPoolExecutor;
+
+    @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
+    private int fixedThreadPoolSize;
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
@@ -46,8 +50,7 @@ public class SecuredOnboardProcessService {
                                         ApplicationRepository applicationRepository,
                                         EndpointService endpointService,
                                         BusinessOperationLogService businessOperationLogService,
-                                        Gson gson,
-                                        ThreadPoolExecutor threadPoolExecutor) {
+                                        Gson gson) {
         this.authorizationRequestService = authorizationRequestService;
         this.onboardStateContainer = onboardStateContainer;
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
@@ -55,7 +58,6 @@ public class SecuredOnboardProcessService {
         this.endpointService = endpointService;
         this.businessOperationLogService = businessOperationLogService;
         this.gson = gson;
-        this.threadPoolExecutor = threadPoolExecutor;
     }
 
     /**
@@ -110,7 +112,11 @@ public class SecuredOnboardProcessService {
                                 application.getPublicKey());
                         final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
                         log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
-                        updateExistingEndpoint(onboardProcessParameters, endpoint, onboardingResponse, application);
+                        try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                            updateExistingEndpoint(executorService, onboardProcessParameters, endpoint, onboardingResponse, application);
+                        } catch (Exception e) {
+                            log.error("Error while updating existing endpoint: {}", e.getMessage());
+                        }
                     }
                 } else {
                     final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
@@ -121,8 +127,11 @@ public class SecuredOnboardProcessService {
                             application.getPublicKey());
                     final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
                     log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
-
-                    createNewEndpoint(onboardProcessParameters, onboardingResponse, securedOnboardProcessIntegrationParameters, application);
+                    try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                        createNewEndpoint(executorService, onboardProcessParameters, onboardingResponse, securedOnboardProcessIntegrationParameters, application);
+                    } catch (Exception e) {
+                        log.error("Error while creating new endpoint: {}", e.getMessage());
+                    }
                 }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
@@ -133,8 +142,8 @@ public class SecuredOnboardProcessService {
         }
     }
 
-    private void createNewEndpoint(OnboardProcessParameters onboardProcessParameters, OnboardingResponse onboardingResponse, SecuredOnboardProcessIntegrationParameters securedOnboardProcessIntegrationParameters, Application application) {
-        threadPoolExecutor.execute(() -> {
+    private void createNewEndpoint(ExecutorService executorService, OnboardProcessParameters onboardProcessParameters, OnboardingResponse onboardingResponse, SecuredOnboardProcessIntegrationParameters securedOnboardProcessIntegrationParameters, Application application) {
+        executorService.execute(() -> {
             final var endpoint = new Endpoint();
             endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
             endpoint.setExternalEndpointId(securedOnboardProcessIntegrationParameters.externalEndpointId());
@@ -150,8 +159,8 @@ public class SecuredOnboardProcessService {
         });
     }
 
-    private void updateExistingEndpoint(OnboardProcessParameters onboardProcessParameters, Endpoint endpoint, OnboardingResponse onboardingResponse, Application application) {
-        threadPoolExecutor.execute(() -> {
+    private void updateExistingEndpoint(ExecutorService executorService, OnboardProcessParameters onboardProcessParameters, Endpoint endpoint, OnboardingResponse onboardingResponse, Application application) {
+        executorService.execute(() -> {
             endpoint.setOnboardResponse(gson.toJson(onboardingResponse));
             endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
             endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
