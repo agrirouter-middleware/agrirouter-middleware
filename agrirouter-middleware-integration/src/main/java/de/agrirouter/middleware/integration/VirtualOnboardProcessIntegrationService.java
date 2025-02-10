@@ -11,7 +11,6 @@ import de.agrirouter.middleware.integration.container.VirtualEndpointOnboardStat
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class VirtualOnboardProcessIntegrationService {
      *
      * @param virtualOnboardProcessIntegrationParameters The parameters for the onboard process.
      */
-    @Async
     public void onboard(VirtualOnboardProcessIntegrationParameters virtualOnboardProcessIntegrationParameters) {
         final var iMqttClient = mqttClientManagementService.get(virtualOnboardProcessIntegrationParameters.parentEndpoint());
         if (iMqttClient.isEmpty()) {
