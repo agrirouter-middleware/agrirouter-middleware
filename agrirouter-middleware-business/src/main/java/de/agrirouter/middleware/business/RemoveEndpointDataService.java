@@ -7,7 +7,6 @@ import de.agrirouter.middleware.persistence.jpa.*;
 import de.agrirouter.middleware.persistence.mongo.DeviceDescriptionRepository;
 import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,7 +90,6 @@ public class RemoveEndpointDataService {
      *
      * @param sensorAlternateId The sensor alternate ID.
      */
-    @Async
     @Transactional
     public void removeData(String sensorAlternateId) {
         log.debug("Remove all unprocessed messages.");
