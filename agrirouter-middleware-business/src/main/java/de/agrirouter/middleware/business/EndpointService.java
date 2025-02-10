@@ -32,7 +32,6 @@ import de.agrirouter.middleware.persistence.jpa.WarningRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -159,7 +158,6 @@ public class EndpointService {
      *
      * @param agrirouterEndpointId -
      */
-    @Async
     @Transactional
     public void deleteEndpointDataFromTheMiddlewareByAgrirouterId(String agrirouterEndpointId) {
         final var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
@@ -223,7 +221,6 @@ public class EndpointService {
      *
      * @param externalEndpointId The internal ID of the endpoint.
      */
-    @Async
     public void resendCapabilities(String externalEndpointId) {
         final var endpoint = findByExternalEndpointId(externalEndpointId);
         final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
@@ -332,7 +329,6 @@ public class EndpointService {
      *
      * @param externalEndpointId -
      */
-    @Async
     @Transactional
     public void revoke(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
@@ -380,7 +376,6 @@ public class EndpointService {
      *
      * @param externalEndpointId The external ID of the endpoint.
      */
-    @Async
     @Transactional
     public void resetErrors(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
@@ -398,7 +393,6 @@ public class EndpointService {
      *
      * @param externalEndpointId The external ID of the endpoint.
      */
-    @Async
     @Transactional
     public void resetWarnings(String externalEndpointId) {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
