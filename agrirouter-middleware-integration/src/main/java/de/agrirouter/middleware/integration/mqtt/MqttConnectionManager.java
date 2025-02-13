@@ -121,7 +121,6 @@ public class MqttConnectionManager {
         mqttConnectOptions.setConnectionTimeout(connectionTimeout);
         mqttConnectOptions.setMaxInflight(maxInFlight);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
-        messageHandlingCallback.setMqttClient(mqttClient);
         messageHandlingCallback.setClientIdOfTheRouterDevice(endpoint.getConnectionCriteria().getClientId());
         mqttClient.setCallback(messageHandlingCallback);
         mqttClient.connect(mqttConnectOptions);
@@ -284,4 +283,37 @@ public class MqttConnectionManager {
         return new ConnectionState("n.a.", false, false, false, Collections.emptyList());
     }
 
+    /**
+     * Attempts to reconnect an MQTT client associated with the given client ID of the router device.
+     * If the MQTT client for the specified client ID is cached but not currently connected, the method
+     * will try to establish a connection. Logs appropriate information or errors during the process.
+     *
+     * @param clientIdOfTheRouterDevice The client ID of the router device for which the reconnection is attempted.
+     */
+    public void tryToReconnect(String clientIdOfTheRouterDevice) {
+        final var cachedMqttClient = cachedMqttClients.get(clientIdOfTheRouterDevice);
+        if (null != cachedMqttClient) {
+            if (cachedMqttClient.mqttClient().isPresent()) {
+                try {
+                    var mqttClient = cachedMqttClient.mqttClient().get();
+                    if (!mqttClient.isConnected()) {
+                        log.info("Trying to reconnect the MQTT client with the client ID '{}'.", clientIdOfTheRouterDevice);
+                        mqttClient.connect();
+                        log.info("Successfully reconnected the MQTT client with the client ID '{}'.", clientIdOfTheRouterDevice);
+                    }
+                } catch (MqttException e) {
+                    log.error("Could not reconnect the MQTT client with the client ID '{}'.", clientIdOfTheRouterDevice, e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Clears all subscriptions associated with the provided MQTT client ID.
+     *
+     * @param clientId The unique identifier of the MQTT client whose subscriptions are to be cleared.
+     */
+    public void clearSubscriptionsForMqttClient(String clientId) {
+        subscriptionsForMqttClient.clear(clientId);
+    }
 }
