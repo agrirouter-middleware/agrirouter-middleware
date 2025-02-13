@@ -54,9 +54,6 @@ public class RemoveEndpointDataService {
      */
     @Transactional
     public void removeEndpointData(Endpoint endpoint) {
-        log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint);
-
         log.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
@@ -72,9 +69,6 @@ public class RemoveEndpointDataService {
      */
     @Transactional
     public void removeEndpointDataAndEndpoint(Endpoint endpoint) {
-        log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint);
-
         log.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);

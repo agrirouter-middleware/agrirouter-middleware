@@ -209,6 +209,7 @@ public class ApplicationService {
                     log.debug("The current application already has a router device, therefore updating it.");
                     var formerRouterDevice = application.getApplicationSettings().getRouterDevice();
                     routerDeviceRepository.delete(formerRouterDevice);
+                    // applicationEventPublisher.publishEvent(new DisconnectRouterDeviceEvent(this, application.getInternalApplicationId(),formerRouterDevice.getConnectionCriteria().getClientId())); // FIXME: This event is not defined
                 }
             }
             final var routerDevice = new RouterDevice();

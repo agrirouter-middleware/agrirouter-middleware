@@ -341,11 +341,9 @@ public class EndpointService {
             log.debug("Deactivate the endpoint to avoid race conditions.");
             endpoint.setDeactivated(true);
             endpointRepository.save(endpoint);
-            mqttClientManagementService.disconnect(endpoint);
             endpoint.getConnectedVirtualEndpoints().forEach(vcu -> {
                 vcu.setDeactivated(true);
                 endpointRepository.save(vcu);
-                mqttClientManagementService.disconnect(vcu);
             });
             if (EndpointType.NON_VIRTUAL.equals(endpoint.getEndpointType())) {
                 final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
