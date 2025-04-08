@@ -35,7 +35,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
     private final ListEndpointsMessages listEndpointsMessages;
-    private final MqttConnectionManager mqttConnectionManager;
 
     @Setter
     @Getter
@@ -44,20 +43,18 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                    DecodeMessageService decodeMessageService,
                                    MqttStatistics mqttStatistics,
-                                   ListEndpointsMessages listEndpointsMessages,
-                                   MqttConnectionManager mqttConnectionManager) {
+                                   ListEndpointsMessages listEndpointsMessages) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.decodeMessageService = decodeMessageService;
         this.mqttStatistics = mqttStatistics;
         this.listEndpointsMessages = listEndpointsMessages;
-        this.mqttConnectionManager = mqttConnectionManager;
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
         log.error("Connection to MQTT broker lost.", throwable);
         mqttStatistics.increaseNumberOfConnectionLosses();
-        mqttConnectionManager.tryToReconnect(this.clientIdOfTheRouterDevice);
+        applicationEventPublisher.publishEvent(new ReconnectRouterDeviceEvent(this, clientIdOfTheRouterDevice));
     }
 
     @Override
