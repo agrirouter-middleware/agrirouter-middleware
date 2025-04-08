@@ -167,6 +167,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
 
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
-        mqttConnectionManager.clearSubscriptionsForMqttClient(this.clientIdOfTheRouterDevice);
+        applicationEventPublisher.publishEvent(new ClearSubscriptionsForMqttClientEvent(this, clientIdOfTheRouterDevice));
     }
 }
