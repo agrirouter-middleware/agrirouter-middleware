@@ -21,7 +21,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
@@ -102,13 +101,13 @@ public class TenantMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<TenantRegistrationResponse>> register(@Parameter(description = "The request holding information to register a new tenant.", required = true) @Valid @RequestBody TenantRegistrationRequest tenantRegistrationRequest,
+    public ResponseEntity<TenantRegistrationResponse> register(@Parameter(description = "The request holding information to register a new tenant.", required = true) @Valid @RequestBody TenantRegistrationRequest tenantRegistrationRequest,
                                                                          @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
         final var tenantRegistrationResult = tenantService.register(tenantRegistrationRequest.getName());
-        return () -> ResponseEntity.status(HttpStatus.CREATED).body(new TenantRegistrationResponse(tenantRegistrationResult.getTenantId(), tenantRegistrationResult.getAccessToken()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TenantRegistrationResponse(tenantRegistrationResult.getTenantId(), tenantRegistrationResult.getAccessToken()));
     }
 
     /**
@@ -166,9 +165,9 @@ public class TenantMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<FindTenantResponse>> findAll() {
+    public ResponseEntity<FindTenantResponse> findAll() {
         final var tenants = tenantService.findAll().stream().map(tenant -> modelMapper.map(tenant, TenantDto.class)).collect(Collectors.toList());
-        return () -> ResponseEntity.ok(new FindTenantResponse(tenants));
+        return ResponseEntity.ok(new FindTenantResponse(tenants));
     }
 
     /**
@@ -228,9 +227,9 @@ public class TenantMaintenanceController implements UnsecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<TenantPasswordResetResponse>> resetPassword(@Parameter(description = "The tenant ID.", required = true) @PathVariable String tenantId) {
+    public ResponseEntity<TenantPasswordResetResponse> resetPassword(@Parameter(description = "The tenant ID.", required = true) @PathVariable String tenantId) {
         final var newAccessToken = tenantService.resetPassword(tenantId);
-        return () -> ResponseEntity.status(HttpStatus.CREATED).body(new TenantPasswordResetResponse(tenantId, newAccessToken));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TenantPasswordResetResponse(tenantId, newAccessToken));
     }
 
 }

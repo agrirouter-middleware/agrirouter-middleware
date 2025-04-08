@@ -24,7 +24,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.concurrent.Callable;
 
 /**
  * Controller to onboard a single endpoint.
@@ -103,7 +102,7 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> onboard(@Parameter(description = "The external ID of the existing endpoint.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> onboard(@Parameter(description = "The external ID of the existing endpoint.", required = true) @PathVariable String externalEndpointId,
                                                   @Parameter(description = "Necessary information to create the virtual endpoint.", required = true) @Valid @RequestBody OnboardVirtualEndpointRequest onboardVirtualEndpointRequest, @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -113,7 +112,7 @@ public class TelemetryPlatformController implements SecuredApiController {
         virtualOnboardProcessParameters.setExternalVirtualEndpointId(onboardVirtualEndpointRequest.getExternalVirtualEndpointId());
         virtualOnboardProcessParameters.setEndpointName(onboardVirtualEndpointRequest.getEndpointName());
         virtualOnboardProcessService.onboard(virtualOnboardProcessParameters);
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -170,7 +169,7 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> revoke(@Parameter(description = "The external ID of the existing endpoint.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> revoke(@Parameter(description = "The external ID of the existing endpoint.", required = true) @PathVariable String externalEndpointId,
                                                  @Parameter(description = "The necessary information to revoke the virtual endpoint.") @Valid @RequestBody RevokeVirtualEndpointRequest revokeVirtualEndpointRequest,
                                                  @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -180,7 +179,7 @@ public class TelemetryPlatformController implements SecuredApiController {
         virtualOffboardProcessParameters.setExternalEndpointId(externalEndpointId);
         virtualOffboardProcessParameters.setExternalVirtualEndpointIds(revokeVirtualEndpointRequest.getExternalEndpointIds());
         virtualOffboardProcessService.offboard(virtualOffboardProcessParameters);
-        return () -> ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -222,9 +221,9 @@ public class TelemetryPlatformController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> revokeTelemetryPlatform(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<Void> revokeTelemetryPlatform(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         endpointService.revoke(externalEndpointId);
-        return () -> ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
 }

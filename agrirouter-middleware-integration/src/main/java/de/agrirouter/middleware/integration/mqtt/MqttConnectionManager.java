@@ -291,20 +291,24 @@ public class MqttConnectionManager {
      * @param clientIdOfTheRouterDevice The client ID of the router device for which the reconnection is attempted.
      */
     public void tryToReconnect(String clientIdOfTheRouterDevice) {
-        final var cachedMqttClient = cachedMqttClients.get(clientIdOfTheRouterDevice);
-        if (null != cachedMqttClient) {
-            if (cachedMqttClient.mqttClient().isPresent()) {
-                try {
-                    var mqttClient = cachedMqttClient.mqttClient().get();
-                    if (!mqttClient.isConnected()) {
-                        log.info("Trying to reconnect the MQTT client with the client ID '{}'.", clientIdOfTheRouterDevice);
-                        mqttClient.connect();
-                        log.info("Successfully reconnected the MQTT client with the client ID '{}'.", clientIdOfTheRouterDevice);
-                    }
-                } catch (MqttException e) {
-                    log.error("Could not reconnect the MQTT client with the client ID '{}'.", clientIdOfTheRouterDevice, e);
-                }
+        final var cachedMqttClient = cachedMqttClients.remove(clientIdOfTheRouterDevice);
+
+        var existingRouterDevice = application.getApplicationSettings().getRouterDevice();
+        if (existingRouterDevice != null) {
+            log.info("Connecting router device for application: {}", application.getApplicationId());
+            try {
+                var mqttClient = initMqttClient(existingRouterDevice);
+                log.debug("Connected router device for application: {}", application.getApplicationId());
+                mqttStatistics.increaseNumberOfConnects();
+                final var newCachedMqttClient = new CachedMqttClient(existingRouterDevice.getDeviceAlternateId(), existingRouterDevice.getConnectionCriteria().getClientId(), Optional.of(mqttClient), new ArrayList<>());
+                cachedMqttClients.put(existingRouterDevice.getConnectionCriteria().getClientId(), newCachedMqttClient);
+                log.debug("Cached MQTT client for application has been created and is ready to be used: {}", application.getApplicationId());
+            } catch (MqttException e) {
+                log.error("Could not connect router device for application: {}", application.getApplicationId(), e);
+                throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(application.getApplicationId()));
             }
+        } else {
+            log.error("Router device not found for application: {}", application.getApplicationId());
         }
     }
 
