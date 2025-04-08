@@ -612,22 +612,23 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<DetailedEndpointHealthStatusResponse>> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<DetailedEndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         try {
             var healthStatus = endpointService.determineHealthStatus(externalEndpointId);
             return switch (healthStatus.getHealthStatus()) {
                 case HEALTHY ->
-                        () -> ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                 case PENDING ->
-                        () -> ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                 case UNHEALTHY ->
-                        () -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
                 case UNKNOWN ->
-                        () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                default -> throw new IllegalArgumentException();
             };
         } catch (BusinessException e) {
             if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
-                return () -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             } else {
                 throw e;
             }
@@ -680,12 +681,12 @@ public class EndpointController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<EndpointHealthStatusResponse>> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest,
+    public ResponseEntity<EndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @Valid @RequestBody EndpointHealthStatusRequest endpointHealthStatusRequest,
                                                                          @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
-        return () -> ResponseEntity.ok(new EndpointHealthStatusResponse(endpointService.areHealthy(endpointHealthStatusRequest.getExternalEndpointIds())));
+        return ResponseEntity.ok(new EndpointHealthStatusResponse(endpointService.areHealthy(endpointHealthStatusRequest.getExternalEndpointIds())));
     }
 
     /**
