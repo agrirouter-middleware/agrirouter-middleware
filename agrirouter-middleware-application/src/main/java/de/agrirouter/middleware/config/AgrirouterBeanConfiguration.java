@@ -20,7 +20,6 @@ import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceI
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.config.env.Ar2QA;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
-import de.agrirouter.middleware.integration.mqtt.MqttConnectionManager;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import org.springframework.context.ApplicationEventPublisher;
@@ -146,13 +145,11 @@ public class AgrirouterBeanConfiguration {
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
-                                                           ListEndpointsMessages listEndpointsMessages,
-                                                           MqttConnectionManager mqttConnectionManager) {
+                                                           ListEndpointsMessages listEndpointsMessages) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
-                listEndpointsMessages,
-                mqttConnectionManager);
+                listEndpointsMessages);
 
     }
 
