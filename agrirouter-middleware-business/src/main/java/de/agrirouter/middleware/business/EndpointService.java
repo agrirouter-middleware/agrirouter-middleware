@@ -45,7 +45,6 @@ import java.util.concurrent.*;
 
 /**
  * Business operations regarding the endpoints.
- *
  */
 @Slf4j
 @Service
@@ -190,45 +189,42 @@ public class EndpointService {
      * @param externalEndpointId The external endpoint ID.
      */
     @Transactional
+    @SuppressWarnings("resource")
     public void delete(String externalEndpointId) {
         var endpoints = endpointRepository.findAllByExternalEndpointId(externalEndpointId);
         var sensorAlternateIds = new ArrayList<String>();
         var mainExecutorService = Executors.newFixedThreadPool(endpoints.size());
-        try {
-            endpoints.forEach(endpoint -> mainExecutorService.execute(() -> {
-                try {
-                    List<Endpoint> connectedVirtualEndpoints = endpoint.getConnectedVirtualEndpoints();
-                    if (!CollectionUtils.isEmpty(connectedVirtualEndpoints)) {
-                        boolean hasFinishedInTime;
-                        var subExecutorService = Executors.newFixedThreadPool(connectedVirtualEndpoints.size());
-                        try {
-                            connectedVirtualEndpoints.forEach(virtualEndpoint -> subExecutorService.execute(() -> {
-                                log.debug("Remove the virtual endpoint '{}' from the database.", virtualEndpoint.getExternalEndpointId());
-                                removeEndpointDataService.removeEndpointData(virtualEndpoint);
-                                sensorAlternateIds.add(virtualEndpoint.getAgrirouterEndpointId());
-                            }));
-                            subExecutorService.shutdown();
-                            hasFinishedInTime = subExecutorService.awaitTermination(3, TimeUnit.MINUTES);
-                        }
-                        if (!hasFinishedInTime) {
-                            log.error("Could not wait for the executor service to finish. The main endpoint '{}' will not be removed from the database.", endpoint.getExternalEndpointId());
-                        } else {
-                            log.debug("Remove the main endpoint '{}' from the database.", endpoint.getExternalEndpointId());
-                            removeEndpointDataService.removeEndpointDataAndEndpoint(endpoint);
-                            sensorAlternateIds.add(endpoint.getAgrirouterEndpointId());
-                        }
-                        log.debug("Wait for the executor service to finish.");
+        endpoints.forEach(endpoint -> mainExecutorService.execute(() -> {
+            try {
+                List<Endpoint> connectedVirtualEndpoints = endpoint.getConnectedVirtualEndpoints();
+                if (!CollectionUtils.isEmpty(connectedVirtualEndpoints)) {
+                    boolean hasFinishedInTime;
+                    var subExecutorService = Executors.newFixedThreadPool(connectedVirtualEndpoints.size());
+                    connectedVirtualEndpoints.forEach(virtualEndpoint -> subExecutorService.execute(() -> {
+                        log.debug("Remove the virtual endpoint '{}' from the database.", virtualEndpoint.getExternalEndpointId());
+                        removeEndpointDataService.removeEndpointData(virtualEndpoint);
+                        sensorAlternateIds.add(virtualEndpoint.getAgrirouterEndpointId());
+                    }));
+                    subExecutorService.shutdown();
+                    hasFinishedInTime = subExecutorService.awaitTermination(3, TimeUnit.MINUTES);
+                    if (!hasFinishedInTime) {
+                        log.error("Could not wait for the executor service to finish. The main endpoint '{}' will not be removed from the database.", endpoint.getExternalEndpointId());
                     } else {
-                        log.debug("No connected virtual endpoints found, therefore the endpoint will be removed directly.");
                         log.debug("Remove the main endpoint '{}' from the database.", endpoint.getExternalEndpointId());
                         removeEndpointDataService.removeEndpointDataAndEndpoint(endpoint);
                         sensorAlternateIds.add(endpoint.getAgrirouterEndpointId());
                     }
-                } catch (InterruptedException e) {
-                    log.error("Could not wait for the executor service to finish.", e);
+                    log.debug("Wait for the executor service to finish.");
+                } else {
+                    log.debug("No connected virtual endpoints found, therefore the endpoint will be removed directly.");
+                    log.debug("Remove the main endpoint '{}' from the database.", endpoint.getExternalEndpointId());
+                    removeEndpointDataService.removeEndpointDataAndEndpoint(endpoint);
+                    sensorAlternateIds.add(endpoint.getAgrirouterEndpointId());
                 }
-            }));
-        }
+            } catch (InterruptedException e) {
+                log.error("Could not wait for the executor service to finish.", e);
+            }
+        }));
 
         log.debug("Remove the data for the endpoint incl. messages, timelogs and so on.");
         sensorAlternateIds.forEach(removeEndpointDataService::removeData);
