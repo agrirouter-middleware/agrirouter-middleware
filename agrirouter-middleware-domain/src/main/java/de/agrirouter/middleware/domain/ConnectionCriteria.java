@@ -48,7 +48,11 @@ public class ConnectionCriteria extends BaseEntity {
         var agrirouterConnectionCriteria = new RouterDevice.ConnectionCriteria();
         agrirouterConnectionCriteria.setClientId(this.clientId);
         agrirouterConnectionCriteria.setHost(this.host);
-        agrirouterConnectionCriteria.setPort(Integer.parseInt(this.port));
+        try {
+            agrirouterConnectionCriteria.setPort(Integer.parseInt(this.port));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid port value: " + this.port, e);
+        }
         return agrirouterConnectionCriteria;
     }
 }
