@@ -111,7 +111,6 @@ class ConvertJsonToBase64EncodedProtobuf {
         final var clientName = ClientNameDecoder.decode(hexEncodedDeviceName);
         final var base64EncodedProtobuf = Base64.getEncoder().encodeToString(deviceDescription.build().toByteString().toByteArray());
         Assertions.assertNotNull(base64EncodedProtobuf);
-        System.out.println(base64EncodedProtobuf);
     }
 
     @Test
