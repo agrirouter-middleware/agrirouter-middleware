@@ -289,7 +289,7 @@ For more details, please see the Swagger documentation for the specific endpoint
 If your application version supports message type _ISO_11783_TASKDATA_ZIP_ or _ISO_11783_DEVICE_DESCRIPTION_ *and* _ISO_11783_TIME_LOG_, you are able to receive machine date.
 
 For requesting telemetry data like machine data (message type _ISO_11783_TASKDATA_ZIP_ or _ISO_11783_TIME_LOG_) you first need to get the ID of the endpoint (`externalEndpointId`).
-You can find this information e.g., when using `secured/api/application/{internalApplicationId}/endpoints`.
+You can find this information e.g., when using `secured/api/application/+{internalApplicationId}+/endpoints`.
 
 ==== Machines
 
