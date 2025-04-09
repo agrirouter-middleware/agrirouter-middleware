@@ -200,7 +200,8 @@ public class EndpointService {
                     List<Endpoint> connectedVirtualEndpoints = endpoint.getConnectedVirtualEndpoints();
                     if (!CollectionUtils.isEmpty(connectedVirtualEndpoints)) {
                         boolean hasFinishedInTime;
-                        try (var subExecutorService = Executors.newFixedThreadPool(connectedVirtualEndpoints.size())) {
+                        var subExecutorService = Executors.newFixedThreadPool(connectedVirtualEndpoints.size());
+                        try {
                             connectedVirtualEndpoints.forEach(virtualEndpoint -> subExecutorService.execute(() -> {
                                 log.debug("Remove the virtual endpoint '{}' from the database.", virtualEndpoint.getExternalEndpointId());
                                 removeEndpointDataService.removeEndpointData(virtualEndpoint);
