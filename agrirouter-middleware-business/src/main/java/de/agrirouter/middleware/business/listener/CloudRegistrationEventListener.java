@@ -152,7 +152,7 @@ public class CloudRegistrationEventListener {
                         var onboardingResponse = endpoint.asOnboardingResponse();
                         final var onboardState = optionalOnboardState.get();
                         final var cloudOnboardResponses = decodeCloudOnboardingResponsesService.decode(Collections.singletonList(fetchMessageResponse), onboardingResponse);
-                        if (cloudOnboardResponses.size() > 0) {
+                        if (!cloudOnboardResponses.isEmpty()) {
                             log.debug("Cloud registration was successful, create virtual endpoints.");
                             log.trace("There are {} cloud registration responses.", cloudOnboardResponses.size());
                             log.trace("The cloud registration responses are for the following endpoints: {}", cloudOnboardResponses.stream().map(OnboardingResponse::getSensorAlternateId).collect(Collectors.joining(", ")));

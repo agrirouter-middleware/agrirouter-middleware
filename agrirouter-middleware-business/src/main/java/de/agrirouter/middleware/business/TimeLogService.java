@@ -278,7 +278,7 @@ public class TimeLogService {
     }
 
     private TimeLogPeriods getSegmentedTimeLogsForTimePeriod(List<TimeLog> timeLogs) {
-        if (null != timeLogs && timeLogs.size() > 0) {
+        if (null != timeLogs && !timeLogs.isEmpty()) {
             var lastTimeStamp = -1L;
             var segmentedTimeLogs = new ArrayList<List<TimeLog>>();
             var currentPeriod = new ArrayList<TimeLog>();
