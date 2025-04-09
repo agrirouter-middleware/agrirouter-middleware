@@ -40,7 +40,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: info,health,metrics,prometheus,hikaricp,jdbc
+        include: info,health,metrics,prometheus,hikaricp,jdbc#
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:
