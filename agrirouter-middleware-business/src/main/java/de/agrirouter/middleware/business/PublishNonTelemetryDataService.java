@@ -59,7 +59,7 @@ public class PublishNonTelemetryDataService {
                 null);
         try {
             var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
-            if (healthStatus.getHealthStatus().equals(HealthStatus.HEALTHY)) {
+            if (healthStatus.healthStatus().equals(HealthStatus.HEALTHY)) {
                 checkAndUpdateRecipients(publishNonTelemetryDataParameters);
                 var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);

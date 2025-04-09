@@ -1,39 +1,15 @@
 package de.agrirouter.middleware.business.dto.timelog.periods;
 
-import lombok.Getter;
-
 import java.util.Set;
 
 /**
  * A dedicated time log period.
+ *
+ * @param begin        Begin of the period.
+ * @param end          End of the period.
+ * @param nrOfTimeLogs Number Time logs within a period.
+ * @param messageIds   The message IDs for this period.
  */
-@Getter
-public class TimeLogPeriod {
+public record TimeLogPeriod(long begin, long end, int nrOfTimeLogs, Set<String> messageIds) {
 
-    /**
-     * Begin of the period.
-     */
-    private final long begin;
-
-    /**
-     * End of the period.
-     */
-    private final long end;
-
-    /**
-     * Number Time logs within a period.
-     */
-    private final int nrOfTimeLogs;
-
-    /**
-     * The message IDs for this period.
-     */
-    private final Set<String> messageIds;
-
-    public TimeLogPeriod(long begin, long end, int nrOfTimeLogs, Set<String> messageIds) {
-        this.begin = begin;
-        this.end = end;
-        this.nrOfTimeLogs = nrOfTimeLogs;
-        this.messageIds = messageIds;
-    }
 }

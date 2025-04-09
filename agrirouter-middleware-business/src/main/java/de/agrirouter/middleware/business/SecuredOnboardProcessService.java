@@ -137,7 +137,7 @@ public class SecuredOnboardProcessService {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
             }
         } catch (OnboardingException e) {
-            log.error("[{}] {}", ErrorMessageFactory.onboardRequestFailed().getKey(), ErrorMessageFactory.onboardRequestFailed().getMessage());
+            log.error("[{}] {}", ErrorMessageFactory.onboardRequestFailed().key(), ErrorMessageFactory.onboardRequestFailed().message());
             throw new BusinessException(ErrorMessageFactory.onboardRequestFailed(), e);
         }
     }

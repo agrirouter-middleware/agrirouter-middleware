@@ -1,22 +1,13 @@
 package de.agrirouter.middleware.integration.mqtt.health;
 
-import lombok.Value;
-
 import java.time.Instant;
 
 /**
  * Container for the health status messages.
+ *
+ * @param healthStatus           The status for a single endpoint.
+ * @param lastKnownHealthyStatus The last known healthy status for the endpoint.
  */
-@Value
-public class HealthStatusWithLastKnownHealthyStatus {
+public record HealthStatusWithLastKnownHealthyStatus(HealthStatus healthStatus, Instant lastKnownHealthyStatus) {
 
-    /**
-     * The status for a single endpoint.
-     */
-    HealthStatus healthStatus;
-
-    /**
-     * The last known healthy status for the endpoint.
-     */
-    Instant lastKnownHealthyStatus;
 }

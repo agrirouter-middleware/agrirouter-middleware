@@ -31,7 +31,7 @@ public class RequestLoggingConfiguration {
     /**
      * Custom implementation to avoid health request logging.
      */
-    protected class NoHealthLoggingRequestLoggingFilter extends CommonsRequestLoggingFilter {
+    protected static class NoHealthLoggingRequestLoggingFilter extends CommonsRequestLoggingFilter {
 
         @Override
         protected boolean shouldLog(HttpServletRequest request) {

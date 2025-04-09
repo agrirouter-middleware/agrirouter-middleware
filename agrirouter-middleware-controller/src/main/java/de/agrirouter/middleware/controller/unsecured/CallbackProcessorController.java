@@ -66,11 +66,11 @@ public class CallbackProcessorController implements UnsecuredApiController {
         final var optionalOnboardState = onboardStateContainer.pop(state);
         if (optionalOnboardState.isPresent()) {
             final var onboardState = optionalOnboardState.get();
-            final var application = applicationService.find(onboardState.getInternalApplicationId());
+            final var application = applicationService.find(onboardState.internalApplicationId());
             if (StringUtils.isBlank(error)) {
                 log.debug("Checking for state >>> {}", state);
                 log.debug("Proceeding callback for the onboard process of the following application [{}]",
-                        onboardState.getInternalApplicationId());
+                        onboardState.internalApplicationId());
                 final var authorizationResponseToken = authorizationRequestService.decodeToken(token);
                 log.trace("Decoded the token >>> {}", authorizationResponseToken);
                 final var onboardProcessParameters = createOnboardProcessParameters(application, authorizationResponseToken, onboardState);
@@ -96,15 +96,15 @@ public class CallbackProcessorController implements UnsecuredApiController {
         final var onboardProcessParameters = new OnboardProcessParameters();
         onboardProcessParameters.setInternalApplicationId(application.getInternalApplicationId());
         onboardProcessParameters.setRegistrationCode(authorizationResponseToken.getRegcode());
-        onboardProcessParameters.setExternalEndpointId(onboardState.getExternalEndpointId());
-        onboardProcessParameters.setTenantId(onboardState.getTenantId());
+        onboardProcessParameters.setExternalEndpointId(onboardState.externalEndpointId());
+        onboardProcessParameters.setTenantId(onboardState.tenantId());
         onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
         return onboardProcessParameters;
     }
 
     private RedirectView redirect(OnboardStateContainer.OnboardState onboardState, Application application, OnboardProcessResult result, String errorMessage) {
-        if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
-            return redirect(result, onboardState.getRedirectUrlAfterCallback(), errorMessage);
+        if (StringUtils.isNotBlank(onboardState.redirectUrlAfterCallback())) {
+            return redirect(result, onboardState.redirectUrlAfterCallback(), errorMessage);
         } else if (StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
             return redirect(result, application.getApplicationSettings().getRedirectUrl(), errorMessage);
         } else {

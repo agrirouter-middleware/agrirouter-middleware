@@ -1,26 +1,11 @@
 package de.agrirouter.middleware.business.dto.timelog.periods;
 
-import lombok.Getter;
-
 /**
  * All time log periods for a team set.
+ *
+ * @param teamSetContextId The team set context ID.
+ * @param timeLogPeriods   All time log periods.
  */
-@Getter
-public class TimeLogPeriodsForTeamSet {
+public record TimeLogPeriodsForTeamSet(String teamSetContextId, TimeLogPeriods timeLogPeriods) {
 
-    /**
-     * The team set context ID.
-     */
-    private final String teamSetContextId;
-
-    /**
-     * All time log periods.
-     */
-    private final TimeLogPeriods timeLogPeriods;
-
-    public TimeLogPeriodsForTeamSet(String teamSetContextId,
-                                    TimeLogPeriods timeLogPeriods) {
-        this.teamSetContextId = teamSetContextId;
-        this.timeLogPeriods = timeLogPeriods;
-    }
 }
