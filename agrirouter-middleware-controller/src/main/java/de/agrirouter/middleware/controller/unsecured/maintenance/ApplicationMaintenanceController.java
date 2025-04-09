@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.Callable;
-
 import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PREFIX;
 
 /**
@@ -91,9 +89,9 @@ public class ApplicationMaintenanceController implements UnsecuredApiController 
                     )
             }
     )
-    public Callable<ResponseEntity<?>> delete(@Parameter(description = "The internal application ID.", required = true) @PathVariable String internalApplicationId) {
+    public ResponseEntity<?> delete(@Parameter(description = "The internal application ID.", required = true) @PathVariable String internalApplicationId) {
         applicationService.delete(internalApplicationId);
-        return () -> ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
 }

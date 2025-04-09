@@ -209,6 +209,7 @@ public class ApplicationService {
                     log.debug("The current application already has a router device, therefore updating it.");
                     var formerRouterDevice = application.getApplicationSettings().getRouterDevice();
                     routerDeviceRepository.delete(formerRouterDevice);
+                    log.debug("The former router device has been deleted. The former connection may be still there, but will be removed if the router device is deleted on the agrirouter side.");
                 }
             }
             final var routerDevice = new RouterDevice();

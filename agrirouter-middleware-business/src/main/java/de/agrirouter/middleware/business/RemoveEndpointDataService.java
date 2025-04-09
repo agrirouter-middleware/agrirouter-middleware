@@ -2,10 +2,10 @@ package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.business.cache.endpoints.InternalEndpointCache;
 import de.agrirouter.middleware.domain.Endpoint;
-import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.persistence.jpa.*;
 import de.agrirouter.middleware.persistence.mongo.DeviceDescriptionRepository;
 import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,8 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class RemoveEndpointDataService {
-    private final MqttClientManagementService mqttClientManagementService;
+
     private final ErrorRepository errorRepository;
     private final WarningRepository warningRepository;
     private final EndpointRepository endpointRepository;
@@ -27,26 +28,6 @@ public class RemoveEndpointDataService {
     private final DeviceDescriptionRepository deviceDescriptionRepository;
     private final TimeLogRepository timeLogRepository;
 
-    public RemoveEndpointDataService(MqttClientManagementService mqttClientManagementService,
-                                     ErrorRepository errorRepository,
-                                     WarningRepository warningRepository,
-                                     EndpointRepository endpointRepository,
-                                     InternalEndpointCache internalEndpointCache,
-                                     UnprocessedMessageRepository unprocessedMessageRepository,
-                                     ContentMessageRepository contentMessageRepository,
-                                     DeviceDescriptionRepository deviceDescriptionRepository,
-                                     TimeLogRepository timeLogRepository) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.errorRepository = errorRepository;
-        this.warningRepository = warningRepository;
-        this.endpointRepository = endpointRepository;
-        this.internalEndpointCache = internalEndpointCache;
-        this.unprocessedMessageRepository = unprocessedMessageRepository;
-        this.contentMessageRepository = contentMessageRepository;
-        this.deviceDescriptionRepository = deviceDescriptionRepository;
-        this.timeLogRepository = timeLogRepository;
-    }
-
     /**
      * Remove the endpoint from the database.
      *
@@ -54,9 +35,6 @@ public class RemoveEndpointDataService {
      */
     @Transactional
     public void removeEndpointData(Endpoint endpoint) {
-        log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint);
-
         log.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);
@@ -72,9 +50,6 @@ public class RemoveEndpointDataService {
      */
     @Transactional
     public void removeEndpointDataAndEndpoint(Endpoint endpoint) {
-        log.debug("Disconnect the endpoint.");
-        mqttClientManagementService.disconnect(endpoint);
-
         log.debug("Remove all errors, warnings and information.");
         errorRepository.deleteAllByEndpoint(endpoint);
         warningRepository.deleteAllByEndpoint(endpoint);

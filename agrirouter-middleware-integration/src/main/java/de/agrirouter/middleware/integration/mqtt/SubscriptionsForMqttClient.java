@@ -37,15 +37,6 @@ public class SubscriptionsForMqttClient {
     }
 
     /**
-     * Get all subscriptions for a client ID.
-     *
-     * @param clientId The client ID.
-     */
-    public Set<String> getAll(String clientId) {
-        return subscriptions.get(clientId);
-    }
-
-    /**
      * Check is a subscription for a client ID and the sensor alternate ID exists.
      *
      * @param clientId The client ID.

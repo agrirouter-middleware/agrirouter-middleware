@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.Callable;
-
 /**
  * Controller to onboard a single endpoint.
  */
@@ -74,9 +72,9 @@ public class FarmingSoftwareController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> revokeFarmingSoftware(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<Void> revokeFarmingSoftware(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         endpointService.revoke(externalEndpointId);
-        return () -> ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
 }
