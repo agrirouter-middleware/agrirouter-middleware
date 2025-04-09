@@ -296,7 +296,7 @@ public class TimeLogService {
             final var timeLogPeriods = new ArrayList<TimeLogPeriod>();
             segmentedTimeLogs.forEach(period -> {
                 period.sort(Comparator.comparingLong(TimeLog::getTimestamp));
-                timeLogPeriods.add(new TimeLogPeriod(period.getFirst().getTimestamp(), period.getLast().getTimestamp(), period.size(), period.stream().map(TimeLog::getMessageId).collect(Collectors.toSet())));
+                timeLogPeriods.add(new TimeLogPeriod(period.get(0).getTimestamp(), period.get(period.size() - 1).getTimestamp(), period.size(), period.stream().map(TimeLog::getMessageId).collect(Collectors.toSet())));
             });
             return new TimeLogPeriods(timeLogPeriods);
         } else {
