@@ -7,7 +7,6 @@ import de.agrirouter.middleware.business.TenantService;
 import de.agrirouter.middleware.controller.dto.ApplicationStatisticsResponse;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +24,6 @@ public class ApplicationStatisticsUIController extends UIController {
     private final EndpointService endpointService;
     private final ApplicationService applicationService;
     private final TenantService tenantService;
-    private final ModelMapper modelMapper;
 
     /**
      * The home / landing page.
