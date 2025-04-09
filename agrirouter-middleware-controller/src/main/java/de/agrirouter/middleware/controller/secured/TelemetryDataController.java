@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
  * Sending messages to the AR.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/telemetry-data")
 @Tag(
         name = "telemetry data management",
@@ -57,16 +59,6 @@ public class TelemetryDataController implements SecuredApiController {
     private final DeviceService deviceService;
     private final TimeLogService timeLogService;
     private final ModelMapper modelMapper;
-
-    public TelemetryDataController(DeviceDescriptionService deviceDescriptionService,
-                                   DeviceService deviceService,
-                                   TimeLogService timeLogService,
-                                   ModelMapper modelMapper) {
-        this.deviceDescriptionService = deviceDescriptionService;
-        this.deviceService = deviceService;
-        this.timeLogService = timeLogService;
-        this.modelMapper = modelMapper;
-    }
 
     /**
      * Register a machine.

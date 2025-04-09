@@ -14,6 +14,7 @@ import de.agrirouter.middleware.domain.Application;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +32,7 @@ import java.util.Base64;
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/callback-processor")
 @Tag(
         name = "agrirouter© callback",
@@ -42,16 +44,6 @@ public class CallbackProcessorController implements UnsecuredApiController {
     private final ApplicationService applicationService;
     private final SecuredOnboardProcessService securedOnboardProcessService;
     private final AuthorizationRequestService authorizationRequestService;
-
-    public CallbackProcessorController(OnboardStateContainer onboardStateContainer,
-                                       ApplicationService applicationService,
-                                       SecuredOnboardProcessService securedOnboardProcessService,
-                                       AuthorizationRequestService authorizationRequestService) {
-        this.onboardStateContainer = onboardStateContainer;
-        this.applicationService = applicationService;
-        this.securedOnboardProcessService = securedOnboardProcessService;
-        this.authorizationRequestService = authorizationRequestService;
-    }
 
     /**
      * Callback for the onboard process.

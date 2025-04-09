@@ -8,6 +8,7 @@ import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache
 import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingForAcknowledgementDto;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -27,6 +27,7 @@ import java.util.Date;
  */
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class EndpointDashboardUIController extends UIController {
 
     private final EndpointService endpointService;
@@ -35,20 +36,6 @@ public class EndpointDashboardUIController extends UIController {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final ModelMapper modelMapper;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
-
-    public EndpointDashboardUIController(EndpointService endpointService,
-                                         MqttClientManagementService mqttClientManagementService,
-                                         ApplicationService applicationService,
-                                         MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                         ModelMapper modelMapper,
-                                         CloudOnboardingFailureCache cloudOnboardingFailureCache) {
-        this.endpointService = endpointService;
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.applicationService = applicationService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.modelMapper = modelMapper;
-        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
-    }
 
     /**
      * The landing page.

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.view.RedirectView;
 /**
  * Controller to onboard a single endpoint.
  */
+@RequiredArgsConstructor
 @RestController("unsecured-telemetry-platform-controller")
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/telemetry-platform")
 @Tag(
@@ -27,12 +29,6 @@ public class TelemetryPlatformController implements UnsecuredApiController {
 
     private final ApplicationService applicationService;
     private final SecuredOnboardProcessService securedOnboardProcessService;
-
-    public TelemetryPlatformController(ApplicationService applicationService,
-                                       SecuredOnboardProcessService securedOnboardProcessService) {
-        this.applicationService = applicationService;
-        this.securedOnboardProcessService = securedOnboardProcessService;
-    }
 
     /**
      * Create an authorization URL for the telemetry platform.

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller to onboard a single endpoint.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/farming-software")
 @Tag(
         name = "farming software management",
@@ -28,10 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class FarmingSoftwareController implements SecuredApiController {
 
     private final EndpointService endpointService;
-
-    public FarmingSoftwareController(EndpointService endpointService) {
-        this.endpointService = endpointService;
-    }
 
     /**
      * Remove the endpoint from the AR and delete the data.

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @Profile("maintenance")
+@RequiredArgsConstructor
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/maintenance/tenant")
 @Tag(
         name = "maintenance",
@@ -37,12 +39,6 @@ public class TenantMaintenanceController implements UnsecuredApiController {
 
     private final TenantService tenantService;
     private final ModelMapper modelMapper;
-
-    public TenantMaintenanceController(TenantService tenantService,
-                                       ModelMapper modelMapper) {
-        this.tenantService = tenantService;
-        this.modelMapper = modelMapper;
-    }
 
     /**
      * Register a new tenant.

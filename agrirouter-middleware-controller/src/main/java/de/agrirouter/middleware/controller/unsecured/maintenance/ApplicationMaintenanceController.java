@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PRE
  * Controller to manage applications.
  */
 @RestController
+@RequiredArgsConstructor
 @Profile("maintenance")
 @RequestMapping(API_PREFIX + "/maintenance/application")
 @Tag(
@@ -33,10 +35,6 @@ import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PRE
 public class ApplicationMaintenanceController implements UnsecuredApiController {
 
     private final ApplicationService applicationService;
-
-    public ApplicationMaintenanceController(ApplicationService applicationService) {
-        this.applicationService = applicationService;
-    }
 
     /**
      * Resend capabilities and subscriptions for the endpoint.

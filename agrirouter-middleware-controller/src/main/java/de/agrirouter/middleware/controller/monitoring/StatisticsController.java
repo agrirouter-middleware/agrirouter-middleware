@@ -12,12 +12,10 @@ import de.agrirouter.middleware.controller.dto.MessageStatisticsGroupedByApplica
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.LatestHeaderQueryResultsResponse;
 import de.agrirouter.middleware.controller.dto.response.LatestQueryResultsResponse;
-import de.agrirouter.middleware.controller.dto.response.domain.MqttStatisticsResponse;
 import de.agrirouter.middleware.domain.Application;
-import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -39,49 +37,16 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @Tag(name = "monitoring")
+@RequiredArgsConstructor
 @RequestMapping(MonitoringApiController.API_PREFIX + "/statistics")
 public class StatisticsController implements SecuredApiController {
 
-    private final MqttStatistics mqttStatistics;
-    private final MqttClientManagementService mqttClientManagementService;
     private final ModelMapper modelMapper;
     private final ApplicationService applicationService;
     private final AuthorizationService authorizationService;
     private final LatestQueryResults latestQueryResults;
     private final LatestHeaderQueryResults latestHeaderQueryResults;
     private final SearchNonTelemetryDataService searchNonTelemetryDataService;
-
-    public StatisticsController(MqttStatistics mqttStatistics,
-                                MqttClientManagementService mqttClientManagementService,
-                                ModelMapper modelMapper,
-                                ApplicationService applicationService,
-                                AuthorizationService authorizationService,
-                                LatestQueryResults latestQueryResults,
-                                LatestHeaderQueryResults latestHeaderQueryResults,
-                                SearchNonTelemetryDataService searchNonTelemetryDataService) {
-        this.mqttStatistics = mqttStatistics;
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.modelMapper = modelMapper;
-        this.applicationService = applicationService;
-        this.authorizationService = authorizationService;
-        this.latestQueryResults = latestQueryResults;
-        this.latestHeaderQueryResults = latestHeaderQueryResults;
-        this.searchNonTelemetryDataService = searchNonTelemetryDataService;
-    }
-
-    /**
-     * Get the statistics for the MQTT connections.
-     *
-     * @return Statistics for the MQTT connections.
-     */
-    @GetMapping(value = "/mqtt", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(hidden = true)
-    public ResponseEntity<MqttStatisticsResponse> getMqttStatistics() {
-        var mqttStatisticsResponse = modelMapper.map(mqttStatistics, MqttStatisticsResponse.class);
-        mqttStatisticsResponse.setNumberOfConnectedClients(mqttClientManagementService.getNumberOfActiveConnections());
-        mqttStatisticsResponse.setNumberOfDisconnectedClients(mqttClientManagementService.getNumberOfInactiveConnections());
-        return ResponseEntity.ok(mqttStatisticsResponse);
-    }
 
     @GetMapping(value = {"/latest-query-results", "/latest-query-results/{internalApplicationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(hidden = true)
