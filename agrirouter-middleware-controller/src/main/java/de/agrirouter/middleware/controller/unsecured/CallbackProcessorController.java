@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.controller.unsecured;
 
 
+import com.dke.data.agrirouter.api.dto.registrationrequest.secured.AuthorizationResponseToken;
 import com.dke.data.agrirouter.api.service.onboard.secured.AuthorizationRequestService;
 import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,12 +73,7 @@ public class CallbackProcessorController implements UnsecuredApiController {
                         onboardState.getInternalApplicationId());
                 final var authorizationResponseToken = authorizationRequestService.decodeToken(token);
                 log.trace("Decoded the token >>> {}", authorizationResponseToken);
-                final var onboardProcessParameters = new OnboardProcessParameters();
-                onboardProcessParameters.setInternalApplicationId(application.getInternalApplicationId());
-                onboardProcessParameters.setRegistrationCode(authorizationResponseToken.getRegcode());
-                onboardProcessParameters.setExternalEndpointId(onboardState.getExternalEndpointId());
-                onboardProcessParameters.setTenantId(onboardState.getTenantId());
-                onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
+                final var onboardProcessParameters = createOnboardProcessParameters(application, authorizationResponseToken, onboardState);
                 try {
                     securedOnboardProcessService.onboard(onboardProcessParameters);
                     return redirect(onboardState, application, OnboardProcessResult.SUCCESS, null);
@@ -92,6 +89,17 @@ public class CallbackProcessorController implements UnsecuredApiController {
             log.error("The state for the onboard process was not found, skipping the callback.");
         }
         return null;
+    }
+
+    @NotNull
+    private static OnboardProcessParameters createOnboardProcessParameters(Application application, AuthorizationResponseToken authorizationResponseToken, OnboardStateContainer.OnboardState onboardState) {
+        final var onboardProcessParameters = new OnboardProcessParameters();
+        onboardProcessParameters.setInternalApplicationId(application.getInternalApplicationId());
+        onboardProcessParameters.setRegistrationCode(authorizationResponseToken.getRegcode());
+        onboardProcessParameters.setExternalEndpointId(onboardState.getExternalEndpointId());
+        onboardProcessParameters.setTenantId(onboardState.getTenantId());
+        onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
+        return onboardProcessParameters;
     }
 
     private RedirectView redirect(OnboardStateContainer.OnboardState onboardState, Application application, OnboardProcessResult result, String errorMessage) {
