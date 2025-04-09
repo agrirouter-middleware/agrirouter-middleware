@@ -193,7 +193,8 @@ public class EndpointService {
     public void delete(String externalEndpointId) {
         var endpoints = endpointRepository.findAllByExternalEndpointId(externalEndpointId);
         var sensorAlternateIds = new ArrayList<String>();
-        try (var mainExecutorService = Executors.newFixedThreadPool(endpoints.size())) {
+        var mainExecutorService = Executors.newFixedThreadPool(endpoints.size());
+        try {
             endpoints.forEach(endpoint -> mainExecutorService.execute(() -> {
                 try {
                     List<Endpoint> connectedVirtualEndpoints = endpoint.getConnectedVirtualEndpoints();
