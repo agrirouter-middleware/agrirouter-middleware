@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -186,17 +187,23 @@ public class EndpointController implements SecuredApiController {
     public ResponseEntity<CloudOnboardingFailureResponse> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
         Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry = cloudOnboardingFailureCache.get(externalVirtualEndpointId);
         if (optionalFailureEntry.isPresent()) {
-            CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
-            final var cloudOnboardFailure = new CloudOnboardingFailureDto();
-            cloudOnboardFailure.setErrorCode(failureEntry.errorCode());
-            cloudOnboardFailure.setErrorMessage(failureEntry.errorMessage());
-            cloudOnboardFailure.setExternalEndpointId(failureEntry.externalEndpointId());
-            cloudOnboardFailure.setTimestamp(failureEntry.timestamp());
-            cloudOnboardFailure.setVirtualExternalEndpointId(failureEntry.virtualExternalEndpointId());
+            final var cloudOnboardFailure = createOnboardFailure(optionalFailureEntry);
             return ResponseEntity.ok(new CloudOnboardingFailureResponse(cloudOnboardFailure));
         } else {
             return ResponseEntity.noContent().build();
         }
+    }
+
+    @NotNull
+    private static CloudOnboardingFailureDto createOnboardFailure(Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry) {
+        CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
+        final var cloudOnboardFailure = new CloudOnboardingFailureDto();
+        cloudOnboardFailure.setErrorCode(failureEntry.errorCode());
+        cloudOnboardFailure.setErrorMessage(failureEntry.errorMessage());
+        cloudOnboardFailure.setExternalEndpointId(failureEntry.externalEndpointId());
+        cloudOnboardFailure.setTimestamp(failureEntry.timestamp());
+        cloudOnboardFailure.setVirtualExternalEndpointId(failureEntry.virtualExternalEndpointId());
+        return cloudOnboardFailure;
     }
 
     /**
