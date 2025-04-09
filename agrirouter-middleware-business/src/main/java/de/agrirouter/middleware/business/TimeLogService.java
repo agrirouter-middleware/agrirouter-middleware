@@ -19,6 +19,7 @@ import de.agrirouter.middleware.business.parameters.PublishTimeLogParameters;
 import de.agrirouter.middleware.business.parameters.SearchMachinesParameters;
 import de.agrirouter.middleware.business.parameters.SearchTimeLogPeriodsParameters;
 import de.agrirouter.middleware.domain.ContentMessage;
+import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import de.agrirouter.middleware.domain.documents.TimeLog;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
@@ -28,6 +29,7 @@ import efdi.GrpcEfdi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -110,15 +112,7 @@ public class TimeLogService {
         if (optionalDocument.isPresent()) {
             try {
                 final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-                final var timeLog = new TimeLog();
-                timeLog.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                timeLog.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                timeLog.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                timeLog.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                timeLog.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                timeLog.setExternalEndpointId(endpoint.getExternalEndpointId());
-                timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
-                timeLog.setDocument(optionalDocument.get());
+                final var timeLog = createTimeLog(contentMessage, endpoint, optionalDocument);
                 timeLogRepository.save(timeLog);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Time log has been received and saved.");
             } catch (BusinessException e) {
@@ -127,6 +121,20 @@ public class TimeLogService {
         } else {
             log.error(ErrorMessageFactory.couldNotParseTimeLog().asLogMessage());
         }
+    }
+
+    @NotNull
+    private static TimeLog createTimeLog(ContentMessage contentMessage, Endpoint endpoint, Optional<Document> optionalDocument) {
+        final var timeLog = new TimeLog();
+        timeLog.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+        timeLog.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+        timeLog.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+        timeLog.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+        timeLog.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+        timeLog.setExternalEndpointId(endpoint.getExternalEndpointId());
+        timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
+        timeLog.setDocument(optionalDocument.get());
+        return timeLog;
     }
 
     /**
