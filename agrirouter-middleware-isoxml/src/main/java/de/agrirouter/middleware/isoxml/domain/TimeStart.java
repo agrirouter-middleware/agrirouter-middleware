@@ -1,9 +1,14 @@
 package de.agrirouter.middleware.isoxml.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+@Setter
+@Getter
 public class TimeStart {
 
     /**
@@ -21,22 +26,6 @@ public class TimeStart {
      * The days.
      */
     private int milliseconds;
-
-    public int getDays() {
-        return days;
-    }
-
-    public void setDays(int days) {
-        this.days = days;
-    }
-
-    public int getMilliseconds() {
-        return milliseconds;
-    }
-
-    public void setMilliseconds(int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
 
     @Override
     public String toString() {

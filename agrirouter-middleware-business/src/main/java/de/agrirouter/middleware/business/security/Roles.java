@@ -5,10 +5,10 @@ import lombok.Getter;
 /**
  * Roles for the application.
  */
+@Getter
 public enum Roles {
     MONITORING("monitoring"), USER("user"), DEFAULT("default");
 
-    @Getter
     private final String key;
 
     Roles(String key) {
