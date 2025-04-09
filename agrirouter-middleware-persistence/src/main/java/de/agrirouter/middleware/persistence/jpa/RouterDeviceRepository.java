@@ -4,6 +4,8 @@ import de.agrirouter.middleware.domain.RouterDevice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Repository to access the router devices within the database.
  */
@@ -18,4 +20,12 @@ public interface RouterDeviceRepository extends JpaRepository<RouterDevice, Long
      * @return true if the router device exists, otherwise false
      */
     boolean existsByIdNotAndConnectionCriteria_ClientId(Long id, String clientId);
+
+    /**
+     * Find a router device by the given client ID.
+     *
+     * @param clientId the client ID
+     * @return the router device if found, otherwise null
+     */
+    Optional<RouterDevice> findByConnectionCriteria_ClientId(String clientId);
 }

@@ -54,7 +54,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     public void connectionLost(Throwable throwable) {
         log.error("Connection to MQTT broker lost.", throwable);
         mqttStatistics.increaseNumberOfConnectionLosses();
-        applicationEventPublisher.publishEvent(new ReconnectRouterDeviceEvent(this, clientIdOfTheRouterDevice));
     }
 
     @Override

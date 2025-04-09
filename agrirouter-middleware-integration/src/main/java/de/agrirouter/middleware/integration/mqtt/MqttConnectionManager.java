@@ -10,6 +10,7 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.RouterDevice;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.RouterDeviceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,7 @@ public class MqttConnectionManager {
     private final MqttStatistics mqttStatistics;
     private final ApplicationContext applicationContext;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
+    private final RouterDeviceRepository routerDeviceRepository;
 
     @Value("${app.agrirouter.mqtt.options.clean-session}")
     private boolean cleanSession;
@@ -281,35 +283,6 @@ public class MqttConnectionManager {
             return new ConnectionState("n.a.", false, false, false, Collections.emptyList());
         }
         return new ConnectionState("n.a.", false, false, false, Collections.emptyList());
-    }
-
-    /**
-     * Attempts to reconnect an MQTT client associated with the given client ID of the router device.
-     * If the MQTT client for the specified client ID is cached but not currently connected, the method
-     * will try to establish a connection. Logs appropriate information or errors during the process.
-     *
-     * @param clientIdOfTheRouterDevice The client ID of the router device for which the reconnection is attempted.
-     */
-    public void tryToReconnect(String clientIdOfTheRouterDevice) {
-        final var cachedMqttClient = cachedMqttClients.remove(clientIdOfTheRouterDevice);
-
-        var existingRouterDevice = application.getApplicationSettings().getRouterDevice();
-        if (existingRouterDevice != null) {
-            log.info("Connecting router device for application: {}", application.getApplicationId());
-            try {
-                var mqttClient = initMqttClient(existingRouterDevice);
-                log.debug("Connected router device for application: {}", application.getApplicationId());
-                mqttStatistics.increaseNumberOfConnects();
-                final var newCachedMqttClient = new CachedMqttClient(existingRouterDevice.getDeviceAlternateId(), existingRouterDevice.getConnectionCriteria().getClientId(), Optional.of(mqttClient), new ArrayList<>());
-                cachedMqttClients.put(existingRouterDevice.getConnectionCriteria().getClientId(), newCachedMqttClient);
-                log.debug("Cached MQTT client for application has been created and is ready to be used: {}", application.getApplicationId());
-            } catch (MqttException e) {
-                log.error("Could not connect router device for application: {}", application.getApplicationId(), e);
-                throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(application.getApplicationId()));
-            }
-        } else {
-            log.error("Router device not found for application: {}", application.getApplicationId());
-        }
     }
 
     /**
