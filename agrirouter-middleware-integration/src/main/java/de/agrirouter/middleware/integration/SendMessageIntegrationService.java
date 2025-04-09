@@ -11,7 +11,6 @@ import com.dke.data.agrirouter.impl.common.MessageIdService;
 import com.dke.data.agrirouter.impl.messaging.SequenceNumberService;
 import com.dke.data.agrirouter.impl.messaging.mqtt.SendMessageServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
@@ -49,7 +48,7 @@ public class SendMessageIntegrationService {
      *
      * @param messagingIntegrationParameters -
      */
-    public void publish(Endpoint endpoint, MessagingIntegrationParameters messagingIntegrationParameters) throws CriticalBusinessException {
+    public void publish(Endpoint endpoint, MessagingIntegrationParameters messagingIntegrationParameters) {
         final var iMqttClient = mqttClientManagementService.get(endpoint);
         if (iMqttClient.isEmpty()) {
             throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getAgrirouterEndpointId()));
