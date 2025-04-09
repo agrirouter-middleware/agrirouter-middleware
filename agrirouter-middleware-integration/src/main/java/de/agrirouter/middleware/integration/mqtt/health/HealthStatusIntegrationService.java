@@ -8,11 +8,9 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.health.internal.PingService;
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -26,8 +24,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HealthStatusIntegrationService {
 
-    private final ApplicationContext applicationContext;
-    private final ApplicationRepository applicationRepository;
     private final MqttClientManagementService mqttClientManagementService;
     private final HealthStatusMessages healthStatusMessages;
     private final PingService pingService;

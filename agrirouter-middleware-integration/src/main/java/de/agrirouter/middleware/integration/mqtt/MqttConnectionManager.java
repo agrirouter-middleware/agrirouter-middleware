@@ -10,7 +10,6 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.RouterDevice;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
-import de.agrirouter.middleware.persistence.jpa.RouterDeviceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +41,6 @@ public class MqttConnectionManager {
     private final MqttStatistics mqttStatistics;
     private final ApplicationContext applicationContext;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
-    private final RouterDeviceRepository routerDeviceRepository;
 
     @Value("${app.agrirouter.mqtt.options.clean-session}")
     private boolean cleanSession;
