@@ -5,7 +5,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
@@ -82,15 +81,10 @@ public class TimeLogService {
                 null,
                 asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()),
                 publishTimeLogParameters.getTeamSetContextId());
-        try {
-            var endpoint = endpointService.findByExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
-            sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
-        } catch (CriticalBusinessException e) {
-            log.debug("Could not publish data. There was a critical business exception. {}", e.getErrorMessage());
-            messageCache.put(publishTimeLogParameters.getExternalEndpointId(), messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
-        }
+        var endpoint = endpointService.findByExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
+        sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+        businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
+
     }
 
     private ByteString asByteString(String base64EncodedTimeLog) {
