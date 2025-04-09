@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
@@ -87,16 +88,7 @@ public class DeviceDescriptionService {
         if (optionalDocument.isPresent()) {
             try {
                 final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-                var deviceDescription = new DeviceDescription();
-                deviceDescription.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                deviceDescription.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                deviceDescription.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                deviceDescription.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                deviceDescription.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                deviceDescription.setExternalEndpointId(endpoint.getExternalEndpointId());
-                deviceDescription.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
-                deviceDescription.setDeactivated(false);
-                deviceDescription.setDocument(optionalDocument.get());
+                var deviceDescription = createDeviceDescription(contentMessage, endpoint, optionalDocument);
                 deviceDescriptionRepository.save(deviceDescription);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description received and saved to the database.");
                 createOrFindDevices(endpoint, contentMessage.getMessageContent(), deviceDescription);
@@ -106,6 +98,21 @@ public class DeviceDescriptionService {
         } else {
             log.error(ErrorMessageFactory.couldNotParseDeviceDescription().asLogMessage());
         }
+    }
+
+    @NotNull
+    private static DeviceDescription createDeviceDescription(ContentMessage contentMessage, Endpoint endpoint, Optional<Document> optionalDocument) {
+        var deviceDescription = new DeviceDescription();
+        deviceDescription.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+        deviceDescription.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+        deviceDescription.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+        deviceDescription.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+        deviceDescription.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+        deviceDescription.setExternalEndpointId(endpoint.getExternalEndpointId());
+        deviceDescription.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
+        deviceDescription.setDeactivated(false);
+        deviceDescription.setDocument(optionalDocument.get());
+        return deviceDescription;
     }
 
     /**
@@ -121,13 +128,7 @@ public class DeviceDescriptionService {
             if (optionalDocument.isPresent()) {
                 try {
                     final var endpoint = endpointService.findByAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
-                    var deviceDescription = new DeviceDescription();
-                    deviceDescription.setAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
-                    deviceDescription.setExternalEndpointId(createDeviceDescriptionParameters.getEndpoint().getExternalEndpointId());
-                    deviceDescription.setTeamSetContextId(createDeviceDescriptionParameters.getTeamSetContextId());
-                    deviceDescription.setDocument(optionalDocument.get());
-                    deviceDescription.setDeactivated(true);
-                    deviceDescription.setBase64EncodedDeviceDescription(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription());
+                    var deviceDescription = createDeviceDescription(createDeviceDescriptionParameters, optionalDocument);
                     deviceDescriptionRepository.save(deviceDescription);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description created and saved to the database.");
                     createOrFindDevices(endpoint, Base64.getDecoder().decode(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription()), deviceDescription);
@@ -140,6 +141,18 @@ public class DeviceDescriptionService {
         } else {
             log.error(ErrorMessageFactory.couldNotParseDeviceDescription().asLogMessage());
         }
+    }
+
+    @NotNull
+    private static DeviceDescription createDeviceDescription(CreateDeviceDescriptionParameters createDeviceDescriptionParameters, Optional<Document> optionalDocument) {
+        var deviceDescription = new DeviceDescription();
+        deviceDescription.setAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
+        deviceDescription.setExternalEndpointId(createDeviceDescriptionParameters.getEndpoint().getExternalEndpointId());
+        deviceDescription.setTeamSetContextId(createDeviceDescriptionParameters.getTeamSetContextId());
+        deviceDescription.setDocument(optionalDocument.get());
+        deviceDescription.setDeactivated(true);
+        deviceDescription.setBase64EncodedDeviceDescription(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription());
+        return deviceDescription;
     }
 
     private void createOrFindDevices(Endpoint endpoint, byte[] rawDeviceDescription, DeviceDescription deviceDescription) {
