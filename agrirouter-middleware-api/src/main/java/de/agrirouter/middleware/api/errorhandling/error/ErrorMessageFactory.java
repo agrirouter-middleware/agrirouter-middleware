@@ -122,24 +122,12 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.COULD_NOT_CREATE_PUBLIC_KEY_FOR_APPLICATION, String.format("Could not create public key for application with id '%s' and version '%s'.", applicationId, versionId), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public static ErrorMessage agrirouterStatusNotOperational() {
-        return new ErrorMessage(ErrorKey.AGRIROUTER_STATUS_NOT_OPERATIONAL, "Current agrirouter© status is not operational.", HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    public static ErrorMessage agrirouterStatusNotAvailable() {
-        return new ErrorMessage(ErrorKey.AGRIROUTER_STATUS_NOT_AVAILABLE, "Current agrirouter© status is not available.", HttpStatus.BAD_GATEWAY);
-    }
-
     public static ErrorMessage notAuthorized() {
         return new ErrorMessage(ErrorKey.NOT_AUTHORIZED, "Nice try, but the user is not authorized to perform this action.", HttpStatus.FORBIDDEN);
     }
 
     public static ErrorMessage missingRouterDevice(String externalEndpointId) {
         return new ErrorMessage(ErrorKey.MISSING_ROUTER_DEVICE, String.format("Could not find the router device for the endpoint with the external endpoint ID '%s'.", externalEndpointId), HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    public static ErrorMessage couldNotPublishHealthMessage() {
-        return new ErrorMessage(ErrorKey.COULD_NOT_PUBLISH_HEALTH_MESSAGE, "Could not publish the health check message.", HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     public static ErrorMessage couldNotPublishHealthMessageSinceClientIsNotConnected() {
