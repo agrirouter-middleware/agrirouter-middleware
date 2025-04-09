@@ -1,132 +1,81 @@
 package de.agrirouter.middleware.integration.mqtt;
 
-import lombok.Getter;
+import io.micrometer.core.instrument.Metrics;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Transient statistics for the MQTT connections.
  */
 @Slf4j
-@Getter
 @ToString
 @Component
 public class MqttStatistics {
 
-    private final ConnectionStatistics connectionStatistics;
-    private final MqttMessageStatistics mqttMessageStatistics;
-    private final ContentMessageStatistics contentMessageStatistics;
-
-    public MqttStatistics() {
-        connectionStatistics = new ConnectionStatistics();
-        mqttMessageStatistics = new MqttMessageStatistics();
-        contentMessageStatistics = new ContentMessageStatistics();
-        contentMessageStatistics.numberOfContentMessagesReceived = new HashMap<>();
-    }
+    private static final String NUMBER_OF_CONNECTION_LOSSES = "middleware.number_of_connection_losses";
+    private static final String NUMBER_OF_CACHE_MISSES = "middleware.number_of_cache_misses";
+    private static final String NUMBER_OF_CLIENT_INITIALIZATIONS = "middleware.number_of_client_initializations";
+    private static final String NUMBER_OF_CONNECTS = "middleware.number_of_connects";
+    private static final String NUMBER_OF_MESSAGES_ARRIVED = "middleware.number_of_messages_arrived";
+    private static final String NUMBER_OF_MESSAGES_PUBLISHED = "middleware.number_of_messages_published";
+    private static final String NUMBER_OF_ACKNOWLEDGEMENTS = "middleware.number_of_acknowledgements";
+    private static final String NUMBER_OF_PUSH_NOTIFICATIONS = "middleware.number_of_push_notifications";
+    private static final String NUMBER_OF_CLOUD_REGISTRATIONS = "middleware.number_of_cloud_registrations";
+    private static final String NUMBER_OF_ENDPOINT_LISTINGS = "middleware.number_of_endpoint_listings";
+    private static final String NUMBER_OF_UNKNOWN_MESSAGES = "middleware.number_of_unknown_messages";
+    private static final String PAYLOAD_RECEIVED = "middleware.payload_received";
 
     public void increaseNumberOfConnectionLosses() {
-        connectionStatistics.numberOfConnectionLosses++;
+        Metrics.counter(NUMBER_OF_CONNECTION_LOSSES).increment();
     }
 
     public void increaseNumberOfCacheMisses() {
-        connectionStatistics.numberOfCacheMisses++;
+        Metrics.counter(NUMBER_OF_CACHE_MISSES).increment();
     }
 
     public void increaseNumberOfClientInitializations() {
-        connectionStatistics.numberOfClientInitializations++;
-    }
-
-    public void increaseNumberOfDisconnects() {
-        connectionStatistics.numberOfDisconnects++;
+        Metrics.counter(NUMBER_OF_CLIENT_INITIALIZATIONS).increment();
     }
 
     public void increaseNumberOfConnects() {
-        connectionStatistics.numberOfConnects++;
-    }
-
-    public void increaseNumberOfReconnects() {
-        connectionStatistics.numberOfReconnects++;
+        Metrics.counter(NUMBER_OF_CONNECTS).increment();
     }
 
     public void increaseNumberOfMessagesArrived() {
-        mqttMessageStatistics.numberOfMessagesArrived++;
+        Metrics.counter(NUMBER_OF_MESSAGES_ARRIVED).increment();
     }
 
     public void increaseNumberOfMessagesPublished() {
-        mqttMessageStatistics.numberOfMessagesPublished++;
+        Metrics.counter(NUMBER_OF_MESSAGES_PUBLISHED).increment();
     }
 
     public void increaseNumberOfAcknowledgements() {
-        mqttMessageStatistics.numberOfAcknowledgements++;
+        Metrics.counter(NUMBER_OF_ACKNOWLEDGEMENTS).increment();
     }
 
     public void increaseNumberOfPushNotifications() {
-        mqttMessageStatistics.numberOfPushNotifications++;
+        Metrics.counter(NUMBER_OF_PUSH_NOTIFICATIONS).increment();
     }
 
     public void increaseNumberOfCloudRegistrations() {
-        mqttMessageStatistics.numberOfCloudRegistrations++;
+        Metrics.counter(NUMBER_OF_CLOUD_REGISTRATIONS).increment();
     }
 
     public void increaseNumberOfEndpointListings() {
-        mqttMessageStatistics.numberOfEndpointListings++;
+        Metrics.counter(NUMBER_OF_ENDPOINT_LISTINGS).increment();
     }
 
     public void increaseNumberOfUnknownMessages() {
-        mqttMessageStatistics.numberOfUnknownMessages++;
+        Metrics.counter(NUMBER_OF_UNKNOWN_MESSAGES).increment();
     }
 
     public void increaseNumberOfContentMessagesReceived(String technicalMessageType) {
-        var counter = contentMessageStatistics.numberOfContentMessagesReceived.get(technicalMessageType);
-        if (counter == null) {
-            counter = 0;
-        }
-        counter++;
-        contentMessageStatistics.numberOfContentMessagesReceived.put(technicalMessageType, counter);
+        Metrics.counter(NUMBER_OF_MESSAGES_ARRIVED, "technical_message_type", technicalMessageType).increment();
     }
 
     public void increasePayloadReceived(int length) {
-        mqttMessageStatistics.payloadReceived += length;
+        Metrics.counter(PAYLOAD_RECEIVED).increment(length);
     }
 
-
-    @Getter
-    @ToString
-    public static class ConnectionStatistics {
-        private long numberOfConnectionLosses;
-        private long numberOfCacheMisses;
-        private long numberOfClientInitializations;
-        private long numberOfDisconnects;
-        private long numberOfConnects;
-        private long numberOfReconnects;
-    }
-
-    @Getter
-    @ToString
-    public static class MqttMessageStatistics {
-        public long payloadReceived;
-        private long numberOfMessagesPublished;
-        private long numberOfMessagesArrived;
-        private long numberOfAcknowledgements;
-        private long numberOfPushNotifications;
-        private int numberOfCloudRegistrations;
-        private long numberOfEndpointListings;
-        private int numberOfUnknownMessages;
-    }
-
-    @Getter
-    @ToString
-    public static class ContentMessageStatistics {
-        private Map<String, Integer> numberOfContentMessagesReceived;
-    }
-
-    @Scheduled(cron = "${app.scheduled.log-mqtt-statistics}")
-    public void log() {
-        log.debug("{}", this);
-    }
 }
