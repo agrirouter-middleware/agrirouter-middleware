@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business;
 
+import agrirouter.commons.MessageOuterClass;
 import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -30,6 +31,7 @@ import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
 import de.agrirouter.middleware.persistence.jpa.ErrorRepository;
 import de.agrirouter.middleware.persistence.jpa.WarningRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -121,7 +123,13 @@ public class EndpointService {
     public void updateErrors(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        log.debug("Update status of the endpoint.");
+        final var error = createError(endpoint, decodedMessage, message);
+        errorRepository.save(error);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
+    }
+
+    @NotNull
+    private static Error createError(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
         final var error = new Error();
         error.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         error.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -129,8 +137,7 @@ public class EndpointService {
         error.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
         error.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         error.setEndpoint(endpoint);
-        errorRepository.save(error);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
+        return error;
     }
 
     /**
@@ -142,7 +149,13 @@ public class EndpointService {
     public void updateWarnings(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        log.debug("Update status of the endpoint.");
+        final var warning = createWarning(endpoint, decodedMessage, message);
+        warningRepository.save(warning);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
+    }
+
+    @NotNull
+    private static Warning createWarning(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
         final var warning = new Warning();
         warning.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         warning.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -150,8 +163,7 @@ public class EndpointService {
         warning.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
         warning.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         warning.setEndpoint(endpoint);
-        warningRepository.save(warning);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
+        return warning;
     }
 
     /**
