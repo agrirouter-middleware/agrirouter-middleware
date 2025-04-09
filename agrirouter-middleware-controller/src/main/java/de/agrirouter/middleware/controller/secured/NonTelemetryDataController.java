@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +35,7 @@ import javax.validation.Valid;
  * Sending messages to the AR.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/non-telemetry-data")
 @Tag(
         name = "non telemetry data management",
@@ -44,14 +46,6 @@ public class NonTelemetryDataController implements SecuredApiController {
     private final PublishNonTelemetryDataService publishNonTelemetryDataService;
     private final SearchNonTelemetryDataService searchNonTelemetryDataService;
     private final ModelMapper modelMapper;
-
-    public NonTelemetryDataController(PublishNonTelemetryDataService publishNonTelemetryDataService,
-                                      SearchNonTelemetryDataService searchNonTelemetryDataService,
-                                      ModelMapper modelMapper) {
-        this.publishNonTelemetryDataService = publishNonTelemetryDataService;
-        this.searchNonTelemetryDataService = searchNonTelemetryDataService;
-        this.modelMapper = modelMapper;
-    }
 
     /**
      * Publish task data files for a given endpoint.

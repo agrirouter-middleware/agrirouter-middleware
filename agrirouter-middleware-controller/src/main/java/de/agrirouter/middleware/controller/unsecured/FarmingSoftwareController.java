@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * Controller to onboard a single endpoint.
  */
 @RestController("unsecured-farming-software-controller")
+@RequiredArgsConstructor
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/farming-software")
 @Tag(
         name = "farming software management",
@@ -28,12 +30,6 @@ public class FarmingSoftwareController implements UnsecuredApiController {
 
     private final ApplicationService applicationService;
     private final SecuredOnboardProcessService securedOnboardProcessService;
-
-    public FarmingSoftwareController(ApplicationService applicationService,
-                                     SecuredOnboardProcessService securedOnboardProcessService) {
-        this.applicationService = applicationService;
-        this.securedOnboardProcessService = securedOnboardProcessService;
-    }
 
     /**
      * Create an authorization URL for the secured onboard process.

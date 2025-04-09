@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/endpoint")
 @Tag(
         name = "endpoint management",
@@ -52,22 +54,6 @@ public class EndpointController implements SecuredApiController {
     private final MessageCache messageCache;
     private final MqttClientManagementService mqttClientManagementService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
-
-    public EndpointController(ApplicationService applicationService,
-                              EndpointService endpointService,
-                              ModelMapper modelMapper,
-                              MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                              MessageCache messageCache,
-                              MqttClientManagementService mqttClientManagementService,
-                              CloudOnboardingFailureCache cloudOnboardingFailureCache) {
-        this.applicationService = applicationService;
-        this.endpointService = endpointService;
-        this.modelMapper = modelMapper;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.messageCache = messageCache;
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
-    }
 
     /**
      * Find an endpoint status by the given IDs of the endpoint.

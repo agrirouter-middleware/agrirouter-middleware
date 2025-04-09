@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -29,6 +30,7 @@ import javax.validation.Valid;
  * Controller to onboard a single endpoint.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/telemetry-platform/")
 @Tag(
         name = "telemetry platform management",
@@ -39,14 +41,6 @@ public class TelemetryPlatformController implements SecuredApiController {
     private final VirtualOnboardProcessService virtualOnboardProcessService;
     private final VirtualOffboardProcessService virtualOffboardProcessService;
     private final EndpointService endpointService;
-
-    public TelemetryPlatformController(VirtualOnboardProcessService virtualOnboardProcessService,
-                                       VirtualOffboardProcessService virtualOffboardProcessService,
-                                       EndpointService endpointService) {
-        this.virtualOnboardProcessService = virtualOnboardProcessService;
-        this.virtualOffboardProcessService = virtualOffboardProcessService;
-        this.endpointService = endpointService;
-    }
 
     /**
      * Onboard a virtual endpoint using the internal ID of the endpoint.

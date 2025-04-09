@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
  * Controller to manage applications.
  */
 @RestController
+@RequiredArgsConstructor
 @Tag(
         name = "application management",
         description = "Operations for the application management, i.e. register, add supported technical message types and status checks."
@@ -53,16 +55,6 @@ public class ApplicationController implements SecuredApiController {
     private final ModelMapper modelMapper;
 
     private final MessageCache messageCache;
-
-    public ApplicationController(ApplicationService applicationService,
-                                 EndpointService endpointService,
-                                 ModelMapper modelMapper,
-                                 MessageCache messageCache) {
-        this.applicationService = applicationService;
-        this.endpointService = endpointService;
-        this.modelMapper = modelMapper;
-        this.messageCache = messageCache;
-    }
 
     /**
      * Register an application.
