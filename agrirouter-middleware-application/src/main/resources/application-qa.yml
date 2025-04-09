@@ -8,8 +8,6 @@ app:
     message-waiting-for-ack-removal: "0 0 0 * * *"
     statuspage-check-interval: "*/30 * * * * *"
   agrirouter:
-    status:
-      skip-check: true
     mqtt:
       options:
         clean-session: false
