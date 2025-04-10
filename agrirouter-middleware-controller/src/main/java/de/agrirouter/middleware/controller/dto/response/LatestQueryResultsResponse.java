@@ -14,10 +14,10 @@ import java.util.Map;
 /**
  * Response for the latest query results.
  */
+@Getter
 @Schema(description = "Response for the latest query results.")
 public class LatestQueryResultsResponse {
 
-    @Getter
     @Schema(description = "The list of the latest query results grouped by application.")
     private final Map<String, QueryResults> latestQueryResults = new HashMap<>();
 
@@ -37,10 +37,10 @@ public class LatestQueryResultsResponse {
     /**
      * Internal class for storing a multiple query results grouped by endpoint.
      */
+    @Getter
     @Schema(description = "Internal class for storing a multiple query results grouped by endpoint.")
     public static class QueryResults {
 
-        @Getter
         @Schema(description = "The list of the latest query results grouped by endpoint.")
         private final Map<String, QueryResult> latestQueryResults = new HashMap<>();
 

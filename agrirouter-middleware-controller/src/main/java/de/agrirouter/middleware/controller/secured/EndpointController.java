@@ -186,17 +186,22 @@ public class EndpointController implements SecuredApiController {
     public ResponseEntity<CloudOnboardingFailureResponse> cloudOnboardingFailures(@Parameter(description = "The external virtual endpoint ID.", required = true) @PathVariable("externalVirtualEndpointId") String externalVirtualEndpointId) {
         Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry = cloudOnboardingFailureCache.get(externalVirtualEndpointId);
         if (optionalFailureEntry.isPresent()) {
-            CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
-            final var cloudOnboardFailure = new CloudOnboardingFailureDto();
-            cloudOnboardFailure.setErrorCode(failureEntry.errorCode());
-            cloudOnboardFailure.setErrorMessage(failureEntry.errorMessage());
-            cloudOnboardFailure.setExternalEndpointId(failureEntry.externalEndpointId());
-            cloudOnboardFailure.setTimestamp(failureEntry.timestamp());
-            cloudOnboardFailure.setVirtualExternalEndpointId(failureEntry.virtualExternalEndpointId());
+            final var cloudOnboardFailure = createOnboardFailure(optionalFailureEntry);
             return ResponseEntity.ok(new CloudOnboardingFailureResponse(cloudOnboardFailure));
         } else {
             return ResponseEntity.noContent().build();
         }
+    }
+
+    private static CloudOnboardingFailureDto createOnboardFailure(Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry) {
+        CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
+        final var cloudOnboardFailure = new CloudOnboardingFailureDto();
+        cloudOnboardFailure.setErrorCode(failureEntry.errorCode());
+        cloudOnboardFailure.setErrorMessage(failureEntry.errorMessage());
+        cloudOnboardFailure.setExternalEndpointId(failureEntry.externalEndpointId());
+        cloudOnboardFailure.setTimestamp(failureEntry.timestamp());
+        cloudOnboardFailure.setVirtualExternalEndpointId(failureEntry.virtualExternalEndpointId());
+        return cloudOnboardFailure;
     }
 
     /**
@@ -600,18 +605,18 @@ public class EndpointController implements SecuredApiController {
     public ResponseEntity<DetailedEndpointHealthStatusResponse> health(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         try {
             var healthStatus = endpointService.determineHealthStatus(externalEndpointId);
-            return switch (healthStatus.getHealthStatus()) {
+            return switch (healthStatus.healthStatus()) {
                 case HEALTHY ->
-                        ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.OK).body(new DetailedEndpointHealthStatusResponse(healthStatus.healthStatus(), healthStatus.lastKnownHealthyStatus()));
                 case PENDING ->
-                        ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.PROCESSING).body(new DetailedEndpointHealthStatusResponse(healthStatus.healthStatus(), healthStatus.lastKnownHealthyStatus()));
                 case UNHEALTHY ->
-                        ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new DetailedEndpointHealthStatusResponse(healthStatus.healthStatus(), healthStatus.lastKnownHealthyStatus()));
                 case UNKNOWN ->
-                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.getHealthStatus(), healthStatus.getLastKnownHealthyStatus()));
+                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DetailedEndpointHealthStatusResponse(healthStatus.healthStatus(), healthStatus.lastKnownHealthyStatus()));
             };
         } catch (BusinessException e) {
-            if (e.getErrorMessage().getKey().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
+            if (e.getErrorMessage().key().equals(ErrorKey.ENDPOINT_NOT_FOUND)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             } else {
                 throw e;

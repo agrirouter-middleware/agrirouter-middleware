@@ -34,6 +34,7 @@ public class AddSupportedTechnicalMessageTypeRequest {
          * The technical message type, that the application does support, i.e. TaskData, EFDI, etc.
          */
         @NotNull
+        @Getter
         @Schema(description = "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.")
         private ContentMessageType technicalMessageType;
 
@@ -43,10 +44,6 @@ public class AddSupportedTechnicalMessageTypeRequest {
         @NotNull
         @Schema(description = "The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.")
         private Capabilities.CapabilitySpecification.Direction direction;
-
-        public ContentMessageType getTechnicalMessageType() {
-            return technicalMessageType;
-        }
 
     }
 

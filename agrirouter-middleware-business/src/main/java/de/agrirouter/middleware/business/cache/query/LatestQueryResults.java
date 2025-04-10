@@ -14,10 +14,10 @@ import java.util.Map;
 /**
  * Cache for the latest query results.
  */
+@Getter
 @Component
 public class LatestQueryResults {
 
-    @Getter
     private final Map<String, QueryResult> latestQueryResults;
 
     public LatestQueryResults() {

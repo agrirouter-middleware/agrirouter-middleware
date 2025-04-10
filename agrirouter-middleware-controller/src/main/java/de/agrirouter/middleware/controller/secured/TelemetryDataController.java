@@ -340,27 +340,27 @@ public class TelemetryDataController implements SecuredApiController {
 
     private void mapTimeLogPeriodsForDevices(ArrayList<TimeLogPeriodDtosForDevice> timeLogPeriodDtosForDevices, TimeLogPeriodsForDevice timeLogPeriodsForDevice) {
         final var timeLogPeriodDtosForDevice = new TimeLogPeriodDtosForDevice();
-        timeLogPeriodDtosForDevice.setDevice(modelMapper.map(timeLogPeriodsForDevice.getDevice(), DeviceDto.class));
+        timeLogPeriodDtosForDevice.setDevice(modelMapper.map(timeLogPeriodsForDevice.device(), DeviceDto.class));
         timeLogPeriodDtosForDevice.setTimeLogPeriodsForTeamSet(new ArrayList<>());
-        timeLogPeriodsForDevice.getTimeLogPeriodsForTeamSet().forEach(timeLogPeriodsForTeamSet -> mapTimeLogPeriodsForTeamSet(timeLogPeriodDtosForDevice, timeLogPeriodsForTeamSet));
+        timeLogPeriodsForDevice.timeLogPeriodsForTeamSet().forEach(timeLogPeriodsForTeamSet -> mapTimeLogPeriodsForTeamSet(timeLogPeriodDtosForDevice, timeLogPeriodsForTeamSet));
 
         timeLogPeriodDtosForDevices.add(timeLogPeriodDtosForDevice);
     }
 
     private void mapTimeLogPeriodsForTeamSet(TimeLogPeriodDtosForDevice timeLogPeriodDtosForDevice, TimeLogPeriodsForTeamSet timeLogPeriodsForTeamSet) {
         final var timeLogPeriodDtosForTeamSet = new TimeLogPeriodDtosForTeamSet();
-        timeLogPeriodDtosForTeamSet.setTeamSetContextId(timeLogPeriodsForTeamSet.getTeamSetContextId());
-        mapTimeLogPeriods(timeLogPeriodDtosForTeamSet, timeLogPeriodsForTeamSet.getTimeLogPeriods());
+        timeLogPeriodDtosForTeamSet.setTeamSetContextId(timeLogPeriodsForTeamSet.teamSetContextId());
+        mapTimeLogPeriods(timeLogPeriodDtosForTeamSet, timeLogPeriodsForTeamSet.timeLogPeriods());
         timeLogPeriodDtosForDevice.getTimeLogPeriodsForTeamSet().add(timeLogPeriodDtosForTeamSet);
     }
 
     private void mapTimeLogPeriods(TimeLogPeriodDtosForTeamSet timeLogPeriodDtosForTeamSet, TimeLogPeriods timeLogPeriods) {
         final var timeLogPeriodsDto = new TimeLogPeriodsDto();
         timeLogPeriodsDto.setTimeLogPeriods(new ArrayList<>());
-        timeLogPeriods.getTimeLogPeriods().forEach(timeLogPeriod -> {
+        timeLogPeriods.timeLogPeriods().forEach(timeLogPeriod -> {
             final var timeLogPeriodDto = modelMapper.map(timeLogPeriod, TimeLogPeriodDto.class);
-            timeLogPeriodDto.setHumanReadableBegin(Instant.ofEpochSecond(timeLogPeriod.getBegin()));
-            timeLogPeriodDto.setHumanReadableEnd(Instant.ofEpochSecond(timeLogPeriod.getEnd()));
+            timeLogPeriodDto.setHumanReadableBegin(Instant.ofEpochSecond(timeLogPeriod.begin()));
+            timeLogPeriodDto.setHumanReadableEnd(Instant.ofEpochSecond(timeLogPeriod.end()));
             timeLogPeriodsDto.getTimeLogPeriods().add(timeLogPeriodDto);
         });
         timeLogPeriodDtosForTeamSet.setTimeLogPeriods(timeLogPeriodsDto);

@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business.events;
 
+import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 /**
  * Event to be published if a cloud endpoint is offboarded.
  */
+@Getter
 public class CloudOffboardingEvent extends ApplicationEvent {
 
     private final List<String> virtualEndpointIds;
@@ -16,7 +18,4 @@ public class CloudOffboardingEvent extends ApplicationEvent {
         this.virtualEndpointIds = virtualEndpointIds;
     }
 
-    public List<String> getVirtualEndpointIds() {
-        return virtualEndpointIds;
-    }
 }

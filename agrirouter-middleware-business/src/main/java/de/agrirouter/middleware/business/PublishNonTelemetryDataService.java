@@ -2,7 +2,6 @@ package de.agrirouter.middleware.business;
 
 import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
@@ -57,21 +56,15 @@ public class PublishNonTelemetryDataService {
                 publishNonTelemetryDataParameters.getFilename(),
                 asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
                 null);
-        try {
-            var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
-            if (healthStatus.getHealthStatus().equals(HealthStatus.HEALTHY)) {
-                checkAndUpdateRecipients(publishNonTelemetryDataParameters);
-                var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
-                sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-                businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
-            } else {
-                log.warn("Could not publish data. No connection to agrirouter©.");
-                log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
-                messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
-                businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
-            }
-        } catch (CriticalBusinessException e) {
-            log.debug("Could not publish data. There was a critical business exception. {}", e.getErrorMessage());
+        var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
+        if (healthStatus.healthStatus().equals(HealthStatus.HEALTHY)) {
+            checkAndUpdateRecipients(publishNonTelemetryDataParameters);
+            var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+            businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
+        } else {
+            log.warn("Could not publish data. No connection to agrirouter©.");
+            log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
             messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
             businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
         }

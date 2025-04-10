@@ -12,7 +12,7 @@ public class ActivateDeviceEvent extends ApplicationEvent {
     /**
      * The ID of the team set.
      */
-    private String teamSetContextId;
+    private final String teamSetContextId;
 
     public ActivateDeviceEvent(Object source, String teamSetContextId) {
         super(source);

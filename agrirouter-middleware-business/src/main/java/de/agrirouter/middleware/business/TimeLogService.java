@@ -5,7 +5,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
@@ -19,6 +18,7 @@ import de.agrirouter.middleware.business.parameters.PublishTimeLogParameters;
 import de.agrirouter.middleware.business.parameters.SearchMachinesParameters;
 import de.agrirouter.middleware.business.parameters.SearchTimeLogPeriodsParameters;
 import de.agrirouter.middleware.domain.ContentMessage;
+import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import de.agrirouter.middleware.domain.documents.TimeLog;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
@@ -80,15 +80,10 @@ public class TimeLogService {
                 null,
                 asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()),
                 publishTimeLogParameters.getTeamSetContextId());
-        try {
-            var endpoint = endpointService.findByExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
-            sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
-        } catch (CriticalBusinessException e) {
-            log.debug("Could not publish data. There was a critical business exception. {}", e.getErrorMessage());
-            messageCache.put(publishTimeLogParameters.getExternalEndpointId(), messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
-        }
+        var endpoint = endpointService.findByExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
+        sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+        businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
+
     }
 
     private ByteString asByteString(String base64EncodedTimeLog) {
@@ -110,15 +105,7 @@ public class TimeLogService {
         if (optionalDocument.isPresent()) {
             try {
                 final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-                final var timeLog = new TimeLog();
-                timeLog.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                timeLog.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                timeLog.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                timeLog.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                timeLog.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                timeLog.setExternalEndpointId(endpoint.getExternalEndpointId());
-                timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
-                timeLog.setDocument(optionalDocument.get());
+                final var timeLog = createTimeLog(contentMessage, endpoint, optionalDocument);
                 timeLogRepository.save(timeLog);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Time log has been received and saved.");
             } catch (BusinessException e) {
@@ -127,6 +114,20 @@ public class TimeLogService {
         } else {
             log.error(ErrorMessageFactory.couldNotParseTimeLog().asLogMessage());
         }
+    }
+
+
+    private static TimeLog createTimeLog(ContentMessage contentMessage, Endpoint endpoint, Optional<Document> optionalDocument) {
+        final var timeLog = new TimeLog();
+        timeLog.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+        timeLog.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+        timeLog.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+        timeLog.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+        timeLog.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+        timeLog.setExternalEndpointId(endpoint.getExternalEndpointId());
+        timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
+        timeLog.setDocument(optionalDocument.get());
+        return timeLog;
     }
 
     /**
@@ -270,7 +271,7 @@ public class TimeLogService {
     }
 
     private TimeLogPeriods getSegmentedTimeLogsForTimePeriod(List<TimeLog> timeLogs) {
-        if (null != timeLogs && timeLogs.size() > 0) {
+        if (null != timeLogs && !timeLogs.isEmpty()) {
             var lastTimeStamp = -1L;
             var segmentedTimeLogs = new ArrayList<List<TimeLog>>();
             var currentPeriod = new ArrayList<TimeLog>();

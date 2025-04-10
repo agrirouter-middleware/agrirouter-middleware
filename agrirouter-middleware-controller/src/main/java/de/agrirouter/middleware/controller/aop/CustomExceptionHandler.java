@@ -29,8 +29,8 @@ public class CustomExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handle(BusinessException businessException) {
         log.error("An unexpected business exception occurred.", businessException);
-        ErrorResponse errorResponse = new ErrorResponse(businessException.getErrorMessage().getKey().getKey(), businessException.getErrorMessage().getMessage());
-        return ResponseEntity.status(businessException.getErrorMessage().getHttpStatus()).body(errorResponse);
+        ErrorResponse errorResponse = new ErrorResponse(businessException.getErrorMessage().key().getKey(), businessException.getErrorMessage().message());
+        return ResponseEntity.status(businessException.getErrorMessage().httpStatus()).body(errorResponse);
     }
 
     @ExceptionHandler(ParameterValidationException.class)

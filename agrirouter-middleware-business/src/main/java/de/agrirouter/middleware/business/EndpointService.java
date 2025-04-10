@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business;
 
+import agrirouter.commons.MessageOuterClass;
 import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -43,7 +44,6 @@ import java.util.concurrent.*;
 
 /**
  * Business operations regarding the endpoints.
- *
  */
 @Slf4j
 @Service
@@ -121,7 +121,13 @@ public class EndpointService {
     public void updateErrors(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        log.debug("Update status of the endpoint.");
+        final var error = createError(endpoint, decodedMessage, message);
+        errorRepository.save(error);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
+    }
+
+
+    private static Error createError(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
         final var error = new Error();
         error.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         error.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -129,8 +135,7 @@ public class EndpointService {
         error.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
         error.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         error.setEndpoint(endpoint);
-        errorRepository.save(error);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
+        return error;
     }
 
     /**
@@ -142,7 +147,13 @@ public class EndpointService {
     public void updateWarnings(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        log.debug("Update status of the endpoint.");
+        final var warning = createWarning(endpoint, decodedMessage, message);
+        warningRepository.save(warning);
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
+    }
+
+
+    private static Warning createWarning(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
         final var warning = new Warning();
         warning.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
         warning.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
@@ -150,8 +161,7 @@ public class EndpointService {
         warning.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
         warning.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
         warning.setEndpoint(endpoint);
-        warningRepository.save(warning);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
+        return warning;
     }
 
     /**
@@ -178,6 +188,7 @@ public class EndpointService {
      * @param externalEndpointId The external endpoint ID.
      */
     @Transactional
+    @SuppressWarnings("resource")
     public void delete(String externalEndpointId) {
         var endpoints = endpointRepository.findAllByExternalEndpointId(externalEndpointId);
         var sensorAlternateIds = new ArrayList<String>();
@@ -186,6 +197,7 @@ public class EndpointService {
             try {
                 List<Endpoint> connectedVirtualEndpoints = endpoint.getConnectedVirtualEndpoints();
                 if (!CollectionUtils.isEmpty(connectedVirtualEndpoints)) {
+                    boolean hasFinishedInTime;
                     var subExecutorService = Executors.newFixedThreadPool(connectedVirtualEndpoints.size());
                     connectedVirtualEndpoints.forEach(virtualEndpoint -> subExecutorService.execute(() -> {
                         log.debug("Remove the virtual endpoint '{}' from the database.", virtualEndpoint.getExternalEndpointId());
@@ -193,7 +205,7 @@ public class EndpointService {
                         sensorAlternateIds.add(virtualEndpoint.getAgrirouterEndpointId());
                     }));
                     subExecutorService.shutdown();
-                    boolean hasFinishedInTime = subExecutorService.awaitTermination(3, TimeUnit.MINUTES);
+                    hasFinishedInTime = subExecutorService.awaitTermination(3, TimeUnit.MINUTES);
                     if (!hasFinishedInTime) {
                         log.error("Could not wait for the executor service to finish. The main endpoint '{}' will not be removed from the database.", endpoint.getExternalEndpointId());
                     } else {
@@ -288,7 +300,7 @@ public class EndpointService {
             try {
                 endpoints.add(findByExternalEndpointId(externalEndpointId));
             } catch (BusinessException e) {
-                log.warn("Could not find endpoint, therefore skipping the ID: " + externalEndpointId);
+                log.warn("Could not find endpoint, therefore skipping the ID: {}", externalEndpointId);
             }
         });
         return endpoints;
@@ -621,14 +633,14 @@ public class EndpointService {
         return () -> {
             try {
                 var healthStatus = determineHealthStatus(externalEndpointId);
-                return switch (healthStatus.getHealthStatus()) {
+                return switch (healthStatus.healthStatus()) {
                     case HEALTHY -> new TaskResult(externalEndpointId, HttpStatus.OK.value());
                     case PENDING -> new TaskResult(externalEndpointId, HttpStatus.PROCESSING.value());
                     case UNHEALTHY -> new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
                     case UNKNOWN -> new TaskResult(externalEndpointId, HttpStatus.BAD_REQUEST.value());
                 };
             } catch (BusinessException e) {
-                return new TaskResult(externalEndpointId, e.getErrorMessage().getHttpStatus().value());
+                return new TaskResult(externalEndpointId, e.getErrorMessage().httpStatus().value());
             }
         };
     }

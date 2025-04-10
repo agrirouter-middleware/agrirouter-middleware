@@ -21,11 +21,6 @@ public enum BusinessEventType {
     TIME_LOG_RECEIVED,
 
     /**
-     * The recipients have been updated.
-     */
-    RECIPIENTS_UPDATED,
-
-    /**
      * A new non telemetry message has been received.
      */
     NON_TELEMETRY_MESSAGE_RECEIVED

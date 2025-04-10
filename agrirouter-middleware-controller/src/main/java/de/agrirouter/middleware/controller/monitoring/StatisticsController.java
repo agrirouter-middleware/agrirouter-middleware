@@ -59,7 +59,7 @@ public class StatisticsController implements SecuredApiController {
                 applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
             } else {
                 var errorMessage = ErrorMessageFactory.notAuthorized();
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.key().getKey(), errorMessage.message()));
             }
         } else {
             applications = applicationService.findAll(principal);
@@ -88,7 +88,7 @@ public class StatisticsController implements SecuredApiController {
                 applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
             } else {
                 var errorMessage = ErrorMessageFactory.notAuthorized();
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.key().getKey(), errorMessage.message()));
             }
         } else {
             applications = applicationService.findAll(principal);
@@ -117,7 +117,7 @@ public class StatisticsController implements SecuredApiController {
                 applications = Collections.singletonList(applicationService.find(internalApplicationId.get()));
             } else {
                 var errorMessage = ErrorMessageFactory.notAuthorized();
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.getKey().getKey(), errorMessage.getMessage()));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(errorMessage.key().getKey(), errorMessage.message()));
             }
         } else {
             applications = applicationService.findAll(principal);

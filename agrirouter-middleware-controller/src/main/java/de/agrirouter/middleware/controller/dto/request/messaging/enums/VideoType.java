@@ -2,10 +2,12 @@ package de.agrirouter.middleware.controller.dto.request.messaging.enums;
 
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 /**
  * The video type, used to map the specific agrirouter© message type.
  */
+@Getter
 @Schema(description = "The video type, used to map the specific agrirouter© message type.")
 public enum VideoType {
 
@@ -22,7 +24,4 @@ public enum VideoType {
         this.contentMessageType = contentMessageType;
     }
 
-    public ContentMessageType getContentMessageType() {
-        return contentMessageType;
-    }
 }

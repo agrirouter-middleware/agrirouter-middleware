@@ -1,7 +1,5 @@
 package de.agrirouter.middleware.business.global;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
@@ -41,30 +39,15 @@ public class OnboardStateContainer {
 
     /**
      * The state for the onboard process.
+     *
+     * @param internalApplicationId    The internal application ID.
+     * @param externalEndpointId       The external endpoint ID in case this is the onboard process for an existing endpoint.
+     * @param tenantId                 The ID of the tenant.
+     * @param redirectUrlAfterCallback The redirect URL after the callback has been called.
      */
-    @Getter
-    @AllArgsConstructor
-    public static class OnboardState {
+    public record OnboardState(String internalApplicationId, String externalEndpointId, String tenantId,
+                               String redirectUrlAfterCallback) {
 
-        /**
-         * The internal application ID.
-         */
-        private final String internalApplicationId;
-
-        /**
-         * The external endpoint ID in case this is the onboard process for an existing endpoint.
-         */
-        private final String externalEndpointId;
-
-        /**
-         * The ID of the tenant.
-         */
-        private final String tenantId;
-
-        /**
-         * The redirect URL after the callback has been called.
-         */
-        private final String redirectUrlAfterCallback;
     }
 
 }

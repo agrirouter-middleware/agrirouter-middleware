@@ -9,7 +9,6 @@ public class Constants {
     public static final String TIME_START_TIME_OF_DAY = "start_time_of_day";
     public static final String TIME_START_AS_LOCAL_INSTANT = "time_start_as_local_instant";
     public static final String TIME_START_DATE = "start_date";
-    public static final String STOP = "stop";
     public static final String DURATION = "duration";
 
     public static final String POSITION_NORTH = "position_north";

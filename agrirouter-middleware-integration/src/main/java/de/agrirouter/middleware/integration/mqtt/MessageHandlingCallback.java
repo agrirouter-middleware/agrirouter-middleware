@@ -123,14 +123,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
                 final var now = Instant.now();
                 listEndpointsResponse.getEndpointsList().forEach(e -> e.getMessageTypesList().forEach(messageType -> {
                     if (messageType.getDirection().name().equalsIgnoreCase(Capabilities.CapabilitySpecification.Direction.SEND.name())) {
-                        final var messageRecipient = new MessageRecipient();
-                        messageRecipient.setAgrirouterEndpointId(e.getEndpointId());
-                        messageRecipient.setEndpointName(e.getEndpointName());
-                        messageRecipient.setEndpointType(e.getEndpointType());
-                        messageRecipient.setExternalId(e.getExternalId());
-                        messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
-                        messageRecipient.setDirection(messageType.getDirection().name());
-                        messageRecipient.setTimestamp(now);
+                        final var messageRecipient = createMessageRecipient(e, messageType, now);
                         log.trace("Added recipient: {}", messageRecipient);
                         messageRecipients.add(messageRecipient);
                     } else {
@@ -148,6 +141,18 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse list endpoints response.", e);
         }
+    }
+
+    private static MessageRecipient createMessageRecipient(Endpoints.ListEndpointsResponse.Endpoint e, Endpoints.ListEndpointsResponse.MessageType messageType, Instant now) {
+        final var messageRecipient = new MessageRecipient();
+        messageRecipient.setAgrirouterEndpointId(e.getEndpointId());
+        messageRecipient.setEndpointName(e.getEndpointName());
+        messageRecipient.setEndpointType(e.getEndpointType());
+        messageRecipient.setExternalId(e.getExternalId());
+        messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
+        messageRecipient.setDirection(messageType.getDirection().name());
+        messageRecipient.setTimestamp(now);
+        return messageRecipient;
     }
 
     @Override

@@ -41,6 +41,9 @@ management:
     web:
       exposure:
         include: info,health,metrics,prometheus,hikaricp,jdbc
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:
@@ -81,7 +84,6 @@ app:
     random-delay-minutes: 240
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
-    log-mqtt-statistics: "*/30 * * * * *"
   branding:
     favicon: "/img/favicon.ico"
   cache:

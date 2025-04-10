@@ -106,14 +106,14 @@ public class UpdateSubscriptionsForEndpointEventListener {
             log.debug("Handling MQTT onboard response updates.");
             final var subscriptions = subscriptionParameterFactory.create(application);
             enableSubscriptions(endpoint, subscriptions);
-            log.debug(String.format("The following subscriptions [%s] for the endpoint with the id '%s' are send.", subscriptions
+            log.debug("The following subscriptions [{}] for the endpoint with the id '{}' are send.", subscriptions
                     .stream()
                     .filter(subscription -> null != subscription.getTechnicalMessageType())
                     .map(subscription -> String.format("{%s,(%s)}", Objects.requireNonNull(subscription.getTechnicalMessageType()).getKey(), subscription.getDdis()
                             .stream()
                             .map(String::valueOf)
                             .collect(Collectors.joining(","))))
-                    .collect(Collectors.joining(",")), endpoint.getExternalEndpointId()));
+                    .collect(Collectors.joining(",")), endpoint.getExternalEndpointId());
         } else {
             log.error(ErrorMessageFactory.middlewareDoesNotSupportGateway(onboardingResponse.getConnectionCriteria().getGatewayId()).asLogMessage());
         }
