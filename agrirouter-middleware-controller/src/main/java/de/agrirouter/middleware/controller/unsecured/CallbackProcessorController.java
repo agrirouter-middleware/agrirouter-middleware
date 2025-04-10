@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -91,7 +90,7 @@ public class CallbackProcessorController implements UnsecuredApiController {
         return null;
     }
 
-    @NotNull
+
     private static OnboardProcessParameters createOnboardProcessParameters(Application application, AuthorizationResponseToken authorizationResponseToken, OnboardStateContainer.OnboardState onboardState) {
         final var onboardProcessParameters = new OnboardProcessParameters();
         onboardProcessParameters.setInternalApplicationId(application.getInternalApplicationId());

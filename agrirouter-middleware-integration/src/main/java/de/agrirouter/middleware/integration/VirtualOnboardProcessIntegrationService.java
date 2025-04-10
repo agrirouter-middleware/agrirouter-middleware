@@ -12,7 +12,6 @@ import de.agrirouter.middleware.integration.container.VirtualEndpointOnboardStat
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +73,7 @@ public class VirtualOnboardProcessIntegrationService {
         messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
     }
 
-    private static @NotNull MessageWaitingForAcknowledgement createMessageForAcknowledgement(OnboardingResponse onboardingResponse, String messageId, CloudOnboardingParameters.EndpointDetailsParameters endpointDetailsParameters) {
+    private static MessageWaitingForAcknowledgement createMessageForAcknowledgement(OnboardingResponse onboardingResponse, String messageId, CloudOnboardingParameters.EndpointDetailsParameters endpointDetailsParameters) {
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);

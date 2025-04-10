@@ -18,7 +18,6 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.charset.StandardCharsets;
@@ -144,7 +143,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         }
     }
 
-    private static @NotNull MessageRecipient createMessageRecipient(Endpoints.ListEndpointsResponse.Endpoint e, Endpoints.ListEndpointsResponse.MessageType messageType, Instant now) {
+    private static MessageRecipient createMessageRecipient(Endpoints.ListEndpointsResponse.Endpoint e, Endpoints.ListEndpointsResponse.MessageType messageType, Instant now) {
         final var messageRecipient = new MessageRecipient();
         messageRecipient.setAgrirouterEndpointId(e.getEndpointId());
         messageRecipient.setEndpointName(e.getEndpointName());

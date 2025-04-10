@@ -5,7 +5,6 @@ import agrirouter.feed.request.FeedRequests;
 import agrirouter.request.payload.account.Endpoints;
 import agrirouter.request.payload.endpoint.Capabilities;
 import agrirouter.request.payload.endpoint.SubscriptionOuterClass;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Enum containing all the content message types the AR is supporting.
@@ -39,12 +38,12 @@ public enum SystemMessageType implements TechnicalMessageType {
     }
 
     @Override
-    public @NotNull String getKey() {
+    public String getKey() {
         return this.key;
     }
 
     @Override
-    public @NotNull String getTypeUrl() {
+    public String getTypeUrl() {
         return this.typeUrl;
     }
 

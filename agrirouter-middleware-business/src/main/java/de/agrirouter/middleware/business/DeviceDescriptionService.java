@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
@@ -97,7 +96,7 @@ public class DeviceDescriptionService {
         }
     }
 
-    @NotNull
+
     private static DeviceDescription createDeviceDescription(ContentMessage contentMessage, Endpoint endpoint, Optional<Document> optionalDocument) {
         var deviceDescription = new DeviceDescription();
         deviceDescription.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
@@ -140,7 +139,7 @@ public class DeviceDescriptionService {
         }
     }
 
-    @NotNull
+
     private static DeviceDescription createDeviceDescription(CreateDeviceDescriptionParameters createDeviceDescriptionParameters, Optional<Document> optionalDocument) {
         var deviceDescription = new DeviceDescription();
         deviceDescription.setAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());

@@ -31,7 +31,6 @@ import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
 import de.agrirouter.middleware.persistence.jpa.ErrorRepository;
 import de.agrirouter.middleware.persistence.jpa.WarningRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -127,7 +126,7 @@ public class EndpointService {
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
     }
 
-    @NotNull
+
     private static Error createError(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
         final var error = new Error();
         error.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
@@ -153,7 +152,7 @@ public class EndpointService {
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
     }
 
-    @NotNull
+
     private static Warning createWarning(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
         final var warning = new Warning();
         warning.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
