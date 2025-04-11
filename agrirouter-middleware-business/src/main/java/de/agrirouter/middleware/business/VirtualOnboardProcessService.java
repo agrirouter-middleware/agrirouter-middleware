@@ -8,28 +8,22 @@ import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache
 import de.agrirouter.middleware.business.parameters.VirtualOnboardProcessParameters;
 import de.agrirouter.middleware.integration.VirtualOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
  * The service for the onboard process.
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class VirtualOnboardProcessService {
 
     private final EndpointService endpointService;
     private final VirtualOnboardProcessIntegrationService virtualOnboardProcessIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
-
-    public VirtualOnboardProcessService(EndpointService endpointService,
-                                        VirtualOnboardProcessIntegrationService virtualOnboardProcessIntegrationService,
-                                        BusinessOperationLogService businessOperationLogService,
-                                        CloudOnboardingFailureCache cloudOnboardingFailureCache) {
-        this.endpointService = endpointService;
-        this.virtualOnboardProcessIntegrationService = virtualOnboardProcessIntegrationService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
-    }
 
     /**
      * Onboard a virtual endpoint.
@@ -41,11 +35,16 @@ public class VirtualOnboardProcessService {
         if (alreadyExistingEndpoint) {
             throw new BusinessException(ErrorMessageFactory.endpointWithTheSameExternalIdIsPresent(virtualOnboardProcessParameters.getExternalEndpointId()));
         } else {
-            final var endpoint = endpointService.findByExternalEndpointId(virtualOnboardProcessParameters.getExternalEndpointId());
-            final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(endpoint, virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
-            virtualOnboardProcessIntegrationService.onboard(onboardVirtualEndpointParameters);
-            cloudOnboardingFailureCache.clear(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Virtual endpoint has been created.");
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(virtualOnboardProcessParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
+                final var onboardVirtualEndpointParameters = new VirtualOnboardProcessIntegrationParameters(endpoint, virtualOnboardProcessParameters.getEndpointName(), virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+                virtualOnboardProcessIntegrationService.onboard(onboardVirtualEndpointParameters);
+                cloudOnboardingFailureCache.clear(virtualOnboardProcessParameters.getExternalVirtualEndpointId());
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Virtual endpoint has been created.");
+            } else {
+                log.warn("Parent endpoint with external endpoint ID {} was not found.", virtualOnboardProcessParameters.getExternalEndpointId());
+            }
         }
     }
 }
