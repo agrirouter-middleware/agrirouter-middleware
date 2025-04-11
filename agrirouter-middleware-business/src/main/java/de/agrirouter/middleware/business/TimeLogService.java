@@ -80,10 +80,14 @@ public class TimeLogService {
                 null,
                 asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()),
                 publishTimeLogParameters.getTeamSetContextId());
-        var endpoint = endpointService.findByExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
-        sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-        businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
-
+        var optionalEndpoint = endpointService.findByExternalEndpointId(publishTimeLogParameters.getExternalEndpointId());
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+            businessOperationLogService.log(new EndpointLogInformation(publishTimeLogParameters.getExternalEndpointId(), NA), "Time log has been published");
+        } else {
+            log.warn("The endpoint with the ID '{}' does not exist.", publishTimeLogParameters.getExternalEndpointId());
+        }
     }
 
     private ByteString asByteString(String base64EncodedTimeLog) {

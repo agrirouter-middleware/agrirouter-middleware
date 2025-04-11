@@ -331,8 +331,9 @@ public class DeviceDescriptionService {
         log.debug("Register machine and return a team set context ID for the device description.");
         final var optionalISO11783TaskData = parse(registerMachineParameters.getBase64EncodedDeviceDescription());
         if (optionalISO11783TaskData.isPresent()) {
-            try {
-                final var endpoint = endpointService.findByExternalEndpointId(registerMachineParameters.getExternalEndpointId());
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(registerMachineParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
                 final var createDeviceDescriptionParameters = new CreateDeviceDescriptionParameters();
                 createDeviceDescriptionParameters.setBase64EncodedDeviceDescription(registerMachineParameters.getBase64EncodedDeviceDescription());
                 createDeviceDescriptionParameters.setEndpoint(endpoint);
@@ -347,7 +348,7 @@ public class DeviceDescriptionService {
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
                 return teamSetContextId;
-            } catch (BusinessException e) {
+            } else {
                 log.debug("No endpoint found for the given external endpoint ID. Caching the device description. This could be the case if the virtual endpoint is not yet created.");
                 machineRegistrationCache.put(registerMachineParameters.getExternalEndpointId(), teamSetContextId, registerMachineParameters);
                 return teamSetContextId;
@@ -408,11 +409,15 @@ public class DeviceDescriptionService {
                             null,
                             asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
                             teamSetContextId);
-                    var endpoint = endpointService.findByExternalEndpointId(messagingIntegrationParameters.externalEndpointId());
-                    sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-                    businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
-                    lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
-
+                    var optionalEndpoint = endpointService.findByExternalEndpointId(messagingIntegrationParameters.externalEndpointId());
+                    if (optionalEndpoint.isPresent()) {
+                        var endpoint = optionalEndpoint.get();
+                        sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+                        businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
+                        lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
+                    } else {
+                        log.warn("Missing endpoint for external endpoint ID '{}'. The device description has not been sent.", messagingIntegrationParameters.externalEndpointId());
+                    }
                 }
             } else {
                 log.warn("Missing device description for team set context ID '{}'. The device description has not been sent.", teamSetContextId);

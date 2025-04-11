@@ -79,8 +79,9 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param externalEndpointId The ID of the endpoint.
      */
     private void resendSubscriptions(String externalEndpointId) {
-        try {
-            final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
             final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
@@ -88,8 +89,8 @@ public class UpdateSubscriptionsForEndpointEventListener {
             } else {
                 log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
             }
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
+        } else {
+            log.warn("The endpoint with the external endpoint ID '{}' could not be found.", externalEndpointId);
         }
     }
 

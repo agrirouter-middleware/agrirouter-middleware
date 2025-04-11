@@ -27,6 +27,7 @@ import de.agrirouter.middleware.integration.container.VirtualEndpointOnboardStat
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CloudRegistrationEventListener {
 
     private final ApplicationRepository applicationRepository;
@@ -58,32 +60,6 @@ public class CloudRegistrationEventListener {
 
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
     private final Gson gson;
-
-    public CloudRegistrationEventListener(ApplicationRepository applicationRepository,
-                                          EndpointIntegrationService endpointIntegrationService,
-                                          MqttClientManagementService mqttClientManagementService,
-                                          DecodeCloudOnboardingResponsesService decodeCloudOnboardingResponsesService,
-                                          EndpointService endpointService,
-                                          MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                          VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer,
-                                          BusinessOperationLogService businessOperationLogService,
-                                          DeviceDescriptionService deviceDescriptionService,
-                                          DecodeMessageService decodeMessageService,
-                                          CloudOnboardingFailureCache cloudOnboardingFailureCache,
-                                          Gson gson) {
-        this.applicationRepository = applicationRepository;
-        this.endpointIntegrationService = endpointIntegrationService;
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.decodeCloudOnboardingResponsesService = decodeCloudOnboardingResponsesService;
-        this.endpointService = endpointService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
-        this.businessOperationLogService = businessOperationLogService;
-        this.deviceDescriptionService = deviceDescriptionService;
-        this.decodeMessageService = decodeMessageService;
-        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
-        this.gson = gson;
-    }
 
     /**
      * Virtual endpoint offboard process.
@@ -119,11 +95,12 @@ public class CloudRegistrationEventListener {
     private List<String> getEndpointIds(VirtualOffboardProcessIntegrationParameters virtualOffboardProcessIntegrationParameters) {
         final var agrirouterEndpointIds = new ArrayList<String>();
         virtualOffboardProcessIntegrationParameters.virtualEndpointIds().forEach(s -> {
-            try {
-                final var endpoint = endpointService.findByExternalEndpointId(s);
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(s);
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
                 agrirouterEndpointIds.add(endpoint.getAgrirouterEndpointId());
-            } catch (BusinessException e) {
-                log.error(e.getErrorMessage().asLogMessage());
+            } else {
+                log.warn("Could not find the virtual endpoint with the external ID '{}'.", s);
             }
         });
         agrirouterEndpointIds.addAll(virtualOffboardProcessIntegrationParameters.virtualEndpointIds());

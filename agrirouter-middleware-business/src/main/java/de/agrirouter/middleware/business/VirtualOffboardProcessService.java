@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business;
 
-import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParameters;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.VirtualOffboardProcessIntegrationService;
@@ -33,15 +32,16 @@ public class VirtualOffboardProcessService {
      * @param virtualOffboardProcessParameters -
      */
     public void offboard(VirtualOffboardProcessParameters virtualOffboardProcessParameters) {
-        try {
-            final var parentEndpoint = endpointService.findByExternalEndpointId(virtualOffboardProcessParameters.getExternalEndpointId());
-            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint, getEndpointIds(virtualOffboardProcessParameters));
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(virtualOffboardProcessParameters.getExternalEndpointId());
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(endpoint, getEndpointIds(virtualOffboardProcessParameters));
             if (CollectionUtils.isEmpty(virtualOffboardProcessIntegrationParameters.virtualEndpointIds())) {
                 log.warn("No virtual endpoints available, therefore we are skipping the process.");
             } else {
                 virtualOffboardProcessIntegrationService.offboard(virtualOffboardProcessIntegrationParameters);
             }
-        } catch (BusinessException e) {
+        } else {
             log.warn("Parent endpoint with external endpoint ID {} was not found.", virtualOffboardProcessParameters.getExternalEndpointId());
         }
     }

@@ -59,21 +59,25 @@ public class PublishNonTelemetryDataService {
         var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
         if (healthStatus.healthStatus().equals(HealthStatus.HEALTHY)) {
             checkAndUpdateRecipients(publishNonTelemetryDataParameters);
-            var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
-            sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
-        } else {
-            log.warn("Could not publish data. No connection to agrirouter©.");
-            log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
-            messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+            var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
+                sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+                businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
+                return;
+            }
         }
+        log.warn("Could not publish data. No connection to agrirouter©.");
+        log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
+        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
+        businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
     }
 
     private void checkAndUpdateRecipients(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         if (null != publishNonTelemetryDataParameters.getRecipients() && !publishNonTelemetryDataParameters.getRecipients().isEmpty()) {
-            try {
-                final var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
                 var messageRecipients = endpointService.getMessageRecipients(endpoint.getExternalEndpointId());
                 var updatedMessageRecipients = new ArrayList<String>();
                 publishNonTelemetryDataParameters.getRecipients().forEach(recipient -> messageRecipients.stream()
@@ -85,8 +89,7 @@ public class PublishNonTelemetryDataService {
                 log.debug("Former recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), publishNonTelemetryDataParameters.getRecipients());
                 log.debug("Updated recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), updatedMessageRecipients);
                 publishNonTelemetryDataParameters.setRecipients(updatedMessageRecipients);
-            } catch (BusinessException e) {
-                log.error(e.getErrorMessage().asLogMessage());
+            } else {
                 log.warn("Could not find endpoint with external endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
                 log.info("This might be because the endpoint is not yet registered. The recipients are not updated.");
             }
