@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.controller;
 
 import de.agrirouter.middleware.api.Routes;
-import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
@@ -45,8 +44,10 @@ public class EndpointDashboardUIController extends UIController {
     @SuppressWarnings("unused")
     @GetMapping("/endpoint-dashboard")
     public String navigation(Principal principal, @RequestParam(value = "externalEndpointId") String externalEndpointId, Model model) {
-        try {
-            var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+
             var application = applicationService.findByEndpoint(endpoint);
             model.addAttribute("endpoint", endpoint);
 
@@ -76,8 +77,8 @@ public class EndpointDashboardUIController extends UIController {
             messagesWaitingForAcknowledgement.sort((o1, o2) -> Long.compare(o2.getCreated(), o1.getCreated()));
             model.addAttribute("messagesWaitingForAcknowledgement", messagesWaitingForAcknowledgement);
             model.addAttribute("activeProfiles", getActiveProfiles());
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
+        } else {
+            log.warn("The endpoint with the external endpoint ID {} does not exist.", externalEndpointId);
             return Routes.UnsecuredEndpoints.ERROR;
         }
         return Routes.UserInterface.ThymeleafRouting.ENDPOINT_DASHBOARD;
