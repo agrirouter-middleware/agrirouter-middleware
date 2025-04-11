@@ -26,10 +26,6 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_ONBOARD_RESPONSE, "Could not parse onboard response from JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public static ErrorMessage couldNotFindEndpoint(String externalEndpointId) {
-        return new ErrorMessage(ErrorKey.ENDPOINT_NOT_FOUND, String.format("Could not find endpoint by the ID: %s", externalEndpointId), HttpStatus.NOT_FOUND);
-    }
-
     public static ErrorMessage couldNotFindEndpointByAgrirouterId(String agrirouterId) {
         return new ErrorMessage(ErrorKey.ENDPOINT_NOT_FOUND, String.format("Could not find endpoint by the agrirouter ID: %s", agrirouterId), HttpStatus.NOT_FOUND);
     }

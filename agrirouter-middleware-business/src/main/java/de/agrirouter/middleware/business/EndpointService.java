@@ -237,13 +237,18 @@ public class EndpointService {
      */
     @Async
     public void resendCapabilities(String externalEndpointId) {
-        final var endpoint = findByExternalEndpointId(externalEndpointId);
-        final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
-        if (optionalApplication.isPresent()) {
-            sendCapabilities(optionalApplication.get(), endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Capabilities were resent.");
+        final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            final var endpoint = optionalEndpoint.get();
+            final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
+            if (optionalApplication.isPresent()) {
+                sendCapabilities(optionalApplication.get(), endpoint);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Capabilities were resent.");
+            } else {
+                throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
+            }
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
+            log.warn("Tried to resend capabilities for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
     }
 
@@ -297,11 +302,8 @@ public class EndpointService {
     public List<Endpoint> findByExternalEndpointIds(List<String> externalEndpointIds) {
         var endpoints = new ArrayList<Endpoint>();
         externalEndpointIds.forEach(externalEndpointId -> {
-            try {
-                endpoints.add(findByExternalEndpointId(externalEndpointId));
-            } catch (BusinessException e) {
-                log.warn("Could not find endpoint, therefore skipping the ID: {}", externalEndpointId);
-            }
+            var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+            optionalEndpoint.ifPresent(endpoints::add);
         });
         return endpoints;
     }
@@ -322,21 +324,20 @@ public class EndpointService {
      * @param externalEndpointId -
      * @return -
      */
-    public Endpoint findByExternalEndpointId(String externalEndpointId) {
+    public Optional<Endpoint> findByExternalEndpointId(String externalEndpointId) {
         var optionalEndpoint = internalEndpointCache.get(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             log.info("Cache hit, looks like we already requested the endpoint earlier.");
-            return optionalEndpoint.get();
         } else {
             log.info("Endpoint was not cached yet, fetching the endpoint from the database and place it into the cache.");
             optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
             if (optionalEndpoint.isPresent()) {
                 internalEndpointCache.put(externalEndpointId, optionalEndpoint.get());
-                return optionalEndpoint.get();
             } else {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+                optionalEndpoint = Optional.empty();
             }
         }
+        return optionalEndpoint;
     }
 
     /**
@@ -371,7 +372,7 @@ public class EndpointService {
                 log.warn("Tried to revoke a virtual endpoint with the ID '{}'. This is not possible.", externalEndpointId);
             }
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+            log.warn("Tried to revoke an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
     }
 
@@ -399,7 +400,7 @@ public class EndpointService {
             errorRepository.deleteAllByEndpoint(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Errors were reset.");
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+            log.warn("Tried to reset errors for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
     }
 
@@ -417,7 +418,7 @@ public class EndpointService {
             warningRepository.deleteAllByEndpoint(endpoint);
             businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warnings were reset.");
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+            log.warn("Tried to reset warnings for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
     }
 
@@ -432,7 +433,7 @@ public class EndpointService {
             final var endpoint = optionalEndpoint.get();
             messageWaitingForAcknowledgementService.deleteAllForEndpoint(endpoint);
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+            log.warn("Tried to reset messages waiting for ACK for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
     }
 
@@ -447,7 +448,7 @@ public class EndpointService {
             final var endpoint = optionalEndpoint.get();
             mqttClientManagementService.clearConnectionErrors(endpoint);
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+            log.warn("Tried to reset connection errors for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
     }
 
@@ -466,7 +467,8 @@ public class EndpointService {
             optionalBusinessEvents.ifPresent(businessEvents::putAll);
             return businessEvents;
         } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpoint(externalEndpointId));
+            log.warn("Tried to get business events for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
+            return Collections.emptyMap();
         }
     }
 
@@ -477,29 +479,35 @@ public class EndpointService {
      * @return The health status.
      */
     public HealthStatusWithLastKnownHealthyStatus determineHealthStatus(String externalEndpointId) {
-        final var endpoint = findByExternalEndpointId(externalEndpointId);
-        healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
-        var healthStatus = HealthStatus.PENDING;
-        var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
-        while (timer > 0) {
-            try {
-                Thread.sleep(pollingInterval);
-                healthStatus = healthStatusIntegrationService.determineHealthStatus(endpoint.getAgrirouterEndpointId());
-                if (!HealthStatus.PENDING.equals(healthStatus) && !HealthStatus.UNKNOWN.equals(healthStatus)) {
-                    break;
+        final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
+            var healthStatus = HealthStatus.PENDING;
+            var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
+            while (timer > 0) {
+                try {
+                    Thread.sleep(pollingInterval);
+                    healthStatus = healthStatusIntegrationService.determineHealthStatus(endpoint.getAgrirouterEndpointId());
+                    if (!HealthStatus.PENDING.equals(healthStatus) && !HealthStatus.UNKNOWN.equals(healthStatus)) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    log.error("Error while waiting for health status response.", e);
                 }
-            } catch (InterruptedException e) {
-                log.error("Error while waiting for health status response.", e);
+                timer = timer - pollingInterval;
             }
-            timer = timer - pollingInterval;
-        }
-        var lastKnownHealthyStatus = healthStatusIntegrationService.getLastKnownHealthyStatus(endpoint.getAgrirouterEndpointId());
-        if (lastKnownHealthyStatus.isPresent()) {
-            log.debug("Last known healthy status for endpoint '{}': {}.", externalEndpointId, lastKnownHealthyStatus.get());
-            return new HealthStatusWithLastKnownHealthyStatus(healthStatus, lastKnownHealthyStatus.get());
+            var lastKnownHealthyStatus = healthStatusIntegrationService.getLastKnownHealthyStatus(endpoint.getAgrirouterEndpointId());
+            if (lastKnownHealthyStatus.isPresent()) {
+                log.debug("Last known healthy status for endpoint '{}': {}.", externalEndpointId, lastKnownHealthyStatus.get());
+                return new HealthStatusWithLastKnownHealthyStatus(healthStatus, lastKnownHealthyStatus.get());
+            } else {
+                log.debug("No last known healthy status found for endpoint '{}'.", externalEndpointId);
+                return new HealthStatusWithLastKnownHealthyStatus(healthStatus, null);
+            }
         } else {
-            log.debug("No last known healthy status found for endpoint '{}'.", externalEndpointId);
-            return new HealthStatusWithLastKnownHealthyStatus(healthStatus, null);
+            log.warn("Tried to determine the health status for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
+            return new HealthStatusWithLastKnownHealthyStatus(HealthStatus.UNKNOWN, null);
         }
     }
 
@@ -509,28 +517,31 @@ public class EndpointService {
      * @return The recipients for the endpoint.
      */
     public Collection<MessageRecipient> getMessageRecipients(String externalEndpointId) {
-        final var endpoint = findByExternalEndpointId(externalEndpointId);
-        listEndpointsIntegrationService.publishListEndpointsMessage(endpoint);
-        if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
-            var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
-            while (timer > 0) {
-                try {
-                    Thread.sleep(pollingInterval);
-                    var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
-                    if (recipients.isPresent()) {
-                        log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
-                        Collection<MessageRecipient> messageRecipients = recipients.get();
-                        log.debug("Recipients: {}.", messageRecipients);
-                        messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
-                        return messageRecipients;
+        final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            listEndpointsIntegrationService.publishListEndpointsMessage(endpoint);
+            if (listEndpointsIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
+                var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+                while (timer > 0) {
+                    try {
+                        Thread.sleep(pollingInterval);
+                        var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
+                        if (recipients.isPresent()) {
+                            log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                            Collection<MessageRecipient> messageRecipients = recipients.get();
+                            log.debug("Recipients: {}.", messageRecipients);
+                            messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
+                            return messageRecipients;
+                        }
+                    } catch (InterruptedException e) {
+                        log.error("Error while waiting for list endpoints / message recipients response.", e);
                     }
-                } catch (InterruptedException e) {
-                    log.error("Error while waiting for list endpoints / message recipients response.", e);
+                    timer = timer - pollingInterval;
                 }
-                timer = timer - pollingInterval;
+            } else {
+                log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
             }
-        } else {
-            log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
         }
         log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
         var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
