@@ -98,24 +98,26 @@ public class SecuredOnboardProcessService {
                 final var existingEndpoint = endpointService.existsByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
                 if (existingEndpoint) {
                     log.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
-                    final var endpoint = endpointService.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
+                    final var optionalEndpoint = endpointService.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
+                    if (optionalEndpoint.isPresent()) {
+                        var endpoint = optionalEndpoint.get();
+                        if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
+                            throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReOnboardingIsNotAllowed());
+                        } else {
 
-                    if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
-                        throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReOnboardingIsNotAllowed());
-                    } else {
-
-                        final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
-                                application.getVersionId(),
-                                endpoint.getExternalEndpointId(),
-                                onboardProcessParameters.getRegistrationCode(),
-                                application.getPrivateKey(),
-                                application.getPublicKey());
-                        final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
-                        log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
-                        try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
-                            updateExistingEndpoint(executorService, onboardProcessParameters, endpoint, onboardingResponse, application);
-                        } catch (Exception e) {
-                            log.error("Error while updating existing endpoint: {}", e.getMessage());
+                            final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
+                                    application.getVersionId(),
+                                    endpoint.getExternalEndpointId(),
+                                    onboardProcessParameters.getRegistrationCode(),
+                                    application.getPrivateKey(),
+                                    application.getPublicKey());
+                            final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
+                            log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
+                            try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                                updateExistingEndpoint(executorService, onboardProcessParameters, endpoint, onboardingResponse, application);
+                            } catch (Exception e) {
+                                log.error("Error while updating existing endpoint: {}", e.getMessage());
+                            }
                         }
                     }
                 } else {
