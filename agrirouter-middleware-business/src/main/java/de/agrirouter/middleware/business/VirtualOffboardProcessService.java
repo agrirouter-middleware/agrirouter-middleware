@@ -32,9 +32,10 @@ public class VirtualOffboardProcessService {
      * @param virtualOffboardProcessParameters -
      */
     public void offboard(VirtualOffboardProcessParameters virtualOffboardProcessParameters) {
-        final var parentEndpoint = endpointService.findByExternalEndpointId(virtualOffboardProcessParameters.getExternalEndpointId());
-        if (parentEndpoint.isPresent()) {
-            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(parentEndpoint, getEndpointIds(virtualOffboardProcessParameters));
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(virtualOffboardProcessParameters.getExternalEndpointId());
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            final var virtualOffboardProcessIntegrationParameters = new VirtualOffboardProcessIntegrationParameters(endpoint, getEndpointIds(virtualOffboardProcessParameters));
             if (CollectionUtils.isEmpty(virtualOffboardProcessIntegrationParameters.virtualEndpointIds())) {
                 log.warn("No virtual endpoints available, therefore we are skipping the process.");
             } else {
