@@ -1,13 +1,13 @@
 package de.agrirouter.middleware.controller;
 
 import de.agrirouter.middleware.api.Routes;
-import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingForAcknowledgementDto;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -27,6 +26,7 @@ import java.util.Date;
  */
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class EndpointDashboardUIController extends UIController {
 
     private final EndpointService endpointService;
@@ -36,20 +36,6 @@ public class EndpointDashboardUIController extends UIController {
     private final ModelMapper modelMapper;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
 
-    public EndpointDashboardUIController(EndpointService endpointService,
-                                         MqttClientManagementService mqttClientManagementService,
-                                         ApplicationService applicationService,
-                                         MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                         ModelMapper modelMapper,
-                                         CloudOnboardingFailureCache cloudOnboardingFailureCache) {
-        this.endpointService = endpointService;
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.applicationService = applicationService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.modelMapper = modelMapper;
-        this.cloudOnboardingFailureCache = cloudOnboardingFailureCache;
-    }
-
     /**
      * The landing page.
      *
@@ -58,8 +44,10 @@ public class EndpointDashboardUIController extends UIController {
     @SuppressWarnings("unused")
     @GetMapping("/endpoint-dashboard")
     public String navigation(Principal principal, @RequestParam(value = "externalEndpointId") String externalEndpointId, Model model) {
-        try {
-            var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+
             var application = applicationService.findByEndpoint(endpoint);
             model.addAttribute("endpoint", endpoint);
 
@@ -89,8 +77,8 @@ public class EndpointDashboardUIController extends UIController {
             messagesWaitingForAcknowledgement.sort((o1, o2) -> Long.compare(o2.getCreated(), o1.getCreated()));
             model.addAttribute("messagesWaitingForAcknowledgement", messagesWaitingForAcknowledgement);
             model.addAttribute("activeProfiles", getActiveProfiles());
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
+        } else {
+            log.warn("The endpoint with the external endpoint ID {} does not exist.", externalEndpointId);
             return Routes.UnsecuredEndpoints.ERROR;
         }
         return Routes.UserInterface.ThymeleafRouting.ENDPOINT_DASHBOARD;

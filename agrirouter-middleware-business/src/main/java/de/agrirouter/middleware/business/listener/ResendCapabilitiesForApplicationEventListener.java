@@ -5,7 +5,7 @@ import de.agrirouter.middleware.api.events.ResendCapabilitiesForApplicationEvent
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.integration.EndpointIntegrationService;
-import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;

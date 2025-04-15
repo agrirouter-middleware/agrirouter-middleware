@@ -5,7 +5,6 @@ import agrirouter.feed.request.FeedRequests;
 import agrirouter.request.payload.account.Endpoints;
 import agrirouter.request.payload.endpoint.Capabilities;
 import agrirouter.request.payload.endpoint.SubscriptionOuterClass;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Enum containing all the content message types the AR is supporting.
@@ -24,14 +23,10 @@ public enum SystemMessageType implements TechnicalMessageType {
     DKE_CAPABILITIES("dke:capabilities", Capabilities.CapabilitySpecification.getDescriptor().getFullName()),
     DKE_SUBSCRIPTION("dke:subscription", SubscriptionOuterClass.Subscription.getDescriptor().getFullName()),
     DKE_LIST_ENDPOINTS("dke:list_endpoints", Endpoints.ListEndpointsQuery.getDescriptor().getFullName()),
-    DKE_LIST_ENDPOINTS_UNFILTERED(
-            "dke:list_endpoints_unfiltered",
-            Endpoints.ListEndpointsQuery.getDescriptor().getFullName()
-    ),
+
     DKE_FEED_CONFIRM("dke:feed_confirm", FeedRequests.MessageConfirm.getDescriptor().getFullName()),
     DKE_FEED_DELETE("dke:feed_delete", FeedRequests.MessageDelete.getDescriptor().getFullName()),
     DKE_FEED_MESSAGE_QUERY("dke:feed_message_query", FeedRequests.MessageQuery.getDescriptor().getFullName()),
-    DKE_FEED_HEADER_QUERY("dke:feed_header_query", FeedRequests.MessageQuery.getDescriptor().getFullName()),
     DKE_PING("dke:ping", "");
 
     private final String key;
@@ -43,12 +38,12 @@ public enum SystemMessageType implements TechnicalMessageType {
     }
 
     @Override
-    public @NotNull String getKey() {
+    public String getKey() {
         return this.key;
     }
 
     @Override
-    public @NotNull String getTypeUrl() {
+    public String getTypeUrl() {
         return this.typeUrl;
     }
 

@@ -20,9 +20,7 @@ import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceI
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.config.env.Ar2QA;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
-import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
-import de.agrirouter.middleware.integration.mqtt.SubscriptionsForMqttClient;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +32,7 @@ import org.springframework.context.annotation.Scope;
  * The internal configuration for the agrirouter© connection.
  */
 @Configuration
-public class AgrirouterConfiguration {
+public class AgrirouterBeanConfiguration {
 
     /**
      * Create an instance of the QA environment for dependency injection.
@@ -147,15 +145,11 @@ public class AgrirouterConfiguration {
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
-                                                           ListEndpointsMessages listEndpointsMessages,
-                                                           SubscriptionsForMqttClient subscriptionsForMqttClient,
-                                                           MqttClientManagementService mqttClientManagementService) {
+                                                           ListEndpointsMessages listEndpointsMessages) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
-                listEndpointsMessages,
-                subscriptionsForMqttClient,
-                mqttClientManagementService);
+                listEndpointsMessages);
 
     }
 

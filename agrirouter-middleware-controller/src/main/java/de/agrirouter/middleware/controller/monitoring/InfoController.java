@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.Callable;
-
 /**
  * Controller for information purpose.
  */
@@ -70,8 +68,8 @@ public class InfoController implements UnsecuredApiController {
             }
     )
     @GetMapping(value = "/version", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<ResponseEntity<VersionsResponse>> version() {
-        return () -> ResponseEntity.ok(new VersionsResponse(String.format("%s (Build: %s)", currentVersion, currentBuild)));
+    public ResponseEntity<VersionsResponse> version() {
+        return ResponseEntity.ok(new VersionsResponse(String.format("%s (Build: %s)", currentVersion, currentBuild)));
     }
 
 }

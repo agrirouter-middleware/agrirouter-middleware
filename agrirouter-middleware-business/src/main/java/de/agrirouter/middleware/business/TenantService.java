@@ -11,7 +11,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -142,7 +141,7 @@ public class TenantService implements UserDetailsService {
         }
     }
 
-    @NotNull
+
     private String generateAccessToken(int defaultAccessTokenLength) {
         return RandomStringUtils.random(defaultAccessTokenLength, true, true);
     }

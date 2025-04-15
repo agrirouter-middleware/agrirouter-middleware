@@ -2,7 +2,6 @@ package de.agrirouter.middleware.business;
 
 import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
@@ -57,30 +56,28 @@ public class PublishNonTelemetryDataService {
                 publishNonTelemetryDataParameters.getFilename(),
                 asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
                 null);
-        try {
-            var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
-            if (healthStatus.getHealthStatus().equals(HealthStatus.HEALTHY)) {
-                checkAndUpdateRecipients(publishNonTelemetryDataParameters);
-                var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+        var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
+        if (healthStatus.healthStatus().equals(HealthStatus.HEALTHY)) {
+            checkAndUpdateRecipients(publishNonTelemetryDataParameters);
+            var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
                 businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data published");
-            } else {
-                log.warn("Could not publish data. No connection to agrirouter©.");
-                log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
-                messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
-                businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+                return;
             }
-        } catch (CriticalBusinessException e) {
-            log.debug("Could not publish data. There was a critical business exception. {}", e.getErrorMessage());
-            messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
-            businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
         }
+        log.warn("Could not publish data. No connection to agrirouter©.");
+        log.info("Endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
+        messageCache.put(publishNonTelemetryDataParameters.getExternalEndpointId(), messagingIntegrationParameters);
+        businessOperationLogService.log(new EndpointLogInformation(publishNonTelemetryDataParameters.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
     }
 
     private void checkAndUpdateRecipients(PublishNonTelemetryDataParameters publishNonTelemetryDataParameters) {
         if (null != publishNonTelemetryDataParameters.getRecipients() && !publishNonTelemetryDataParameters.getRecipients().isEmpty()) {
-            try {
-                final var endpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
                 var messageRecipients = endpointService.getMessageRecipients(endpoint.getExternalEndpointId());
                 var updatedMessageRecipients = new ArrayList<String>();
                 publishNonTelemetryDataParameters.getRecipients().forEach(recipient -> messageRecipients.stream()
@@ -92,8 +89,7 @@ public class PublishNonTelemetryDataService {
                 log.debug("Former recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), publishNonTelemetryDataParameters.getRecipients());
                 log.debug("Updated recipients for endpoint {}: {}", publishNonTelemetryDataParameters.getExternalEndpointId(), updatedMessageRecipients);
                 publishNonTelemetryDataParameters.setRecipients(updatedMessageRecipients);
-            } catch (BusinessException e) {
-                log.error(e.getErrorMessage().asLogMessage());
+            } else {
                 log.warn("Could not find endpoint with external endpoint ID: {}", publishNonTelemetryDataParameters.getExternalEndpointId());
                 log.info("This might be because the endpoint is not yet registered. The recipients are not updated.");
             }

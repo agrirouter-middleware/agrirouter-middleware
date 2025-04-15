@@ -39,6 +39,9 @@ management:
     web:
       exposure:
         include: info,health,metrics,prometheus,hikaricp,jdbc
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:
@@ -51,22 +54,25 @@ app:
   version: '@project.version@'
   build: '@maven.build.timestamp@'
   agrirouter:
+    threading:
+      fixed-thread-pool-size: 200 #Number of threads in the fixed thread pool, default is 200. This has to be less than the max-in-flight value of the MQTT configuration.
     redirect-delay: 250
     mqtt:
       synchronous:
         health:
           response:
             wait:
-              time: 1500
+              time: 300
         response:
           wait:
-            time: 3000
+            time: 1500
           polling:
-            intervall: 100
+            intervall: 50
       options:
         clean-session: false
         keep-alive-interval: 30
         connection-timeout: 120
+        max-in-flight: 600
   fetch-messages:
     max-tries: 5
     interval: 1000
@@ -76,8 +82,6 @@ app:
     random-delay-minutes: 240
     empty-message-cache: "0 */30 * * * *"
     message-waiting-for-ack-removal: "0 0 0 * * *"
-    statuspage-check-interval: "*/30 * * * * *"
-    log-mqtt-statistics: "*/30 * * * * *"
   branding:
     favicon: "/img/favicon.ico"
   cache:

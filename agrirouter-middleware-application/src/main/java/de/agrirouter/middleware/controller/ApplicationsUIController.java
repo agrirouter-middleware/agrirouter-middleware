@@ -3,6 +3,7 @@ package de.agrirouter.middleware.controller;
 import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.domain.Application;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,10 @@ import java.util.List;
  * The applications' controller.
  */
 @Controller
+@RequiredArgsConstructor
 public class ApplicationsUIController extends UIController {
 
     private final ApplicationService applicationService;
-
-    public ApplicationsUIController(ApplicationService applicationService) {
-        this.applicationService = applicationService;
-    }
 
     /**
      * The landing page.

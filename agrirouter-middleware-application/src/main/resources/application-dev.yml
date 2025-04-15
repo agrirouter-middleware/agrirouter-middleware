@@ -4,8 +4,6 @@ logging:
     de.agrirouter.middleware: trace
 app:
   agrirouter:
-    status:
-      skip-check: true
     mqtt:
       options:
         clean-session: true

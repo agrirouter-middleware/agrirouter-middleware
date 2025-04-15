@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.controller.unsecured;
 
 
+import com.dke.data.agrirouter.api.dto.registrationrequest.secured.AuthorizationResponseToken;
 import com.dke.data.agrirouter.api.service.onboard.secured.AuthorizationRequestService;
 import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -14,6 +15,7 @@ import de.agrirouter.middleware.domain.Application;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,7 @@ import java.util.Base64;
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(UnsecuredApiController.API_PREFIX + "/callback-processor")
 @Tag(
         name = "agrirouter© callback",
@@ -42,16 +45,6 @@ public class CallbackProcessorController implements UnsecuredApiController {
     private final ApplicationService applicationService;
     private final SecuredOnboardProcessService securedOnboardProcessService;
     private final AuthorizationRequestService authorizationRequestService;
-
-    public CallbackProcessorController(OnboardStateContainer onboardStateContainer,
-                                       ApplicationService applicationService,
-                                       SecuredOnboardProcessService securedOnboardProcessService,
-                                       AuthorizationRequestService authorizationRequestService) {
-        this.onboardStateContainer = onboardStateContainer;
-        this.applicationService = applicationService;
-        this.securedOnboardProcessService = securedOnboardProcessService;
-        this.authorizationRequestService = authorizationRequestService;
-    }
 
     /**
      * Callback for the onboard process.
@@ -72,19 +65,14 @@ public class CallbackProcessorController implements UnsecuredApiController {
         final var optionalOnboardState = onboardStateContainer.pop(state);
         if (optionalOnboardState.isPresent()) {
             final var onboardState = optionalOnboardState.get();
-            final var application = applicationService.find(onboardState.getInternalApplicationId());
+            final var application = applicationService.find(onboardState.internalApplicationId());
             if (StringUtils.isBlank(error)) {
                 log.debug("Checking for state >>> {}", state);
                 log.debug("Proceeding callback for the onboard process of the following application [{}]",
-                        onboardState.getInternalApplicationId());
+                        onboardState.internalApplicationId());
                 final var authorizationResponseToken = authorizationRequestService.decodeToken(token);
                 log.trace("Decoded the token >>> {}", authorizationResponseToken);
-                final var onboardProcessParameters = new OnboardProcessParameters();
-                onboardProcessParameters.setInternalApplicationId(application.getInternalApplicationId());
-                onboardProcessParameters.setRegistrationCode(authorizationResponseToken.getRegcode());
-                onboardProcessParameters.setExternalEndpointId(onboardState.getExternalEndpointId());
-                onboardProcessParameters.setTenantId(onboardState.getTenantId());
-                onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
+                final var onboardProcessParameters = createOnboardProcessParameters(application, authorizationResponseToken, onboardState);
                 try {
                     securedOnboardProcessService.onboard(onboardProcessParameters);
                     return redirect(onboardState, application, OnboardProcessResult.SUCCESS, null);
@@ -102,9 +90,20 @@ public class CallbackProcessorController implements UnsecuredApiController {
         return null;
     }
 
+
+    private static OnboardProcessParameters createOnboardProcessParameters(Application application, AuthorizationResponseToken authorizationResponseToken, OnboardStateContainer.OnboardState onboardState) {
+        final var onboardProcessParameters = new OnboardProcessParameters();
+        onboardProcessParameters.setInternalApplicationId(application.getInternalApplicationId());
+        onboardProcessParameters.setRegistrationCode(authorizationResponseToken.getRegcode());
+        onboardProcessParameters.setExternalEndpointId(onboardState.externalEndpointId());
+        onboardProcessParameters.setTenantId(onboardState.tenantId());
+        onboardProcessParameters.setAccountId(authorizationResponseToken.getAccount());
+        return onboardProcessParameters;
+    }
+
     private RedirectView redirect(OnboardStateContainer.OnboardState onboardState, Application application, OnboardProcessResult result, String errorMessage) {
-        if (StringUtils.isNotBlank(onboardState.getRedirectUrlAfterCallback())) {
-            return redirect(result, onboardState.getRedirectUrlAfterCallback(), errorMessage);
+        if (StringUtils.isNotBlank(onboardState.redirectUrlAfterCallback())) {
+            return redirect(result, onboardState.redirectUrlAfterCallback(), errorMessage);
         } else if (StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
             return redirect(result, application.getApplicationSettings().getRedirectUrl(), errorMessage);
         } else {

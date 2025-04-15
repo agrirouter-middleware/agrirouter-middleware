@@ -6,7 +6,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import de.agrirouter.middleware.api.IdFactory;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
-import de.agrirouter.middleware.api.errorhandling.CriticalBusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
@@ -21,8 +20,8 @@ import de.agrirouter.middleware.domain.documents.Device;
 import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
-import de.agrirouter.middleware.persistence.DeviceDescriptionRepository;
-import de.agrirouter.middleware.persistence.DeviceRepository;
+import de.agrirouter.middleware.persistence.mongo.DeviceDescriptionRepository;
+import de.agrirouter.middleware.persistence.mongo.DeviceRepository;
 import de.saschadoemer.iso11783.clientname.ClientName;
 import de.saschadoemer.iso11783.clientname.ClientNameDecoder;
 import efdi.GrpcEfdi;
@@ -40,8 +39,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
 
 /**
  * Service to handle business operations round about the device descriptions.
@@ -87,16 +84,7 @@ public class DeviceDescriptionService {
         if (optionalDocument.isPresent()) {
             try {
                 final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-                var deviceDescription = new DeviceDescription();
-                deviceDescription.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                deviceDescription.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                deviceDescription.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                deviceDescription.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                deviceDescription.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                deviceDescription.setExternalEndpointId(endpoint.getExternalEndpointId());
-                deviceDescription.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
-                deviceDescription.setDeactivated(false);
-                deviceDescription.setDocument(optionalDocument.get());
+                var deviceDescription = createDeviceDescription(contentMessage, endpoint, optionalDocument);
                 deviceDescriptionRepository.save(deviceDescription);
                 businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description received and saved to the database.");
                 createOrFindDevices(endpoint, contentMessage.getMessageContent(), deviceDescription);
@@ -106,6 +94,21 @@ public class DeviceDescriptionService {
         } else {
             log.error(ErrorMessageFactory.couldNotParseDeviceDescription().asLogMessage());
         }
+    }
+
+
+    private static DeviceDescription createDeviceDescription(ContentMessage contentMessage, Endpoint endpoint, Optional<Document> optionalDocument) {
+        var deviceDescription = new DeviceDescription();
+        deviceDescription.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+        deviceDescription.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+        deviceDescription.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+        deviceDescription.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+        deviceDescription.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+        deviceDescription.setExternalEndpointId(endpoint.getExternalEndpointId());
+        deviceDescription.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
+        deviceDescription.setDeactivated(false);
+        deviceDescription.setDocument(optionalDocument.get());
+        return deviceDescription;
     }
 
     /**
@@ -121,13 +124,7 @@ public class DeviceDescriptionService {
             if (optionalDocument.isPresent()) {
                 try {
                     final var endpoint = endpointService.findByAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
-                    var deviceDescription = new DeviceDescription();
-                    deviceDescription.setAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
-                    deviceDescription.setExternalEndpointId(createDeviceDescriptionParameters.getEndpoint().getExternalEndpointId());
-                    deviceDescription.setTeamSetContextId(createDeviceDescriptionParameters.getTeamSetContextId());
-                    deviceDescription.setDocument(optionalDocument.get());
-                    deviceDescription.setDeactivated(true);
-                    deviceDescription.setBase64EncodedDeviceDescription(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription());
+                    var deviceDescription = createDeviceDescription(createDeviceDescriptionParameters, optionalDocument);
                     deviceDescriptionRepository.save(deviceDescription);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description created and saved to the database.");
                     createOrFindDevices(endpoint, Base64.getDecoder().decode(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription()), deviceDescription);
@@ -140,6 +137,18 @@ public class DeviceDescriptionService {
         } else {
             log.error(ErrorMessageFactory.couldNotParseDeviceDescription().asLogMessage());
         }
+    }
+
+
+    private static DeviceDescription createDeviceDescription(CreateDeviceDescriptionParameters createDeviceDescriptionParameters, Optional<Document> optionalDocument) {
+        var deviceDescription = new DeviceDescription();
+        deviceDescription.setAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
+        deviceDescription.setExternalEndpointId(createDeviceDescriptionParameters.getEndpoint().getExternalEndpointId());
+        deviceDescription.setTeamSetContextId(createDeviceDescriptionParameters.getTeamSetContextId());
+        deviceDescription.setDocument(optionalDocument.get());
+        deviceDescription.setDeactivated(true);
+        deviceDescription.setBase64EncodedDeviceDescription(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription());
+        return deviceDescription;
     }
 
     private void createOrFindDevices(Endpoint endpoint, byte[] rawDeviceDescription, DeviceDescription deviceDescription) {
@@ -322,8 +331,9 @@ public class DeviceDescriptionService {
         log.debug("Register machine and return a team set context ID for the device description.");
         final var optionalISO11783TaskData = parse(registerMachineParameters.getBase64EncodedDeviceDescription());
         if (optionalISO11783TaskData.isPresent()) {
-            try {
-                final var endpoint = endpointService.findByExternalEndpointId(registerMachineParameters.getExternalEndpointId());
+            final var optionalEndpoint = endpointService.findByExternalEndpointId(registerMachineParameters.getExternalEndpointId());
+            if (optionalEndpoint.isPresent()) {
+                var endpoint = optionalEndpoint.get();
                 final var createDeviceDescriptionParameters = new CreateDeviceDescriptionParameters();
                 createDeviceDescriptionParameters.setBase64EncodedDeviceDescription(registerMachineParameters.getBase64EncodedDeviceDescription());
                 createDeviceDescriptionParameters.setEndpoint(endpoint);
@@ -335,15 +345,10 @@ public class DeviceDescriptionService {
                         null,
                         asByteString(registerMachineParameters.getBase64EncodedDeviceDescription()),
                         teamSetContextId);
-                try {
-                    sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
-                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
-                    return teamSetContextId;
-                } catch (CriticalBusinessException e) {
-                    log.error("Could not register machine.", e);
-                    throw new BusinessException(e.getErrorMessage());
-                }
-            } catch (BusinessException e) {
+                sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description for machine has been registered.");
+                return teamSetContextId;
+            } else {
                 log.debug("No endpoint found for the given external endpoint ID. Caching the device description. This could be the case if the virtual endpoint is not yet created.");
                 machineRegistrationCache.put(registerMachineParameters.getExternalEndpointId(), teamSetContextId, registerMachineParameters);
                 return teamSetContextId;
@@ -404,15 +409,14 @@ public class DeviceDescriptionService {
                             null,
                             asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
                             teamSetContextId);
-                    try {
-                        var endpoint = endpointService.findByExternalEndpointId(messagingIntegrationParameters.externalEndpointId());
+                    var optionalEndpoint = endpointService.findByExternalEndpointId(messagingIntegrationParameters.externalEndpointId());
+                    if (optionalEndpoint.isPresent()) {
+                        var endpoint = optionalEndpoint.get();
                         sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
                         businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), deviceDescription.getAgrirouterEndpointId()), "Device description has been resent.");
                         lastTimeTheDeviceDescriptionHasBeenSent.put(teamSetContextId, Instant.now());
-                    } catch (CriticalBusinessException e) {
-                        log.debug("Could not publish the device description. There was a critical business exception. {}", e.getErrorMessage());
-                        messageCache.put(deviceDescription.getExternalEndpointId(), messagingIntegrationParameters);
-                        businessOperationLogService.log(new EndpointLogInformation(deviceDescription.getExternalEndpointId(), NA), "Non telemetry data not published. Message saved to cache.");
+                    } else {
+                        log.warn("Missing endpoint for external endpoint ID '{}'. The device description has not been sent.", messagingIntegrationParameters.externalEndpointId());
                     }
                 }
             } else {

@@ -17,12 +17,14 @@ import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
-import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The service for the onboard process.
@@ -38,7 +40,9 @@ public class SecuredOnboardProcessService {
     private final EndpointService endpointService;
     private final BusinessOperationLogService businessOperationLogService;
     private final Gson gson;
-    private final ThreadPoolExecutor threadPoolExecutor;
+
+    @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
+    private int fixedThreadPoolSize;
 
     public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
                                         OnboardStateContainer onboardStateContainer,
@@ -46,8 +50,7 @@ public class SecuredOnboardProcessService {
                                         ApplicationRepository applicationRepository,
                                         EndpointService endpointService,
                                         BusinessOperationLogService businessOperationLogService,
-                                        Gson gson,
-                                        ThreadPoolExecutor threadPoolExecutor) {
+                                        Gson gson) {
         this.authorizationRequestService = authorizationRequestService;
         this.onboardStateContainer = onboardStateContainer;
         this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
@@ -55,7 +58,6 @@ public class SecuredOnboardProcessService {
         this.endpointService = endpointService;
         this.businessOperationLogService = businessOperationLogService;
         this.gson = gson;
-        this.threadPoolExecutor = threadPoolExecutor;
     }
 
     /**
@@ -96,21 +98,27 @@ public class SecuredOnboardProcessService {
                 final var existingEndpoint = endpointService.existsByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
                 if (existingEndpoint) {
                     log.debug("Updating existing endpoint, this was a onboard process for an existing endpoint.");
-                    final var endpoint = endpointService.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
+                    final var optionalEndpoint = endpointService.findByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());
+                    if (optionalEndpoint.isPresent()) {
+                        var endpoint = optionalEndpoint.get();
+                        if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
+                            throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReOnboardingIsNotAllowed());
+                        } else {
 
-                    if (!endpoint.getAgrirouterAccountId().equals(onboardProcessParameters.getAccountId())) {
-                        throw new BusinessException(ErrorMessageFactory.switchingAccountsWhenReOnboardingIsNotAllowed());
-                    } else {
-
-                        final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
-                                application.getVersionId(),
-                                endpoint.getExternalEndpointId(),
-                                onboardProcessParameters.getRegistrationCode(),
-                                application.getPrivateKey(),
-                                application.getPublicKey());
-                        final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
-                        log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
-                        updateExistingEndpoint(onboardProcessParameters, endpoint, onboardingResponse, application);
+                            final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
+                                    application.getVersionId(),
+                                    endpoint.getExternalEndpointId(),
+                                    onboardProcessParameters.getRegistrationCode(),
+                                    application.getPrivateKey(),
+                                    application.getPublicKey());
+                            final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
+                            log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
+                            try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                                updateExistingEndpoint(executorService, onboardProcessParameters, endpoint, onboardingResponse, application);
+                            } catch (Exception e) {
+                                log.error("Error while updating existing endpoint: {}", e.getMessage());
+                            }
+                        }
                     }
                 } else {
                     final var securedOnboardProcessIntegrationParameters = new SecuredOnboardProcessIntegrationParameters(application.getApplicationId(),
@@ -121,20 +129,23 @@ public class SecuredOnboardProcessService {
                             application.getPublicKey());
                     final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
                     log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
-
-                    createNewEndpoint(onboardProcessParameters, onboardingResponse, securedOnboardProcessIntegrationParameters, application);
+                    try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                        createNewEndpoint(executorService, onboardProcessParameters, onboardingResponse, securedOnboardProcessIntegrationParameters, application);
+                    } catch (Exception e) {
+                        log.error("Error while creating new endpoint: {}", e.getMessage());
+                    }
                 }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
             }
         } catch (OnboardingException e) {
-            log.error("[{}] {}", ErrorMessageFactory.onboardRequestFailed().getKey(), ErrorMessageFactory.onboardRequestFailed().getMessage());
+            log.error("[{}] {}", ErrorMessageFactory.onboardRequestFailed().key(), ErrorMessageFactory.onboardRequestFailed().message());
             throw new BusinessException(ErrorMessageFactory.onboardRequestFailed(), e);
         }
     }
 
-    private void createNewEndpoint(OnboardProcessParameters onboardProcessParameters, OnboardingResponse onboardingResponse, SecuredOnboardProcessIntegrationParameters securedOnboardProcessIntegrationParameters, Application application) {
-        threadPoolExecutor.execute(() -> {
+    private void createNewEndpoint(ExecutorService executorService, OnboardProcessParameters onboardProcessParameters, OnboardingResponse onboardingResponse, SecuredOnboardProcessIntegrationParameters securedOnboardProcessIntegrationParameters, Application application) {
+        executorService.execute(() -> {
             final var endpoint = new Endpoint();
             endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
             endpoint.setExternalEndpointId(securedOnboardProcessIntegrationParameters.externalEndpointId());
@@ -150,8 +161,8 @@ public class SecuredOnboardProcessService {
         });
     }
 
-    private void updateExistingEndpoint(OnboardProcessParameters onboardProcessParameters, Endpoint endpoint, OnboardingResponse onboardingResponse, Application application) {
-        threadPoolExecutor.execute(() -> {
+    private void updateExistingEndpoint(ExecutorService executorService, OnboardProcessParameters onboardProcessParameters, Endpoint endpoint, OnboardingResponse onboardingResponse, Application application) {
+        executorService.execute(() -> {
             endpoint.setOnboardResponse(gson.toJson(onboardingResponse));
             endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
             endpoint.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());

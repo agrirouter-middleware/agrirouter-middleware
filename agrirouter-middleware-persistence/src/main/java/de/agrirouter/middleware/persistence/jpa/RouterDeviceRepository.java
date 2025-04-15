@@ -1,4 +1,4 @@
-package de.agrirouter.middleware.persistence;
+package de.agrirouter.middleware.persistence.jpa;
 
 import de.agrirouter.middleware.domain.RouterDevice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +18,5 @@ public interface RouterDeviceRepository extends JpaRepository<RouterDevice, Long
      * @return true if the router device exists, otherwise false
      */
     boolean existsByIdNotAndConnectionCriteria_ClientId(Long id, String clientId);
+
 }

@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.controller.dto.response;
 
-import com.google.protobuf.Timestamp;
 import de.agrirouter.middleware.business.cache.query.LatestHeaderQueryResults;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,10 +13,10 @@ import java.util.Map;
 /**
  * Response for the latest query results.
  */
+@Getter
 @Schema(description = "Response for the latest header query results.")
 public class LatestHeaderQueryResultsResponse {
 
-    @Getter
     @Schema(description = "The list of the latest header query results grouped by application.")
     private final Map<String, QueryResults> latestQueryResults = new HashMap<>();
 
@@ -37,10 +36,10 @@ public class LatestHeaderQueryResultsResponse {
     /**
      * Internal class for storing a multiple header query results grouped by endpoint.
      */
+    @Getter
     @Schema(description = "Internal class for storing a multiple header query results grouped by endpoint.")
     public static class QueryResults {
 
-        @Getter
         @Schema(description = "The list of the latest header query results grouped by endpoint.")
         private final Map<String, QueryResult> latestQueryResults = new HashMap<>();
 
@@ -70,26 +69,6 @@ public class LatestHeaderQueryResultsResponse {
             private Instant timestamp;
             @Schema(description = "The message details.")
             private LatestQueryResultsResponse.QueryResults.QueryResult.MessageDetails messageDetails;
-
-            /**
-             * The details of a single message.
-             */
-            @Getter
-            @Setter
-            public static class MessageDetails {
-                @Schema(description = "The message ID.")
-                private String messageId;
-                @Schema(description = "The technical message type.")
-                private String technicalMessageType;
-                @Schema(description = "The file name.")
-                private String fileName;
-                @Schema(description = "The sender ID.")
-                private String senderId;
-                @Schema(description = "The timestamp the message was sent.")
-                private Timestamp sentTimestamp;
-                @Schema(description = "The size of the payload.")
-                private long payloadSize;
-            }
         }
     }
 }

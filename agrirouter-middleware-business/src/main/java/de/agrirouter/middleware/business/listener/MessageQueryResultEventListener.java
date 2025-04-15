@@ -33,8 +33,8 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.isoxml.TaskDataTimeLogService;
-import de.agrirouter.middleware.persistence.ContentMessageRepository;
-import de.agrirouter.middleware.persistence.TaskDataTimeLogContainerRepository;
+import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
+import de.agrirouter.middleware.persistence.mongo.TaskDataTimeLogContainerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;

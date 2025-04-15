@@ -61,7 +61,7 @@ public class ApplicationRegistrationRequest {
      * The type of the application.
      */
     @NotNull
-    @Schema(description = "The type of the application.", required = true)
+    @Schema(description = "The type of the application.", requiredMode = Schema.RequiredMode.REQUIRED)
     private ApplicationType applicationType;
 
     /**

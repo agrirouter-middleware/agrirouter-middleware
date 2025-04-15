@@ -2,7 +2,7 @@ package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.business.parameters.SearchMachinesParameters;
 import de.agrirouter.middleware.domain.documents.Device;
-import de.agrirouter.middleware.persistence.DeviceRepository;
+import de.agrirouter.middleware.persistence.mongo.DeviceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

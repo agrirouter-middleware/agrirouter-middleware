@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.domain;
 
+import com.dke.data.agrirouter.api.dto.onboard.RouterDevice;
 import com.dke.data.agrirouter.api.enums.CertificationType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,4 +36,11 @@ public class Authentication extends BaseEntity {
     @Column(nullable = false)
     private String certificate;
 
+    public RouterDevice.Authentication asAgrirouterAuthentication() {
+        var agrirouterAuthentication = new RouterDevice.Authentication();
+        agrirouterAuthentication.setType(this.type.getKey());
+        agrirouterAuthentication.setSecret(this.secret);
+        agrirouterAuthentication.setCertificate(this.certificate);
+        return agrirouterAuthentication;
+    }
 }

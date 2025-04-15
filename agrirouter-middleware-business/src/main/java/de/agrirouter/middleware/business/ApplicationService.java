@@ -10,9 +10,9 @@ import de.agrirouter.middleware.api.logging.ApplicationLogInformation;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.domain.*;
-import de.agrirouter.middleware.persistence.ApplicationRepository;
-import de.agrirouter.middleware.persistence.RouterDeviceRepository;
-import de.agrirouter.middleware.persistence.TenantRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.RouterDeviceRepository;
+import de.agrirouter.middleware.persistence.jpa.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
@@ -209,6 +209,7 @@ public class ApplicationService {
                     log.debug("The current application already has a router device, therefore updating it.");
                     var formerRouterDevice = application.getApplicationSettings().getRouterDevice();
                     routerDeviceRepository.delete(formerRouterDevice);
+                    log.debug("The former router device has been deleted. The former connection may be still there, but will be removed if the router device is deleted on the agrirouter side.");
                 }
             }
             final var routerDevice = new RouterDevice();

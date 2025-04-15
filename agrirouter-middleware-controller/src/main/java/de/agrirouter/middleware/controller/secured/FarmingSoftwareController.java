@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,12 +17,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.Callable;
-
 /**
  * Controller to onboard a single endpoint.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/farming-software")
 @Tag(
         name = "farming software management",
@@ -30,10 +30,6 @@ import java.util.concurrent.Callable;
 public class FarmingSoftwareController implements SecuredApiController {
 
     private final EndpointService endpointService;
-
-    public FarmingSoftwareController(EndpointService endpointService) {
-        this.endpointService = endpointService;
-    }
 
     /**
      * Remove the endpoint from the AR and delete the data.
@@ -74,9 +70,9 @@ public class FarmingSoftwareController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> revokeFarmingSoftware(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<Void> revokeFarmingSoftware(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         endpointService.revoke(externalEndpointId);
-        return () -> ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
 }

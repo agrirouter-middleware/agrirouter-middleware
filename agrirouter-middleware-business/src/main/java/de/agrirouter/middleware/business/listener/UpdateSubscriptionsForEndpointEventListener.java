@@ -17,7 +17,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.common.SubscriptionParameterFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -79,8 +79,9 @@ public class UpdateSubscriptionsForEndpointEventListener {
      * @param externalEndpointId The ID of the endpoint.
      */
     private void resendSubscriptions(String externalEndpointId) {
-        try {
-            final var endpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
             final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
@@ -88,8 +89,8 @@ public class UpdateSubscriptionsForEndpointEventListener {
             } else {
                 log.error(ErrorMessageFactory.couldNotFindApplication().asLogMessage());
             }
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
+        } else {
+            log.warn("The endpoint with the external endpoint ID '{}' could not be found.", externalEndpointId);
         }
     }
 
@@ -106,14 +107,14 @@ public class UpdateSubscriptionsForEndpointEventListener {
             log.debug("Handling MQTT onboard response updates.");
             final var subscriptions = subscriptionParameterFactory.create(application);
             enableSubscriptions(endpoint, subscriptions);
-            log.debug(String.format("The following subscriptions [%s] for the endpoint with the id '%s' are send.", subscriptions
+            log.debug("The following subscriptions [{}] for the endpoint with the id '{}' are send.", subscriptions
                     .stream()
                     .filter(subscription -> null != subscription.getTechnicalMessageType())
                     .map(subscription -> String.format("{%s,(%s)}", Objects.requireNonNull(subscription.getTechnicalMessageType()).getKey(), subscription.getDdis()
                             .stream()
                             .map(String::valueOf)
                             .collect(Collectors.joining(","))))
-                    .collect(Collectors.joining(",")), endpoint.getExternalEndpointId()));
+                    .collect(Collectors.joining(",")), endpoint.getExternalEndpointId());
         } else {
             log.error(ErrorMessageFactory.middlewareDoesNotSupportGateway(onboardingResponse.getConnectionCriteria().getGatewayId()).asLogMessage());
         }

@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,12 +30,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.Callable;
-
 /**
  * Sending messages to the AR.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/non-telemetry-data")
 @Tag(
         name = "non telemetry data management",
@@ -45,14 +45,6 @@ public class NonTelemetryDataController implements SecuredApiController {
     private final PublishNonTelemetryDataService publishNonTelemetryDataService;
     private final SearchNonTelemetryDataService searchNonTelemetryDataService;
     private final ModelMapper modelMapper;
-
-    public NonTelemetryDataController(PublishNonTelemetryDataService publishNonTelemetryDataService,
-                                      SearchNonTelemetryDataService searchNonTelemetryDataService,
-                                      ModelMapper modelMapper) {
-        this.publishNonTelemetryDataService = publishNonTelemetryDataService;
-        this.searchNonTelemetryDataService = searchNonTelemetryDataService;
-        this.modelMapper = modelMapper;
-    }
 
     /**
      * Publish task data files for a given endpoint.
@@ -107,7 +99,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> publishTaskData(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> publishTaskData(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                           @Parameter(description = "The request body containing all necessary information to publish task data files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
                                                           @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -123,7 +115,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -179,7 +171,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> publishShape(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> publishShape(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                        @Parameter(description = "The request body containing all necessary information to publish shape files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
                                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -195,7 +187,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -251,7 +243,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> publishImage(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> publishImage(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                        @Parameter(description = "The request body containing all necessary information to publish image files.", required = true) @Valid @RequestBody PublishImageDataRequest publishImageDataRequest,
                                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -267,7 +259,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -323,7 +315,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> publishVideo(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> publishVideo(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                        @Parameter(description = "The request body containing all necessary information to publish video files.", required = true) @Valid @RequestBody PublishVideoDataRequest publishVideoDataRequest,
                                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -339,7 +331,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -395,7 +387,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> publishPdf(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> publishPdf(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                      @Parameter(description = "The request body containing all necessary information to publish PDF files.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
                                                      @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -411,7 +403,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -469,7 +461,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<SearchFilesResponse>> search(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<SearchFilesResponse> search(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                                 @Parameter(description = "The request body containing all necessary information to search for file headers.", required = true) @Valid @RequestBody SearchFilesRequest searchFilesRequest,
                                                                 @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -480,7 +472,7 @@ public class NonTelemetryDataController implements SecuredApiController {
         final var contentMessageMetadata = searchNonTelemetryDataService.search(searchNonTelemetryDataParameters);
         final var fileHeaderDtos = contentMessageMetadata.stream().map(cmm -> modelMapper.map(cmm, FileHeaderDto.class)).toList();
         final var searchFilesResponse = new SearchFilesResponse(fileHeaderDtos.size(), fileHeaderDtos);
-        return () -> ResponseEntity.ok(searchFilesResponse);
+        return ResponseEntity.ok(searchFilesResponse);
     }
 
     /**
@@ -577,10 +569,10 @@ public class NonTelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> delete(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> delete(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                  @Parameter(description = "The ID of the message.", required = true) @PathVariable String messageId) {
         searchNonTelemetryDataService.delete(externalEndpointId, messageId);
-        return () -> ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
 }

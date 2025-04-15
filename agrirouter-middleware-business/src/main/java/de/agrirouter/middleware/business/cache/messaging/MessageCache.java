@@ -3,7 +3,7 @@ package de.agrirouter.middleware.business.cache.messaging;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.domain.documents.MessageCacheEntry;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
-import de.agrirouter.middleware.persistence.MessageCacheEntryRepository;
+import de.agrirouter.middleware.persistence.mongo.MessageCacheEntryRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

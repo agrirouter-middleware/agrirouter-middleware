@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -35,13 +36,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
  * Controller to manage applications.
  */
 @RestController
+@RequiredArgsConstructor
 @Tag(
         name = "application management",
         description = "Operations for the application management, i.e. register, add supported technical message types and status checks."
@@ -54,16 +55,6 @@ public class ApplicationController implements SecuredApiController {
     private final ModelMapper modelMapper;
 
     private final MessageCache messageCache;
-
-    public ApplicationController(ApplicationService applicationService,
-                                 EndpointService endpointService,
-                                 ModelMapper modelMapper,
-                                 MessageCache messageCache) {
-        this.applicationService = applicationService;
-        this.endpointService = endpointService;
-        this.modelMapper = modelMapper;
-        this.messageCache = messageCache;
-    }
 
     /**
      * Register an application.
@@ -118,7 +109,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<RegisterApplicationResponse>> register(Principal principal,
+    public ResponseEntity<RegisterApplicationResponse> register(Principal principal,
                                                                           @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest,
                                                                           @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -144,7 +135,7 @@ public class ApplicationController implements SecuredApiController {
 
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
-        return () -> ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
     }
 
     /**
@@ -200,7 +191,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<RegisterApplicationResponse>> update(@Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
+    public ResponseEntity<RegisterApplicationResponse> update(@Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
                                                                         @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -232,7 +223,7 @@ public class ApplicationController implements SecuredApiController {
 
         final var applicationDto = new ApplicationDto();
         modelMapper.map(existingApplication, applicationDto);
-        return () -> ResponseEntity.status(HttpStatus.OK).body(new RegisterApplicationResponse(applicationDto));
+        return ResponseEntity.status(HttpStatus.OK).body(new RegisterApplicationResponse(applicationDto));
     }
 
     /**
@@ -287,7 +278,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> defineSupportedTechnicalMessageTypes(Principal principal,
+    public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
                                                                                @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                                                @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
                                                                                @Parameter(hidden = true) Errors errors) {
@@ -302,7 +293,7 @@ public class ApplicationController implements SecuredApiController {
             supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
         });
         applicationService.defineSupportedTechnicalMessageTypes(principal, internalApplicationId, supportedTechnicalMessageTypes);
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -357,7 +348,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> addRouterDevice(Principal principal,
+    public ResponseEntity<Void> addRouterDevice(Principal principal,
                                                           @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
                                                           @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
                                                           @Parameter(hidden = true) Errors errors) {
@@ -375,7 +366,7 @@ public class ApplicationController implements SecuredApiController {
         addRouterDeviceParameters.setPort(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getPort());
         addRouterDeviceParameters.setClientId(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getClientId());
         applicationService.addRouterDevice(addRouterDeviceParameters);
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -425,12 +416,12 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<FindApplicationResponse>> find(Principal principal,
+    public ResponseEntity<FindApplicationResponse> find(Principal principal,
                                                                   @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
-        return () -> ResponseEntity.ok(new FindApplicationResponse(applicationDto));
+        return ResponseEntity.ok(new FindApplicationResponse(applicationDto));
     }
 
     /**
@@ -480,7 +471,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<ApplicationStatusResponse>> status(Principal principal,
+    public ResponseEntity<ApplicationStatusResponse> status(Principal principal,
                                                                       @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
@@ -491,7 +482,7 @@ public class ApplicationController implements SecuredApiController {
                 .map(endpoint -> EndpointStatusHelper.mapEndpointWithApplicationDetails(modelMapper, applicationService, endpointService, messageCache, endpoint))
                 .collect(Collectors.toList());
         applicationStatusResponse.setEndpoints(endpoints);
-        return () -> ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
+        return ResponseEntity.ok(new ApplicationStatusResponse(applicationStatusResponse));
     }
 
     /**
@@ -539,7 +530,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<FindApplicationsResponse>> findAll(Principal principal) {
+    public ResponseEntity<FindApplicationsResponse> findAll(Principal principal) {
         List<Application> applications = applicationService.findAll(principal);
         List<ApplicationDto> findApplicationsResponse = new ArrayList<>();
         applications.forEach(application -> {
@@ -547,7 +538,7 @@ public class ApplicationController implements SecuredApiController {
             modelMapper.map(application, applicationDto);
             findApplicationsResponse.add(applicationDto);
         });
-        return () -> ResponseEntity.ok(new FindApplicationsResponse(findApplicationsResponse));
+        return ResponseEntity.ok(new FindApplicationsResponse(findApplicationsResponse));
     }
 
     /**
@@ -596,7 +587,7 @@ public class ApplicationController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<FindEndpointsForApplicationResponse>> findEndpointsForApplication(Principal principal,
+    public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
                                                                                                      @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
@@ -605,7 +596,7 @@ public class ApplicationController implements SecuredApiController {
             modelMapper.map(endpoint, dto);
             endpointWithChildrenDtos.add(dto);
         });
-        return () -> ResponseEntity.ok(new FindEndpointsForApplicationResponse(endpointWithChildrenDtos));
+        return ResponseEntity.ok(new FindEndpointsForApplicationResponse(endpointWithChildrenDtos));
     }
 
 }

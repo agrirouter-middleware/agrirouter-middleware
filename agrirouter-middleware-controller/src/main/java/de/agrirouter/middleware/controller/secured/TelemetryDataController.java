@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -40,13 +41,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
  * Sending messages to the AR.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(SecuredApiController.API_PREFIX + "/telemetry-data")
 @Tag(
         name = "telemetry data management",
@@ -58,16 +59,6 @@ public class TelemetryDataController implements SecuredApiController {
     private final DeviceService deviceService;
     private final TimeLogService timeLogService;
     private final ModelMapper modelMapper;
-
-    public TelemetryDataController(DeviceDescriptionService deviceDescriptionService,
-                                   DeviceService deviceService,
-                                   TimeLogService timeLogService,
-                                   ModelMapper modelMapper) {
-        this.deviceDescriptionService = deviceDescriptionService;
-        this.deviceService = deviceService;
-        this.timeLogService = timeLogService;
-        this.modelMapper = modelMapper;
-    }
 
     /**
      * Register a machine.
@@ -123,7 +114,7 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<RegisterMachineResponse>> registerMachine(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<RegisterMachineResponse> registerMachine(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                                              @Parameter(description = "The request the information to register a machine.", required = true) @Valid @RequestBody RegisterMachineRequest registerMachineRequest,
                                                                              @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
@@ -134,7 +125,7 @@ public class TelemetryDataController implements SecuredApiController {
         registerMachineParameters.setBase64EncodedDeviceDescription(registerMachineRequest.getBase64EncodedDeviceDescription());
         registerMachineParameters.setCustomTeamSetContextId(registerMachineRequest.getCustomTeamSetContextId());
         final var teamSetContextId = deviceDescriptionService.registerMachine(registerMachineParameters);
-        return () -> ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMachineResponse(teamSetContextId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMachineResponse(teamSetContextId));
     }
 
     /**
@@ -190,7 +181,7 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<Void>> publish(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+    public ResponseEntity<Void> publish(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                                   @Parameter(description = "The team set context ID.", required = true) @PathVariable String teamSetContextId,
                                                   @Parameter(description = "The request body containing all necessary information to publish a time log.", required = true) @Valid @RequestBody PublishTimeLogDataRequest publishTimeLogDataRequest,
                                                   @Parameter(hidden = true) Errors errors) {
@@ -205,7 +196,7 @@ public class TelemetryDataController implements SecuredApiController {
                     timeLogService.publish(publishTimeLogParameters);
                 }
         );
-        return () -> ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -260,7 +251,7 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<SearchMachineResponse>> searchMachines(@Parameter(description = "The request for searching for machines.", required = true) @Valid @RequestBody SearchMachinesRequest searchMachinesRequest,
+    public ResponseEntity<SearchMachineResponse> searchMachines(@Parameter(description = "The request for searching for machines.", required = true) @Valid @RequestBody SearchMachinesRequest searchMachinesRequest,
                                                                           @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -277,7 +268,7 @@ public class TelemetryDataController implements SecuredApiController {
             }
             return deviceDto;
         }).collect(Collectors.toList());
-        return () -> ResponseEntity.status(HttpStatus.OK).body(new SearchMachineResponse(deviceDtos));
+        return ResponseEntity.status(HttpStatus.OK).body(new SearchMachineResponse(deviceDtos));
     }
 
     /**
@@ -334,7 +325,7 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<TimeLogPeriodDtosForDeviceResponse>> searchTelemetryDataTimePeriods(@Parameter(description = "The request with all necessary information to search for the time log periods.", required = true) @Valid @RequestBody SearchTelemetryDataPeriodsRequest searchTelemetryDataPeriodsRequest,
+    public ResponseEntity<TimeLogPeriodDtosForDeviceResponse> searchTelemetryDataTimePeriods(@Parameter(description = "The request with all necessary information to search for the time log periods.", required = true) @Valid @RequestBody SearchTelemetryDataPeriodsRequest searchTelemetryDataPeriodsRequest,
                                                                                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -344,32 +335,32 @@ public class TelemetryDataController implements SecuredApiController {
         final var timeLogPeriodDtosForDevices = new ArrayList<TimeLogPeriodDtosForDevice>();
         timeLogPeriodsForDevices
                 .forEach(timeLogPeriodsForDevice -> mapTimeLogPeriodsForDevices(timeLogPeriodDtosForDevices, timeLogPeriodsForDevice));
-        return () -> ResponseEntity.status(HttpStatus.OK).body(new TimeLogPeriodDtosForDeviceResponse(timeLogPeriodsForDevices.size(), timeLogPeriodDtosForDevices));
+        return ResponseEntity.status(HttpStatus.OK).body(new TimeLogPeriodDtosForDeviceResponse(timeLogPeriodsForDevices.size(), timeLogPeriodDtosForDevices));
     }
 
     private void mapTimeLogPeriodsForDevices(ArrayList<TimeLogPeriodDtosForDevice> timeLogPeriodDtosForDevices, TimeLogPeriodsForDevice timeLogPeriodsForDevice) {
         final var timeLogPeriodDtosForDevice = new TimeLogPeriodDtosForDevice();
-        timeLogPeriodDtosForDevice.setDevice(modelMapper.map(timeLogPeriodsForDevice.getDevice(), DeviceDto.class));
+        timeLogPeriodDtosForDevice.setDevice(modelMapper.map(timeLogPeriodsForDevice.device(), DeviceDto.class));
         timeLogPeriodDtosForDevice.setTimeLogPeriodsForTeamSet(new ArrayList<>());
-        timeLogPeriodsForDevice.getTimeLogPeriodsForTeamSet().forEach(timeLogPeriodsForTeamSet -> mapTimeLogPeriodsForTeamSet(timeLogPeriodDtosForDevice, timeLogPeriodsForTeamSet));
+        timeLogPeriodsForDevice.timeLogPeriodsForTeamSet().forEach(timeLogPeriodsForTeamSet -> mapTimeLogPeriodsForTeamSet(timeLogPeriodDtosForDevice, timeLogPeriodsForTeamSet));
 
         timeLogPeriodDtosForDevices.add(timeLogPeriodDtosForDevice);
     }
 
     private void mapTimeLogPeriodsForTeamSet(TimeLogPeriodDtosForDevice timeLogPeriodDtosForDevice, TimeLogPeriodsForTeamSet timeLogPeriodsForTeamSet) {
         final var timeLogPeriodDtosForTeamSet = new TimeLogPeriodDtosForTeamSet();
-        timeLogPeriodDtosForTeamSet.setTeamSetContextId(timeLogPeriodsForTeamSet.getTeamSetContextId());
-        mapTimeLogPeriods(timeLogPeriodDtosForTeamSet, timeLogPeriodsForTeamSet.getTimeLogPeriods());
+        timeLogPeriodDtosForTeamSet.setTeamSetContextId(timeLogPeriodsForTeamSet.teamSetContextId());
+        mapTimeLogPeriods(timeLogPeriodDtosForTeamSet, timeLogPeriodsForTeamSet.timeLogPeriods());
         timeLogPeriodDtosForDevice.getTimeLogPeriodsForTeamSet().add(timeLogPeriodDtosForTeamSet);
     }
 
     private void mapTimeLogPeriods(TimeLogPeriodDtosForTeamSet timeLogPeriodDtosForTeamSet, TimeLogPeriods timeLogPeriods) {
         final var timeLogPeriodsDto = new TimeLogPeriodsDto();
         timeLogPeriodsDto.setTimeLogPeriods(new ArrayList<>());
-        timeLogPeriods.getTimeLogPeriods().forEach(timeLogPeriod -> {
+        timeLogPeriods.timeLogPeriods().forEach(timeLogPeriod -> {
             final var timeLogPeriodDto = modelMapper.map(timeLogPeriod, TimeLogPeriodDto.class);
-            timeLogPeriodDto.setHumanReadableBegin(Instant.ofEpochSecond(timeLogPeriod.getBegin()));
-            timeLogPeriodDto.setHumanReadableEnd(Instant.ofEpochSecond(timeLogPeriod.getEnd()));
+            timeLogPeriodDto.setHumanReadableBegin(Instant.ofEpochSecond(timeLogPeriod.begin()));
+            timeLogPeriodDto.setHumanReadableEnd(Instant.ofEpochSecond(timeLogPeriod.end()));
             timeLogPeriodsDto.getTimeLogPeriods().add(timeLogPeriodDto);
         });
         timeLogPeriodDtosForTeamSet.setTimeLogPeriods(timeLogPeriodsDto);
@@ -429,7 +420,7 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<TimeLogSearchResponse>> searchTelemetryDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
+    public ResponseEntity<TimeLogSearchResponse> searchTelemetryDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
                                                                                        @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -437,7 +428,7 @@ public class TelemetryDataController implements SecuredApiController {
         final var messagesForTimeLogPeriodParameters = modelMapper.map(searchTelemetryDataRequest, MessagesForTimeLogPeriodParameters.class);
         final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
         final var timeLogsWithRawData = messages.stream().map(timeLog -> modelMapper.map(timeLog, TimeLogWithRawDataDto.class)).collect(Collectors.toList());
-        return () -> ResponseEntity.status(HttpStatus.OK).body(new TimeLogSearchResponse(timeLogsWithRawData.size(), timeLogsWithRawData));
+        return ResponseEntity.status(HttpStatus.OK).body(new TimeLogSearchResponse(timeLogsWithRawData.size(), timeLogsWithRawData));
     }
 
     /**
@@ -494,7 +485,7 @@ public class TelemetryDataController implements SecuredApiController {
                     )
             }
     )
-    public Callable<ResponseEntity<RawTimeLogSearchResponse>> searchTelemetryRawDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
+    public ResponseEntity<RawTimeLogSearchResponse> searchTelemetryRawDataTimeLogs(@Parameter(description = "The request with all necessary information to search for the telemetry data (time logs).", required = true) @Valid @RequestBody SearchTelemetryDataRequest searchTelemetryDataRequest,
                                                                                              @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
@@ -502,6 +493,6 @@ public class TelemetryDataController implements SecuredApiController {
         final var messagesForTimeLogPeriodParameters = modelMapper.map(searchTelemetryDataRequest, MessagesForTimeLogPeriodParameters.class);
         final var messages = timeLogService.getMessagesForTimeLogPeriod(messagesForTimeLogPeriodParameters);
         final var rawTimeLogs = messages.stream().map(timeLog -> modelMapper.map(timeLog, RawTimeLogDataDto.class)).collect(Collectors.toList());
-        return () -> ResponseEntity.status(HttpStatus.OK).body(new RawTimeLogSearchResponse(rawTimeLogs.size(), rawTimeLogs));
+        return ResponseEntity.status(HttpStatus.OK).body(new RawTimeLogSearchResponse(rawTimeLogs.size(), rawTimeLogs));
     }
 }

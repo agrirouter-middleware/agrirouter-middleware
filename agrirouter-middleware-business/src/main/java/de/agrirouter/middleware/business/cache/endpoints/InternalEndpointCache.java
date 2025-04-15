@@ -13,7 +13,7 @@ import java.util.Optional;
 @Component
 public class InternalEndpointCache {
 
-    private Map<String, Endpoint> cache = new HashMap<>();
+    private final Map<String, Endpoint> cache = new HashMap<>();
 
 
     /**

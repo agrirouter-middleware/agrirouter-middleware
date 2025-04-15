@@ -1,8 +1,11 @@
 package de.agrirouter.middleware.api.errorhandling.error;
 
+import lombok.Getter;
+
 /**
  * Enumeration for all the error keys.
  */
+@Getter
 public enum ErrorKey {
 
     ERR_("ERR_"),
@@ -52,10 +55,6 @@ public enum ErrorKey {
 
     ErrorKey(String key) {
         this.key = key;
-    }
-
-    public String getKey() {
-        return key;
     }
 
     @Override

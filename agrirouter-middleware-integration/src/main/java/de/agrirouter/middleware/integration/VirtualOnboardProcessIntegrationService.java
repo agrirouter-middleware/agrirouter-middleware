@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.integration;
 
+import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.parameters.CloudOnboardingParameters;
 import com.dke.data.agrirouter.impl.messaging.mqtt.CloudOnboardingServiceImpl;
@@ -68,6 +69,11 @@ public class VirtualOnboardProcessIntegrationService {
         virtualEndpointOnboardStateContainer.push(messageId, endpointDetailsParameters.getEndpointId());
 
         log.debug("Saving message with ID '{}'  waiting for ACK.", messageId);
+        MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = createMessageForAcknowledgement(onboardingResponse, messageId, endpointDetailsParameters);
+        messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+    }
+
+    private static MessageWaitingForAcknowledgement createMessageForAcknowledgement(OnboardingResponse onboardingResponse, String messageId, CloudOnboardingParameters.EndpointDetailsParameters endpointDetailsParameters) {
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
         messageWaitingForAcknowledgement.setAgrirouterEndpointId(onboardingResponse.getSensorAlternateId());
         messageWaitingForAcknowledgement.setMessageId(messageId);
@@ -75,6 +81,6 @@ public class VirtualOnboardProcessIntegrationService {
         final var dynamicProperties = new HashMap<String, Object>();
         dynamicProperties.put(EXTERNAL_VIRTUAL_ENDPOINT_ID, endpointDetailsParameters.getEndpointId());
         messageWaitingForAcknowledgement.setDynamicProperties(dynamicProperties);
-        messageWaitingForAcknowledgementService.save(messageWaitingForAcknowledgement);
+        return messageWaitingForAcknowledgement;
     }
 }
