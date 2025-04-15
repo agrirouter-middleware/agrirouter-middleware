@@ -188,7 +188,6 @@ public class EndpointService {
      * @param externalEndpointId The external endpoint ID.
      */
     @Transactional
-    @SuppressWarnings("resource")
     public void delete(String externalEndpointId) {
         var endpoints = endpointRepository.findAllByExternalEndpointId(externalEndpointId);
         var sensorAlternateIds = new ArrayList<String>();
