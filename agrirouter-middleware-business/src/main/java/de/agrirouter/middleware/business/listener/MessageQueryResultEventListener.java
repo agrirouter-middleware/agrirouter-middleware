@@ -5,6 +5,7 @@ import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
+import com.dke.data.agrirouter.api.service.messaging.encoding.MessageDecoder;
 import com.dke.data.agrirouter.api.service.messaging.mqtt.MessageQueryService;
 import com.dke.data.agrirouter.api.service.parameters.DeleteMessageParameters;
 import com.dke.data.agrirouter.api.service.parameters.MessageConfirmationParameters;
@@ -222,8 +223,7 @@ public class MessageQueryResultEventListener {
     private void saveAndConfirmMessages(FetchMessageResponse fetchMessageResponse) {
         log.debug("Saving and confirming the messages from the query for the endpoint '{}'.", fetchMessageResponse.getSensorAlternateId());
         final var decodedMessageResponse = decodeMessageService.decode(fetchMessageResponse.getCommand().getMessage());
-        final var messageQueryResponse = new MessageQueryServiceImpl(null)
-                .decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails().getValue());
+        final var messageQueryResponse = ((MessageDecoder<FeedResponse.MessageQueryResponse>) FeedResponse.MessageQueryResponse::parseFrom).decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails().getValue());
         log.debug("There are {} messages for this query.", messageQueryResponse.getQueryMetrics().getTotalMessagesInQuery());
         log.debug("There are {} messages in this response.", messageQueryResponse.getMessagesCount());
         log.debug("This is page {} of {} for the query.", messageQueryResponse.getPage().getNumber(), messageQueryResponse.getPage().getTotal());
