@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.unsecured.maintenance;
 
+import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.TenantService;
 import de.agrirouter.middleware.controller.UnsecuredApiController;
@@ -21,7 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.stream.Collectors;
+
+import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PREFIX;
 
 /**
  * Controller to manage tenants.
@@ -29,7 +33,7 @@ import java.util.stream.Collectors;
 @RestController
 @Profile("maintenance")
 @RequiredArgsConstructor
-@RequestMapping(UnsecuredApiController.API_PREFIX + "/maintenance/tenant")
+@RequestMapping(API_PREFIX + Routes.MaintenanceEndpoints.ALL_REQUESTS + "/tenant")
 @Tag(
         name = "maintenance",
         description = "Maintenance operations for internal usage. Do NOT use this profile in production."
@@ -97,7 +101,7 @@ public class TenantMaintenanceController implements UnsecuredApiController {
             }
     )
     public ResponseEntity<TenantRegistrationResponse> register(@Parameter(description = "The request holding information to register a new tenant.", required = true) @Valid @RequestBody TenantRegistrationRequest tenantRegistrationRequest,
-                                                                         @Parameter(hidden = true) Errors errors) {
+                                                               @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
