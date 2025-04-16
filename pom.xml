@@ -108,7 +108,7 @@
             <dependency>
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
-                <version>3.5.1</version>
+                <version>3.5.3</version>
             </dependency>
 
             <!-- MYSQL -->
@@ -122,7 +122,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>6.2.1</version>
+                <version>6.3.0</version>
             </dependency>
 
             <!-- KOTLIN -->
@@ -134,7 +134,7 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
-                <version>2.1.0</version>
+                <version>2.1.20</version>
             </dependency>
 
             <!-- AGRIROUTER -->
@@ -226,7 +226,7 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>1.14.2</version>
+                <version>1.14.6</version>
             </dependency>
 
             <!-- BUCKET4J -->
@@ -311,7 +311,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
