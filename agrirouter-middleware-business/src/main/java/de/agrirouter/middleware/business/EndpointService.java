@@ -30,6 +30,7 @@ import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
 import de.agrirouter.middleware.persistence.jpa.ErrorRepository;
 import de.agrirouter.middleware.persistence.jpa.WarningRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -47,8 +48,10 @@ import java.util.concurrent.*;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class EndpointService {
 
+    public static final int ADDITIONAL_OFFSET_WHEN_WAITING = 20;
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
     private final ErrorRepository errorRepository;
@@ -77,40 +80,6 @@ public class EndpointService {
 
     @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
     private int fixedThreadPoolSize;
-
-    public EndpointService(EndpointRepository endpointRepository,
-                           DecodeMessageService decodeMessageService,
-                           ErrorRepository errorRepository,
-                           WarningRepository warningRepository,
-                           EndpointIntegrationService endpointIntegrationService,
-                           ApplicationRepository applicationRepository,
-                           MqttClientManagementService mqttClientManagementService,
-                           HealthStatusIntegrationService healthStatusIntegrationService,
-                           RevokeProcessIntegrationService revokeProcessIntegrationService,
-                           BusinessOperationLogService businessOperationLogService,
-                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                           BusinessEventsCache businessEventsCache,
-                           ListEndpointsIntegrationService listEndpointsIntegrationService,
-                           MessageRecipientCache messageRecipientCache,
-                           InternalEndpointCache internalEndpointCache,
-                           RemoveEndpointDataService removeEndpointDataService) {
-        this.endpointRepository = endpointRepository;
-        this.decodeMessageService = decodeMessageService;
-        this.errorRepository = errorRepository;
-        this.warningRepository = warningRepository;
-        this.endpointIntegrationService = endpointIntegrationService;
-        this.applicationRepository = applicationRepository;
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.healthStatusIntegrationService = healthStatusIntegrationService;
-        this.revokeProcessIntegrationService = revokeProcessIntegrationService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.businessEventsCache = businessEventsCache;
-        this.listEndpointsIntegrationService = listEndpointsIntegrationService;
-        this.messageRecipientCache = messageRecipientCache;
-        this.internalEndpointCache = internalEndpointCache;
-        this.removeEndpointDataService = removeEndpointDataService;
-    }
 
     /**
      * Updating error messages based on the decoded message.
@@ -524,7 +493,10 @@ public class EndpointService {
                 var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
                 while (timer > 0) {
                     try {
-                        Thread.sleep(pollingInterval);
+                        log.debug("Waiting for list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
+                        var timeToWaitForTheResponseOfTheAgrirouter = pollingInterval + new Random().nextInt(ADDITIONAL_OFFSET_WHEN_WAITING);
+                        log.debug("Time to wait for the response of the agrirouter: {}.", timeToWaitForTheResponseOfTheAgrirouter);
+                        Thread.sleep(timeToWaitForTheResponseOfTheAgrirouter);
                         var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
                         if (recipients.isPresent()) {
                             log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
@@ -584,6 +556,7 @@ public class EndpointService {
         endpoints.forEach(endpoint -> internalEndpointCache.put(endpoint.getExternalEndpointId(), endpoint));
         return endpoints;
     }
+
 
     public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
         Map<String, Integer> endpointStatus = new HashMap<>();
