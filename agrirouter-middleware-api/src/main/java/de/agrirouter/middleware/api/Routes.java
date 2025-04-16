@@ -33,10 +33,13 @@ public class Routes {
         }
     }
 
-
     public static final class MonitoringEndpoints {
         public static final String ACTUATOR = "/actuator";
         public static final String ALL_REQUESTS = "/monitoring/api";
+    }
+
+    public static final class MaintenanceEndpoints {
+        public static final String ALL_REQUESTS = "/maintenance";
     }
 
 }
