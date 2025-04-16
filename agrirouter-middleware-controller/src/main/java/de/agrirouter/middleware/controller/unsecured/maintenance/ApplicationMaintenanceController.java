@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.unsecured.maintenance;
 
+import de.agrirouter.middleware.api.Routes;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.controller.UnsecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
@@ -27,7 +28,7 @@ import static de.agrirouter.middleware.controller.UnsecuredApiController.API_PRE
 @RestController
 @RequiredArgsConstructor
 @Profile("maintenance")
-@RequestMapping(API_PREFIX + "/maintenance/application")
+@RequestMapping(API_PREFIX + Routes.MaintenanceEndpoints.ALL_REQUESTS + "/application")
 @Tag(
         name = "maintenance",
         description = "Maintenance operations for internal usage. Do NOT use this profile in production."
