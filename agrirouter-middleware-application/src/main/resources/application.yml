@@ -67,7 +67,7 @@ app:
           wait:
             time: 1500
           polling:
-            intervall: 50
+            intervall: 100
       options:
         clean-session: false
         keep-alive-interval: 30
