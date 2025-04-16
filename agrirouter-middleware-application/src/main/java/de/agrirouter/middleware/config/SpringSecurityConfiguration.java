@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -37,7 +36,8 @@ public class SpringSecurityConfiguration {
                                 .anyRequest().permitAll(
                                 )).httpBasic(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(c -> c.ignoringRequestMatchers(Routes.SecuredRestEndpoints.ALL_REQUESTS + WILDCARD)
+                        .ignoringRequestMatchers(Routes.MaintenanceEndpoints.ALL_REQUESTS + WILDCARD));
         return http.build();
     }
 
