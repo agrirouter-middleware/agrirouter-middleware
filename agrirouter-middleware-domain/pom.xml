@@ -48,6 +48,10 @@
             <groupId>de.saschadoemer.iso-11783</groupId>
             <artifactId>toolsuite</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
