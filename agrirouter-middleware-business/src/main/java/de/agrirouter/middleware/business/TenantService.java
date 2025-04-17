@@ -7,6 +7,7 @@ import de.agrirouter.middleware.business.dto.TenantRegistrationResult;
 import de.agrirouter.middleware.business.security.TenantPrincipal;
 import de.agrirouter.middleware.domain.Tenant;
 import de.agrirouter.middleware.persistence.jpa.TenantRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**

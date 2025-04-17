@@ -2,11 +2,10 @@ package de.agrirouter.middleware.domain;
 
 import com.dke.data.agrirouter.api.dto.onboard.RouterDevice;
 import com.dke.data.agrirouter.api.enums.CertificationType;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
 
 /**
  * Authentication details for a router device.

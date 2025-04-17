@@ -113,7 +113,8 @@ public class SecuredOnboardProcessService {
                                     application.getPublicKey());
                             final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
                             log.debug("Since this is an existing endpoint we need to modify the ID given by the AR.");
-                            try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                            try {
+                                var executorService = Executors.newFixedThreadPool(fixedThreadPoolSize);
                                 updateExistingEndpoint(executorService, onboardProcessParameters, endpoint, onboardingResponse, application);
                             } catch (Exception e) {
                                 log.error("Error while updating existing endpoint: {}", e.getMessage());
@@ -129,7 +130,8 @@ public class SecuredOnboardProcessService {
                             application.getPublicKey());
                     final var onboardingResponse = securedOnboardProcessIntegrationService.onboard(securedOnboardProcessIntegrationParameters);
                     log.debug("Create a new endpoint, since the endpoint does not exist in the database.");
-                    try (ExecutorService executorService = Executors.newFixedThreadPool(fixedThreadPoolSize)) {
+                    try {
+                        var executorService = Executors.newFixedThreadPool(fixedThreadPoolSize);
                         createNewEndpoint(executorService, onboardProcessParameters, onboardingResponse, securedOnboardProcessIntegrationParameters, application);
                     } catch (Exception e) {
                         log.error("Error while creating new endpoint: {}", e.getMessage());

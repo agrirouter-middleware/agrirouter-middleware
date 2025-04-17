@@ -5,7 +5,7 @@
     <parent>
         <artifactId>agrirouter-middleware</artifactId>
         <groupId>de.agrirouter.middleware</groupId>
-        <version>10.0.0</version>
+        <version>10.1.0-RC</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -47,6 +47,10 @@
         <dependency>
             <groupId>de.saschadoemer.iso-11783</groupId>
             <artifactId>toolsuite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,9 +1,9 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 

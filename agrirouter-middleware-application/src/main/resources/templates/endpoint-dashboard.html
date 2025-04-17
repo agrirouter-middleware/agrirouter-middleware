@@ -104,7 +104,8 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${endpoint.connectedVirtualEndpoints.size > 0}">
+    <div class="mdl-grid"
+         th:if="${null != endpoint.connectedVirtualEndpoints && !endpoint.connectedVirtualEndpoints.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -136,7 +137,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" style="width: 100%" th:if="${errors.size > 0}">
+    <div class="mdl-grid" style="width: 100%" th:if="${!errors.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -178,7 +179,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${connectionErrors.size > 0}">
+    <div class="mdl-grid" th:if="${!connectionErrors.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -214,7 +215,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${cloudOnboardingFailures.size > 0}">
+    <div class="mdl-grid" th:if="${!cloudOnboardingFailures.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -248,7 +249,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${messagesWaitingForAcknowledgement.size > 0}">
+    <div class="mdl-grid" th:if="${!messagesWaitingForAcknowledgement.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -290,7 +291,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${warnings.size > 0}">
+    <div class="mdl-grid" th:if="${!warnings.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">
@@ -332,7 +333,7 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" th:if="${pendingDeliveryTokens.size > 0}">
+    <div class="mdl-grid" th:if="${!pendingDeliveryTokens.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
                 <div class="mdl-card__title">

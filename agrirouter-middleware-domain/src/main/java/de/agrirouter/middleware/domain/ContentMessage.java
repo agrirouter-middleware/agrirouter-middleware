@@ -1,10 +1,9 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
 
 /**
  * This is a content message that was fetched from the outbox of the endpoint.

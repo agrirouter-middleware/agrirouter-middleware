@@ -2,11 +2,11 @@ package de.agrirouter.middleware.controller.filter;
 
 import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.UnsecuredApiController;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import java.io.IOException;
 import java.time.Instant;
 

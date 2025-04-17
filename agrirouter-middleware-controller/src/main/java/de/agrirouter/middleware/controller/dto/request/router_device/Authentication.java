@@ -2,12 +2,12 @@ package de.agrirouter.middleware.controller.dto.request.router_device;
 
 import com.dke.data.agrirouter.api.enums.CertificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 /**
  * Authentication details for a router device.
@@ -37,6 +37,7 @@ public class Authentication {
     /**
      * The certificate.
      */
+    @Lob
     @NotNull
     @NotEmpty
     @Schema(description = "The certificate.")

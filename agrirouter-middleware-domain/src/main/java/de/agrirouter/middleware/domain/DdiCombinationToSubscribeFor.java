@@ -1,10 +1,9 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.Entity;
 
 /**
  * A combination of DDIs to subscribe for.

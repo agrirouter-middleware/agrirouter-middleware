@@ -10,6 +10,7 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.RouterDevice;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Slf4j

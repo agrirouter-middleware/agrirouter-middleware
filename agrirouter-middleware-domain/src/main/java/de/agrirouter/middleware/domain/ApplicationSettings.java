@@ -1,10 +1,10 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.Set;
 
 /**

@@ -1,12 +1,11 @@
 package de.agrirouter.middleware.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
 
 /**
  * This is a unprocessed outbox message that was fetched from the outbox of the endpoint.

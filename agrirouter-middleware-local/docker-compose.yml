@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   mysql:
-    image: mariadb:10.7
+    image: mariadb:10.6
     environment:
       - MYSQL_ROOT_PASSWORD=changeit
       - MYSQL_DATABASE=agriroutermiddleware
@@ -62,5 +62,7 @@ networks:
   frontend:
 
 volumes:
-  mongo_data: { }
-  mysql_data: { }
+  mongo_data:
+    name: agrirouter-middleware-local_mongo_data
+  mysql_data:
+    name: agrirouter-middleware-local_mysql_data
