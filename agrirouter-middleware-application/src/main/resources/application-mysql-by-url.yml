@@ -1,3 +1,0 @@
-spring:
-  datasource:
-    url: ${MYSQL_URL}
