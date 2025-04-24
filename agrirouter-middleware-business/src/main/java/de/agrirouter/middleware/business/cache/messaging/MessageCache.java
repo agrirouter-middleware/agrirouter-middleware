@@ -92,7 +92,7 @@ public class MessageCache {
             try {
                 return SystemMessageType.valueOf(technicalMessageType);
             } catch (IllegalArgumentException e1) {
-                throw new IllegalArgumentException("Could not convert technical message type " + technicalMessageType + " to a string.");
+                throw new IllegalArgumentException("Could not convert technical message type '" + technicalMessageType + "' to TechnicalMessageType.");
             }
         }
     }
