@@ -57,6 +57,6 @@ public class MessageCacheEntry extends NoSqlBaseEntity {
     /**
      * The date of expiration, two weeks in the future.
      */
-    @Indexed(name = "ttl_index", expireAfterSeconds = 60 * 60 * 24 * 14)
+    @Indexed(name = "ttl_index", expireAfter = "14D")
     private Instant expiredOn;
 }
