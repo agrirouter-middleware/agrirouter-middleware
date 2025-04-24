@@ -1,7 +1,5 @@
 package de.agrirouter.middleware.domain.documents;
 
-import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
-import com.google.protobuf.ByteString;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +27,7 @@ public class MessageCacheEntry extends NoSqlBaseEntity {
     /**
      * The type of the message.
      */
-    private TechnicalMessageType technicalMessageType;
+    private String technicalMessageType;
 
     /**
      * The recipients.
@@ -44,7 +42,7 @@ public class MessageCacheEntry extends NoSqlBaseEntity {
     /**
      * The message.
      */
-    private ByteString message;
+    private String message;
 
     /**
      * The team set context ID.
