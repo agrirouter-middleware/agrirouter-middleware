@@ -1,5 +1,7 @@
 package de.agrirouter.middleware.integration.mqtt.health;
 
+import org.springframework.http.HttpStatus;
+
 import java.time.Instant;
 
 /**
@@ -8,6 +10,6 @@ import java.time.Instant;
  * @param healthStatus           The status for a single endpoint.
  * @param lastKnownHealthyStatus The last known healthy status for the endpoint.
  */
-public record HealthStatusWithLastKnownHealthyStatus(HealthStatus healthStatus, Instant lastKnownHealthyStatus) {
+public record HealthStatusWithLastKnownHealthyStatus(HttpStatus healthStatus, Instant lastKnownHealthyStatus) {
 
 }
