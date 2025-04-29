@@ -16,7 +16,6 @@ import de.agrirouter.middleware.business.events.CloudOffboardingEvent;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,6 @@ public class MessageAcknowledgementEventListener {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
-    private final HealthStatusIntegrationService healthStatusIntegrationService;
 
     /**
      * Handling the message acknowledgement event.
