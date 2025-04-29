@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.integration.mqtt.health;
 
+import agrirouter.response.Response;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,22 +11,32 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class HealthStatusMessageWaitingForAck {
+public class HealthStatusMessage {
 
     /**
-     * The ID of the external endpoint.
+     * The timestamp of the message.
+     */
+    private long timestamp;
+
+    /**
+     * The ID of the endpoint.
      */
     private String agrirouterEndpointId;
 
     /**
-     *
+     * The ID of the message.
      */
     private String messageId;
 
     /**
      * Flag to indicate if the message has been returned from the MQTT broker.
      */
-    private HealthStatus healthStatus;
+    private boolean hasBeenReturned;
+
+    /**
+     * Flag to indicate if the message has been returned from the MQTT broker.
+     */
+    private Response.ResponseEnvelope.ResponseBodyType healthStatus;
 
 
 }
