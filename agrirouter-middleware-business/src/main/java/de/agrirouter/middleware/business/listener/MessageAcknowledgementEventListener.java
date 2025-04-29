@@ -63,9 +63,6 @@ public class MessageAcknowledgementEventListener {
                     if (SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new CloudOffboardingEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsStringList(DynamicMessageProperties.EXTERNAL_VIRTUAL_ENDPOINT_IDS)));
                     }
-                    if (SystemMessageType.DKE_PING.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
-                        healthStatusIntegrationService.markHealthMessageAsReceived(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
-                    }
                 }
                 case ACK_WITH_MESSAGES -> {
                     handleSuccessMessageAndUpdateWarnings(decodedMessageResponse, messageWaitingForAcknowledgement);
@@ -74,9 +71,6 @@ public class MessageAcknowledgementEventListener {
                     }
                     if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
-                    }
-                    if (SystemMessageType.DKE_PING.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
-                        healthStatusIntegrationService.markHealthMessageAsLost(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
                     }
                 }
                 case ACK_WITH_FAILURE -> {
