@@ -45,9 +45,7 @@ public class HealthStatusIntegrationService {
                         log.error("Could not publish the health check message. MQTT client is not connected.");
                         throw new BusinessException(ErrorMessageFactory.couldNotPublishHealthMessageSinceClientIsNotConnected());
                     }
-                }, () -> {
-                    log.warn("Could not find or create a MQTT client for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId());
-                }
+                }, () -> log.warn("Could not find or create a MQTT client for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId())
         );
         healthStatusMessages.put(HealthStatusMessage.builder().
                 agrirouterEndpointId(endpoint.getAgrirouterEndpointId())
