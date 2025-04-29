@@ -82,7 +82,6 @@ app:
     message-cache:
       batch-size: 50
       batch-sleep-time-seconds: 5
-      data-directory: ${MESSAGE_CACHE_DATA_DIRECTORY}
     transient-machine-registration-cache:
       time-to-live-in-seconds: 300
   subscriptions:

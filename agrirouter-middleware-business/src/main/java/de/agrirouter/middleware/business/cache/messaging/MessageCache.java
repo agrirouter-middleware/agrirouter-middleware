@@ -1,5 +1,9 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
+import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.SystemMessageType;
+import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
+import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.domain.documents.MessageCacheEntry;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
@@ -8,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ThreadUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -61,10 +66,10 @@ public class MessageCache {
                 trace(messageCacheEntry);
                 messageCacheEntryRepository.delete(messageCacheEntry);
                 applicationEventPublisher.publishEvent(new ResendMessageCacheEntryEvent(this, new MessagingIntegrationParameters(messageCacheEntry.getExternalEndpointId(),
-                        messageCacheEntry.getTechnicalMessageType(),
+                        fromStringToTechnicalMessageType(messageCacheEntry.getTechnicalMessageType()),
                         messageCacheEntry.getRecipients(),
                         messageCacheEntry.getFilename(),
-                        messageCacheEntry.getMessage(),
+                        ByteString.copyFromUtf8(messageCacheEntry.getMessage()),
                         messageCacheEntry.getTeamSetContextId())));
             }
             if (page.hasNext()) {
@@ -76,6 +81,18 @@ public class MessageCache {
                 } catch (InterruptedException e) {
                     log.error("There was an error while waiting for the next batch of messages to be sent.", e);
                 }
+            }
+        }
+    }
+
+    private TechnicalMessageType fromStringToTechnicalMessageType(@NotNull String technicalMessageType) {
+        try {
+            return ContentMessageType.valueOf(technicalMessageType);
+        } catch (IllegalArgumentException e) {
+            try {
+                return SystemMessageType.valueOf(technicalMessageType);
+            } catch (IllegalArgumentException e1) {
+                throw new IllegalArgumentException("Could not convert technical message type '" + technicalMessageType + "' to TechnicalMessageType.");
             }
         }
     }
@@ -101,15 +118,33 @@ public class MessageCache {
         log.trace("External endpoint ID: {}", externalEndpointId);
         var messageCacheEntry = new MessageCacheEntry(
                 externalEndpointId,
-                messagingIntegrationParameters.technicalMessageType(),
+                fromTechnicalMessageTypeToString(messagingIntegrationParameters.technicalMessageType()),
                 messagingIntegrationParameters.recipients(),
                 messagingIntegrationParameters.filename(),
-                messagingIntegrationParameters.message(),
+                messagingIntegrationParameters.message().toStringUtf8(),
                 messagingIntegrationParameters.teamSetContextId(),
                 Instant.now(),
                 Instant.now().plus(Duration.ofDays(14))
         );
         messageCacheEntryRepository.save(messageCacheEntry);
+    }
+
+    /**
+     * Convert a string to a technical message type.
+     *
+     * @param technicalMessageType The technical message type.
+     * @return The string representation of the technical message type.
+     */
+    private String fromTechnicalMessageTypeToString(@NotNull TechnicalMessageType technicalMessageType) {
+        if (technicalMessageType instanceof ContentMessageType) {
+            return ((ContentMessageType) technicalMessageType).name();
+        } else {
+            if (technicalMessageType instanceof SystemMessageType) {
+                return ((SystemMessageType) technicalMessageType).name();
+            } else {
+                throw new IllegalArgumentException("Could not convert technical message type " + technicalMessageType + " to a string.");
+            }
+        }
     }
 
 }
