@@ -1,16 +1,10 @@
 spring:
   datasource:
-    url: jdbc:mariadb://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_SCHEMA}?useUnicode=true&characterEncoding=UTF-8${MYSQL_ADDITIONAL_OPTIONS}
-    username: ${MYSQL_USER}
-    password: ${MYSQL_PASSWORD}
+    url: ${MYSQL_URL}
 
   data:
     mongodb:
-      host: ${MONGODB_HOST}
-      port: ${MONGODB_PORT}
-      database: ${MONGODB_SCHEMA}
-      username: ${MONGODB_USER}
-      password: ${MONGODB_PASSWORD}
+      uri: ${MONGODB_URI}
 
   jpa:
     database: default

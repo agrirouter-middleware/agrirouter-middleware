@@ -1,15 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-      <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev, mysql-by-url, mongodb-by-uri"/>
+      <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev"/>
     <envs>
-      <env name="MESSAGE_CACHE_DATA_DIRECTORY" value="C:\Users\SDO\.message-cache" />
-      <env name="MONGODB_SCHEMA" value="agriroutermiddleware" />
       <env name="MONGODB_URI" value="mongodb://mongouser:changeit@localhost:27017/agriroutermiddleware" />
-      <env name="MYSQL_PASSWORD" value="changeit" />
-      <env name="MYSQL_SCHEMA" value="agriroutermiddleware" />
-      <env name="MYSQL_URL" value="jdbc:mariadb://localhost:3306/agriroutermiddleware?useUnicode=true&amp;characterEncoding=UTF-8" />
-      <env name="MYSQL_USER" value="mysqluser" />
-      <env name="AGRIROUTER_STATUS_SKIP_CHECK" value="false" />
+        <env name="MYSQL_URL"
+             value="jdbc:mariadb://localhost:3306/agriroutermiddleware?useUnicode=true&amp;characterEncoding=UTF-8&amp;user=mysqluser&amp;password=changeit"/>
     </envs>
     <module name="agrirouter-middleware-application" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="de.agrirouter.middleware.Main" />
