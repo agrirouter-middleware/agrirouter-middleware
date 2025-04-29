@@ -191,6 +191,7 @@ public class EndpointController implements SecuredApiController {
         }
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     private static CloudOnboardingFailureDto createOnboardFailure(Optional<CloudOnboardingFailureCache.FailureEntry> optionalFailureEntry) {
         CloudOnboardingFailureCache.FailureEntry failureEntry = optionalFailureEntry.get();
         final var cloudOnboardFailure = new CloudOnboardingFailureDto();
