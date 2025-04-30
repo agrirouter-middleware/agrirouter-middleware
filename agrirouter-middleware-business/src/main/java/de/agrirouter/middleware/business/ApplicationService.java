@@ -4,7 +4,6 @@ import com.dke.data.agrirouter.impl.common.signing.SecurityKeyCreationService;
 import de.agrirouter.middleware.api.IdFactory;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
-import de.agrirouter.middleware.api.events.ResendCapabilitiesForApplicationEvent;
 import de.agrirouter.middleware.api.events.RouterDeviceAddedEvent;
 import de.agrirouter.middleware.api.logging.ApplicationLogInformation;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
@@ -13,6 +12,7 @@ import de.agrirouter.middleware.domain.*;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import de.agrirouter.middleware.persistence.jpa.RouterDeviceRepository;
 import de.agrirouter.middleware.persistence.jpa.TenantRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
@@ -22,13 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Encapsulate all asynchronous business actions for applications.
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
@@ -37,20 +37,6 @@ public class ApplicationService {
     private final BusinessOperationLogService businessOperationLogService;
     private final EndpointService endpointService;
     private final RouterDeviceRepository routerDeviceRepository;
-
-    public ApplicationService(ApplicationRepository applicationRepository,
-                              TenantRepository tenantRepository,
-                              ApplicationEventPublisher applicationEventPublisher,
-                              BusinessOperationLogService businessOperationLogService,
-                              EndpointService endpointService,
-                              RouterDeviceRepository routerDeviceRepository) {
-        this.applicationRepository = applicationRepository;
-        this.tenantRepository = tenantRepository;
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.businessOperationLogService = businessOperationLogService;
-        this.endpointService = endpointService;
-        this.routerDeviceRepository = routerDeviceRepository;
-    }
 
     /**
      * Saving an application.
@@ -106,26 +92,6 @@ public class ApplicationService {
         checkCertificatesForApplication(application);
         applicationRepository.save(application);
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application updated.");
-    }
-
-    /**
-     * Set the supported technical message types for the application. This will cause setting the capabilities for each and every endpoint if there are already some.
-     *
-     * @param principal                      Authentication token.
-     * @param internalApplicationId          -
-     * @param supportedTechnicalMessageTypes -
-     */
-    public void defineSupportedTechnicalMessageTypes(Principal principal, String internalApplicationId, Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes) {
-        Optional<Application> optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(internalApplicationId, principal.getName());
-        if (optionalApplication.isPresent()) {
-            final var application = optionalApplication.get();
-            application.setSupportedTechnicalMessageTypes(supportedTechnicalMessageTypes);
-            final var savedApplication = applicationRepository.save(application);
-            applicationEventPublisher.publishEvent(new ResendCapabilitiesForApplicationEvent(this, savedApplication.getInternalApplicationId()));
-            businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Supported technical message types defined.");
-        } else {
-            throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
-        }
     }
 
     /**
