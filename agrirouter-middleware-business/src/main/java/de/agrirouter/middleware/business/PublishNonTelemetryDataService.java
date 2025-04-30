@@ -10,6 +10,7 @@ import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
@@ -26,22 +27,13 @@ import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.N
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PublishNonTelemetryDataService {
 
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
     private final EndpointService endpointService;
     private final MessageCache messageCache;
-
-    public PublishNonTelemetryDataService(SendMessageIntegrationService sendMessageIntegrationService,
-                                          BusinessOperationLogService businessOperationLogService,
-                                          EndpointService endpointService,
-                                          MessageCache messageCache) {
-        this.sendMessageIntegrationService = sendMessageIntegrationService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.endpointService = endpointService;
-        this.messageCache = messageCache;
-    }
 
     /**
      * Publish message content.
