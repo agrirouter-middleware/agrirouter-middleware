@@ -230,7 +230,7 @@ public class ApplicationService {
                 application.setApplicationSettings(new ApplicationSettings());
             }
             application.getApplicationSettings().setRouterDevice(routerDevice);
-            final var savedApplication = applicationRepository.save(application);
+            applicationRepository.save(application);
             businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Added router device to the application.");
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
