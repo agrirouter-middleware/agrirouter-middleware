@@ -91,7 +91,7 @@ public class DeviceDescriptionService {
         deviceDescription.setExternalEndpointId(endpoint.getExternalEndpointId());
         deviceDescription.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
         deviceDescription.setDeactivated(false);
-        deviceDescription.setDocument(optionalDocument.get());
+        optionalDocument.ifPresent(deviceDescription::setDocument);
         return deviceDescription;
     }
 
@@ -129,7 +129,7 @@ public class DeviceDescriptionService {
         deviceDescription.setAgrirouterEndpointId(createDeviceDescriptionParameters.getEndpoint().getAgrirouterEndpointId());
         deviceDescription.setExternalEndpointId(createDeviceDescriptionParameters.getEndpoint().getExternalEndpointId());
         deviceDescription.setTeamSetContextId(createDeviceDescriptionParameters.getTeamSetContextId());
-        deviceDescription.setDocument(optionalDocument.get());
+        optionalDocument.ifPresent(deviceDescription::setDocument);
         deviceDescription.setDeactivated(true);
         deviceDescription.setBase64EncodedDeviceDescription(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription());
         return deviceDescription;

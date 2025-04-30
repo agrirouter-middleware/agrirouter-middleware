@@ -3,6 +3,7 @@ package de.agrirouter.middleware.business;
 import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
@@ -114,12 +115,7 @@ public class TimeLogService {
         timeLog.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         timeLog.setExternalEndpointId(endpoint.getExternalEndpointId());
         timeLog.setTeamSetContextId(contentMessage.getContentMessageMetadata().getTeamSetContextId());
-        if (optionalDocument.isPresent()) {
-            timeLog.setDocument(optionalDocument.get());
-        } else {
-            log.error("Could not parse the time log. Creating a document without the original time log.");
-            timeLog.setDocument(new Document());
-        }
+        optionalDocument.ifPresent(timeLog::setDocument);
         return timeLog;
     }
 
@@ -132,6 +128,27 @@ public class TimeLogService {
     public Optional<Document> convert(byte[] timeLog) {
         try {
             return convert(GrpcEfdi.TimeLog.parseFrom(ByteString.copyFrom(timeLog)));
+        } catch (InvalidProtocolBufferException e) {
+            log.error("Could not parse time log. Creating document without the original time log.", e);
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Convert the given device description into a JSON document.
+     *
+     * @param timeLog -
+     * @return A document to save in the database.
+     */
+    public Optional<Document> convert(GrpcEfdi.TimeLog timeLog) {
+        try {
+            String json = JsonFormat.printer().print(timeLog);
+            log.debug("The original protobuf has been transformed to JSON.");
+            log.trace("{}", json);
+            Document document = Document.parse(json);
+            log.debug("Converting the JSON to a BSON document.");
+            log.trace("{}", document);
+            return Optional.ofNullable(document);
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse time log. Creating document without the original time log.", e);
             return Optional.empty();
