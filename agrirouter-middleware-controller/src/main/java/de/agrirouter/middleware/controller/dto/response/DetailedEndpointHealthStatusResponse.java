@@ -20,7 +20,7 @@ public class DetailedEndpointHealthStatusResponse extends Response {
     /**
      * The status for a single endpoint.
      * Could be either an HTTP 200 if the endpoint is connected,
-     * an HTTP 503 if the endpoint has some problems or an HTTP 404 otherwise.
+     * an HTTP 400 if the endpoint has some problems or an HTTP 404 otherwise.
      */
     @Schema(description = "The status for a single endpoint, could be either a HTTP 200, if the endpoint is connected, a HTTP 503 if the endpoints has some problems or a HTTP 404 otherwise.")
     HttpStatus healthStatus;
