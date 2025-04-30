@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Container for the health status messages.
@@ -13,15 +14,15 @@ import java.util.Map;
 @Component
 public class HealthStatusMessages {
 
-    private final Map<String, HealthStatusMessageWaitingForAck> healthStatusMessages = new HashMap<>();
+    private final Map<String, HealthStatusMessage> healthStatusMessages = new HashMap<>();
 
     /**
      * Place the health status message for the given endpoint ID within the container.
      *
-     * @param healthStatusMessageWaitingForAck The health status message.
+     * @param healthStatusMessage The health status message.
      */
-    public void put(HealthStatusMessageWaitingForAck healthStatusMessageWaitingForAck) {
-        healthStatusMessages.put(healthStatusMessageWaitingForAck.getAgrirouterEndpointId(), healthStatusMessageWaitingForAck);
+    public void put(HealthStatusMessage healthStatusMessage) {
+        healthStatusMessages.put(healthStatusMessage.getAgrirouterEndpointId(), healthStatusMessage);
     }
 
     /**
@@ -30,10 +31,7 @@ public class HealthStatusMessages {
      * @param agrirouterEndpointId The endpoint ID.
      */
     public void remove(String agrirouterEndpointId) {
-        var healthStatusMessage = healthStatusMessages.remove(agrirouterEndpointId);
-        if (healthStatusMessage == null) {
-            log.warn("No health status message found for endpoint ID {}.", agrirouterEndpointId);
-        }
+        healthStatusMessages.remove(agrirouterEndpointId);
     }
 
     /**
@@ -42,11 +40,14 @@ public class HealthStatusMessages {
      * @param agrirouterEndpointId The endpoint ID.
      * @return The health status message.
      */
-    public HealthStatusMessageWaitingForAck get(String agrirouterEndpointId) {
-        var healthStatusMessage = healthStatusMessages.get(agrirouterEndpointId);
-        if (healthStatusMessage == null) {
-            log.warn("No health status message found for endpoint ID {}.", agrirouterEndpointId);
-        }
-        return healthStatusMessage;
+    public Optional<HealthStatusMessage> get(String agrirouterEndpointId) {
+        return Optional.ofNullable(healthStatusMessages.get(agrirouterEndpointId));
     }
+
+    public Optional<HealthStatusMessage> getByMessageId(String messageId) {
+        return healthStatusMessages.values().stream()
+                .filter(healthStatusMessage -> healthStatusMessage.getMessageId().equals(messageId))
+                .findFirst();
+    }
+
 }

@@ -2,15 +2,18 @@ package de.agrirouter.middleware.integration.mqtt;
 
 import agrirouter.request.payload.endpoint.Capabilities;
 import agrirouter.response.payload.account.Endpoints;
+import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.*;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
  * Callback for all MQTT connections to the agrirouter.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class MessageHandlingCallback implements MqttCallbackExtended {
 
     private static final Gson GSON = new Gson();
@@ -35,20 +39,11 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private final DecodeMessageService decodeMessageService;
     private final MqttStatistics mqttStatistics;
     private final ListEndpointsMessages listEndpointsMessages;
+    private final HealthStatusMessages healthStatusMessages;
 
     @Setter
     @Getter
     private String clientIdOfTheRouterDevice;
-
-    public MessageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
-                                   DecodeMessageService decodeMessageService,
-                                   MqttStatistics mqttStatistics,
-                                   ListEndpointsMessages listEndpointsMessages) {
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.decodeMessageService = decodeMessageService;
-        this.mqttStatistics = mqttStatistics;
-        this.listEndpointsMessages = listEndpointsMessages;
-    }
 
     @Override
     public void connectionLost(Throwable throwable) {
@@ -78,6 +73,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
             case ACK, ACK_WITH_MESSAGES, ACK_WITH_FAILURE -> {
                 log.trace("This was a message acknowledgement.");
                 mqttStatistics.increaseNumberOfAcknowledgements();
+                handleHealthStatusMessage(decodedMessageResponse);
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
             }
             case PUSH_NOTIFICATION -> {
@@ -110,6 +106,15 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
                 applicationEventPublisher.publishEvent(new MessageAcknowledgementEvent(this, decodedMessageResponse));
             }
         }
+    }
+
+    private void handleHealthStatusMessage(DecodeMessageResponse decodedMessageResponse) {
+        healthStatusMessages.getByMessageId(decodedMessageResponse.getResponseEnvelope().getApplicationMessageId()).ifPresent(healthStatusMessage -> {
+            log.debug("Received health status message for endpoint ID {}.", decodedMessageResponse.getResponseEnvelope().getApplicationMessageId());
+            healthStatusMessage.setHealthStatus(decodedMessageResponse.getResponseEnvelope().getType());
+            healthStatusMessage.setHasBeenReturned(true);
+            healthStatusMessages.put(healthStatusMessage);
+        });
     }
 
     private void handleListEndpointsMessage(FetchMessageResponse fetchMessageResponse) {

@@ -20,8 +20,8 @@ import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.ConnectionState;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessage;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusWithLastKnownHealthyStatus;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
@@ -71,9 +71,6 @@ public class EndpointService {
 
     @Value("${app.agrirouter.mqtt.synchronous.response.wait.time}")
     private int nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
-
-    @Value("${app.agrirouter.mqtt.synchronous.health.response.wait.time}")
-    private int nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
 
     @Value("${app.agrirouter.mqtt.synchronous.response.polling.intervall}")
     private int pollingInterval;
@@ -448,22 +445,35 @@ public class EndpointService {
      */
     public HealthStatusWithLastKnownHealthyStatus determineHealthStatus(String externalEndpointId) {
         final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
+        var healthStatus = HttpStatus.NOT_FOUND;
         if (optionalEndpoint.isPresent()) {
             var endpoint = optionalEndpoint.get();
+            healthStatusIntegrationService.removeAllPendingHealthStatusMessagesForEndpoint(endpoint.getAgrirouterEndpointId());
             healthStatusIntegrationService.publishHealthStatusMessage(endpoint);
-            var healthStatus = HealthStatus.PENDING;
-            var timer = nrOfMillisecondsToWaitForTheHealthResponseOfTheAgrirouter;
-            while (timer > 0) {
-                try {
-                    Thread.sleep(pollingInterval);
-                    healthStatus = healthStatusIntegrationService.determineHealthStatus(endpoint.getAgrirouterEndpointId());
-                    if (!HealthStatus.PENDING.equals(healthStatus) && !HealthStatus.UNKNOWN.equals(healthStatus)) {
-                        break;
+            if (healthStatusIntegrationService.hasPendingResponse(endpoint.getAgrirouterEndpointId())) {
+                var timer = nrOfMillisecondsToWaitForTheResponseOfTheAgrirouter;
+                while (timer > 0) {
+                    try {
+                        var agrirouterEndpointId = endpoint.getAgrirouterEndpointId();
+                        var timeToWait = pollingInterval + new Random().nextInt(ADDITIONAL_OFFSET_WHEN_WAITING);
+                        Thread.sleep(timeToWait);
+                        var optionalHealthStatusMessage = healthStatusIntegrationService.getHealthStatusMessage(agrirouterEndpointId);
+                        if (optionalHealthStatusMessage.isPresent()) {
+                            log.debug("Found health status message for endpoint {}.", agrirouterEndpointId);
+                            log.debug("Health status: {}.", healthStatus);
+                            healthStatusIntegrationService.markHealthMessageAsReceived(agrirouterEndpointId);
+                            healthStatus = mapAgrirouterResponseToHealthStatus(optionalHealthStatusMessage.get());
+                            healthStatusIntegrationService.setLastKnownHealthyStatus(agrirouterEndpointId);
+                            break;
+                        }
+                    } catch (InterruptedException e) {
+                        log.error("Error while waiting for list endpoints / message recipients response.", e);
                     }
-                } catch (InterruptedException e) {
-                    log.error("Error while waiting for health status response.", e);
+                    timer = timer - pollingInterval;
+                    log.info("Time to wait for the response of the agrirouter: {}.", timer);
                 }
-                timer = timer - pollingInterval;
+            } else {
+                log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
             }
             var lastKnownHealthyStatus = healthStatusIntegrationService.getLastKnownHealthyStatus(endpoint.getAgrirouterEndpointId());
             if (lastKnownHealthyStatus.isPresent()) {
@@ -475,8 +485,17 @@ public class EndpointService {
             }
         } else {
             log.warn("Tried to determine the health status for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
-            return new HealthStatusWithLastKnownHealthyStatus(HealthStatus.UNKNOWN, null);
+            return new HealthStatusWithLastKnownHealthyStatus(HttpStatus.NOT_FOUND, null);
         }
+    }
+
+    private HttpStatus mapAgrirouterResponseToHealthStatus(HealthStatusMessage healthStatusMessage) {
+        return switch (healthStatusMessage.getHealthStatus()) {
+            case ACK -> HttpStatus.OK;
+            case ACK_WITH_FAILURE -> HttpStatus.NOT_FOUND;
+            default ->
+                    throw new IllegalArgumentException("Unknown health status: " + healthStatusMessage.getHealthStatus());
+        };
     }
 
     /**
@@ -500,7 +519,7 @@ public class EndpointService {
                         var recipients = listEndpointsIntegrationService.getRecipients(endpoint.getAgrirouterEndpointId());
                         if (recipients.isPresent()) {
                             log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
-                            Collection<MessageRecipient> messageRecipients = recipients.get();
+                            var messageRecipients = recipients.get();
                             log.debug("Recipients: {}.", messageRecipients);
                             messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
                             return messageRecipients;
@@ -559,7 +578,7 @@ public class EndpointService {
 
 
     public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
-        Map<String, Integer> endpointStatus = new HashMap<>();
+        var endpointStatus = new HashMap<String, Integer>();
         try {
             var executorService = Executors.newFixedThreadPool(fixedThreadPoolSize);
             var callables = new ArrayList<Callable<TaskResult>>();
@@ -569,7 +588,7 @@ public class EndpointService {
             futures.forEach(future -> {
                 try {
                     var taskResult = future.get();
-                    endpointStatus.put(taskResult.externalEndpointId, taskResult.status);
+                    endpointStatus.put(taskResult.externalEndpointId, taskResult.status.value());
                 } catch (InterruptedException | ExecutionException e) {
                     log.error("Error while waiting for the health check tasks to finish.", e);
                 }
@@ -599,7 +618,7 @@ public class EndpointService {
      * @param externalEndpointId The external endpoint id.
      * @param status             The status of the endpoint.
      */
-    private record TaskResult(String externalEndpointId, Integer status) {
+    private record TaskResult(String externalEndpointId, HttpStatus status) {
     }
 
     private void waitUntilAllTasksAreDone(List<Future<TaskResult>> futures) {
@@ -617,14 +636,9 @@ public class EndpointService {
         return () -> {
             try {
                 var healthStatus = determineHealthStatus(externalEndpointId);
-                return switch (healthStatus.healthStatus()) {
-                    case HEALTHY -> new TaskResult(externalEndpointId, HttpStatus.OK.value());
-                    case PENDING -> new TaskResult(externalEndpointId, HttpStatus.PROCESSING.value());
-                    case UNHEALTHY -> new TaskResult(externalEndpointId, HttpStatus.SERVICE_UNAVAILABLE.value());
-                    case UNKNOWN -> new TaskResult(externalEndpointId, HttpStatus.BAD_REQUEST.value());
-                };
+                return new TaskResult(externalEndpointId, healthStatus.healthStatus());
             } catch (BusinessException e) {
-                return new TaskResult(externalEndpointId, e.getErrorMessage().httpStatus().value());
+                return new TaskResult(externalEndpointId, e.getErrorMessage().httpStatus());
             }
         };
     }

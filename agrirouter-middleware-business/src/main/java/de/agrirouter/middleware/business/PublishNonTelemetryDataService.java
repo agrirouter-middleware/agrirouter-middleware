@@ -9,11 +9,11 @@ import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.business.parameters.PublishNonTelemetryDataParameters;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatus;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class PublishNonTelemetryDataService {
                 asByteString(publishNonTelemetryDataParameters.getBase64EncodedMessageContent()),
                 null);
         var healthStatus = endpointService.determineHealthStatus(publishNonTelemetryDataParameters.getExternalEndpointId());
-        if (healthStatus.healthStatus().equals(HealthStatus.HEALTHY)) {
+        if (healthStatus.healthStatus().equals(HttpStatus.OK)) {
             checkAndUpdateRecipients(publishNonTelemetryDataParameters);
             var optionalEndpoint = endpointService.findByExternalEndpointId(publishNonTelemetryDataParameters.getExternalEndpointId());
             if (optionalEndpoint.isPresent()) {
