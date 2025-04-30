@@ -16,7 +16,6 @@ import de.agrirouter.middleware.business.events.CloudOffboardingEvent;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
-import de.agrirouter.middleware.integration.mqtt.health.HealthStatusIntegrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,6 @@ public class MessageAcknowledgementEventListener {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DecodeMessageService decodeMessageService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
-    private final HealthStatusIntegrationService healthStatusIntegrationService;
 
     /**
      * Handling the message acknowledgement event.
@@ -63,9 +61,6 @@ public class MessageAcknowledgementEventListener {
                     if (SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new CloudOffboardingEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsStringList(DynamicMessageProperties.EXTERNAL_VIRTUAL_ENDPOINT_IDS)));
                     }
-                    if (SystemMessageType.DKE_PING.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
-                        healthStatusIntegrationService.markHealthMessageAsReceived(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
-                    }
                 }
                 case ACK_WITH_MESSAGES -> {
                     handleSuccessMessageAndUpdateWarnings(decodedMessageResponse, messageWaitingForAcknowledgement);
@@ -74,9 +69,6 @@ public class MessageAcknowledgementEventListener {
                     }
                     if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
-                    }
-                    if (SystemMessageType.DKE_PING.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
-                        healthStatusIntegrationService.markHealthMessageAsLost(messageWaitingForAcknowledgement.getAgrirouterEndpointId());
                     }
                 }
                 case ACK_WITH_FAILURE -> {

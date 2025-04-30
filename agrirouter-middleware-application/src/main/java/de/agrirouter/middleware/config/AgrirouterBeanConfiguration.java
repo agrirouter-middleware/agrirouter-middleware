@@ -21,6 +21,7 @@ import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.config.env.Ar2QA;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
+import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -145,12 +146,13 @@ public class AgrirouterBeanConfiguration {
     public MessageHandlingCallback messageHandlingCallback(ApplicationEventPublisher applicationEventPublisher,
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
-                                                           ListEndpointsMessages listEndpointsMessages) {
+                                                           ListEndpointsMessages listEndpointsMessages,
+                                                           HealthStatusMessages healthStatusMessages) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
-                listEndpointsMessages);
-
+                listEndpointsMessages,
+                healthStatusMessages);
     }
 
     /**
@@ -193,4 +195,5 @@ public class AgrirouterBeanConfiguration {
     public DecodeCloudOnboardingResponsesService decodeCloudOnboardingResponsesService() {
         return new DecodeCloudOnboardingResponsesService();
     }
+
 }
