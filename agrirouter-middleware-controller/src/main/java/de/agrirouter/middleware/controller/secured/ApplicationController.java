@@ -331,15 +331,6 @@ public class ApplicationController implements SecuredApiController {
     }
 
     /**
-     * Add a router device to the application.
-     *
-     * @param principal              The principal to fetch the application.
-     * @param internalApplicationId  The internal ID of the application.
-     * @param addRouterDeviceRequest The request to register the router device.
-     * @return HTTP 201 after definition.
-     */
-
-    /**
      * Find an application by its ID.
      *
      * @param principal             The principal to fetch the application.
