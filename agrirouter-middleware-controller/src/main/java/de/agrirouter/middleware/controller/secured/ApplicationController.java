@@ -6,7 +6,6 @@ import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.controller.SecuredApiController;
-import de.agrirouter.middleware.controller.dto.request.AddSupportedTechnicalMessageTypeRequest;
 import de.agrirouter.middleware.controller.dto.request.ApplicationRegistrationRequest;
 import de.agrirouter.middleware.controller.dto.request.UpdateApplicationRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
@@ -134,10 +133,14 @@ public class ApplicationController implements SecuredApiController {
         final var privateKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getBase64EncodedPrivateKey()));
         application.setPrivateKey(privateKey);
 
+        final var supportedTechnicalMessageTypes = createTechnicalMessageTypesFromRequest(applicationRegistrationRequest);
+        application.setSupportedTechnicalMessageTypes(supportedTechnicalMessageTypes);
+
         final var applicationSettings = new ApplicationSettings();
         applicationSettings.setRedirectUrl(applicationRegistrationRequest.getRedirectUrl());
         applicationSettings.setRouterDevice(createRouterDeviceFromRequest(applicationRegistrationRequest));
         application.setApplicationSettings(applicationSettings);
+
         return application;
     }
 
@@ -156,6 +159,18 @@ public class ApplicationController implements SecuredApiController {
         connectionCriteria.setPort(applicationRegistrationRequest.getRouterDevice().getConnectionCriteria().getPort());
         routerDevice.setConnectionCriteria(connectionCriteria);
         return routerDevice;
+    }
+
+    @NotNull
+    private static Set<SupportedTechnicalMessageType> createTechnicalMessageTypesFromRequest(ApplicationRegistrationRequest applicationRegistrationRequest) {
+        Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes = new HashSet<>();
+        applicationRegistrationRequest.getSupportedTechnicalMessageTypes().forEach(dto -> {
+            final var supportedTechnicalMessageType = new SupportedTechnicalMessageType();
+            supportedTechnicalMessageType.setTechnicalMessageType(dto.getTechnicalMessageType());
+            supportedTechnicalMessageType.setDirection(dto.getDirection());
+            supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
+        });
+        return supportedTechnicalMessageTypes;
     }
 
     /**
@@ -258,76 +273,6 @@ public class ApplicationController implements SecuredApiController {
         final var applicationDto = new ApplicationDto();
         modelMapper.map(existingApplication, applicationDto);
         return ResponseEntity.status(HttpStatus.OK).body(new RegisterApplicationResponse(applicationDto));
-    }
-
-    /**
-     * Define the supported technical message types.
-     *
-     * @param principal                               The principal to fetch the application.
-     * @param internalApplicationId                   The internal ID of the application.
-     * @param addSupportedTechnicalMessageTypeRequest The application to register.
-     * @return HTTP 201 after definition.
-     */
-    @PutMapping(
-            value = "/supported-technical-message-types/{internalApplicationId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Operation(
-            operationId = "application.define-technical-message-types",
-            description = "Define the technical types for the application.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "In case the supported technical message types were added."
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a business exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ParameterValidationProblemResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "In case of an unknown error.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
-                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
-                                                                     @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
-                                                                     @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
-        Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes = new HashSet<>();
-        addSupportedTechnicalMessageTypeRequest.getSupportedTechnicalMessageTypes().forEach(dto -> {
-            final var supportedTechnicalMessageType = new SupportedTechnicalMessageType();
-            supportedTechnicalMessageType.setTechnicalMessageType(dto.getTechnicalMessageType());
-            supportedTechnicalMessageType.setDirection(dto.getDirection());
-            supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
-        });
-        applicationService.defineSupportedTechnicalMessageTypes(principal, internalApplicationId, supportedTechnicalMessageTypes);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**

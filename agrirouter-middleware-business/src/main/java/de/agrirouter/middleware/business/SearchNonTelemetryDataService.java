@@ -7,6 +7,7 @@ import de.agrirouter.middleware.business.dto.MessageStatistics;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -21,16 +22,11 @@ import java.util.*;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SearchNonTelemetryDataService {
 
     private final ContentMessageRepository contentMessageRepository;
     private final EndpointService endpointService;
-
-    public SearchNonTelemetryDataService(ContentMessageRepository contentMessageRepository,
-                                         EndpointService endpointService) {
-        this.contentMessageRepository = contentMessageRepository;
-        this.endpointService = endpointService;
-    }
 
     /**
      * Search for non telemetry data.

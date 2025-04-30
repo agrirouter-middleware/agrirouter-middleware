@@ -18,6 +18,7 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SecuredOnboardProcessService {
 
     private final AuthorizationRequestService authorizationRequestService;
@@ -43,22 +45,6 @@ public class SecuredOnboardProcessService {
 
     @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
     private int fixedThreadPoolSize;
-
-    public SecuredOnboardProcessService(AuthorizationRequestService authorizationRequestService,
-                                        OnboardStateContainer onboardStateContainer,
-                                        SecuredOnboardProcessIntegrationService securedOnboardProcessIntegrationService,
-                                        ApplicationRepository applicationRepository,
-                                        EndpointService endpointService,
-                                        BusinessOperationLogService businessOperationLogService,
-                                        Gson gson) {
-        this.authorizationRequestService = authorizationRequestService;
-        this.onboardStateContainer = onboardStateContainer;
-        this.securedOnboardProcessIntegrationService = securedOnboardProcessIntegrationService;
-        this.applicationRepository = applicationRepository;
-        this.endpointService = endpointService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.gson = gson;
-    }
 
     /**
      * Generate the authorization URL for the application.

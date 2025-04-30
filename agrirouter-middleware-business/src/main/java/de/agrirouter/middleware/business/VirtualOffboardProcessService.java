@@ -4,6 +4,7 @@ import de.agrirouter.middleware.business.parameters.VirtualOffboardProcessParame
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.VirtualOffboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -15,16 +16,11 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class VirtualOffboardProcessService {
 
     private final EndpointService endpointService;
     private final VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService;
-
-    public VirtualOffboardProcessService(EndpointService endpointService,
-                                         VirtualOffboardProcessIntegrationService virtualOffboardProcessIntegrationService) {
-        this.endpointService = endpointService;
-        this.virtualOffboardProcessIntegrationService = virtualOffboardProcessIntegrationService;
-    }
 
     /**
      * Offboard a virtual endpoint.

@@ -3,6 +3,7 @@ package de.agrirouter.middleware.business;
 import de.agrirouter.middleware.business.parameters.SearchMachinesParameters;
 import de.agrirouter.middleware.domain.documents.Device;
 import de.agrirouter.middleware.persistence.mongo.DeviceRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +12,10 @@ import java.util.List;
  * Service to handle business operations round about the devices.
  */
 @Service
+@RequiredArgsConstructor
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
-
-    public DeviceService(DeviceRepository deviceRepository) {
-        this.deviceRepository = deviceRepository;
-    }
 
     /**
      * Search for machines.

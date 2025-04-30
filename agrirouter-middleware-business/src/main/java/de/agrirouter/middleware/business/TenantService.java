@@ -8,6 +8,7 @@ import de.agrirouter.middleware.business.security.TenantPrincipal;
 import de.agrirouter.middleware.domain.Tenant;
 import de.agrirouter.middleware.persistence.jpa.TenantRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TenantService implements UserDetailsService {
 
     public static final int DEFAULT_ACCESS_TOKEN_LENGTH = 32;
@@ -37,12 +39,6 @@ public class TenantService implements UserDetailsService {
 
     @Value("${app.actuator.access-token:NONE}")
     private String externalActuatorAccessToken;
-
-    public TenantService(TenantRepository tenantRepository,
-                         PasswordEncoder passwordEncoder) {
-        this.tenantRepository = tenantRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * Initialize the default tenant.
@@ -143,7 +139,7 @@ public class TenantService implements UserDetailsService {
 
 
     private String generateAccessToken(int defaultAccessTokenLength) {
-        return RandomStringUtils.random(defaultAccessTokenLength, true, true);
+        return RandomStringUtils.secureStrong().nextAlphanumeric(defaultAccessTokenLength);
     }
 
     @Override
