@@ -140,6 +140,7 @@ public class TimeLogService {
      * @param timeLog -
      * @return A document to save in the database.
      */
+    @SuppressWarnings("unused")
     public Optional<Document> convert(GrpcEfdi.TimeLog timeLog) {
         try {
             String json = JsonFormat.printer().print(timeLog);
