@@ -139,7 +139,7 @@ public class TenantService implements UserDetailsService {
 
 
     private String generateAccessToken(int defaultAccessTokenLength) {
-        return RandomStringUtils.random(defaultAccessTokenLength, true, true);
+        return RandomStringUtils.secureStrong().nextAlphanumeric(defaultAccessTokenLength);
     }
 
     @Override
