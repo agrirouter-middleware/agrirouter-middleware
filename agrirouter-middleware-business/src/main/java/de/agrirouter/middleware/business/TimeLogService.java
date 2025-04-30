@@ -8,7 +8,6 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriod;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriods;
 import de.agrirouter.middleware.business.dto.timelog.periods.TimeLogPeriodsForDevice;
@@ -25,6 +24,7 @@ import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
 import efdi.GrpcEfdi;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -40,6 +40,7 @@ import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.N
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TimeLogService {
 
     public static final int TIME_LOG_PERIOD_OFFSET = 300_000;
@@ -50,22 +51,6 @@ public class TimeLogService {
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final DeviceService deviceService;
     private final BusinessOperationLogService businessOperationLogService;
-    private final MessageCache messageCache;
-
-    public TimeLogService(TimeLogRepository timeLogRepository,
-                          EndpointService endpointService,
-                          DeviceDescriptionService deviceDescriptionService,
-                          SendMessageIntegrationService sendMessageIntegrationService,
-                          DeviceService deviceService,
-                          BusinessOperationLogService businessOperationLogService, MessageCache messageCache) {
-        this.timeLogRepository = timeLogRepository;
-        this.endpointService = endpointService;
-        this.deviceDescriptionService = deviceDescriptionService;
-        this.sendMessageIntegrationService = sendMessageIntegrationService;
-        this.deviceService = deviceService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.messageCache = messageCache;
-    }
 
     /**
      * Publish time logs.
