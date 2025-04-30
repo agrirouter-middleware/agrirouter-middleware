@@ -10,7 +10,6 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.cache.registration.TransientMachineRegistrationCache;
 import de.agrirouter.middleware.business.parameters.CreateDeviceDescriptionParameters;
 import de.agrirouter.middleware.business.parameters.RegisterMachineParameters;
@@ -25,6 +24,7 @@ import de.agrirouter.middleware.persistence.mongo.DeviceRepository;
 import de.saschadoemer.iso11783.clientname.ClientName;
 import de.saschadoemer.iso11783.clientname.ClientNameDecoder;
 import efdi.GrpcEfdi;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DeviceDescriptionService {
 
     private static final ConcurrentHashMap<String, Instant> lastTimeTheDeviceDescriptionHasBeenSent = new ConcurrentHashMap<>();
@@ -55,23 +56,6 @@ public class DeviceDescriptionService {
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
     private final TransientMachineRegistrationCache machineRegistrationCache;
-    private final MessageCache messageCache;
-
-    public DeviceDescriptionService(DeviceDescriptionRepository deviceDescriptionRepository,
-                                    EndpointService endpointService,
-                                    DeviceRepository deviceRepository,
-                                    SendMessageIntegrationService sendMessageIntegrationService,
-                                    BusinessOperationLogService businessOperationLogService,
-                                    TransientMachineRegistrationCache machineRegistrationCache,
-                                    MessageCache messageCache) {
-        this.deviceDescriptionRepository = deviceDescriptionRepository;
-        this.endpointService = endpointService;
-        this.deviceRepository = deviceRepository;
-        this.sendMessageIntegrationService = sendMessageIntegrationService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.machineRegistrationCache = machineRegistrationCache;
-        this.messageCache = messageCache;
-    }
 
     /**
      * Save a device description received from the AR.
