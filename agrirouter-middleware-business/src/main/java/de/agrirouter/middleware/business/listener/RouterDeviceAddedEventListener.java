@@ -34,11 +34,15 @@ public class RouterDeviceAddedEventListener {
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
             if (application.usesRouterDevice()) {
-                application.getEndpoints().forEach(endpoint -> {
-                    endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
-                    endpointService.save(endpoint);
-                    businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Update endpoint information. The endpoint is now using the router device.");
-                });
+                if (application.getEndpoints() != null && !application.getEndpoints().isEmpty()) {
+                    application.getEndpoints().forEach(endpoint -> {
+                        endpoint.setOnboardResponseForRouterDevice(application.createOnboardResponseForRouterDevice(endpoint.asOnboardingResponse(true)));
+                        endpointService.save(endpoint);
+                        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Update endpoint information. The endpoint is now using the router device.");
+                    });
+                } else {
+                    log.debug("No endpoints found for application {}.", application.getInternalApplicationId());
+                }
             } else {
                 log.error(ErrorMessageFactory.missingRouterDeviceForApplication(application.getInternalApplicationId()).asLogMessage());
             }

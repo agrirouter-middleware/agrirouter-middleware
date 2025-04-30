@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.dto.request;
 
+import de.agrirouter.middleware.controller.dto.request.router_device.RouterDevice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,5 +48,11 @@ public class UpdateApplicationRequest {
      */
     @Schema(description = "The redirect URL for the application. To configure a custom redirect URL that matches the location of the service.")
     private String redirectUrl;
+
+    /**
+     * The router device.
+     */
+    @Schema(description = "The router device.")
+    private RouterDevice routerDevice;
 
 }

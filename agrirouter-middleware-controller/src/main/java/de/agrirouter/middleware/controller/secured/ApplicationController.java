@@ -6,7 +6,6 @@ import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.controller.SecuredApiController;
-import de.agrirouter.middleware.controller.dto.request.AddRouterDeviceRequest;
 import de.agrirouter.middleware.controller.dto.request.AddSupportedTechnicalMessageTypeRequest;
 import de.agrirouter.middleware.controller.dto.request.ApplicationRegistrationRequest;
 import de.agrirouter.middleware.controller.dto.request.UpdateApplicationRequest;
@@ -15,9 +14,7 @@ import de.agrirouter.middleware.controller.dto.response.domain.ApplicationDto;
 import de.agrirouter.middleware.controller.dto.response.domain.ApplicationWithEndpointStatusDto;
 import de.agrirouter.middleware.controller.dto.response.domain.EndpointWithChildrenDto;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
-import de.agrirouter.middleware.domain.Application;
-import de.agrirouter.middleware.domain.ApplicationSettings;
-import de.agrirouter.middleware.domain.SupportedTechnicalMessageType;
+import de.agrirouter.middleware.domain.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -110,11 +108,20 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<RegisterApplicationResponse> register(Principal principal,
-                                                                          @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest,
-                                                                          @Parameter(hidden = true) Errors errors) {
+                                                                @Parameter(description = "The request parameters to register an application.", required = true) @Valid @RequestBody ApplicationRegistrationRequest applicationRegistrationRequest,
+                                                                @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
+        var application = createApplicationFromRequest(applicationRegistrationRequest);
+        applicationService.save(principal, application);
+        final var applicationDto = new ApplicationDto();
+        modelMapper.map(application, applicationDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
+    }
+
+    @NotNull
+    private static Application createApplicationFromRequest(ApplicationRegistrationRequest applicationRegistrationRequest) {
         Application application = new Application();
         application.setApplicationId(applicationRegistrationRequest.getApplicationId());
         application.setVersionId(applicationRegistrationRequest.getVersionId());
@@ -129,13 +136,26 @@ public class ApplicationController implements SecuredApiController {
 
         final var applicationSettings = new ApplicationSettings();
         applicationSettings.setRedirectUrl(applicationRegistrationRequest.getRedirectUrl());
+        applicationSettings.setRouterDevice(createRouterDeviceFromRequest(applicationRegistrationRequest));
         application.setApplicationSettings(applicationSettings);
+        return application;
+    }
 
-        applicationService.save(principal, application);
-
-        final var applicationDto = new ApplicationDto();
-        modelMapper.map(application, applicationDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterApplicationResponse(applicationDto));
+    @NotNull
+    private static RouterDevice createRouterDeviceFromRequest(ApplicationRegistrationRequest applicationRegistrationRequest) {
+        final var routerDevice = new RouterDevice();
+        routerDevice.setDeviceAlternateId(applicationRegistrationRequest.getRouterDevice().getDeviceAlternateId());
+        final var authentication = new Authentication();
+        authentication.setCertificate(applicationRegistrationRequest.getRouterDevice().getAuthentication().getCertificate());
+        authentication.setSecret(applicationRegistrationRequest.getRouterDevice().getAuthentication().getSecret());
+        authentication.setType(applicationRegistrationRequest.getRouterDevice().getAuthentication().getType());
+        routerDevice.setAuthentication(authentication);
+        final var connectionCriteria = new ConnectionCriteria();
+        connectionCriteria.setClientId(applicationRegistrationRequest.getRouterDevice().getConnectionCriteria().getClientId());
+        connectionCriteria.setHost(applicationRegistrationRequest.getRouterDevice().getConnectionCriteria().getHost());
+        connectionCriteria.setPort(applicationRegistrationRequest.getRouterDevice().getConnectionCriteria().getPort());
+        routerDevice.setConnectionCriteria(connectionCriteria);
+        return routerDevice;
     }
 
     /**
@@ -192,7 +212,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<RegisterApplicationResponse> update(@Parameter(description = "The request parameters to update the existing application.", required = true) @Valid @RequestBody UpdateApplicationRequest updateApplicationRequest,
-                                                                        @Parameter(hidden = true) Errors errors) {
+                                                              @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -220,6 +240,20 @@ public class ApplicationController implements SecuredApiController {
         }
 
         applicationService.update(existingApplication);
+
+        if (updateApplicationRequest.getRouterDevice() != null) {
+            final var addRouterDeviceParameters = new AddRouterDeviceParameters();
+            addRouterDeviceParameters.setInternalApplicationId(updateApplicationRequest.getInternalApplicationId());
+            addRouterDeviceParameters.setTenantId(existingApplication.getTenant().getTenantId());
+            addRouterDeviceParameters.setDeviceAlternateId(updateApplicationRequest.getRouterDevice().getDeviceAlternateId());
+            addRouterDeviceParameters.setCertificate(updateApplicationRequest.getRouterDevice().getAuthentication().getCertificate());
+            addRouterDeviceParameters.setType(updateApplicationRequest.getRouterDevice().getAuthentication().getType());
+            addRouterDeviceParameters.setSecret(updateApplicationRequest.getRouterDevice().getAuthentication().getSecret());
+            addRouterDeviceParameters.setHost(updateApplicationRequest.getRouterDevice().getConnectionCriteria().getHost());
+            addRouterDeviceParameters.setPort(updateApplicationRequest.getRouterDevice().getConnectionCriteria().getPort());
+            addRouterDeviceParameters.setClientId(updateApplicationRequest.getRouterDevice().getConnectionCriteria().getClientId());
+            applicationService.addRouterDevice(addRouterDeviceParameters);
+        }
 
         final var applicationDto = new ApplicationDto();
         modelMapper.map(existingApplication, applicationDto);
@@ -279,9 +313,9 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> defineSupportedTechnicalMessageTypes(Principal principal,
-                                                                               @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
-                                                                               @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
-                                                                               @Parameter(hidden = true) Errors errors) {
+                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
+                                                                     @Parameter(description = "The container holding the parameters to add the supported technical messages types.", required = true) @Valid @RequestBody AddSupportedTechnicalMessageTypeRequest addSupportedTechnicalMessageTypeRequest,
+                                                                     @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
@@ -293,79 +327,6 @@ public class ApplicationController implements SecuredApiController {
             supportedTechnicalMessageTypes.add(supportedTechnicalMessageType);
         });
         applicationService.defineSupportedTechnicalMessageTypes(principal, internalApplicationId, supportedTechnicalMessageTypes);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    /**
-     * Add a router device to the application.
-     *
-     * @param principal              The principal to fetch the application.
-     * @param internalApplicationId  The internal ID of the application.
-     * @param addRouterDeviceRequest The request to register the router device.
-     * @return HTTP 201 after definition.
-     */
-    @PutMapping(
-            value = "/router-device/{internalApplicationId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Operation(
-            operationId = "application.add-router-device",
-            description = "Add a router device to the application.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "In case the router device was added."
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a business exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "In case of a parameter validation exception.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ParameterValidationProblemResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "In case of an unknown error.",
-                            content = @Content(
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    ),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<Void> addRouterDevice(Principal principal,
-                                                          @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId,
-                                                          @Parameter(description = "The container holding the parameters to add a router device.", required = true) @Valid @RequestBody AddRouterDeviceRequest addRouterDeviceRequest,
-                                                          @Parameter(hidden = true) Errors errors) {
-        if (errors.hasErrors()) {
-            throw new ParameterValidationException(errors);
-        }
-        final var addRouterDeviceParameters = new AddRouterDeviceParameters();
-        addRouterDeviceParameters.setInternalApplicationId(internalApplicationId);
-        addRouterDeviceParameters.setTenantId(principal.getName());
-        addRouterDeviceParameters.setDeviceAlternateId(addRouterDeviceRequest.getRouterDevice().getDeviceAlternateId());
-        addRouterDeviceParameters.setCertificate(addRouterDeviceRequest.getRouterDevice().getAuthentication().getCertificate());
-        addRouterDeviceParameters.setType(addRouterDeviceRequest.getRouterDevice().getAuthentication().getType());
-        addRouterDeviceParameters.setSecret(addRouterDeviceRequest.getRouterDevice().getAuthentication().getSecret());
-        addRouterDeviceParameters.setHost(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getHost());
-        addRouterDeviceParameters.setPort(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getPort());
-        addRouterDeviceParameters.setClientId(addRouterDeviceRequest.getRouterDevice().getConnectionCriteria().getClientId());
-        applicationService.addRouterDevice(addRouterDeviceParameters);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -417,7 +378,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindApplicationResponse> find(Principal principal,
-                                                                  @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
+                                                        @Parameter(description = "The internal ID of the application", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationDto = new ApplicationDto();
         modelMapper.map(application, applicationDto);
@@ -472,7 +433,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<ApplicationStatusResponse> status(Principal principal,
-                                                                      @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+                                                            @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var applicationStatusResponse = new ApplicationWithEndpointStatusDto();
         modelMapper.map(application, applicationStatusResponse);
@@ -588,7 +549,7 @@ public class ApplicationController implements SecuredApiController {
             }
     )
     public ResponseEntity<FindEndpointsForApplicationResponse> findEndpointsForApplication(Principal principal,
-                                                                                                     @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
+                                                                                           @Parameter(description = "The internal ID of the application.", required = true) @PathVariable String internalApplicationId) {
         final var application = applicationService.find(internalApplicationId, principal);
         final var endpointWithChildrenDtos = new ArrayList<EndpointWithChildrenDto>();
         application.getEndpoints().forEach(endpoint -> {
@@ -598,5 +559,62 @@ public class ApplicationController implements SecuredApiController {
         });
         return ResponseEntity.ok(new FindEndpointsForApplicationResponse(endpointWithChildrenDtos));
     }
+
+    /**
+     * Resend capabilities and subscriptions for the endpoint.
+     *
+     * @return HTTP 201 after completion.
+     */
+    @DeleteMapping(
+            "/{internalApplicationId}"
+    )
+    @Operation(
+            operationId = "maintenance.delete",
+            description = "Delete the application incl. all endpoints and other data. Handle with care, the data is lost forever.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "In case the operation was successful.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<?> delete(@Parameter(description = "The internal application ID.", required = true) @PathVariable String internalApplicationId) {
+        applicationService.delete(internalApplicationId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

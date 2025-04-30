@@ -68,8 +68,9 @@ public class ApplicationService {
             application.setTenant(optionalTenant.get());
             application.setInternalApplicationId(IdFactory.applicationId());
             checkCertificatesForApplication(application);
-            applicationRepository.save(application);
+            var savedApplication = applicationRepository.save(application);
             businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application created.");
+            applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(principal.getName()));
         }
@@ -229,9 +230,8 @@ public class ApplicationService {
                 application.setApplicationSettings(new ApplicationSettings());
             }
             application.getApplicationSettings().setRouterDevice(routerDevice);
-            final var savedApplication = applicationRepository.save(application);
+            applicationRepository.save(application);
             businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Added router device to the application.");
-            applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
         }
