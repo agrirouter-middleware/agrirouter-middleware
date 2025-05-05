@@ -1,55 +1,41 @@
-version: "3.7"
 services:
   mongo:
-    image: mongo:5.0
+    image: mongo:${MONGODB_VERSION}
+    env_file:
+      - .env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
-      - MONGO_INITDB_ROOT_PASSWORD=changeit
-      - MONGO_INITDB_DATABASE=agriroutermiddleware
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER:-mongoadmin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-changeit}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE:-agriroutermiddleware}
     volumes:
       - mongo_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
-      - "27017:27017"
+      - "${MONGODB_PORT:-27017}:27017"
     networks:
       - backend
     restart: unless-stopped
 
   mysql:
-    image: mariadb:10.6
-    environment:
-      - MYSQL_ROOT_PASSWORD=changeit
-      - MYSQL_DATABASE=agriroutermiddleware
-      - MYSQL_USER=mysqluser
-      - MYSQL_PASSWORD=changeit
+    image: mariadb:${MYSQL_VERSION}
+    env_file:
+      - .env
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     networks:
       - backend
     restart: unless-stopped
 
 
   agrirouter-middleware:
-    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:develop
+    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:${AGRIROUTER_MIDDLEWARE_VERSION}
     platform: linux/amd64
-    environment:
-      - MONGODB_HOST=mongo
-      - MONGODB_PASSWORD=changeit
-      - MONGODB_PORT=27017
-      - MONGODB_USER=mongouser
-      - MONGODB_SCHEMA=agriroutermiddleware
-      - MYSQL_HOST=mysql
-      - MYSQL_PASSWORD=changeit
-      - MYSQL_PORT=3306
-      - MYSQL_SCHEMA=agriroutermiddleware
-      - MYSQL_USER=mysqluser
-      - SPRING_PROFILES_ACTIVE=prod,connect-agrirouter-prod
-      - JAVA_OPTS=-Xms1024m -Xmx3276m -Xss10m
-      - AGRIROUTER_STATUS_SKIP_CHECK=true
+    env_file:
+      - .env
     ports:
-      - "8080:8080"
+      - "${AGRIROUTER_MIDDLEWARE_PORT:-8080}:8080"
     networks:
       - backend
     depends_on:
@@ -62,6 +48,6 @@ networks:
 
 volumes:
   mongo_data:
-    name: agrirouter-middleware-local_mongo_data
+    name: agrirouter_middleware_latest_release_mongo_data
   mysql_data:
-    name: agrirouter-middleware-local_mysql_data
+    name: agrirouter_middleware_latest_release_mysql_data
