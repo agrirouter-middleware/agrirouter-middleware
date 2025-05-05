@@ -77,6 +77,33 @@ public class MqttConnectionManager {
         });
     }
 
+    public void connectNewlyAddedRouterDevices() {
+        applicationRepository.findAll().forEach(application -> {
+            var existingRouterDevice = application.getApplicationSettings().getRouterDevice();
+            if (existingRouterDevice != null) {
+                var cachedMqttClient = cachedMqttClients.get(existingRouterDevice.getConnectionCriteria().getClientId());
+                if (null != cachedMqttClient && cachedMqttClient.mqttClient().isPresent()) {
+                    log.debug("Router device already connected for application: {}", application.getApplicationId());
+                } else {
+                    log.info("Connecting router device for application: {}", application.getApplicationId());
+                    try {
+                        var mqttClient = initMqttClient(existingRouterDevice);
+                        log.debug("Connected router device for application: {}", application.getApplicationId());
+                        mqttStatistics.increaseNumberOfConnects();
+                        final var newCachedMqttClient = new CachedMqttClient(existingRouterDevice.getDeviceAlternateId(), existingRouterDevice.getConnectionCriteria().getClientId(), Optional.of(mqttClient), new ArrayList<>());
+                        cachedMqttClients.put(existingRouterDevice.getConnectionCriteria().getClientId(), newCachedMqttClient);
+                        log.debug("Cached MQTT client for application has been created and is ready to be used: {}", application.getApplicationId());
+                    } catch (MqttException e) {
+                        log.error("Could not connect router device for application: {}", application.getApplicationId(), e);
+                        throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(application.getApplicationId()));
+                    }
+                }
+            } else {
+                log.error("Router device not found for application: {}", application.getApplicationId());
+            }
+        });
+    }
+
     CachedMqttClient getCachedMqttClient(OnboardingResponse onboardingResponse) {
         final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
         if (null == cachedMqttClient) {

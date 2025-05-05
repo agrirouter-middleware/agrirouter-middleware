@@ -9,6 +9,7 @@ import de.agrirouter.middleware.api.logging.ApplicationLogInformation;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.domain.*;
+import de.agrirouter.middleware.integration.mqtt.MqttConnectionManager;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import de.agrirouter.middleware.persistence.jpa.RouterDeviceRepository;
 import de.agrirouter.middleware.persistence.jpa.TenantRepository;
@@ -37,6 +38,7 @@ public class ApplicationService {
     private final BusinessOperationLogService businessOperationLogService;
     private final EndpointService endpointService;
     private final RouterDeviceRepository routerDeviceRepository;
+    private final MqttConnectionManager mqttConnectionManager;
 
     /**
      * Saving an application.
@@ -56,6 +58,7 @@ public class ApplicationService {
             checkCertificatesForApplication(application);
             var savedApplication = applicationRepository.save(application);
             businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application created.");
+            mqttConnectionManager.connectNewlyAddedRouterDevices();
             applicationEventPublisher.publishEvent(new RouterDeviceAddedEvent(this, savedApplication.getInternalApplicationId()));
         } else {
             throw new BusinessException(ErrorMessageFactory.couldNotFindTenant(principal.getName()));
@@ -91,6 +94,7 @@ public class ApplicationService {
     public void update(Application application) {
         checkCertificatesForApplication(application);
         applicationRepository.save(application);
+        mqttConnectionManager.connectNewlyAddedRouterDevices();
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application updated.");
     }
 
