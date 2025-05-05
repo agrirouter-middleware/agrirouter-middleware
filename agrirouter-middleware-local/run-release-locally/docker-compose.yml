@@ -1,0 +1,54 @@
+name: agrirouter-middleware-latest-release
+services:
+  mongo:
+    image: mongo:${MONGODB_VERSION}
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER:-mongoadmin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-changeit}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE:-agriroutermiddleware}
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    networks:
+      - backend
+    restart: unless-stopped
+
+  mysql:
+    image: mariadb:${MYSQL_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    networks:
+      - backend
+    restart: unless-stopped
+
+
+  agrirouter-middleware:
+    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:${AGRIROUTER_MIDDLEWARE_VERSION}
+    platform: linux/amd64
+    env_file:
+      - .env
+    ports:
+      - "${AGRIROUTER_MIDDLEWARE_PORT:-8080}:8080"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+      - mongo
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  mongo_data:
+    name: agrirouter_middleware_latest_release_mongo_data
+  mysql_data:
+    name: agrirouter_middleware_latest_release_mysql_data
