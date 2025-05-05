@@ -1,4 +1,3 @@
-name: agrirouter-middleware-latest-release
 services:
   mongo:
     image: mongo:${MONGODB_VERSION}
