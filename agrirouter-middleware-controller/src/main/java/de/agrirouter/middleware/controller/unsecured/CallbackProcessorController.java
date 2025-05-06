@@ -87,6 +87,7 @@ public class CallbackProcessorController implements UnsecuredApiController {
                 }
             }
         }
+        log.error("There was an error during the onboard process. Could not handle the request. The state was missing or empty.");
         return redirect(OnboardProcessResult.FAILURE, Routes.UnsecuredEndpoints.ONBOARD_PROCESS_RESULT, ErrorMessageFactory.unknownError("There was an error during the onboard process. Could not handle the request. The state was not found.").message());
     }
 
