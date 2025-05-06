@@ -72,7 +72,7 @@ public class MqttConnectionManager {
                     throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(application.getApplicationId()));
                 }
             } else {
-                log.error("Router device not found for application: {}", application.getApplicationId());
+                log.warn("Router device not found for application: {}", application.getApplicationId());
             }
         });
     }
@@ -99,7 +99,7 @@ public class MqttConnectionManager {
                     }
                 }
             } else {
-                log.error("Router device not found for application: {}", application.getApplicationId());
+                log.warn("Router device not found for application: {}", application.getApplicationId());
             }
         });
     }
