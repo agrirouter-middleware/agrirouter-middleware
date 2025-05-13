@@ -470,7 +470,10 @@ public class EndpointService {
         return switch (healthStatusMessage.getHealthStatus()) {
             case ACK -> HttpStatus.OK;
             case ACK_WITH_FAILURE -> HttpStatus.NOT_FOUND;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
+            default -> {
+                log.warn("Received an unexpected health status: '{}'. Returning INTERNAL_SERVER_ERROR.", healthStatusMessage.getHealthStatus());
+                yield HttpStatus.INTERNAL_SERVER_ERROR;
+            }
         };
     }
 
