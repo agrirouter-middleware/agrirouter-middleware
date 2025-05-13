@@ -194,29 +194,6 @@ public class EndpointService {
         sensorAlternateIds.forEach(removeEndpointDataService::removeData);
     }
 
-
-    /**
-     * Resending the capabilities.
-     *
-     * @param externalEndpointId The internal ID of the endpoint.
-     */
-    @Async
-    public void resendCapabilities(String externalEndpointId) {
-        final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
-            if (optionalApplication.isPresent()) {
-                sendCapabilities(optionalApplication.get(), endpoint);
-                businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Capabilities were resent.");
-            } else {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
-            }
-        } else {
-            log.warn("Tried to resend capabilities for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
-        }
-    }
-
     /**
      * Sending the capabilties for an endpoint.
      *
