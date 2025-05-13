@@ -445,7 +445,7 @@ public class EndpointService {
      */
     public HealthStatusWithLastKnownHealthyStatus determineHealthStatus(String externalEndpointId) {
         final var optionalEndpoint = findByExternalEndpointId(externalEndpointId);
-        var healthStatus = HttpStatus.NOT_FOUND;
+        var healthStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         if (optionalEndpoint.isPresent()) {
             var endpoint = optionalEndpoint.get();
             healthStatusIntegrationService.removeAllPendingHealthStatusMessagesForEndpoint(endpoint.getAgrirouterEndpointId());
@@ -493,8 +493,7 @@ public class EndpointService {
         return switch (healthStatusMessage.getHealthStatus()) {
             case ACK -> HttpStatus.OK;
             case ACK_WITH_FAILURE -> HttpStatus.NOT_FOUND;
-            default ->
-                    throw new IllegalArgumentException("Unknown health status: " + healthStatusMessage.getHealthStatus());
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 
