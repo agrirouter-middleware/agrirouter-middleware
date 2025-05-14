@@ -41,7 +41,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Business operations regarding the endpoints.
@@ -74,9 +75,6 @@ public class EndpointService {
 
     @Value("${app.agrirouter.mqtt.synchronous.response.polling.intervall}")
     private int pollingInterval;
-
-    @Value("${app.agrirouter.threading.fixed-thread-pool-size}")
-    private int fixedThreadPoolSize;
 
     /**
      * Updating error messages based on the decoded message.
@@ -558,23 +556,14 @@ public class EndpointService {
 
     public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
         var endpointStatus = new HashMap<String, Integer>();
-        try {
-            var executorService = Executors.newFixedThreadPool(fixedThreadPoolSize);
-            var callables = new ArrayList<Callable<TaskResult>>();
-            externalEndpointIds.forEach(externalEndpointId -> callables.add(createHealthCheckTask(externalEndpointId)));
-            var futures = executorService.invokeAll(callables);
-            waitUntilAllTasksAreDone(futures);
-            futures.forEach(future -> {
-                try {
-                    var taskResult = future.get();
-                    endpointStatus.put(taskResult.externalEndpointId, taskResult.status.value());
-                } catch (InterruptedException | ExecutionException e) {
-                    log.error("Error while waiting for the health check tasks to finish.", e);
-                }
-            });
-        } catch (InterruptedException e) {
-            log.error("Error while waiting for the health check tasks to finish.", e);
-        }
+        externalEndpointIds.forEach(externalEndpointId -> {
+            try {
+                var healthStatus = determineHealthStatus(externalEndpointId);
+                endpointStatus.put(externalEndpointId, healthStatus.healthStatus().value());
+            } catch (Exception e) {
+                log.error("Could not determine the health status for endpoint '{}'.", externalEndpointId, e);
+            }
+        });
         return endpointStatus;
     }
 
@@ -589,36 +578,5 @@ public class EndpointService {
 
     public long getNrOfVirtualEndpoints() {
         return endpointRepository.countByEndpointType(EndpointType.VIRTUAL);
-    }
-
-    /**
-     * Internal class as a wrapper for the result of the health check.
-     *
-     * @param externalEndpointId The external endpoint id.
-     * @param status             The status of the endpoint.
-     */
-    private record TaskResult(String externalEndpointId, HttpStatus status) {
-    }
-
-    private void waitUntilAllTasksAreDone(List<Future<TaskResult>> futures) {
-        while (futures.stream().anyMatch(future -> !future.isDone())) {
-            try {
-                //noinspection BusyWait
-                Thread.sleep(pollingInterval);
-            } catch (InterruptedException e) {
-                log.error("Error while waiting for the health check tasks to finish.", e);
-            }
-        }
-    }
-
-    private Callable<TaskResult> createHealthCheckTask(String externalEndpointId) {
-        return () -> {
-            try {
-                var healthStatus = determineHealthStatus(externalEndpointId);
-                return new TaskResult(externalEndpointId, healthStatus.healthStatus());
-            } catch (BusinessException e) {
-                return new TaskResult(externalEndpointId, e.getErrorMessage().httpStatus());
-            }
-        };
     }
 }
