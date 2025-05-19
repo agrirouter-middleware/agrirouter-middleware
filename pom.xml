@@ -277,7 +277,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <!--suppress KotlinMavenPluginPhase -->
+            <!--suppress KotlinMavenPluginPhase: Suppressed to avoid redundant plugin phase execution for Kotlin standard library dependencies. -->
             <artifactId>kotlin-stdlib</artifactId>
         </dependency>
         <dependency>
