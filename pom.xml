@@ -13,7 +13,7 @@
 
     <groupId>de.agrirouter.middleware</groupId>
     <artifactId>agrirouter-middleware</artifactId>
-    <version>11.2.0</version>
+    <version>11.3.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -277,6 +277,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
+            <!--suppress KotlinMavenPluginPhase: Suppressed to avoid redundant plugin phase execution for Kotlin standard library dependencies. -->
             <artifactId>kotlin-stdlib</artifactId>
         </dependency>
         <dependency>
