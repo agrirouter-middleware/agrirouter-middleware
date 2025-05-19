@@ -6,7 +6,6 @@ import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
-import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.ActivateDeviceEvent;
 import de.agrirouter.middleware.api.events.MessageAcknowledgementEvent;
 import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
@@ -96,9 +95,8 @@ public class MessageAcknowledgementEventListener {
             }
             messageWaitingForAcknowledgementService.delete(messageWaitingForAcknowledgement);
         } else {
-            log.error(ErrorMessageFactory.couldNotFindMessageWaitingForAcknowledgement(messageAcknowledgementEvent.getDecodedMessageResponse().getResponseEnvelope().getApplicationMessageId()).asLogMessage());
+            log.info("Did not find the message waiting for ACK. This is not an error. The message might have been deleted already or was not placed in the messages waiting for ACK since it was a one time delivery process (like health is).");
         }
-
     }
 
     private void handleSuccessMessage(MessageWaitingForAcknowledgement messageWaitingForAcknowledgement) {

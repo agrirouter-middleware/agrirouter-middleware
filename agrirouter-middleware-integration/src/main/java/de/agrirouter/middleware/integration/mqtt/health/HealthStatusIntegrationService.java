@@ -40,6 +40,7 @@ public class HealthStatusIntegrationService {
                         var onboardingResponse = endpoint.asOnboardingResponse();
                         var parameters = new PingParameters();
                         parameters.setOnboardingResponse(onboardingResponse);
+                        log.info("Publishing the health check message to the topic, but not saving it as a message waiting for ACK to reduce overload.");
                         messageId.set(pingService.send(parameters));
                     } else {
                         log.error("Could not publish the health check message. MQTT client is not connected.");
