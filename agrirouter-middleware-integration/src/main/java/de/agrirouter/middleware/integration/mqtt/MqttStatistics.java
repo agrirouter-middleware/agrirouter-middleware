@@ -71,7 +71,7 @@ public class MqttStatistics {
     }
 
     public void increaseNumberOfContentMessagesReceived(String technicalMessageType) {
-        Metrics.counter(NUMBER_OF_MESSAGES_ARRIVED, "technical_message_type", technicalMessageType).increment();
+        Metrics.counter(NUMBER_OF_MESSAGES_ARRIVED + "." + technicalMessageType).increment();
     }
 
     public void increasePayloadReceived(int length) {
