@@ -155,7 +155,6 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         messageRecipient.setEndpointType(e.getEndpointType());
         messageRecipient.setExternalId(e.getExternalId());
         messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
-        messageRecipient.setDirection(messageType.getDirection().name());
         messageRecipient.setTimestamp(now);
         return messageRecipient;
     }
