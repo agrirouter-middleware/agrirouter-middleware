@@ -127,7 +127,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
                 var messageRecipients = new ArrayList<MessageRecipient>();
                 final var now = Instant.now();
                 listEndpointsResponse.getEndpointsList().forEach(e -> e.getMessageTypesList().forEach(messageType -> {
-                    if (messageType.getDirection().name().equalsIgnoreCase(Capabilities.CapabilitySpecification.Direction.SEND.name())) {
+                    if (messageType.getDirection().name().equalsIgnoreCase(Capabilities.CapabilitySpecification.Direction.RECEIVE.name())) {
                         final var messageRecipient = createMessageRecipient(e, messageType, now);
                         log.trace("Added recipient: {}", messageRecipient);
                         messageRecipients.add(messageRecipient);
