@@ -40,33 +40,8 @@ public class MessageRecipient {
     private String technicalMessageType;
 
     /**
-     * The direction.
-     */
-    private String direction;
-
-    /**
-     * Indicator if the entry was cached.
-     */
-    private boolean cached;
-
-    /**
      * The timestamp when the message recipients have been fetched.
      */
     private Instant timestamp;
 
-    /**
-     * Create deep coy.
-     */
-    public MessageRecipient deepCopy() {
-        var messageRecipient = new MessageRecipient();
-        messageRecipient.setAgrirouterEndpointId(this.getAgrirouterEndpointId());
-        messageRecipient.setEndpointName(this.getEndpointName());
-        messageRecipient.setEndpointType(this.getEndpointType());
-        messageRecipient.setExternalId(this.getExternalId());
-        messageRecipient.setTechnicalMessageType(this.getTechnicalMessageType());
-        messageRecipient.setDirection(this.getDirection());
-        messageRecipient.setCached(this.isCached());
-        messageRecipient.setTimestamp(this.getTimestamp());
-        return messageRecipient;
-    }
 }

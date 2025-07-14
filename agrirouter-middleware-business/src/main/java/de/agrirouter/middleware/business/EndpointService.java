@@ -25,7 +25,6 @@ import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessage;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusWithLastKnownHealthyStatus;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsIntegrationService;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
-import de.agrirouter.middleware.integration.mqtt.list_endpoints.cache.MessageRecipientCache;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
 import de.agrirouter.middleware.persistence.jpa.ErrorRepository;
@@ -66,7 +65,6 @@ public class EndpointService {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final BusinessEventsCache businessEventsCache;
     private final ListEndpointsIntegrationService listEndpointsIntegrationService;
-    private final MessageRecipientCache messageRecipientCache;
     private final InternalEndpointCache internalEndpointCache;
     private final RemoveEndpointDataService removeEndpointDataService;
 
@@ -498,7 +496,6 @@ public class EndpointService {
                             log.debug("Found recipients for endpoint {}.", endpoint.getAgrirouterEndpointId());
                             var messageRecipients = recipients.get();
                             log.debug("Recipients: {}.", messageRecipients);
-                            messageRecipientCache.put(endpoint.getExternalEndpointId(), messageRecipients);
                             return messageRecipients;
                         }
                     } catch (InterruptedException e) {
@@ -510,9 +507,7 @@ public class EndpointService {
                 log.debug("There is no pending list endpoints response for endpoint {}.", endpoint.getAgrirouterEndpointId());
             }
         }
-        log.debug("Could not find recipients for endpoint '{}', now checking the cache.", externalEndpointId);
-        var optionalMessageRecipients = messageRecipientCache.get(externalEndpointId);
-        return optionalMessageRecipients.orElse(Collections.emptyList());
+        return Collections.emptyList();
     }
 
     /**
