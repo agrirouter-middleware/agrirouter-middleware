@@ -361,6 +361,9 @@ public class TelemetryDataController implements SecuredApiController {
             final var timeLogPeriodDto = modelMapper.map(timeLogPeriod, TimeLogPeriodDto.class);
             timeLogPeriodDto.setHumanReadableBegin(Instant.ofEpochSecond(timeLogPeriod.begin()));
             timeLogPeriodDto.setHumanReadableEnd(Instant.ofEpochSecond(timeLogPeriod.end()));
+            timeLogPeriodDto.setBegin(timeLogPeriod.begin());
+            timeLogPeriodDto.setEnd(timeLogPeriod.end());
+            timeLogPeriodDto.setNrOfTimeLogs(timeLogPeriod.nrOfTimeLogs());
             timeLogPeriodsDto.getTimeLogPeriods().add(timeLogPeriodDto);
         });
         timeLogPeriodDtosForTeamSet.setTimeLogPeriods(timeLogPeriodsDto);
