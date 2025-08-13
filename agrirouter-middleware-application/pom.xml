@@ -49,6 +49,10 @@
             <artifactId>modelmapper</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper-module-record</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>material-design-lite</artifactId>
         </dependency>
