@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * Repository to access the part fields.
+ * Repository to access the farms.
  */
 @Repository
 public interface FarmRepository extends MongoRepository<Farm, String> {
