@@ -139,7 +139,9 @@ public class PushMessageEventListener {
     }
 
     protected boolean isMasterData(String technicalMessageType) {
-        return technicalMessageType.equals(ISO_11783_FIELD.getKey()) || technicalMessageType.equals(ISO_11783_FARM.getKey()) || technicalMessageType.equals(ISO_11783_CUSTOMER.getKey());
+        return technicalMessageType.equals(ISO_11783_FIELD.getKey())
+                || technicalMessageType.equals(ISO_11783_FARM.getKey())
+                || technicalMessageType.equals(ISO_11783_CUSTOMER.getKey());
     }
 
     /**
