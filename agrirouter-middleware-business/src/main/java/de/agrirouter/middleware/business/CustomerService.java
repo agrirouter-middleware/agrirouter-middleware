@@ -43,14 +43,14 @@ public class CustomerService {
      * @param messageContent -
      * @return -
      */
-    public Optional<Document> convert(byte[] messageContent) {
+    private Optional<Document> convert(byte[] messageContent) {
         try {
             var partField = GrpcEfdi.Customer.parseFrom(ByteString.copyFrom(messageContent));
             var json = JsonFormat.printer().print(partField);
             var document = Document.parse(json);
             return Optional.ofNullable(document);
         } catch (InvalidProtocolBufferException e) {
-            log.error("Could not parse the PartField message content.", e);
+            log.error("Could not parse the message content.", e);
             return Optional.empty();
         }
     }

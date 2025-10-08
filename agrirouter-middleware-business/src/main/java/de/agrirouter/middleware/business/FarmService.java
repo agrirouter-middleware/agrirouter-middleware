@@ -32,7 +32,7 @@ public class FarmService {
         farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
         farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         farm.setExternalEndpointId(endpoint.getExternalEndpointId());
-        var optionalDocument = convertToPartField(contentMessage.getMessageContent());
+        var optionalDocument = convert(contentMessage.getMessageContent());
         optionalDocument.ifPresent(farm::setDocument);
         farmRepository.save(farm);
     }
@@ -43,14 +43,14 @@ public class FarmService {
      * @param messageContent -
      * @return -
      */
-    public Optional<Document> convertToPartField(byte[] messageContent) {
+    private Optional<Document> convert(byte[] messageContent) {
         try {
             var partField = GrpcEfdi.Farm.parseFrom(ByteString.copyFrom(messageContent));
             var json = JsonFormat.printer().print(partField);
             var document = Document.parse(json);
             return Optional.ofNullable(document);
         } catch (InvalidProtocolBufferException e) {
-            log.error("Could not parse the PartField message content.", e);
+            log.error("Could not parse the message content.", e);
             return Optional.empty();
         }
     }
