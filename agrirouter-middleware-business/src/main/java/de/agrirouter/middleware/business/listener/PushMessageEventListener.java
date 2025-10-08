@@ -10,9 +10,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.PushMessageEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.business.DeviceDescriptionService;
-import de.agrirouter.middleware.business.EndpointService;
-import de.agrirouter.middleware.business.TimeLogService;
+import de.agrirouter.middleware.business.*;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.documents.TaskDataTimeLogContainer;
@@ -23,6 +21,7 @@ import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import de.agrirouter.middleware.isoxml.TaskDataTimeLogService;
 import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
 import de.agrirouter.middleware.persistence.mongo.TaskDataTimeLogContainerRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -32,12 +31,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
+import static de.agrirouter.middleware.business.enums.TemporaryContentMessagesType.*;
 
 /**
  * Confirm messages from the AR.
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PushMessageEventListener {
 
     private final MqttClientManagementService mqttClientManagementService;
@@ -45,36 +46,15 @@ public class PushMessageEventListener {
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final DecodePushNotificationService decodePushNotificationService;
     private final TimeLogService timeLogService;
+    private final FieldService fieldService;
+    private final FarmService farmService;
+    private final CustomerService customerService;
     private final TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository;
     private final DeviceDescriptionService deviceDescriptionService;
     private final ContentMessageRepository contentMessageRepository;
     private final TaskDataTimeLogService taskDataTimeLogService;
     private final BusinessOperationLogService businessOperationLogService;
     private final MqttStatistics mqttStatistics;
-
-    public PushMessageEventListener(MqttClientManagementService mqttClientManagementService,
-                                    EndpointService endpointService,
-                                    MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                    DecodePushNotificationService decodePushNotificationService,
-                                    TimeLogService timeLogService,
-                                    TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository,
-                                    DeviceDescriptionService deviceDescriptionService,
-                                    ContentMessageRepository contentMessageRepository,
-                                    TaskDataTimeLogService taskDataTimeLogService,
-                                    BusinessOperationLogService businessOperationLogService,
-                                    MqttStatistics mqttStatistics) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.endpointService = endpointService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.decodePushNotificationService = decodePushNotificationService;
-        this.timeLogService = timeLogService;
-        this.taskDataTimeLogContainerRepository = taskDataTimeLogContainerRepository;
-        this.deviceDescriptionService = deviceDescriptionService;
-        this.contentMessageRepository = contentMessageRepository;
-        this.taskDataTimeLogService = taskDataTimeLogService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.mqttStatistics = mqttStatistics;
-    }
 
     /**
      * Handling the unknown message event.
@@ -142,7 +122,24 @@ public class PushMessageEventListener {
         if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage);
         }
+
+        if (isMasterData(technicalMessageType)) {
+            if (technicalMessageType.equals(ISO_11783_FIELD.getKey())) {
+                fieldService.save(contentMessage);
+            } else if (technicalMessageType.equals(ISO_11783_FARM.getKey())) {
+                farmService.save(contentMessage);
+            } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
+                customerService.save(contentMessage);
+            } else {
+                log.warn("Unknown master data type {}.", technicalMessageType);
+            }
+        }
+
         businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Save content message.");
+    }
+
+    protected boolean isMasterData(String technicalMessageType) {
+        return technicalMessageType.equals(ISO_11783_FIELD.getKey()) || technicalMessageType.equals(ISO_11783_FARM.getKey()) || technicalMessageType.equals(ISO_11783_CUSTOMER.getKey());
     }
 
     /**
