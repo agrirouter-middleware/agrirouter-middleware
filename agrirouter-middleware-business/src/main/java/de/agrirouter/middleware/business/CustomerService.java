@@ -38,7 +38,7 @@ public class CustomerService {
     }
 
     /**
-     * Convert the given device description into a JSON document.
+     * Convert the given message content into a JSON document.
      *
      * @param messageContent -
      * @return -
