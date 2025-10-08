@@ -6,7 +6,7 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * Telemetry data, stored in the document storage.
+ * Field data, stored in the document storage.
  */
 @Data
 @ToString
