@@ -1,11 +1,11 @@
 package de.agrirouter.middleware.business.cache.messaging;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import com.google.protobuf.ByteString;
 import de.agrirouter.middleware.business.events.ResendMessageCacheEntryEvent;
 import de.agrirouter.middleware.domain.documents.MessageCacheEntry;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.MessageCacheEntryRepository;
 import jakarta.annotation.PostConstruct;
@@ -87,7 +87,7 @@ public class MessageCache {
 
     private TechnicalMessageType fromStringToTechnicalMessageType(@NotNull String technicalMessageType) {
         try {
-            return ContentMessageType.valueOf(technicalMessageType);
+            return TemporaryContentMessageType.valueOf(technicalMessageType);
         } catch (IllegalArgumentException e) {
             try {
                 return SystemMessageType.valueOf(technicalMessageType);
@@ -136,8 +136,8 @@ public class MessageCache {
      * @return The string representation of the technical message type.
      */
     private String fromTechnicalMessageTypeToString(@NotNull TechnicalMessageType technicalMessageType) {
-        if (technicalMessageType instanceof ContentMessageType) {
-            return ((ContentMessageType) technicalMessageType).name();
+        if (technicalMessageType instanceof TemporaryContentMessageType) {
+            return ((TemporaryContentMessageType) technicalMessageType).name();
         } else {
             if (technicalMessageType instanceof SystemMessageType) {
                 return ((SystemMessageType) technicalMessageType).name();

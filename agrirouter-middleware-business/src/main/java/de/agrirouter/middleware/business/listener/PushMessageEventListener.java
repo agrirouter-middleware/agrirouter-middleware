@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business.listener;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodePushNotificationService;
 import com.dke.data.agrirouter.api.service.parameters.MessageConfirmationParameters;
@@ -14,6 +13,7 @@ import de.agrirouter.middleware.business.*;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.documents.TaskDataTimeLogContainer;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
@@ -31,7 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
-import static de.agrirouter.middleware.business.enums.TemporaryContentMessagesType.*;
+import static de.agrirouter.middleware.domain.enums.TemporaryContentMessageType.*;
 
 /**
  * Confirm messages from the AR.
@@ -110,16 +110,16 @@ public class PushMessageEventListener {
         contentMessage.setContentMessageMetadata(contentMessageMetadata);
         contentMessageRepository.save(contentMessage);
 
-        if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
+        if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
             final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
             taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
         }
 
-        if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
+        if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
             deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
         }
 
-        if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
+        if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage);
         }
 

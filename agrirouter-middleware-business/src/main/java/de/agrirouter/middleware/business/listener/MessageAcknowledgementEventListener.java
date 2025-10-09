@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.business.listener;
 
 import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -12,6 +11,7 @@ import de.agrirouter.middleware.api.events.UpdateSubscriptionsForEndpointEvent;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.business.events.CloudOffboardingEvent;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.ack.DynamicMessageProperties;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -54,7 +54,7 @@ public class MessageAcknowledgementEventListener {
                     if (SystemMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, messageWaitingForAcknowledgement.getAgrirouterEndpointId()));
                     }
-                    if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                    if (TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
                     if (SystemMessageType.DKE_CLOUD_OFFBOARD_ENDPOINTS.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
@@ -66,7 +66,7 @@ public class MessageAcknowledgementEventListener {
                     if (SystemMessageType.DKE_CAPABILITIES.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new UpdateSubscriptionsForEndpointEvent(this, messageWaitingForAcknowledgement.getAgrirouterEndpointId()));
                     }
-                    if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
+                    if (TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType())) {
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }
                 }
@@ -74,7 +74,7 @@ public class MessageAcknowledgementEventListener {
                     handleErrorMessage(decodedMessageResponse, messageWaitingForAcknowledgement);
                     final var messages = decodeMessageService.decode(decodedMessageResponse.getResponsePayloadWrapper().getDetails());
                     final var message = messages.getMessages(0);
-                    if (ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType()) && message.getMessageCode().equals("VAL_000004")) {
+                    if (TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey().equals(messageWaitingForAcknowledgement.getTechnicalMessageType()) && message.getMessageCode().equals("VAL_000004")) {
                         log.debug("Looks like there are no recipients for the device description. But the AR received the device description and it was valid. Trigger activation.");
                         applicationEventPublisher.publishEvent(new ActivateDeviceEvent(this, messageWaitingForAcknowledgement.getDynamicPropertyAsString(DynamicMessageProperties.TEAM_SET_CONTEXT_ID)));
                     }

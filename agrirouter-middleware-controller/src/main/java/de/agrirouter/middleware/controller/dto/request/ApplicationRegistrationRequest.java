@@ -1,9 +1,9 @@
 package de.agrirouter.middleware.controller.dto.request;
 
 import agrirouter.request.payload.endpoint.Capabilities;
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import de.agrirouter.middleware.controller.dto.request.router_device.RouterDevice;
 import de.agrirouter.middleware.domain.enums.ApplicationType;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -107,7 +107,7 @@ public class ApplicationRegistrationRequest {
         @NotNull(message = "The technical message type is mandatory.")
         @Getter
         @Schema(description = "The technical message type, that the application does support, i.e. TaskData, EFDI, etc.")
-        private ContentMessageType technicalMessageType;
+        private TemporaryContentMessageType technicalMessageType;
 
         /**
          * The direction the message type can be handled, i.e. SEND, RECEIVE, SEND_RECEIVE.

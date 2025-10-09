@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.listener;
 
-import de.agrirouter.middleware.business.enums.TemporaryContentMessagesType;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,21 +25,21 @@ class PushMessageEventListenerTest {
 
     @Test
     void givenIso11783Field_whenIsMasterData_thenReturnsTrue() {
-        String technicalMessageType = TemporaryContentMessagesType.ISO_11783_FIELD.getKey();
+        String technicalMessageType = TemporaryContentMessageType.ISO_11783_FIELD.getKey();
         boolean result = pushMessageEventListener.isMasterData(technicalMessageType);
         assertTrue(result);
     }
 
     @Test
     void givenIso11783Farm_whenIsMasterData_thenReturnsTrue() {
-        String technicalMessageType = TemporaryContentMessagesType.ISO_11783_FARM.getKey();
+        String technicalMessageType = TemporaryContentMessageType.ISO_11783_FARM.getKey();
         boolean result = pushMessageEventListener.isMasterData(technicalMessageType);
         assertTrue(result);
     }
 
     @Test
     void givenIso11783Customer_whenIsMasterData_thenReturnsTrue() {
-        String technicalMessageType = TemporaryContentMessagesType.ISO_11783_CUSTOMER.getKey();
+        String technicalMessageType = TemporaryContentMessageType.ISO_11783_CUSTOMER.getKey();
         boolean result = pushMessageEventListener.isMasterData(technicalMessageType);
         assertTrue(result);
     }

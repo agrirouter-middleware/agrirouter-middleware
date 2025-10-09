@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.controller.dto.request.messaging.enums;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -11,16 +11,16 @@ import lombok.Getter;
 @Schema(description = "The video type, used to map the specific agrirouter© message type.")
 public enum VideoType {
 
-    AVI(ContentMessageType.VID_AVI),
-    MP4(ContentMessageType.VID_MP4),
-    WMV(ContentMessageType.VID_WMV);
+    AVI(TemporaryContentMessageType.VID_AVI),
+    MP4(TemporaryContentMessageType.VID_MP4),
+    WMV(TemporaryContentMessageType.VID_WMV);
 
     /**
      * The mapped content message type.
      */
-    private final ContentMessageType contentMessageType;
+    private final TemporaryContentMessageType contentMessageType;
 
-    VideoType(ContentMessageType contentMessageType) {
+    VideoType(TemporaryContentMessageType contentMessageType) {
         this.contentMessageType = contentMessageType;
     }
 

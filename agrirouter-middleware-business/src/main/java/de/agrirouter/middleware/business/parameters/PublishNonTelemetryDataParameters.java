@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.parameters;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import lombok.*;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class PublishNonTelemetryDataParameters {
     /**
      * The content message type.
      */
-    private ContentMessageType contentMessageType;
+    private TechnicalMessageType contentMessageType;
 
     /**
      * The name of the file.

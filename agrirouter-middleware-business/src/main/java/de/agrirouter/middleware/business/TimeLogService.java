@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
@@ -20,6 +19,7 @@ import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.documents.DeviceDescription;
 import de.agrirouter.middleware.domain.documents.TimeLog;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
@@ -60,7 +60,7 @@ public class TimeLogService {
     public void publish(PublishTimeLogParameters publishTimeLogParameters) {
         deviceDescriptionService.resendDeviceDescriptionIfNecessary(publishTimeLogParameters.getTeamSetContextId());
         final var messagingIntegrationParameters = new MessagingIntegrationParameters(publishTimeLogParameters.getExternalEndpointId(),
-                ContentMessageType.ISO_11783_TIME_LOG,
+                TemporaryContentMessageType.ISO_11783_TIME_LOG,
                 Collections.emptyList(),
                 null,
                 asByteString(publishTimeLogParameters.getBase64EncodedTimeLog()),

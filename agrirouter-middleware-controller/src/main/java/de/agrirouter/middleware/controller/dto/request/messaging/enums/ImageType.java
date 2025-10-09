@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.controller.dto.request.messaging.enums;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -11,16 +11,16 @@ import lombok.Getter;
 @Schema(description = "The image type, used to map the specific agrirouter© message type.")
 public enum ImageType {
 
-    JPEG(ContentMessageType.IMG_JPEG),
-    PNG(ContentMessageType.IMG_PNG),
-    BMP(ContentMessageType.IMG_BMP);
+    JPEG(TemporaryContentMessageType.IMG_JPEG),
+    PNG(TemporaryContentMessageType.IMG_PNG),
+    BMP(TemporaryContentMessageType.IMG_BMP);
 
     /**
      * The mapped content message type.
      */
-    private final ContentMessageType contentMessageType;
+    private final TemporaryContentMessageType contentMessageType;
 
-    ImageType(ContentMessageType contentMessageType) {
+    ImageType(TemporaryContentMessageType contentMessageType) {
         this.contentMessageType = contentMessageType;
     }
 

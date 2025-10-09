@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
@@ -17,6 +16,7 @@ import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.documents.Device;
 import de.agrirouter.middleware.domain.documents.DeviceDescription;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.DeviceDescriptionRepository;
@@ -324,7 +324,7 @@ public class DeviceDescriptionService {
                 createDeviceDescriptionParameters.setTeamSetContextId(teamSetContextId);
                 saveCreatedDeviceDescription(createDeviceDescriptionParameters);
                 final var messagingIntegrationParameters = new MessagingIntegrationParameters(endpoint.getExternalEndpointId(),
-                        ContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
+                        TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
                         Collections.emptyList(),
                         null,
                         asByteString(registerMachineParameters.getBase64EncodedDeviceDescription()),
@@ -388,7 +388,7 @@ public class DeviceDescriptionService {
                 if (null == theLastTimeTheDeviceDescriptionHasBeenSent || theLastTimeTheDeviceDescriptionHasBeenSent.plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
                     log.debug("Sending the device for the team set '{}' since it has not been sent before or the last time the device description has been sent was more than 1 hour ago.", teamSetContextId);
                     final var messagingIntegrationParameters = new MessagingIntegrationParameters(deviceDescription.getExternalEndpointId(),
-                            ContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
+                            TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION,
                             Collections.emptyList(),
                             null,
                             asByteString(deviceDescription.getBase64EncodedDeviceDescription()),
