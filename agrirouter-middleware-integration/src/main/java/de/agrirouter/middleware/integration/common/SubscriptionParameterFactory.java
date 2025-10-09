@@ -1,9 +1,9 @@
 package de.agrirouter.middleware.integration.common;
 
 import agrirouter.request.payload.endpoint.Capabilities;
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.service.parameters.SetSubscriptionParameters;
 import de.agrirouter.middleware.domain.Application;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +41,7 @@ public class SubscriptionParameterFactory {
                     || supportedTechnicalMessageType.getDirection().equals(Capabilities.CapabilitySpecification.Direction.SEND_RECEIVE)) {
                 SetSubscriptionParameters.Subscription subscription = new SetSubscriptionParameters.Subscription();
                 subscription.setTechnicalMessageType(supportedTechnicalMessageType.getTechnicalMessageType());
-                if (ContentMessageType.ISO_11783_TIME_LOG == supportedTechnicalMessageType.getTechnicalMessageType()) {
+                if (TemporaryContentMessageType.ISO_11783_TIME_LOG == supportedTechnicalMessageType.getTechnicalMessageType()) {
                     subscription.setPosition(true);
                     if (null == application.getApplicationSettings() || application.getApplicationSettings().getDdiCombinationsToSubscribeFor().isEmpty()) {
                         log.debug("The application did not define any DDIs, therefore the whole range from DDI 0 to 600 is subscribed.");

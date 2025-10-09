@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.parameters;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,7 +23,7 @@ public class SearchNonTelemetryDataParameters {
     /**
      * The content message type.
      */
-    private Set<ContentMessageType> technicalMessageTypes;
+    private Set<TechnicalMessageType> technicalMessageTypes;
 
     /**
      * The beginning of the time interval.

@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.controller.secured;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.PublishNonTelemetryDataService;
 import de.agrirouter.middleware.business.SearchNonTelemetryDataService;
@@ -15,6 +14,7 @@ import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.ParameterValidationProblemResponse;
 import de.agrirouter.middleware.controller.dto.response.SearchFilesResponse;
 import de.agrirouter.middleware.controller.dto.response.domain.FileHeaderDto;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -111,7 +111,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataParameters.setBase64EncodedMessageContent(messageTuple.getMessageContent());
                     publishNonTelemetryDataParameters.setFilename(messageTuple.getFileName());
                     publishNonTelemetryDataParameters.setRecipients(messageTuple.getRecipients());
-                    publishNonTelemetryDataParameters.setContentMessageType(ContentMessageType.ISO_11783_TASKDATA_ZIP);
+            publishNonTelemetryDataParameters.setContentMessageType(TemporaryContentMessageType.ISO_11783_TASKDATA_ZIP);
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
@@ -183,7 +183,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataParameters.setBase64EncodedMessageContent(messageTuple.getMessageContent());
                     publishNonTelemetryDataParameters.setFilename(messageTuple.getFileName());
                     publishNonTelemetryDataParameters.setRecipients(messageTuple.getRecipients());
-                    publishNonTelemetryDataParameters.setContentMessageType(ContentMessageType.SHP_SHAPE_ZIP);
+            publishNonTelemetryDataParameters.setContentMessageType(TemporaryContentMessageType.SHP_SHAPE_ZIP);
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );
@@ -399,7 +399,7 @@ public class NonTelemetryDataController implements SecuredApiController {
                     publishNonTelemetryDataParameters.setBase64EncodedMessageContent(messageTuple.getMessageContent());
                     publishNonTelemetryDataParameters.setFilename(messageTuple.getFileName());
                     publishNonTelemetryDataParameters.setRecipients(messageTuple.getRecipients());
-                    publishNonTelemetryDataParameters.setContentMessageType(ContentMessageType.DOC_PDF);
+            publishNonTelemetryDataParameters.setContentMessageType(TemporaryContentMessageType.DOC_PDF);
                     publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
                 }
         );

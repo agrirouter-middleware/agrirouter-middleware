@@ -1,11 +1,12 @@
 package de.agrirouter.middleware.business;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
+import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.dto.MessageStatistics;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,14 +44,14 @@ public class SearchNonTelemetryDataService {
             final List<ContentMessageMetadata> contentMessageMetadata;
             if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
                 contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
-                        searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(ContentMessageType::getKey).toList(),
-                        List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
+                        searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(TechnicalMessageType::getKey).toList(),
+                        List.of(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(), TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
                 log.debug("Found {} content messages in total.", contentMessageMetadata.size());
             } else {
                 contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
-                        List.of(ContentMessageType.ISO_11783_TIME_LOG.getKey(), ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
+                        List.of(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(), TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
             }

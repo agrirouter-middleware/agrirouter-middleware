@@ -2,7 +2,6 @@ package de.agrirouter.middleware.business.listener;
 
 import agrirouter.feed.response.FeedResponse;
 import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import com.dke.data.agrirouter.api.service.messaging.encoding.MessageDecoder;
@@ -30,6 +29,7 @@ import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.documents.TaskDataTimeLogContainer;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
@@ -127,18 +127,18 @@ public class MessageQueryResultEventListener {
             var externalEndpointId = endpoint.getExternalEndpointId();
             applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId, new BusinessEvent(Instant.now(), BusinessEventType.NON_TELEMETRY_MESSAGE_RECEIVED)));
 
-            if (technicalMessageType.equals(ContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
+            if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
                 final var timeLogs = taskDataTimeLogService.parseMessageContent(contentMessage.getMessageContent());
                 taskDataTimeLogContainerRepository.save(new TaskDataTimeLogContainer(contentMessage, timeLogs));
                 applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId, new BusinessEvent(Instant.now(), BusinessEventType.TASK_DATA_RECEIVED)));
             }
 
-            if (technicalMessageType.equals(ContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
+            if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey())) {
                 deviceDescriptionService.saveReceivedDeviceDescription(contentMessage);
                 applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId, new BusinessEvent(Instant.now(), BusinessEventType.DEVICE_DESCRIPTION_RECEIVED)));
             }
 
-            if (technicalMessageType.equals(ContentMessageType.ISO_11783_TIME_LOG.getKey())) {
+            if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey())) {
                 timeLogService.save(contentMessage);
                 applicationEventPublisher.publishEvent(new BusinessEventApplicationEvent(this, externalEndpointId, new BusinessEvent(Instant.now(), BusinessEventType.TIME_LOG_RECEIVED)));
             }

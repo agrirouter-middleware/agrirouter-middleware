@@ -1,7 +1,7 @@
 package de.agrirouter.middleware.controller.dto.request;
 
-import com.dke.data.agrirouter.api.enums.ContentMessageType;
 import com.dke.data.agrirouter.impl.common.UtcTimeService;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +21,7 @@ public class SearchFilesRequest {
     /**
      * Filter for dedicated content message types.
      */
-    Set<ContentMessageType> technicalMessageTypes;
+    Set<TemporaryContentMessageType> technicalMessageTypes;
 
     /**
      * The beginning of the time interval.
