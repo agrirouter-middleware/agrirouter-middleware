@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business;
 
+import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.dto.MessageStatistics;
@@ -43,7 +44,7 @@ public class SearchNonTelemetryDataService {
             final List<ContentMessageMetadata> contentMessageMetadata;
             if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
                 contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
-                        searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(TemporaryContentMessageType::getKey).toList(),
+                        searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(TechnicalMessageType::getKey).toList(),
                         List.of(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(), TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
