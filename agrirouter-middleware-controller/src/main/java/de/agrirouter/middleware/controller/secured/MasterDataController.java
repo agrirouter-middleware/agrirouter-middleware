@@ -75,8 +75,8 @@ public class MasterDataController implements SecuredApiController {
             dto.setCustomerAsJson(customer.getDocument().toJson());
             return dto;
         }).toList();
-        var farmsResponse = new CustomersResponse(externalEndpointId, dtos);
-        return ResponseEntity.ok(farmsResponse);
+        var customersResponse = new CustomersResponse(externalEndpointId, dtos);
+        return ResponseEntity.ok(customersResponse);
     }
 
     @GetMapping("/farms/{externalEndpointId}")

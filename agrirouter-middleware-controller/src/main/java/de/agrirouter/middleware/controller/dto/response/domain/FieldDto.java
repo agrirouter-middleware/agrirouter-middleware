@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@Schema(description = "A container holding the basic representation of a field (the EFDI representation.")
+@Schema(description = "A container holding the basic representation of a field (the EFDI representation).")
 public class FieldDto {
 
     @Schema(description = "The field as JSON.")
