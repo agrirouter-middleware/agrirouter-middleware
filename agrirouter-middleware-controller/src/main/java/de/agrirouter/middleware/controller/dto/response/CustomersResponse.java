@@ -14,6 +14,9 @@ import java.util.List;
 @Schema(description = "Response for all customers for the account.")
 public class CustomersResponse extends Response {
 
+    @Schema(description = "The external endpoint id.")
+    String externalEndpointId;
+
     @Schema(description = "The customers for the account.")
     List<CustomerDto> customers;
 

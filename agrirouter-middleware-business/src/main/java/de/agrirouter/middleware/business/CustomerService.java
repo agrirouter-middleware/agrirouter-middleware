@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -53,5 +54,15 @@ public class CustomerService {
             log.error("Could not parse the message content.", e);
             return Optional.empty();
         }
+    }
+
+    /**
+     * Find all customers for the given external endpoint ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @return The customers.
+     */
+    public List<Customer> findByExternalEndpointId(String externalEndpointId) {
+        return customerRepository.findByExternalEndpointId(externalEndpointId);
     }
 }

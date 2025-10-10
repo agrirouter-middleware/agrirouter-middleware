@@ -4,9 +4,11 @@ import de.agrirouter.middleware.business.CustomerService;
 import de.agrirouter.middleware.business.FarmService;
 import de.agrirouter.middleware.business.FieldService;
 import de.agrirouter.middleware.controller.SecuredApiController;
+import de.agrirouter.middleware.controller.dto.response.CustomersResponse;
 import de.agrirouter.middleware.controller.dto.response.ErrorResponse;
 import de.agrirouter.middleware.controller.dto.response.FarmsResponse;
 import de.agrirouter.middleware.controller.dto.response.FieldsResponse;
+import de.agrirouter.middleware.controller.dto.response.domain.CustomerDto;
 import de.agrirouter.middleware.controller.dto.response.domain.FarmDto;
 import de.agrirouter.middleware.controller.dto.response.domain.FieldDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +41,45 @@ public class MasterDataController implements SecuredApiController {
     private final FarmService farmService;
     private final FieldService fieldService;
 
-    @GetMapping("/farms")
+    @GetMapping("/customers/{externalEndpointId}")
+    @Operation(
+            operationId = "master-data.customers",
+            summary = "Retrieve customers for a given external endpoint ID",
+            description = "Retrieve all customers for a given external endpoint ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200",
+                            description = "Customers retrieved successfully, even if the list is empty.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = CustomersResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<?> getCustomers(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
+        var customers = customerService.findByExternalEndpointId(externalEndpointId);
+        var dtos = customers.stream().map(customer -> {
+            var dto = new CustomerDto();
+            dto.setCustomerAsJson(customer.getDocument().toJson());
+            return dto;
+        }).toList();
+        var farmsResponse = new CustomersResponse(externalEndpointId, dtos);
+        return ResponseEntity.ok(farmsResponse);
+    }
+
+    @GetMapping("/farms/{externalEndpointId}")
     @Operation(
             operationId = "master-data.farms",
             summary = "Retrieve farms for a given external endpoint ID",
@@ -77,7 +117,7 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(farmsResponse);
     }
 
-    @GetMapping("/fields")
+    @GetMapping("/fields/{externalEndpointId}")
     @Operation(
             operationId = "master-data.fields",
             summary = "Retrieve fields for a given external endpoint ID",
