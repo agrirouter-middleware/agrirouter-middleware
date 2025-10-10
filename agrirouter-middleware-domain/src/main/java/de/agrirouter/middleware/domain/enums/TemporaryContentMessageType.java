@@ -17,6 +17,7 @@ public enum TemporaryContentMessageType implements TechnicalMessageType {
     VID_AVI("vid:avi", "", true),
     VID_MP4("vid:mp4", "", true),
     VID_WMV("vid:wmv", "", true),
+
     ISO_11783_FIELD("masterdata:partfield", "iso11783p10.v0.m0.messages.Partfield", false),
     ISO_11783_FARM("masterdata:farm", "iso11783p10.v0.m0.messages.Farm", false),
     ISO_11783_CUSTOMER("masterdata:customer", "iso11783p10.v0.m0.messages.Customer", false),
