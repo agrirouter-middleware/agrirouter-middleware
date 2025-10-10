@@ -57,7 +57,7 @@ public class FarmService {
     }
 
     /**
-     * Find all fields for the given external endpoint ID.
+     * Find all farms for the given external endpoint ID.
      *
      * @param externalEndpointId The external endpoint ID.
      * @return The farms.
