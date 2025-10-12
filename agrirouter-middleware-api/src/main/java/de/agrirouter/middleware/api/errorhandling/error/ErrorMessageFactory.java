@@ -141,4 +141,13 @@ public final class ErrorMessageFactory {
     public static ErrorMessage couldNotParseCustomer() {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_CUSTOMER, "Could not parse the customer from the given JSON, please check your data..", HttpStatus.BAD_REQUEST);
     }
+
+    public static ErrorMessage couldNotParseFarm() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_FARM, "Could not parse the farm from the given JSON, please check your data..", HttpStatus.BAD_REQUEST);
+    }
+
+    public static ErrorMessage couldNotParseField() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_FIELD, "Could not parse the field from the given JSON, please check your data..", HttpStatus.BAD_REQUEST);
+    }
+
 }

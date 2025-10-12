@@ -3,8 +3,13 @@ package de.agrirouter.middleware.business;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.documents.Farm;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
+import de.agrirouter.middleware.integration.SendMessageIntegrationService;
+import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.FarmRepository;
 import efdi.GrpcEfdi;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +28,7 @@ public class FarmService {
 
     private final EndpointService endpointService;
     private final FarmRepository farmRepository;
+    private final SendMessageIntegrationService sendMessageIntegrationService;
 
     public void save(ContentMessage contentMessage) {
         log.debug("Saving field for content message with ID: {}", contentMessage.getId());
@@ -66,7 +73,41 @@ public class FarmService {
         return farmRepository.findByExternalEndpointId(externalEndpointId);
     }
 
+    /**
+     * Publish the farm.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param farmAsJson         The farm as JSON.
+     */
     public void publishFarm(String externalEndpointId, String farmAsJson) {
+        var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            var optionalFarm = parse(farmAsJson);
+            if (optionalFarm.isPresent()) {
+                var farm = optionalFarm.get();
+                final var messagingIntegrationParameters = new MessagingIntegrationParameters(endpoint.getExternalEndpointId(),
+                        TemporaryContentMessageType.ISO_11783_FARM,
+                        Collections.emptyList(),
+                        null,
+                        farm.toByteString(),
+                        null);
+                sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+            } else {
+                log.warn("Could not parse the farm, looks like the data provided is invalid.");
+                throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+            }
+        } else {
+            log.warn("Could not find the endpoint with the ID {}.", externalEndpointId);
+        }
+    }
 
+    private Optional<GrpcEfdi.Farm> parse(String farmAsJson) {
+        try {
+            return Optional.of(GrpcEfdi.Farm.parseFrom(ByteString.copyFromUtf8(farmAsJson)));
+        } catch (InvalidProtocolBufferException e) {
+            log.error("Could not parse the farm, looks like the data provided is invalid.", e);
+            throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
+        }
     }
 }
