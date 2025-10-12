@@ -112,7 +112,7 @@ public class CustomerService {
             GrpcEfdi.Customer.Builder builder = GrpcEfdi.Customer.newBuilder();
             JsonFormat.parser().merge(customerAsJson, builder);
             return Optional.of(builder.build());
-        } catch (Exception e) {
+        } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse the customer, looks like the data provided is invalid.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
         }
