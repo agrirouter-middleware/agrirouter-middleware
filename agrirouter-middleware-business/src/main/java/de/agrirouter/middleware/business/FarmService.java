@@ -30,6 +30,11 @@ public class FarmService {
     private final FarmRepository farmRepository;
     private final SendMessageIntegrationService sendMessageIntegrationService;
 
+    /**
+     * Save the farm.
+     *
+     * @param contentMessage The content message.
+     */
     public void save(ContentMessage contentMessage) {
         log.debug("Saving field for content message with ID: {}", contentMessage.getId());
         final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
