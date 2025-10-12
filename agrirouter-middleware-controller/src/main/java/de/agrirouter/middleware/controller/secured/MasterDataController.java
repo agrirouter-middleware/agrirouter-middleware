@@ -85,7 +85,6 @@ public class MasterDataController implements SecuredApiController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Customer data sent successfully"),
                     @ApiResponse(responseCode = "400", description = "Invalid customer data provided, please be aware that the customer data must be a valid JSON object and match the ISO 11783 standard.", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)),
-                    @ApiResponse(responseCode = "404", description = "External endpoint not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
             }
     )
     public ResponseEntity<?> publishCustomer(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The customer data as JSON string, please be aware that the customer data must be a valid JSON object and match the ISO 11783 standard.") @RequestBody String customerAsJson) {
@@ -139,7 +138,6 @@ public class MasterDataController implements SecuredApiController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Farm data sent successfully"),
                     @ApiResponse(responseCode = "400", description = "Invalid farm data provided, please be aware that the farm data must be a valid JSON object and match the ISO 11783 standard.", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)),
-                    @ApiResponse(responseCode = "404", description = "External endpoint not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
             }
     )
     public ResponseEntity<?> publishFarm(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The farm data as JSON string, please be aware that the farm data must be a valid JSON object and match the ISO 11783 standard.") @RequestBody String farmAsJson) {
@@ -193,7 +191,6 @@ public class MasterDataController implements SecuredApiController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Field data sent successfully"),
                     @ApiResponse(responseCode = "400", description = "Invalid field data provided, please be aware that the field data must be a valid JSON object and match the ISO 11783 standard.", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)),
-                    @ApiResponse(responseCode = "404", description = "External endpoint not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
             }
     )
     public ResponseEntity<?> publishField(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The field data as JSON string, please be aware that the field data must be a valid JSON object and match the ISO 11783 standard.") @RequestBody String fieldAsJson) {
