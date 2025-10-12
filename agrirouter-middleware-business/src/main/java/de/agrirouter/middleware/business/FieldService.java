@@ -100,7 +100,7 @@ public class FieldService {
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
             } else {
                 log.warn("Could not parse the field, looks like the data provided is invalid.");
-                throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+                throw new BusinessException(ErrorMessageFactory.couldNotParseField());
             }
         } else {
             log.warn("Could not find the endpoint with the ID {}.", externalEndpointId);
@@ -112,7 +112,7 @@ public class FieldService {
             return Optional.of(GrpcEfdi.Partfield.parseFrom(ByteString.copyFromUtf8(fieldAsJson)));
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse the field, looks like the data provided is invalid.", e);
-            throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
+            throw new BusinessException(ErrorMessageFactory.couldNotParseField());
         }
     }
 }

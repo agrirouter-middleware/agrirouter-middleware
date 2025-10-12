@@ -100,7 +100,7 @@ public class FarmService {
                 sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
             } else {
                 log.warn("Could not parse the farm, looks like the data provided is invalid.");
-                throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+                throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
             }
         } else {
             log.warn("Could not find the endpoint with the ID {}.", externalEndpointId);
