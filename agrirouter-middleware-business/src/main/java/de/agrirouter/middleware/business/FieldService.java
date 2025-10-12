@@ -65,4 +65,7 @@ public class FieldService {
     public List<Field> findByExternalEndpointId(String externalEndpointId) {
         return fieldRepository.findAllByExternalEndpointId(externalEndpointId);
     }
+
+    public void publishField(String externalEndpointId, String fieldAsJson) {
+    }
 }

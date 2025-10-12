@@ -65,4 +65,8 @@ public class FarmService {
     public List<Farm> findByExternalEndpointId(String externalEndpointId) {
         return farmRepository.findByExternalEndpointId(externalEndpointId);
     }
+
+    public void publishFarm(String externalEndpointId, String farmAsJson) {
+
+    }
 }
