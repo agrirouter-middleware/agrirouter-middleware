@@ -109,7 +109,9 @@ public class FieldService {
 
     private Optional<GrpcEfdi.Partfield> parse(String fieldAsJson) {
         try {
-            return Optional.of(GrpcEfdi.Partfield.parseFrom(ByteString.copyFromUtf8(fieldAsJson)));
+            GrpcEfdi.Partfield.Builder builder = GrpcEfdi.Partfield.newBuilder();
+            JsonFormat.parser().merge(fieldAsJson, builder);
+            return Optional.of(builder.build());
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse the field, looks like the data provided is invalid.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseField());
