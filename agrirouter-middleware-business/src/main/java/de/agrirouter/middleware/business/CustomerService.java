@@ -79,7 +79,7 @@ public class CustomerService {
     }
 
     /**
-     * Sending customer data to the agrirouyter.
+     * Sending customer data to the agrirouter.
      *
      * @param externalEndpointId The external endpoint ID.
      * @param customerAsJson     The customer as JSON.
