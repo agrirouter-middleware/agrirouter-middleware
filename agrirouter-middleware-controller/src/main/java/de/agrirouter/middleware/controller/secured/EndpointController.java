@@ -768,7 +768,7 @@ public class EndpointController implements SecuredApiController {
     )
     public ResponseEntity<BusinessEventsResponse> events(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId) {
         final var businessEvents = endpointService.getBusinessEvents(externalEndpointId);
-        return ResponseEntity.status(HttpStatus.OK).body(new BusinessEventsResponse(externalEndpointId, businessEvents));
+        return ResponseEntity.ok(new BusinessEventsResponse(externalEndpointId, businessEvents));
     }
 
     /**
