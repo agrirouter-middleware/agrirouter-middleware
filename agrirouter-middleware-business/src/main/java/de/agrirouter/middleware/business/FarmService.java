@@ -109,7 +109,9 @@ public class FarmService {
 
     private Optional<GrpcEfdi.Farm> parse(String farmAsJson) {
         try {
-            return Optional.of(GrpcEfdi.Farm.parseFrom(ByteString.copyFromUtf8(farmAsJson)));
+            GrpcEfdi.Farm.Builder builder = GrpcEfdi.Farm.newBuilder();
+            JsonFormat.parser().merge(farmAsJson, builder);
+            return Optional.of(builder.build());
         } catch (InvalidProtocolBufferException e) {
             log.error("Could not parse the farm, looks like the data provided is invalid.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
