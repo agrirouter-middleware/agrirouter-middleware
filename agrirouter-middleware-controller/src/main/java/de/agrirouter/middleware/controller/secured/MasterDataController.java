@@ -191,7 +191,7 @@ public class MasterDataController implements SecuredApiController {
             summary = "Send field data to the specified external endpoint",
             description = "This operation sends field data to the specified external endpoint.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Customer data sent successfully"),
+                    @ApiResponse(responseCode = "201", description = "Field data sent successfully"),
                     @ApiResponse(responseCode = "400", description = "Invalid field data provided, please be aware that the field data must be a valid JSON object and match the ISO 11783 standard.", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)),
                     @ApiResponse(responseCode = "404", description = "External endpoint not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
             }
