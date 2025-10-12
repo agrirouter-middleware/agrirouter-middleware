@@ -141,4 +141,8 @@ public final class ErrorMessageFactory {
     public static ErrorMessage unknownError(String message) {
         return new ErrorMessage(ErrorKey.UNKNOWN_ERROR, message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    public static ErrorMessage couldNotParseCustomer() {
+        return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_CUSTOMER, "Could not parse the customer from the given JSON, please check your data..", HttpStatus.BAD_REQUEST);
+    }
 }

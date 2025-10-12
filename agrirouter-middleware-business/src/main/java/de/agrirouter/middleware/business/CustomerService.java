@@ -3,8 +3,13 @@ package de.agrirouter.middleware.business;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.documents.Customer;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
+import de.agrirouter.middleware.integration.SendMessageIntegrationService;
+import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.CustomerRepository;
 import efdi.GrpcEfdi;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +27,14 @@ import java.util.Optional;
 public class CustomerService {
 
     private final EndpointService endpointService;
+    private final SendMessageIntegrationService sendMessageIntegrationService;
     private final CustomerRepository customerRepository;
 
+    /**
+     * Save the customer within the local database.
+     *
+     * @param contentMessage -
+     */
     public void save(ContentMessage contentMessage) {
         log.debug("Saving customer for content message with ID: {}", contentMessage.getId());
         final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
@@ -64,5 +76,43 @@ public class CustomerService {
      */
     public List<Customer> findByExternalEndpointId(String externalEndpointId) {
         return customerRepository.findByExternalEndpointId(externalEndpointId);
+    }
+
+    /**
+     * Sending customer data to the agrirouyter.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param customerAsJson     The customer as JSON.
+     */
+    public void publishCustomer(String externalEndpointId, String customerAsJson) {
+        var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            var endpoint = optionalEndpoint.get();
+            var optionalCustomer = parse(customerAsJson);
+            if (optionalCustomer.isPresent()) {
+                var customer = optionalCustomer.get();
+                final var messagingIntegrationParameters = new MessagingIntegrationParameters(endpoint.getExternalEndpointId(),
+                        TemporaryContentMessageType.ISO_11783_CUSTOMER,
+                        Collections.emptyList(),
+                        null,
+                        customer.toByteString(),
+                        null);
+                sendMessageIntegrationService.publish(endpoint, messagingIntegrationParameters);
+            } else {
+                log.warn("Could not parse the customer, looks like the data provided is invalid.");
+                throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+            }
+        } else {
+            log.warn("Could not find the endpoint with the ID {}.", externalEndpointId);
+        }
+    }
+
+    private Optional<GrpcEfdi.Customer> parse(String customerAsJson) {
+        try {
+            return Optional.of(GrpcEfdi.Customer.parseFrom(ByteString.copyFromUtf8(customerAsJson)));
+        } catch (InvalidProtocolBufferException e) {
+            log.error("Could not parse the customer, looks like the data provided is invalid.", e);
+            throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+        }
     }
 }

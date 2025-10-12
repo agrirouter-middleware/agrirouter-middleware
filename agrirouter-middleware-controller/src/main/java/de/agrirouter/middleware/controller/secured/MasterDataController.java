@@ -18,12 +18,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller for master data management, i.e. farms, customers, devices, etc.
@@ -77,6 +75,22 @@ public class MasterDataController implements SecuredApiController {
         }).toList();
         var customersResponse = new CustomersResponse(externalEndpointId, dtos);
         return ResponseEntity.ok(customersResponse);
+    }
+
+    @PostMapping("/customers/{externalEndpointId}")
+    @Operation(
+            operationId = "master-data.customer",
+            summary = "Send customer data to the specified external endpoint",
+            description = "This operation sends customer data to the specified external endpoint.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Customer data sent successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid customer data provided, please be aware that the customer data must be a valid JSON object and match the ISO 11783 standard.", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    @ApiResponse(responseCode = "404", description = "External endpoint not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+            }
+    )
+    public ResponseEntity<?> sendCustomer(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @RequestBody String customerAsJson) {
+        customerService.publishCustomer(externalEndpointId, customerAsJson);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/farms/{externalEndpointId}")
