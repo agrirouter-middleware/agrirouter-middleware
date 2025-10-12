@@ -34,10 +34,6 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.CONTENT_MESSAGE_NOT_FOUND, "Could not find the content message by the given ID.", HttpStatus.NOT_FOUND);
     }
 
-    public static ErrorMessage couldNotFindMessageWaitingForAcknowledgement(String messageId) {
-        return new ErrorMessage(ErrorKey.COULD_NOT_FIND_MESSAGE_WAITING_FOR_ACKNOWLEDGEMENT, String.format("Could not find message with message id '%s' waiting for acknowledgement.", messageId), HttpStatus.NOT_FOUND);
-    }
-
     public static ErrorMessage middlewareDoesNotSupportGateway(String gatewayId) {
         return new ErrorMessage(ErrorKey.MIDDLEWARE_DOES_NOT_SUPPORT_GATEWAY, String.format("The middleware does not support the gateway with the ID '%s'.", gatewayId), HttpStatus.BAD_REQUEST);
     }
