@@ -117,4 +117,15 @@ public class FarmService {
             throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
         }
     }
+
+    /**
+     * Get the farm by the external endpoint ID and the farm ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param farmId             The farm ID.
+     * @return The farm.
+     */
+    public Farm getFarm(String externalEndpointId, String farmId) {
+        return farmRepository.findByExternalEndpointIdAndDocument_farmId(externalEndpointId, farmId);
+    }
 }

@@ -151,6 +151,26 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(farmsResponse);
     }
 
+    @GetMapping("/farm/{externalEndpointId}/{entityId}")
+    @Operation(
+            summary = "Get farm by external endpoint ID and entity ID",
+            description = "Retrieves a farm by its external endpoint ID and entity ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Farm found", content = @Content(schema = @Schema(implementation = FarmDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Farm not found")
+            }
+    )
+    public ResponseEntity<?> getFarm(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity ID.", required = true) @PathVariable String entityId) {
+        var farm = farmService.getFarm(externalEndpointId, entityId);
+        if (farm.isPresent()) {
+            var dto = new FarmDto();
+            dto.setFarmAsJson(farm.getDocument().toJson());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/farm/{externalEndpointId}")
     @Operation(
             operationId = "master-data.farm",
