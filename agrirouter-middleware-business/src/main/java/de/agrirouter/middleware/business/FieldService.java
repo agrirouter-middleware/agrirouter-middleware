@@ -117,4 +117,15 @@ public class FieldService {
             throw new BusinessException(ErrorMessageFactory.couldNotParseField());
         }
     }
+
+    /**
+     * Find the field for the given external endpoint ID and the field ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param fieldId            The field ID.
+     * @return The field.
+     */
+    public Optional<Field> getField(String externalEndpointId, String fieldId) {
+        return fieldRepository.findByExternalEndpointIdAndDocument_partfieldId(externalEndpointId, fieldId);
+    }
 }
