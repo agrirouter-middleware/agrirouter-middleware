@@ -44,6 +44,10 @@ public class FieldService {
             var fieldId = extractFieldId(document);
             this.fieldRepository.findByExternalEndpointIdAndFieldId(endpoint.getExternalEndpointId(), fieldId).ifPresentOrElse(f -> {
                 log.debug("Field with ID {} already exists, therefore updating it.", fieldId);
+                f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                 f.setDocument(document);
                 fieldRepository.save(f);
             }, () -> {

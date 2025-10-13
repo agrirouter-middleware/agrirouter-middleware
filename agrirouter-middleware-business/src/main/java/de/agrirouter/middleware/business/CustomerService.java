@@ -44,6 +44,10 @@ public class CustomerService {
             var customerId = extractCustomerId(document);
             this.customerRepository.findByExternalEndpointIdAndCustomerId(endpoint.getExternalEndpointId(), customerId).ifPresentOrElse(c -> {
                 log.debug("Customer with ID {} already exists, therefore updating it.", customerId);
+                c.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                c.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                c.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                c.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                 c.setDocument(document);
                 customerRepository.save(c);
             }, () -> {

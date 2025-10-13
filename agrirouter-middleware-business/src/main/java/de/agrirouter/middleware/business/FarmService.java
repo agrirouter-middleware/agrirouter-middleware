@@ -44,6 +44,10 @@ public class FarmService {
             var farmId = extractFarmId(document);
             this.farmRepository.findByExternalEndpointIdAndFarmId(endpoint.getExternalEndpointId(), farmId).ifPresentOrElse(f -> {
                 log.debug("Farm with ID {} already exists, therefore updating it.", farmId);
+                f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                 f.setDocument(document);
                 farmRepository.save(f);
             }, () -> {
