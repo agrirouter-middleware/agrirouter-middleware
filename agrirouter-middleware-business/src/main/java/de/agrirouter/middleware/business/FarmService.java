@@ -125,7 +125,7 @@ public class FarmService {
      * @param farmId             The farm ID.
      * @return The farm.
      */
-    public Farm getFarm(String externalEndpointId, String farmId) {
+    public Optional<Farm> getFarm(String externalEndpointId, String farmId) {
         return farmRepository.findByExternalEndpointIdAndDocument_farmId(externalEndpointId, farmId);
     }
 }

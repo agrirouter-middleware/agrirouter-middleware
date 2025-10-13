@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository to access the farms.
@@ -27,5 +28,5 @@ public interface FarmRepository extends MongoRepository<Farm, String> {
      * @param farmId             The farm ID.
      * @return The farm.
      */
-    Farm findByExternalEndpointIdAndDocument_farmId(String externalEndpointId, String farmId);
+    Optional<Farm> findByExternalEndpointIdAndDocument_farmId(String externalEndpointId, String farmId);
 }
