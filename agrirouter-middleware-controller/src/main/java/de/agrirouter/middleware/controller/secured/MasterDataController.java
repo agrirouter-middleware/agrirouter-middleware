@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(SecuredApiController.API_PREFIX + "/master-data")
 @Tag(
         name = "master data | customer, farm and field management",
-        description = "Operations for master data management, i.e. farms, customers, devices, etc."
+        description = "Operations for master data management, i.e. farm, customer, device, etc."
 )
 public class MasterDataController implements SecuredApiController {
 
@@ -39,7 +39,7 @@ public class MasterDataController implements SecuredApiController {
     private final FarmService farmService;
     private final FieldService fieldService;
 
-    @GetMapping("/customers/{externalEndpointId}")
+    @GetMapping("/customer/{externalEndpointId}")
     @Operation(
             operationId = "master-data.customers",
             summary = "Retrieve customers for a given external endpoint ID",
@@ -77,7 +77,7 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(customersResponse);
     }
 
-    @PostMapping("/customers/{externalEndpointId}")
+    @PostMapping("/customer/{externalEndpointId}")
     @Operation(
             operationId = "master-data.customer",
             summary = "Send customer data to the specified external endpoint",
@@ -92,7 +92,7 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/farms/{externalEndpointId}")
+    @GetMapping("/farm/{externalEndpointId}")
     @Operation(
             operationId = "master-data.farms",
             summary = "Retrieve farms for a given external endpoint ID",
@@ -130,7 +130,7 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(farmsResponse);
     }
 
-    @PostMapping("/farms/{externalEndpointId}")
+    @PostMapping("/farm/{externalEndpointId}")
     @Operation(
             operationId = "master-data.farm",
             summary = "Send farm data to the specified external endpoint",
@@ -145,7 +145,7 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/fields/{externalEndpointId}")
+    @GetMapping("/field/{externalEndpointId}")
     @Operation(
             operationId = "master-data.fields",
             summary = "Retrieve fields for a given external endpoint ID",
@@ -183,7 +183,7 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(fieldsResponse);
     }
 
-    @PostMapping("/fields/{externalEndpointId}")
+    @PostMapping("/field/{externalEndpointId}")
     @Operation(
             operationId = "master-data.field",
             summary = "Send field data to the specified external endpoint",
