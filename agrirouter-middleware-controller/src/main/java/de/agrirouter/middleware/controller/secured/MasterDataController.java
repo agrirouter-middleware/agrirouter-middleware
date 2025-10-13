@@ -161,8 +161,9 @@ public class MasterDataController implements SecuredApiController {
             }
     )
     public ResponseEntity<?> getFarm(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity ID.", required = true) @PathVariable String entityId) {
-        var farm = farmService.getFarm(externalEndpointId, entityId);
-        if (farm.isPresent()) {
+        var optionalFarm = farmService.getFarm(externalEndpointId, entityId);
+        if (optionalFarm.isPresent()) {
+            var farm = optionalFarm.get();
             var dto = new FarmDto();
             dto.setFarmAsJson(farm.getDocument().toJson());
             return ResponseEntity.ok(dto);
