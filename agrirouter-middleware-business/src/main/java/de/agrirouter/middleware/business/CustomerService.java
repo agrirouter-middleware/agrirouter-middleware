@@ -117,4 +117,15 @@ public class CustomerService {
             throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
         }
     }
+
+    /**
+     * Find the customer for the given external endpoint ID and the customer ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param customerId         The customer ID.
+     * @return The customer.
+     */
+    public Optional<Customer> getCustomer(String externalEndpointId, String customerId) {
+        return customerRepository.findByExternalEndpointIdAndDocument_customerId(externalEndpointId, customerId);
+    }
 }

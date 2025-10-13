@@ -77,6 +77,27 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(customersResponse);
     }
 
+    @GetMapping("/customer/{externalEndpointId}/{entityId}")
+    @Operation(
+            summary = "Get customer by external endpoint ID and entity ID",
+            description = "Retrieves a customer by its external endpoint ID and entity ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Customer found", content = @Content(schema = @Schema(implementation = CustomerDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Customer not found")
+            }
+    )
+    public ResponseEntity<?> getCustomer(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity ID.", required = true) @PathVariable String entityId) {
+        var optionalCustomer = customerService.getCustomer(externalEndpointId, entityId);
+        if (optionalCustomer.isPresent()) {
+            var customer = optionalCustomer.get();
+            var dto = new CustomerDto();
+            dto.setCustomerAsJson(customer.getDocument().toJson());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/customer/{externalEndpointId}")
     @Operation(
             operationId = "master-data.customer",
