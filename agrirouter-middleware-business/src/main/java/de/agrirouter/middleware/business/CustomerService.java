@@ -38,19 +38,31 @@ public class CustomerService {
     public void save(ContentMessage contentMessage) {
         log.debug("Saving customer for content message with ID: {}", contentMessage.getId());
         final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-        var customer = new Customer();
-        customer.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-        customer.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-        customer.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-        customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-        customer.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-        customer.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(d -> {
-            customer.setCustomerId(extractCustomerId(d));
-            customer.setDocument(d);
-        });
-        customerRepository.save(customer);
+        if (optionalDocument.isPresent()) {
+            var document = optionalDocument.get();
+            var customerId = extractCustomerId(document);
+            this.customerRepository.findByExternalEndpointIdAndCustomerId(endpoint.getExternalEndpointId(), customerId).ifPresentOrElse(c -> {
+                log.debug("Customer with ID {} already exists, therefore updating it.", customerId);
+                c.setDocument(document);
+                customerRepository.save(c);
+            }, () -> {
+                log.debug("Customer with ID {} does not exist, therefore saving it.", customerId);
+                var customer = new Customer();
+                customer.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+                customer.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                customer.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                customer.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                customer.setExternalEndpointId(endpoint.getExternalEndpointId());
+                customer.setCustomerId(customerId);
+                customer.setDocument(document);
+                customerRepository.save(customer);
+            });
+        } else {
+            log.warn("Could not convert the message content into a JSON document.");
+            throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+        }
     }
 
     private String extractCustomerId(Document document) {

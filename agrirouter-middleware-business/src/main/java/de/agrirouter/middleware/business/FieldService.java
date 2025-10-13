@@ -38,19 +38,29 @@ public class FieldService {
     public void save(ContentMessage contentMessage) {
         log.debug("Saving field for content message with ID: {}", contentMessage.getId());
         final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-        var field = new Field();
-        field.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-        field.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-        field.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-        field.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-        field.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-        field.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(f -> {
-            field.setFieldId(extractFieldId(f));
-            field.setDocument(f);
-        });
-        fieldRepository.save(field);
+        if (optionalDocument.isPresent()) {
+            var document = optionalDocument.get();
+            var fieldId = extractFieldId(document);
+            this.fieldRepository.findByExternalEndpointIdAndFieldId(endpoint.getExternalEndpointId(), fieldId).ifPresentOrElse(f -> {
+                log.debug("Field with ID {} already exists, therefore updating it.", fieldId);
+                f.setDocument(document);
+                fieldRepository.save(f);
+            }, () -> {
+                log.debug("Field with ID {} does not exist, therefore saving it.", fieldId);
+                var field = new Field();
+                field.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+                field.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                field.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                field.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                field.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                field.setExternalEndpointId(endpoint.getExternalEndpointId());
+                field.setFieldId(fieldId);
+                field.setDocument(document);
+                fieldRepository.save(field);
+            });
+        }
+
     }
 
     private String extractFieldId(Document document) {

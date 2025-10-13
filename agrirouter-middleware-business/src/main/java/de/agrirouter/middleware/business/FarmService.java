@@ -36,21 +36,32 @@ public class FarmService {
      * @param contentMessage The content message.
      */
     public void save(ContentMessage contentMessage) {
-        log.debug("Saving field for content message with ID: {}", contentMessage.getId());
+        log.debug("Saving farm for content message with ID: {}", contentMessage.getId());
         final var endpoint = endpointService.findByAgrirouterEndpointId(contentMessage.getContentMessageMetadata().getReceiverId());
-        var farm = new Farm();
-        farm.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-        farm.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-        farm.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-        farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-        farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-        farm.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(f -> {
-            farm.setFarmId(extractFarmId(f));
-            farm.setDocument(f);
-        });
-        farmRepository.save(farm);
+        if (optionalDocument.isPresent()) {
+            var document = optionalDocument.get();
+            var farmId = extractFarmId(document);
+            this.farmRepository.findByExternalEndpointIdAndFarmId(endpoint.getExternalEndpointId(), farmId).ifPresentOrElse(f -> {
+                log.debug("Farm with ID {} already exists, therefore updating it.", farmId);
+                f.setDocument(document);
+                farmRepository.save(f);
+            }, () -> {
+                log.debug("Farm with ID {} does not exist, therefore saving it.", farmId);
+                var farm = new Farm();
+                farm.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+                farm.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                farm.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                farm.setExternalEndpointId(endpoint.getExternalEndpointId());
+                farm.setFarmId(farmId);
+                farm.setDocument(document);
+                farmRepository.save(farm);
+            });
+        } else {
+            log.warn("Could not convert the message content into a JSON document.");
+        }
     }
 
     private String extractFarmId(Document document) {
