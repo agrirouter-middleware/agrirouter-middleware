@@ -63,8 +63,10 @@ public class FieldService {
                 field.setDocument(document);
                 fieldRepository.save(field);
             });
+        } else {
+            log.warn("Could not convert the message content into a JSON document.");
+            throw new BusinessException(ErrorMessageFactory.couldNotParseField());
         }
-
     }
 
     private String extractFieldId(Document document) {
