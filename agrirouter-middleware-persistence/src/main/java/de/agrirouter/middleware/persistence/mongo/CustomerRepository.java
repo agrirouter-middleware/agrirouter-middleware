@@ -22,11 +22,11 @@ public interface CustomerRepository extends MongoRepository<Customer, String> {
     List<Customer> findByExternalEndpointId(String externalEndpointId);
 
     /**
-     * Find a customer by external endpoint ID and customer ID.
+     * Find a customer by its external endpoint ID and customer ID.
      *
      * @param externalEndpointId The external endpoint ID.
      * @param customerId         The customer ID.
      * @return The customer.
      */
-    Optional<Customer> findByExternalEndpointIdAndDocument_customerId(String externalEndpointId, String customerId);
+    Optional<Customer> findByExternalEndpointIdAndCustomerId(String externalEndpointId, String customerId);
 }

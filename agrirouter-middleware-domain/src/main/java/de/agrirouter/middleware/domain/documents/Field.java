@@ -45,6 +45,11 @@ public class Field extends NoSqlBaseEntity {
     private String externalEndpointId;
 
     /**
+     * The field ID.
+     */
+    private String fieldId;
+
+    /**
      * The original time log or device description.
      */
     private org.bson.Document document;

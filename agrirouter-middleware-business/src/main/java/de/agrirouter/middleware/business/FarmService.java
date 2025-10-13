@@ -46,8 +46,18 @@ public class FarmService {
         farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         farm.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(farm::setDocument);
+        optionalDocument.ifPresent(f -> {
+            farm.setFarmId(extractFarmId(f));
+            farm.setDocument(f);
+        });
         farmRepository.save(farm);
+    }
+
+    private String extractFarmId(Document document) {
+        if (document.containsKey("farmId")) {
+            return document.getString("farmId");
+        }
+        return null;
     }
 
     /**
@@ -126,6 +136,6 @@ public class FarmService {
      * @return The farm.
      */
     public Optional<Farm> getFarm(String externalEndpointId, String farmId) {
-        return farmRepository.findByExternalEndpointIdAndDocument_farmId(externalEndpointId, farmId);
+        return farmRepository.findByExternalEndpointIdAndFarmId(externalEndpointId, farmId);
     }
 }

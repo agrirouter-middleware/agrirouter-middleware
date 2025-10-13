@@ -28,5 +28,5 @@ public interface FarmRepository extends MongoRepository<Farm, String> {
      * @param farmId             The farm ID.
      * @return The farm.
      */
-    Optional<Farm> findByExternalEndpointIdAndDocument_farmId(String externalEndpointId, String farmId);
+    Optional<Farm> findByExternalEndpointIdAndFarmId(String externalEndpointId, String farmId);
 }

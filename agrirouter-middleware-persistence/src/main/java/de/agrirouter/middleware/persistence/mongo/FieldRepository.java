@@ -28,5 +28,5 @@ public interface FieldRepository extends MongoRepository<Field, String> {
      * @param fieldId            The field ID.
      * @return The field.
      */
-    Optional<Field> findByExternalEndpointIdAndDocument_partfieldId(String externalEndpointId, String fieldId);
+    Optional<Field> findByExternalEndpointIdAndFieldId(String externalEndpointId, String fieldId);
 }

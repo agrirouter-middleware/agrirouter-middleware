@@ -46,8 +46,18 @@ public class FieldService {
         field.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         field.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(field::setDocument);
+        optionalDocument.ifPresent(f -> {
+            field.setFieldId(extractFieldId(f));
+            field.setDocument(f);
+        });
         fieldRepository.save(field);
+    }
+
+    private String extractFieldId(Document document) {
+        if (document.containsKey("partfieldId")) {
+            return document.getString("partfieldId");
+        }
+        return null;
     }
 
     /**
@@ -126,6 +136,6 @@ public class FieldService {
      * @return The field.
      */
     public Optional<Field> getField(String externalEndpointId, String fieldId) {
-        return fieldRepository.findByExternalEndpointIdAndDocument_partfieldId(externalEndpointId, fieldId);
+        return fieldRepository.findByExternalEndpointIdAndFieldId(externalEndpointId, fieldId);
     }
 }

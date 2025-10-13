@@ -45,6 +45,11 @@ public class Farm extends NoSqlBaseEntity {
     private String externalEndpointId;
 
     /**
+     * The ID of the farm.
+     */
+    private String farmId;
+
+    /**
      * The original time log or device description.
      */
     private org.bson.Document document;
