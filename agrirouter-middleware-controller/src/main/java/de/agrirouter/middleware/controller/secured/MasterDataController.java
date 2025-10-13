@@ -77,6 +77,27 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(customersResponse);
     }
 
+    @GetMapping("/customer/{externalEndpointId}/{entityId}")
+    @Operation(
+            summary = "Get customer by external endpoint ID and entity ID",
+            description = "Retrieves a customer by its external endpoint ID and entity ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Customer found", content = @Content(schema = @Schema(implementation = CustomerDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Customer not found")
+            }
+    )
+    public ResponseEntity<?> getCustomer(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity ID.", required = true) @PathVariable String entityId) {
+        var optionalCustomer = customerService.getCustomer(externalEndpointId, entityId);
+        if (optionalCustomer.isPresent()) {
+            var customer = optionalCustomer.get();
+            var dto = new CustomerDto();
+            dto.setCustomerAsJson(customer.getDocument().toJson());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/customer/{externalEndpointId}")
     @Operation(
             operationId = "master-data.customer",
@@ -130,6 +151,27 @@ public class MasterDataController implements SecuredApiController {
         return ResponseEntity.ok(farmsResponse);
     }
 
+    @GetMapping("/farm/{externalEndpointId}/{entityId}")
+    @Operation(
+            summary = "Get farm by external endpoint ID and entity ID",
+            description = "Retrieves a farm by its external endpoint ID and entity ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Farm found", content = @Content(schema = @Schema(implementation = FarmDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Farm not found")
+            }
+    )
+    public ResponseEntity<?> getFarm(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity ID.", required = true) @PathVariable String entityId) {
+        var optionalFarm = farmService.getFarm(externalEndpointId, entityId);
+        if (optionalFarm.isPresent()) {
+            var farm = optionalFarm.get();
+            var dto = new FarmDto();
+            dto.setFarmAsJson(farm.getDocument().toJson());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/farm/{externalEndpointId}")
     @Operation(
             operationId = "master-data.farm",
@@ -181,6 +223,27 @@ public class MasterDataController implements SecuredApiController {
         }).toList();
         var fieldsResponse = new FieldsResponse(externalEndpointId, dtos);
         return ResponseEntity.ok(fieldsResponse);
+    }
+
+    @GetMapping("/field/{externalEndpointId}/{entityId}")
+    @Operation(
+            summary = "Get field data by external endpoint ID and entity ID",
+            description = "This operation retrieves field data by the specified external endpoint ID and entity ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Field found", content = @Content(schema = @Schema(implementation = FieldDto.class), mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    @ApiResponse(responseCode = "404", description = "Field not found"),
+            }
+    )
+    public ResponseEntity<?> getField(@Parameter(description = "The external endpoint id.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity ID.", required = true) @PathVariable String entityId) {
+        var optionalField = fieldService.getField(externalEndpointId, entityId);
+        if (optionalField.isPresent()) {
+            var field = optionalField.get();
+            var dto = new FieldDto();
+            dto.setFieldAsJson(field.getDocument().toJson());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/field/{externalEndpointId}")

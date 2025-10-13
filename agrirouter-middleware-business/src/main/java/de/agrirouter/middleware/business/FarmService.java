@@ -46,8 +46,18 @@ public class FarmService {
         farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         farm.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(farm::setDocument);
+        optionalDocument.ifPresent(f -> {
+            farm.setFarmId(extractFarmId(f));
+            farm.setDocument(f);
+        });
         farmRepository.save(farm);
+    }
+
+    private String extractFarmId(Document document) {
+        if (document.containsKey("farmId")) {
+            return document.getString("farmId");
+        }
+        return null;
     }
 
     /**
@@ -116,5 +126,16 @@ public class FarmService {
             log.error("Could not parse the farm, looks like the data provided is invalid.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
         }
+    }
+
+    /**
+     * Get the farm by the external endpoint ID and the farm ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param farmId             The farm ID.
+     * @return The farm.
+     */
+    public Optional<Farm> getFarm(String externalEndpointId, String farmId) {
+        return farmRepository.findByExternalEndpointIdAndFarmId(externalEndpointId, farmId);
     }
 }

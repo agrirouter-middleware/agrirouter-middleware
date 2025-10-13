@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository to access the fields.
@@ -20,4 +21,12 @@ public interface FieldRepository extends MongoRepository<Field, String> {
      */
     List<Field> findAllByExternalEndpointId(String externalEndpointId);
 
+    /**
+     * Find a field by its external endpoint ID and field ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param fieldId            The field ID.
+     * @return The field.
+     */
+    Optional<Field> findByExternalEndpointIdAndFieldId(String externalEndpointId, String fieldId);
 }

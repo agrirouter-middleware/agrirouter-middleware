@@ -46,8 +46,18 @@ public class CustomerService {
         customer.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         customer.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(customer::setDocument);
+        optionalDocument.ifPresent(d -> {
+            customer.setCustomerId(extractCustomerId(d));
+            customer.setDocument(d);
+        });
         customerRepository.save(customer);
+    }
+
+    private String extractCustomerId(Document document) {
+        if (document.containsKey("customerId")) {
+            return document.getString("customerId");
+        }
+        return null;
     }
 
     /**
@@ -58,8 +68,8 @@ public class CustomerService {
      */
     private Optional<Document> convert(byte[] messageContent) {
         try {
-            var partField = GrpcEfdi.Customer.parseFrom(ByteString.copyFrom(messageContent));
-            var json = JsonFormat.printer().print(partField);
+            var customer = GrpcEfdi.Customer.parseFrom(ByteString.copyFrom(messageContent));
+            var json = JsonFormat.printer().print(customer);
             var document = Document.parse(json);
             return Optional.ofNullable(document);
         } catch (InvalidProtocolBufferException e) {
@@ -116,5 +126,16 @@ public class CustomerService {
             log.error("Could not parse the customer, looks like the data provided is invalid.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
         }
+    }
+
+    /**
+     * Find the customer for the given external endpoint ID and the customer ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param customerId         The customer ID.
+     * @return The customer.
+     */
+    public Optional<Customer> getCustomer(String externalEndpointId, String customerId) {
+        return customerRepository.findByExternalEndpointIdAndCustomerId(externalEndpointId, customerId);
     }
 }

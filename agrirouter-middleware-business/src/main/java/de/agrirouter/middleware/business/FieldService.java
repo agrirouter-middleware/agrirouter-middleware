@@ -46,8 +46,18 @@ public class FieldService {
         field.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
         field.setExternalEndpointId(endpoint.getExternalEndpointId());
         var optionalDocument = convert(contentMessage.getMessageContent());
-        optionalDocument.ifPresent(field::setDocument);
+        optionalDocument.ifPresent(f -> {
+            field.setFieldId(extractFieldId(f));
+            field.setDocument(f);
+        });
         fieldRepository.save(field);
+    }
+
+    private String extractFieldId(Document document) {
+        if (document.containsKey("partfieldId")) {
+            return document.getString("partfieldId");
+        }
+        return null;
     }
 
     /**
@@ -116,5 +126,16 @@ public class FieldService {
             log.error("Could not parse the field, looks like the data provided is invalid.", e);
             throw new BusinessException(ErrorMessageFactory.couldNotParseField());
         }
+    }
+
+    /**
+     * Find the field for the given external endpoint ID and the field ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param fieldId            The field ID.
+     * @return The field.
+     */
+    public Optional<Field> getField(String externalEndpointId, String fieldId) {
+        return fieldRepository.findByExternalEndpointIdAndFieldId(externalEndpointId, fieldId);
     }
 }

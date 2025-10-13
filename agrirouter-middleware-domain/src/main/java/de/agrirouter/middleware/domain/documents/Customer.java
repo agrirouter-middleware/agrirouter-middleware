@@ -45,6 +45,11 @@ public class Customer extends NoSqlBaseEntity {
     private String externalEndpointId;
 
     /**
+     * The ID of the customer.
+     */
+    private String customerId;
+
+    /**
      * The original time log or device description.
      */
     private org.bson.Document document;
