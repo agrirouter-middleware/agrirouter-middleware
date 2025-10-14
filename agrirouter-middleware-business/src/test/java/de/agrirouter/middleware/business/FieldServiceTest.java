@@ -11,29 +11,18 @@ public class FieldServiceTest {
 
     private final FieldService fieldService = new FieldService(null, null, null);
 
-    /**
-     * Real life examples:
-     * <p>
-     * {
-     * "partfieldId": {
-     * "number": "12345",
-     * "uri": ["urn:customer:example:12345"]
-     * }
-     * }
-     *
-     */
     @Test
     void extractUris_realLifeExample_returnsUris() {
         var realLifeExampple = "{\n" +
                 "  \"partfieldId\": {\n" +
                 "    \"number\": \"12345\",\n" +
-                "    \"uri\": [\"urn:customer:example:12345\"]\n" +
+                "    \"uri\": [\"urn:field:example:12345\"]\n" +
                 "  }\n" +
                 "}";
         Document document = Document.parse(realLifeExampple);
         List<String> uris = fieldService.extractUris(document);
         assertEquals(1, uris.size());
-        assertEquals("urn:customer:example:12345", uris.get(0));
+        assertEquals("urn:field:example:12345", uris.get(0));
     }
 
     /**

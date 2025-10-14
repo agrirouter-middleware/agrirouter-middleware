@@ -41,38 +41,56 @@ public class FarmService {
         var optionalDocument = convert(contentMessage.getMessageContent());
         if (optionalDocument.isPresent()) {
             var document = optionalDocument.get();
-            var farmId = extractFarmId(document);
-            this.farmRepository.findByExternalEndpointIdAndFarmId(endpoint.getExternalEndpointId(), farmId).ifPresentOrElse(f -> {
-                log.debug("Farm with ID {} already exists, therefore updating it.", farmId);
-                f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                f.setDocument(document);
-                farmRepository.save(f);
-            }, () -> {
-                log.debug("Farm with ID {} does not exist, therefore saving it.", farmId);
-                var farm = new Farm();
-                farm.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                farm.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                farm.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                farm.setExternalEndpointId(endpoint.getExternalEndpointId());
-                farm.setFarmId(farmId);
-                farm.setDocument(document);
-                farmRepository.save(farm);
-            });
+            var extractUris = extractUris(document);
+            if (extractUris.isEmpty()) {
+                log.warn("No URIs found for farm form content message with the ID: {}", contentMessage.getId());
+                throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
+            } else {
+                extractUris.sort(String::compareTo);
+                extractUris.forEach(uri -> log.debug("Found URI: {}", uri));
+                var farmId = extractUris.get(0);
+                this.farmRepository.findByExternalEndpointIdAndFarmId(endpoint.getExternalEndpointId(), farmId).ifPresentOrElse(f -> {
+                    log.debug("Farm with ID {} already exists, therefore updating it.", farmId);
+                    f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                    f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                    f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                    f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                    f.setDocument(document);
+                    farmRepository.save(f);
+                }, () -> {
+                    var farm = new Farm();
+                    farm.setExternalEndpointId(endpoint.getExternalEndpointId());
+                    farm.setFarmId(farmId);
+                    farm.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                    farm.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                    farm.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                    farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                    farm.setDocument(document);
+                    farmRepository.save(farm);
+                });
+            }
         } else {
-            log.warn("Could not convert the message content into a JSON document.");
+            log.warn("Could not parse the message content for the content message with the ID: {}", contentMessage.getId());
+            throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());
         }
     }
 
-    private String extractFarmId(Document document) {
+    protected List<String> extractUris(Document document) {
         if (document.containsKey("farmId")) {
-            return document.getString("farmId");
+            var farmId = document.get("farmId", Document.class);
+            if (farmId.containsKey("uri")) {
+                var uri = farmId.get("uri");
+                if (uri instanceof List<?>) {
+                    return ((List<?>) uri).stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .toList();
+                } else if (uri instanceof String) {
+                    return List.of((String) uri);
+                }
+            }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
