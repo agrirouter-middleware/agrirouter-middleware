@@ -13,14 +13,14 @@ public class FieldServiceTest {
 
     @Test
     void extractUris_realLifeExample_returnsUris() {
-        var realLifeExampple = """
+        var realLifeExample = """
                 {
                   "partfieldId": {
                     "number": "12345",
                     "uri": ["urn:field:example:12345"]
                   }
                 }""";
-        Document document = Document.parse(realLifeExampple);
+        Document document = Document.parse(realLifeExample);
         List<String> uris = fieldService.extractUris(document);
         assertEquals(1, uris.size());
         assertEquals("urn:field:example:12345", uris.get(0));
