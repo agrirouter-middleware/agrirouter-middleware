@@ -41,39 +41,56 @@ public class CustomerService {
         var optionalDocument = convert(contentMessage.getMessageContent());
         if (optionalDocument.isPresent()) {
             var document = optionalDocument.get();
-            var customerId = extractCustomerId(document);
-            this.customerRepository.findByExternalEndpointIdAndCustomerId(endpoint.getExternalEndpointId(), customerId).ifPresentOrElse(c -> {
-                log.debug("Customer with ID {} already exists, therefore updating it.", customerId);
-                c.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                c.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                c.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                c.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                c.setDocument(document);
-                customerRepository.save(c);
-            }, () -> {
-                log.debug("Customer with ID {} does not exist, therefore saving it.", customerId);
-                var customer = new Customer();
-                customer.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                customer.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                customer.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                customer.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                customer.setExternalEndpointId(endpoint.getExternalEndpointId());
-                customer.setCustomerId(customerId);
-                customer.setDocument(document);
-                customerRepository.save(customer);
-            });
+            var extractUris = extractCustomerIds(document);
+            if (extractUris.isEmpty()) {
+                log.warn("No customer IDs found for customer form content message with the ID: {}", contentMessage.getId());
+                throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
+            } else {
+                extractUris.sort(String::compareTo);
+                extractUris.forEach(uri -> log.debug("Found customer ID: {}", uri));
+                var customerId = extractUris.get(0);
+                this.customerRepository.findByExternalEndpointIdAndCustomerId(endpoint.getExternalEndpointId(), customerId).ifPresentOrElse(f -> {
+                    log.debug("Customer with ID {} already exists, therefore updating it.", customerId);
+                    f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                    f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                    f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                    f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                    f.setDocument(document);
+                    customerRepository.save(f);
+                }, () -> {
+                    var customer = new Customer();
+                    customer.setExternalEndpointId(endpoint.getExternalEndpointId());
+                    customer.setCustomerId(customerId);
+                    customer.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                    customer.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                    customer.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                    customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                    customer.setDocument(document);
+                    customerRepository.save(customer);
+                });
+            }
         } else {
-            log.warn("Could not convert the message content into a JSON document.");
+            log.warn("Could not parse the message content.");
             throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
         }
     }
 
-    private String extractCustomerId(Document document) {
+    protected List<String> extractCustomerIds(Document document) {
         if (document.containsKey("customerId")) {
-            return document.getString("customerId");
+            var customerId = document.get("customerId");
+            if (customerId instanceof Document customerIdDoc) {
+                if (customerIdDoc.containsKey("uri")) {
+                    var uriValue = customerIdDoc.get("uri");
+                    if (uriValue instanceof List<?>) {
+                        return ((List<?>) uriValue).stream()
+                                .filter(item -> item instanceof String)
+                                .map(item -> (String) item)
+                                .toList();
+                    }
+                }
+            }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
