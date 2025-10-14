@@ -78,7 +78,7 @@ public class FarmService {
     protected List<String> extractUris(Document document) {
         if (document.containsKey("farmId")) {
             var farmId = document.get("farmId", Document.class);
-            if (farmId.containsKey("uri")) {
+            if (farmId != null && farmId.containsKey("uri")) {
                 var uri = farmId.get("uri");
                 if (uri instanceof List<?>) {
                     return ((List<?>) uri).stream()
