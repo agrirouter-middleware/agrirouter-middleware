@@ -78,17 +78,17 @@ public class FieldService {
     }
 
     protected List<String> extractUris(Document document) {
-        if (document.containsKey("partfieldId")) {
-            var partfieldId = document.get("partfieldId");
-            if (partfieldId instanceof Document partfieldIdDoc) {
-                if (partfieldIdDoc.containsKey("uri")) {
-                    var uriValue = partfieldIdDoc.get("uri");
-                    if (uriValue instanceof List<?>) {
-                        return ((List<?>) uriValue).stream()
-                                .filter(item -> item instanceof String)
-                                .map(item -> (String) item)
-                                .toList();
-                    }
+        if (document.containsKey("partFieldId")) {
+            var partFieldId = document.get("partFieldId", Document.class);
+            if (partFieldId != null && partFieldId.containsKey("uri")) {
+                var uri = partFieldId.get("uri");
+                if (uri instanceof List<?>) {
+                    return ((List<?>) uri).stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .toList();
+                } else if (uri instanceof String) {
+                    return List.of((String) uri);
                 }
             }
         }

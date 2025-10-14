@@ -77,16 +77,16 @@ public class CustomerService {
 
     protected List<String> extractCustomerIds(Document document) {
         if (document.containsKey("customerId")) {
-            var customerId = document.get("customerId");
-            if (customerId instanceof Document customerIdDoc) {
-                if (customerIdDoc.containsKey("uri")) {
-                    var uriValue = customerIdDoc.get("uri");
-                    if (uriValue instanceof List<?>) {
-                        return ((List<?>) uriValue).stream()
-                                .filter(item -> item instanceof String)
-                                .map(item -> (String) item)
-                                .toList();
-                    }
+            var customerId = document.get("customerId", Document.class);
+            if (customerId != null && customerId.containsKey("uri")) {
+                var uri = customerId.get("uri");
+                if (uri instanceof List<?>) {
+                    return ((List<?>) uri).stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .toList();
+                } else if (uri instanceof String) {
+                    return List.of((String) uri);
                 }
             }
         }
