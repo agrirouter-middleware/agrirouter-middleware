@@ -74,6 +74,7 @@ class CustomerServiceTest {
     }
 
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void extractCustomerIds_nullDocument_throwsException() {
         assertThrows(NullPointerException.class, () -> customerService.extractCustomerIds(null));
     }
