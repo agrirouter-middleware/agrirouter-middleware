@@ -13,14 +13,14 @@ public class FarmServiceTest {
 
     @Test
     void extractUris_realLifeExample_returnsUris() {
-        var realLifeExampple = """
+        var realLifeExample = """
                 {
                   "farmId": {
                     "number": "12345",
                     "uri": ["urn:farm:example:12345"]
                   }
                 }""";
-        Document document = Document.parse(realLifeExampple);
+        Document document = Document.parse(realLifeExample);
         List<String> uris = farmService.extractUris(document);
         assertEquals(1, uris.size());
         assertEquals("urn:farm:example:12345", uris.get(0));
