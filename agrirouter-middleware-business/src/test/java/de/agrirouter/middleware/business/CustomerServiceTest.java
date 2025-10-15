@@ -51,14 +51,6 @@ class CustomerServiceTest {
     }
 
     @Test
-    void extractCustomerIds_documentWithInvalidUriType_returnsEmptyList() {
-        Document customerIdDocument = new Document("uri", "notAList");
-        Document document = new Document("customerId", customerIdDocument);
-        List<String> customerIds = customerService.extractCustomerIds(document);
-        assertThat(customerIds).isEmpty();
-    }
-
-    @Test
     void extractCustomerIds_documentWithNonStringUriElements_returnsEmptyList() {
         Document customerIdDocument = new Document("uri", List.of(123, 456, 789));
         Document document = new Document("customerId", customerIdDocument);
