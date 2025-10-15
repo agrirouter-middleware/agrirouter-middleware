@@ -5,6 +5,7 @@ import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.response.NotificationsResponse;
 import de.agrirouter.middleware.controller.dto.response.domain.NotificationDto;
 import de.agrirouter.middleware.domain.documents.Notification;
+import de.agrirouter.middleware.domain.enums.ChangeType;
 import de.agrirouter.middleware.domain.enums.EntityType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -129,7 +130,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointIdAndEntityTypeAndChangeType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType, @Parameter(description = "The change type.", required = true) @PathVariable String changeType) {
+    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointIdAndEntityTypeAndChangeType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType, @Parameter(description = "The change type.", required = true) @PathVariable ChangeType changeType) {
         var notifications = notificationService.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));

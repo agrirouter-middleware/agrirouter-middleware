@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.persistence.mongo;
 
 import de.agrirouter.middleware.domain.documents.Notification;
+import de.agrirouter.middleware.domain.enums.ChangeType;
 import de.agrirouter.middleware.domain.enums.EntityType;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -36,5 +37,5 @@ public interface NotificationRepository extends MongoRepository<Notification, St
      * @param changeType         The change type.
      * @return The notifications.
      */
-    List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeTypeAndChangeType(String externalEndpointId, EntityType entityType, String changeType);
+    List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeType(String externalEndpointId, EntityType entityType, ChangeType changeType);
 }

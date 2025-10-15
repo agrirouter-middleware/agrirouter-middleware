@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.domain.documents.Notification;
+import de.agrirouter.middleware.domain.enums.ChangeType;
 import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.persistence.mongo.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class NotificationService {
      * @param changeType         The change type.
      * @return The notifications.
      */
-    public List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeType(String externalEndpointId, EntityType entityType, String changeType) {
-        return notificationRepository.findAllByExternalEndpointIdAndEntityTypeAndChangeTypeAndChangeType(externalEndpointId, entityType, changeType);
+    public List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeType(String externalEndpointId, EntityType entityType, ChangeType changeType) {
+        return notificationRepository.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
     }
 }
