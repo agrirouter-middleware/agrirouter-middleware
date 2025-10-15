@@ -93,6 +93,12 @@ public class NotificationService {
      * @param notificationId     The ID of the notification.
      */
     public void markAsRead(String externalEndpointId, String notificationId) {
-        notificationRepository.deleteByExternalEndpointIdAndId(externalEndpointId, notificationId);
+        var notification = notificationRepository.findByExternalEndpointIdAndId(externalEndpointId, notificationId);
+        if (notification != null) {
+            notificationRepository.deleteByExternalEndpointIdAndId(externalEndpointId, notificationId);
+            log.debug("Marked notification with ID {} for external endpoint ID {} as read and removed it from the database.", notificationId, externalEndpointId);
+        } else {
+            log.warn("Notification with ID {} for external endpoint ID {} not found. Nothing was removed.", notificationId, externalEndpointId);
+        }
     }
 }
