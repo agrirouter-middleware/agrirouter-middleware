@@ -140,10 +140,10 @@ public class NotificationController {
      * @param externalEndpointId The external endpoint ID.
      * @param notificationId     The ID of the notification.
      */
-    @PostMapping("/{externalEndpointId}/{notificationId}")
+    @DeleteMapping("/{externalEndpointId}/{notificationId}")
     @Operation(
             summary = "Mark the notification as read.",
-            description = "This endpoint marks the notification as read.",
+            description = "This endpoint marks the notification as read and permanently deletes it from the database. The notification will be removed from the system.",
             operationId = "notification.mark-as-read",
             responses = {
                     @ApiResponse(
