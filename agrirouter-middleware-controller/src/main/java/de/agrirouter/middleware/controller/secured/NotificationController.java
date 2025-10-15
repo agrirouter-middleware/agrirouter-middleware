@@ -61,7 +61,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<?> findAllByExternalEndpointId(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointId(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         var notifications = notificationService.findAllByExternalEndpointId(externalEndpointId);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
@@ -94,7 +94,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<?> findAllByExternalEndpointIdAndEntityType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType) {
+    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointIdAndEntityType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType) {
         var notifications = notificationService.findAllByExternalEndpointIdAndEntityType(externalEndpointId, entityType);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
@@ -128,7 +128,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<?> findAllByExternalEndpointIdAndEntityTypeAndChangeType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType, @Parameter(description = "The change type.", required = true) @PathVariable ChangeType changeType) {
+    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointIdAndEntityTypeAndChangeType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType, @Parameter(description = "The change type.", required = true) @PathVariable ChangeType changeType) {
         var notifications = notificationService.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
@@ -156,7 +156,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<?> markAsRead(@PathVariable String externalEndpointId, @PathVariable String notificationId) {
+    public ResponseEntity<Void> markAsRead(@PathVariable String externalEndpointId, @PathVariable String notificationId) {
         notificationService.markAsRead(externalEndpointId, notificationId);
         return ResponseEntity.ok().build();
     }
