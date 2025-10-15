@@ -91,3 +91,5 @@ app:
         end: 675
   signature-verification:
     disable: false
+  notification:
+    ttl: 3600s

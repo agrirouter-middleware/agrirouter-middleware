@@ -144,6 +144,11 @@
       "name": "app.agrirouter.mqtt.options.max-in-flight",
       "type": "java.lang.String",
       "description": "The max in flight for the MQTT client."
+    },
+    {
+      "name": "app.notification.ttl",
+      "type": "java.lang.String",
+      "description": "The time to live for a notification."
     }
   ]
 }
