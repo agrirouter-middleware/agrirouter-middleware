@@ -48,6 +48,6 @@ public class Notification extends NoSqlBaseEntity {
      * The timestamp of the notification.
      */
     @Indexed(name = "ttl_index", expireAfter = "${app.notification.ttl}")
-    private Instant exiredOn;
+    private Instant expiredOn;
 
 }
