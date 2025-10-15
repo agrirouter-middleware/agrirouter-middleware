@@ -78,8 +78,8 @@ public class FieldService {
     }
 
     protected List<String> extractUris(Document document) {
-        if (document.containsKey("partFieldId")) {
-            var partFieldId = document.get("partFieldId", Document.class);
+        if (document.containsKey("partfieldId")) {
+            var partFieldId = document.get("partfieldId", Document.class);
             if (partFieldId != null && partFieldId.containsKey("uri")) {
                 var uri = partFieldId.get("uri");
                 if (uri instanceof List<?>) {
