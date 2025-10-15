@@ -138,7 +138,7 @@ public class NotificationController {
 
     @NotNull
     private static List<NotificationDto> convertToDtoList(List<Notification> notifications) {
-        var dtos = notifications.stream().map(notification -> {
+        return notifications.stream().map(notification -> {
             var dto = new NotificationDto();
             dto.setId(notification.getId());
             dto.setExternalEndpointId(notification.getExternalEndpointId());
@@ -148,6 +148,5 @@ public class NotificationController {
             dto.setEntityId(notification.getEntityId());
             return dto;
         }).toList();
-        return dtos;
     }
 }
