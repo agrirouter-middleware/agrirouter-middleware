@@ -104,10 +104,11 @@ public class NotificationController {
     }
 
     /**
-     * Find all notifications for the given external endpoint ID and entity type.
+     * Find all notifications for the given external endpoint ID, entity type, and change type.
      *
      * @param externalEndpointId The external endpoint ID.
      * @param entityType         The entity type.
+     * @param changeType         The change type.
      * @return The notifications.
      */
     @GetMapping("/{externalEndpointId}/{entityType}/{changeType}")
