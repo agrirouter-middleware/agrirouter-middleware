@@ -156,7 +156,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<Void> markAsRead(@PathVariable String externalEndpointId, @PathVariable String notificationId) {
+    public ResponseEntity<Void> markAsRead(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The ID of the notification.", required = true) @PathVariable String notificationId) {
         notificationService.markAsRead(externalEndpointId, notificationId);
         return ResponseEntity.ok().build();
     }
