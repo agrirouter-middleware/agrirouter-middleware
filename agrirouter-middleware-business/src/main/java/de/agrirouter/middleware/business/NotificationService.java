@@ -50,4 +50,14 @@ public class NotificationService {
     public List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeType(String externalEndpointId, EntityType entityType, ChangeType changeType) {
         return notificationRepository.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
     }
+
+    /**
+     * Mark the notification as read and therefore remove it from the database.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param notificationId     The ID of the notification.
+     */
+    public void markAsRead(String externalEndpointId, String notificationId) {
+        notificationRepository.deleteByExternalEndpointIdAndId(externalEndpointId, notificationId);
+    }
 }

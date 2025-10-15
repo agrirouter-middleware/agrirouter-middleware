@@ -16,10 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -64,7 +61,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointId(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
+    public ResponseEntity<?> findAllByExternalEndpointId(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId) {
         var notifications = notificationService.findAllByExternalEndpointId(externalEndpointId);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
@@ -97,7 +94,7 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointIdAndEntityType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType) {
+    public ResponseEntity<?> findAllByExternalEndpointIdAndEntityType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType) {
         var notifications = notificationService.findAllByExternalEndpointIdAndEntityType(externalEndpointId, entityType);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
@@ -131,10 +128,37 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<NotificationsResponse> findAllByExternalEndpointIdAndEntityTypeAndChangeType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType, @Parameter(description = "The change type.", required = true) @PathVariable ChangeType changeType) {
+    public ResponseEntity<?> findAllByExternalEndpointIdAndEntityTypeAndChangeType(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The entity type.", required = true) @PathVariable EntityType entityType, @Parameter(description = "The change type.", required = true) @PathVariable ChangeType changeType) {
         var notifications = notificationService.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
+    }
+
+    /**
+     * Mark the notification as read.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param notificationId     The ID of the notification.
+     */
+    @PostMapping("/{externalEndpointId}/{notificationId}")
+    @Operation(
+            summary = "Mark the notification as read.",
+            description = "This endpoint marks the notification as read.",
+            operationId = "notification.mark-as-read",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "In case the notification was marked as read."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an internal server error."
+                    )
+            }
+    )
+    public ResponseEntity<?> markAsRead(@PathVariable String externalEndpointId, @PathVariable String notificationId) {
+        notificationService.markAsRead(externalEndpointId, notificationId);
+        return ResponseEntity.ok().build();
     }
 
     @NotNull
