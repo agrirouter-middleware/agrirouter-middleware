@@ -5,6 +5,7 @@ import de.agrirouter.middleware.domain.enums.ChangeType;
 import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.persistence.mongo.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Service to access the notifications.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -65,6 +67,7 @@ public class NotificationService {
         notification.setChangeType(ChangeType.CREATED);
         notification.setEntityType(entityType);
         notificationRepository.save(notification);
+        log.debug("Created notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
     }
 
     /**
@@ -80,5 +83,6 @@ public class NotificationService {
         notification.setChangeType(ChangeType.UPDATED);
         notification.setEntityType(entityType);
         notificationRepository.save(notification);
+        log.debug("Updated notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
     }
 }
