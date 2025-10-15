@@ -21,6 +21,6 @@ public class NotificationsResponse extends Response {
      * The notifications.
      */
     @Schema(description = "The notifications.")
-    private final List<NotificationDto> notificationDtos;
+    List<NotificationDto> notificationDtos;
 
 }
