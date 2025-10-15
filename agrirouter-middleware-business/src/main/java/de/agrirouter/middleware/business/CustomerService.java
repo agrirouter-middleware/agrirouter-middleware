@@ -7,21 +7,17 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.documents.Customer;
-import de.agrirouter.middleware.domain.documents.Notification;
-import de.agrirouter.middleware.domain.enums.ChangeType;
 import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.CustomerRepository;
-import de.agrirouter.middleware.persistence.mongo.NotificationRepository;
 import efdi.GrpcEfdi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +30,7 @@ public class CustomerService {
     private final EndpointService endpointService;
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final CustomerRepository customerRepository;
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
     /**
      * Save the customer within the local database.
@@ -63,13 +59,7 @@ public class CustomerService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     customerRepository.save(f);
-                    var notification = new Notification();
-                    notification.setCreatedAt(Instant.now());
-                    notification.setExternalEndpointId(endpoint.getExternalEndpointId());
-                    notification.setChangeType(ChangeType.UPDATED);
-                    notification.setEntityType(EntityType.CUSTOMER);
-                    notification.setEntityId(customerId);
-                    notificationRepository.save(notification);
+                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.CUSTOMER);
                 }, () -> {
                     var customer = new Customer();
                     customer.setExternalEndpointId(endpoint.getExternalEndpointId());
@@ -80,14 +70,7 @@ public class CustomerService {
                     customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     customer.setDocument(document);
                     customerRepository.save(customer);
-                    var notification = new Notification();
-                    notification.setCreatedAt(Instant.now());
-                    notification.setExternalEndpointId(endpoint.getExternalEndpointId());
-                    notification.setChangeType(ChangeType.CREATED);
-                    notification.setEntityType(EntityType.CUSTOMER);
-                    notification.setEntityId(customerId);
-                    notificationRepository.save(notification);
-                    log.debug("Customer with ID {} has been created.", customerId);
+                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.CUSTOMER);
                 });
             }
         } else {
