@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FarmServiceTest {
 
-    private final FarmService farmService = new FarmService(null, null, null);
+    private final FarmService farmService = new FarmService(null, null, null, null);
 
     @Test
     void extractUris_realLifeExample_returnsUris() {

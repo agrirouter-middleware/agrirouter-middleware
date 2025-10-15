@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FieldServiceTest {
 
-    private final FieldService fieldService = new FieldService(null, null, null);
+    private final FieldService fieldService = new FieldService(null, null, null, null);
 
     @Test
     void extractUris_realLifeExample_returnsUris() {
