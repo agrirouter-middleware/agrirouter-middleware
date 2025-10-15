@@ -41,39 +41,58 @@ public class FieldService {
         var optionalDocument = convert(contentMessage.getMessageContent());
         if (optionalDocument.isPresent()) {
             var document = optionalDocument.get();
-            var fieldId = extractFieldId(document);
-            this.fieldRepository.findByExternalEndpointIdAndFieldId(endpoint.getExternalEndpointId(), fieldId).ifPresentOrElse(f -> {
-                log.debug("Field with ID {} already exists, therefore updating it.", fieldId);
-                f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                f.setDocument(document);
-                fieldRepository.save(f);
-            }, () -> {
-                log.debug("Field with ID {} does not exist, therefore saving it.", fieldId);
-                var field = new Field();
-                field.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
-                field.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
-                field.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
-                field.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
-                field.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
-                field.setExternalEndpointId(endpoint.getExternalEndpointId());
-                field.setFieldId(fieldId);
-                field.setDocument(document);
-                fieldRepository.save(field);
-            });
+            var extractUris = extractUris(document);
+            if (extractUris.isEmpty()) {
+                log.warn("No URIs found for field form content message with the ID: {}", contentMessage.getId());
+                throw new BusinessException(ErrorMessageFactory.couldNotParseField());
+            } else {
+                extractUris.sort(String::compareTo);
+                extractUris.forEach(uri -> log.debug("Found URI: {}", uri));
+                var fieldId = extractUris.get(0);
+                this.fieldRepository.findByExternalEndpointIdAndFieldId(endpoint.getExternalEndpointId(), fieldId).ifPresentOrElse(f -> {
+                    log.debug("Field with ID {} already exists, therefore updating it.", fieldId);
+                    f.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                    f.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                    f.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                    f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                    f.setDocument(document);
+                    fieldRepository.save(f);
+                }, () -> {
+                    log.debug("Field with ID {} does not exist, therefore saving it.", fieldId);
+                    var field = new Field();
+                    field.setAgrirouterEndpointId(contentMessage.getAgrirouterEndpointId());
+                    field.setMessageId(contentMessage.getContentMessageMetadata().getMessageId());
+                    field.setReceiverId(contentMessage.getContentMessageMetadata().getReceiverId());
+                    field.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
+                    field.setTimestamp(contentMessage.getContentMessageMetadata().getTimestamp());
+                    field.setExternalEndpointId(endpoint.getExternalEndpointId());
+                    field.setFieldId(fieldId);
+                    field.setDocument(document);
+                    fieldRepository.save(field);
+                });
+            }
         } else {
             log.warn("Could not convert the message content into a JSON document.");
             throw new BusinessException(ErrorMessageFactory.couldNotParseField());
         }
     }
 
-    private String extractFieldId(Document document) {
+    protected List<String> extractUris(Document document) {
         if (document.containsKey("partfieldId")) {
-            return document.getString("partfieldId");
+            var partFieldId = document.get("partfieldId", Document.class);
+            if (partFieldId != null && partFieldId.containsKey("uri")) {
+                var uri = partFieldId.get("uri");
+                if (uri instanceof List<?>) {
+                    return ((List<?>) uri).stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .toList();
+                } else if (uri instanceof String) {
+                    return List.of((String) uri);
+                }
+            }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
