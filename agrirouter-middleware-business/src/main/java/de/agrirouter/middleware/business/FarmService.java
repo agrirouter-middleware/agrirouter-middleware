@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class FarmService {
         var optionalDocument = convert(contentMessage.getMessageContent());
         if (optionalDocument.isPresent()) {
             var document = optionalDocument.get();
-            var extractUris = extractUris(document);
+            var extractUris = new ArrayList<>(extractUris(document));
             if (extractUris.isEmpty()) {
                 log.warn("No URIs found for farm form content message with the ID: {}", contentMessage.getId());
                 throw new BusinessException(ErrorMessageFactory.couldNotParseFarm());

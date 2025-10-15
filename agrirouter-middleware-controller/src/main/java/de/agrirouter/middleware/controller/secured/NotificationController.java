@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -135,6 +136,33 @@ public class NotificationController {
         var notifications = notificationService.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
         var dtos = convertToDtoList(notifications);
         return ResponseEntity.ok(new NotificationsResponse(dtos));
+    }
+
+    /**
+     * Mark the notification as read.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param notificationId     The ID of the notification.
+     */
+    @DeleteMapping("/{externalEndpointId}/{notificationId}")
+    @Operation(
+            summary = "Mark the notification as read.",
+            description = "This endpoint marks the notification as read and permanently deletes it from the database. The notification will be removed from the system.",
+            operationId = "notification.mark-as-read",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "In case the notification was marked as read."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an internal server error."
+                    )
+            }
+    )
+    public ResponseEntity<Void> markAsRead(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId, @Parameter(description = "The ID of the notification.", required = true) @PathVariable String notificationId) {
+        notificationService.markAsRead(externalEndpointId, notificationId);
+        return ResponseEntity.ok().build();
     }
 
     @NotNull

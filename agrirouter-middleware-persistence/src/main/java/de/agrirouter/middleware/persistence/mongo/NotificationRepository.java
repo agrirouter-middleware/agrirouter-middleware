@@ -38,4 +38,21 @@ public interface NotificationRepository extends MongoRepository<Notification, St
      * @return The notifications.
      */
     List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeType(String externalEndpointId, EntityType entityType, ChangeType changeType);
+
+    /**
+     * Delete the notification by the external endpoint ID and the notification ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param notificationId     The notification ID.
+     */
+    void deleteByExternalEndpointIdAndId(String externalEndpointId, String notificationId);
+
+    /**
+     * Find a notification by its external endpoint ID and notification ID.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param notificationId     The notification ID.
+     * @return The notification.
+     */
+    Notification findByExternalEndpointIdAndId(String externalEndpointId, String notificationId);
 }

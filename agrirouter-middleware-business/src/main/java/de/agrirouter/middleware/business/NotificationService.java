@@ -85,4 +85,20 @@ public class NotificationService {
         notificationRepository.save(notification);
         log.debug("Updated notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
     }
+
+    /**
+     * Mark the notification as read and therefore remove it from the database.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param notificationId     The ID of the notification.
+     */
+    public void markAsRead(String externalEndpointId, String notificationId) {
+        var notification = notificationRepository.findByExternalEndpointIdAndId(externalEndpointId, notificationId);
+        if (notification != null) {
+            notificationRepository.deleteByExternalEndpointIdAndId(externalEndpointId, notificationId);
+            log.debug("Marked notification with ID {} for external endpoint ID {} as read and removed it from the database.", notificationId, externalEndpointId);
+        } else {
+            log.warn("Notification with ID {} for external endpoint ID {} not found. Nothing was removed.", notificationId, externalEndpointId);
+        }
+    }
 }
