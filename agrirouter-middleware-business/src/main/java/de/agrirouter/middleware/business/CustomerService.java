@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class CustomerService {
         var optionalDocument = convert(contentMessage.getMessageContent());
         if (optionalDocument.isPresent()) {
             var document = optionalDocument.get();
-            var extractUris = extractCustomerIds(document);
+            var extractUris = new ArrayList<>(extractCustomerIds(document));
             if (extractUris.isEmpty()) {
                 log.warn("No customer IDs found for customer form content message with the ID: {}", contentMessage.getId());
                 throw new BusinessException(ErrorMessageFactory.couldNotParseCustomer());
