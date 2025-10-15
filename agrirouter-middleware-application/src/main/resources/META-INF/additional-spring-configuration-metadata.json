@@ -149,6 +149,11 @@
       "name": "app.notification.ttl",
       "type": "java.lang.String",
       "description": "The time to live for a notification."
+    },
+    {
+      "name": "app.agrirouter.mqtt.synchronous.health.response.wait.time",
+      "type": "java.lang.String",
+      "description": "The time to wait for a synchronous health response."
     }
   ]
 }
