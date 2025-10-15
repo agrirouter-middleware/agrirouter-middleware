@@ -7,16 +7,21 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.documents.Farm;
+import de.agrirouter.middleware.domain.documents.Notification;
+import de.agrirouter.middleware.domain.enums.ChangeType;
+import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import de.agrirouter.middleware.persistence.mongo.FarmRepository;
+import de.agrirouter.middleware.persistence.mongo.NotificationRepository;
 import efdi.GrpcEfdi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +34,7 @@ public class FarmService {
     private final EndpointService endpointService;
     private final FarmRepository farmRepository;
     private final SendMessageIntegrationService sendMessageIntegrationService;
+    private final NotificationRepository notificationRepository;
 
     /**
      * Save the farm.
@@ -57,6 +63,13 @@ public class FarmService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     farmRepository.save(f);
+                    var notification = new Notification();
+                    notification.setCreatedAt(Instant.now());
+                    notification.setExternalEndpointId(endpoint.getExternalEndpointId());
+                    notification.setChangeType(ChangeType.UPDATED);
+                    notification.setEntityType(EntityType.FARM);
+                    notification.setEntityId(farmId);
+                    notificationRepository.save(notification);
                 }, () -> {
                     var farm = new Farm();
                     farm.setExternalEndpointId(endpoint.getExternalEndpointId());
@@ -67,6 +80,14 @@ public class FarmService {
                     farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     farm.setDocument(document);
                     farmRepository.save(farm);
+                    var notification = new Notification();
+                    notification.setCreatedAt(Instant.now());
+                    notification.setExternalEndpointId(endpoint.getExternalEndpointId());
+                    notification.setChangeType(ChangeType.CREATED);
+                    notification.setEntityType(EntityType.FARM);
+                    notification.setEntityId(farmId);
+                    notificationRepository.save(notification);
+                    log.debug("Farm with ID {} has been created.", farmId);
                 });
             }
         } else {
