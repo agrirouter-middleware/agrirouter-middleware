@@ -7,6 +7,7 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.documents.Field;
+import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
@@ -29,6 +30,7 @@ public class FieldService {
     private final EndpointService endpointService;
     private final FieldRepository fieldRepository;
     private final SendMessageIntegrationService sendMessageIntegrationService;
+    private final NotificationService notificationService;
 
     /**
      * Save the field.
@@ -57,6 +59,7 @@ public class FieldService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     fieldRepository.save(f);
+                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.FIELD);
                 }, () -> {
                     log.debug("Field with ID {} does not exist, therefore saving it.", fieldId);
                     var field = new Field();
@@ -69,6 +72,7 @@ public class FieldService {
                     field.setFieldId(fieldId);
                     field.setDocument(document);
                     fieldRepository.save(field);
+                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.FIELD);
                 });
             }
         } else {
