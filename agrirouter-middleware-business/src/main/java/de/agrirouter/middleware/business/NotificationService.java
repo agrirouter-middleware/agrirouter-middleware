@@ -5,13 +5,16 @@ import de.agrirouter.middleware.domain.enums.ChangeType;
 import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.persistence.mongo.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
  * Service to access the notifications.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -49,5 +52,37 @@ public class NotificationService {
      */
     public List<Notification> findAllByExternalEndpointIdAndEntityTypeAndChangeType(String externalEndpointId, EntityType entityType, ChangeType changeType) {
         return notificationRepository.findAllByExternalEndpointIdAndEntityTypeAndChangeType(externalEndpointId, entityType, changeType);
+    }
+
+    /**
+     * Mark the entity as created.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param entityType         The entity type.
+     */
+    public void created(String externalEndpointId, EntityType entityType) {
+        var notification = new Notification();
+        notification.setCreatedAt(Instant.now());
+        notification.setExternalEndpointId(externalEndpointId);
+        notification.setChangeType(ChangeType.CREATED);
+        notification.setEntityType(entityType);
+        notificationRepository.save(notification);
+        log.debug("Created notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
+    }
+
+    /**
+     * Mark the entity as updated.
+     *
+     * @param externalEndpointId The external endpoint ID.
+     * @param entityType         The entity type.
+     */
+    public void updated(String externalEndpointId, EntityType entityType) {
+        var notification = new Notification();
+        notification.setCreatedAt(Instant.now());
+        notification.setExternalEndpointId(externalEndpointId);
+        notification.setChangeType(ChangeType.UPDATED);
+        notification.setEntityType(entityType);
+        notificationRepository.save(notification);
+        log.debug("Updated notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
     }
 }

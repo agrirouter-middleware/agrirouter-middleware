@@ -7,6 +7,7 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.ContentMessage;
 import de.agrirouter.middleware.domain.documents.Customer;
+import de.agrirouter.middleware.domain.enums.EntityType;
 import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
@@ -29,6 +30,7 @@ public class CustomerService {
     private final EndpointService endpointService;
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final CustomerRepository customerRepository;
+    private final NotificationService notificationService;
 
     /**
      * Save the customer within the local database.
@@ -57,6 +59,7 @@ public class CustomerService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     customerRepository.save(f);
+                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.CUSTOMER);
                 }, () -> {
                     var customer = new Customer();
                     customer.setExternalEndpointId(endpoint.getExternalEndpointId());
@@ -67,6 +70,7 @@ public class CustomerService {
                     customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     customer.setDocument(document);
                     customerRepository.save(customer);
+                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.CUSTOMER);
                 });
             }
         } else {

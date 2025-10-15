@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CustomerServiceTest {
 
-    private final CustomerService customerService = new CustomerService(null, null, null);
+    private final CustomerService customerService = new CustomerService(null, null, null, null);
 
     @Test
     void extractCustomerIds_realLifeExample_returnsCustomerIds() {
