@@ -77,6 +77,7 @@ public class NotificationService {
      *
      * @param externalEndpointId The external endpoint ID.
      * @param entityType         The entity type.
+     * @param entityId           The ID of the affected entity.
      */
     public void updated(String externalEndpointId, EntityType entityType, String entityId) {
         var notification = new Notification();
