@@ -87,7 +87,7 @@ public class NotificationService {
         notification.setEntityType(entityType);
         notification.setEntityId(entityId);
         notificationRepository.save(notification);
-        log.debug("Updated notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
+        log.debug("Updated notification for the entity type {}, the external endpoint ID {}, and the entity ID {}.", entityType, externalEndpointId, entityId);
     }
 
     /**
