@@ -60,7 +60,7 @@ public class CustomerService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     customerRepository.save(f);
-                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.CUSTOMER);
+                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.CUSTOMER, customerId);
                 }, () -> {
                     var customer = new Customer();
                     customer.setExternalEndpointId(endpoint.getExternalEndpointId());
@@ -71,7 +71,7 @@ public class CustomerService {
                     customer.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     customer.setDocument(document);
                     customerRepository.save(customer);
-                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.CUSTOMER);
+                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.CUSTOMER, customerId);
                 });
             }
         } else {
