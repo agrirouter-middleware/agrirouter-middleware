@@ -60,12 +60,13 @@ public class NotificationService {
      * @param externalEndpointId The external endpoint ID.
      * @param entityType         The entity type.
      */
-    public void created(String externalEndpointId, EntityType entityType) {
+    public void created(String externalEndpointId, EntityType entityType, String entityId) {
         var notification = new Notification();
         notification.setCreatedAt(Instant.now());
         notification.setExternalEndpointId(externalEndpointId);
         notification.setChangeType(ChangeType.CREATED);
         notification.setEntityType(entityType);
+        notification.setEntityId(entityId);
         notificationRepository.save(notification);
         log.debug("Created notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
     }
@@ -76,12 +77,13 @@ public class NotificationService {
      * @param externalEndpointId The external endpoint ID.
      * @param entityType         The entity type.
      */
-    public void updated(String externalEndpointId, EntityType entityType) {
+    public void updated(String externalEndpointId, EntityType entityType, String entityId) {
         var notification = new Notification();
         notification.setCreatedAt(Instant.now());
         notification.setExternalEndpointId(externalEndpointId);
         notification.setChangeType(ChangeType.UPDATED);
         notification.setEntityType(entityType);
+        notification.setEntityId(entityId);
         notificationRepository.save(notification);
         log.debug("Updated notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
     }
