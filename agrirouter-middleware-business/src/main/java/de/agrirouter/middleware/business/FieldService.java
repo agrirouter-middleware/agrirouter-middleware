@@ -60,7 +60,7 @@ public class FieldService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     fieldRepository.save(f);
-                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.FIELD);
+                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.FIELD, fieldId);
                 }, () -> {
                     log.debug("Field with ID {} does not exist, therefore saving it.", fieldId);
                     var field = new Field();
@@ -73,7 +73,7 @@ public class FieldService {
                     field.setFieldId(fieldId);
                     field.setDocument(document);
                     fieldRepository.save(field);
-                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.FIELD);
+                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.FIELD, fieldId);
                 });
             }
         } else {

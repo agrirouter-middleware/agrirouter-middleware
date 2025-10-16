@@ -60,7 +60,7 @@ public class FarmService {
                     f.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     f.setDocument(document);
                     farmRepository.save(f);
-                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.FARM);
+                    notificationService.updated(endpoint.getExternalEndpointId(), EntityType.FARM, farmId);
                 }, () -> {
                     var farm = new Farm();
                     farm.setExternalEndpointId(endpoint.getExternalEndpointId());
@@ -71,7 +71,7 @@ public class FarmService {
                     farm.setSenderId(contentMessage.getContentMessageMetadata().getSenderId());
                     farm.setDocument(document);
                     farmRepository.save(farm);
-                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.FARM);
+                    notificationService.created(endpoint.getExternalEndpointId(), EntityType.FARM, farmId);
                 });
             }
         } else {
