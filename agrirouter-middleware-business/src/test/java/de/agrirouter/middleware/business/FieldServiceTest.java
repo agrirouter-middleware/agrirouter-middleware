@@ -74,4 +74,110 @@ public class FieldServiceTest {
         assertNotNull(uris, "The list of URIs should not be null.");
         assertTrue(uris.isEmpty(), "The list of URIs should be empty for an empty document.");
     }
+
+    @Test
+    void parse_validFieldAsJson_returnsPartfield() {
+        var fieldAsJson = """
+                    {
+                         "partfieldCode": "",
+                         "partfieldDesignator": "Test1234",
+                         "partfieldArea": 702,
+                         "polygon": [
+                             {
+                                 "polygonType": 1,
+                                 "polygonDesignator": "",
+                                 "polygonArea": 0,
+                                 "polygonColour": 0,
+                                 "lineString": [
+                                     {
+                                         "lineStringType": 1,
+                                         "lineStringDesignator": "",
+                                         "lineStringWidth": 0,
+                                         "lineStringLength": 0,
+                                         "lineStringColour": 0,
+                                         "point": [
+                                             {
+                                                 "pointType": 2,
+                                                 "pointDesignator": "",
+                                                 "pointNorth": 52.063077,
+                                                 "pointEast": 13.857652,
+                                                 "pointUp": 0,
+                                                 "pointColour": 0,
+                                                 "pointHorizontalAccuracy": 0,
+                                                 "pointVerticalAccuracy": 0,
+                                                 "filename": "",
+                                                 "filelength": 0,
+                                                 "extension": []
+                                             },
+                                             {
+                                                 "pointType": 2,
+                                                 "pointDesignator": "",
+                                                 "pointNorth": 52.062947,
+                                                 "pointEast": 13.858121,
+                                                 "pointUp": 0,
+                                                 "pointColour": 0,
+                                                 "pointHorizontalAccuracy": 0,
+                                                 "pointVerticalAccuracy": 0,
+                                                 "filename": "",
+                                                 "filelength": 0,
+                                                 "extension": []
+                                             },
+                                             {
+                                                 "pointType": 2,
+                                                 "pointDesignator": "",
+                                                 "pointNorth": 52.062703,
+                                                 "pointEast": 13.857586,
+                                                 "pointUp": 0,
+                                                 "pointColour": 0,
+                                                 "pointHorizontalAccuracy": 0,
+                                                 "pointVerticalAccuracy": 0,
+                                                 "filename": "",
+                                                 "filelength": 0,
+                                                 "extension": []
+                                             },
+                                             {
+                                                 "pointType": 2,
+                                                 "pointDesignator": "",
+                                                 "pointNorth": 52.063077,
+                                                 "pointEast": 13.857652,
+                                                 "pointUp": 0,
+                                                 "pointColour": 0,
+                                                 "pointHorizontalAccuracy": 0,
+                                                 "pointVerticalAccuracy": 0,
+                                                 "filename": "",
+                                                 "filelength": 0,
+                                                 "extension": []
+                                             }
+                                         ],
+                                         "extension": []
+                                     }
+                                 ],
+                                 "extension": []
+                             }
+                         ],
+                         "lineString": [],
+                         "point": [],
+                         "guidanceGroup": [],
+                         "extension": [],
+                         "partfieldId": {
+                             "number": 0,
+                             "uri": [
+                                 "{bd94682f-b1ef-4ffc-8154-c0b63c435d80}"
+                             ]
+                         },
+                         "customerIdRef": {
+                             "number": 0,
+                             "uri": [
+                                 "{9cc2c5c6-2029-4dca-b088-63327a8ae6da}"
+                             ]
+                         }
+                     }
+                """;
+        var result = fieldService.parse(fieldAsJson);
+        assertTrue(result.isPresent());
+        var field = result.get();
+        assertEquals("Test1234", field.getPartfieldDesignator(), "Field designator should match");
+        assertEquals(702, field.getPartfieldArea(), "Field area should match");
+    }
+
 }
