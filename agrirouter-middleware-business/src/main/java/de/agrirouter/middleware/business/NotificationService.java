@@ -59,6 +59,7 @@ public class NotificationService {
      *
      * @param externalEndpointId The external endpoint ID.
      * @param entityType         The entity type.
+     * @param entityId           The ID of the affected entity.
      */
     public void created(String externalEndpointId, EntityType entityType, String entityId) {
         var notification = new Notification();
@@ -68,7 +69,7 @@ public class NotificationService {
         notification.setEntityType(entityType);
         notification.setEntityId(entityId);
         notificationRepository.save(notification);
-        log.debug("Created notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
+        log.debug("Created notification for the entity type {}, the external endpoint ID {}, and the entity ID {}.", entityType, externalEndpointId, entityId);
     }
 
     /**
@@ -76,6 +77,7 @@ public class NotificationService {
      *
      * @param externalEndpointId The external endpoint ID.
      * @param entityType         The entity type.
+     * @param entityId           The ID of the affected entity.
      */
     public void updated(String externalEndpointId, EntityType entityType, String entityId) {
         var notification = new Notification();
@@ -85,7 +87,7 @@ public class NotificationService {
         notification.setEntityType(entityType);
         notification.setEntityId(entityId);
         notificationRepository.save(notification);
-        log.debug("Updated notification for the entity type {} and the external endpoint ID {}.", entityType, externalEndpointId);
+        log.debug("Updated notification for the entity type {}, the external endpoint ID {}, and the entity ID {}.", entityType, externalEndpointId, entityId);
     }
 
     /**
