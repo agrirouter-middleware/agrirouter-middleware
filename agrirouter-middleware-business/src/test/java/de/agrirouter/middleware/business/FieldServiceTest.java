@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business;
 
-import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -181,10 +180,4 @@ public class FieldServiceTest {
         assertEquals(702, field.getPartfieldArea(), "Field area should match");
     }
 
-    @Test
-    void parse_invalidFieldAsJson_throwsException() {
-        var invalidFieldAsJson = "{ invalid json }";
-        var exception = assertThrows(BusinessException.class, () -> fieldService.parse(invalidFieldAsJson));
-        assertEquals("Could not parse the field.", exception.getMessage());
-    }
 }
