@@ -29,7 +29,6 @@
     </modules>
 
     <properties>
-        <project.build.finalName>agrirouter-middleware</project.build.finalName>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -296,6 +295,7 @@
     </dependencies>
 
     <build>
+        <finalName>agrirouter-middleware</finalName>
         <resources>
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
