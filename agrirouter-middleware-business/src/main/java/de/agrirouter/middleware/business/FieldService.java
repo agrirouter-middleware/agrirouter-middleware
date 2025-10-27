@@ -157,7 +157,7 @@ public class FieldService {
         }
     }
 
-    private Optional<GrpcEfdi.Partfield> parse(String fieldAsJson) {
+    protected Optional<GrpcEfdi.Partfield> parse(String fieldAsJson) {
         try {
             GrpcEfdi.Partfield.Builder builder = GrpcEfdi.Partfield.newBuilder();
             JsonFormat.parser().merge(fieldAsJson, builder);
