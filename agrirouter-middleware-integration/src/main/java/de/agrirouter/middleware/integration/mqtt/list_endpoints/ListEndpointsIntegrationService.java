@@ -8,6 +8,7 @@ import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +21,12 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ListEndpointsIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final ListEndpointsMessages listEndpointsMessages;
-
-    public ListEndpointsIntegrationService(MqttClientManagementService mqttClientManagementService,
-                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                           ListEndpointsMessages listEndpointsMessages) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.listEndpointsMessages = listEndpointsMessages;
-    }
 
     /**
      * Publish a list endpoints message for the given onboarding response.

@@ -11,6 +11,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.container.VirtualEndpointOnboardStateContainer;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOnboardProcessIntegrationParameters;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,19 +27,12 @@ import static de.agrirouter.middleware.integration.ack.DynamicMessageProperties.
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class VirtualOnboardProcessIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer;
-
-    public VirtualOnboardProcessIntegrationService(MqttClientManagementService mqttClientManagementService,
-                                                   MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                                   VirtualEndpointOnboardStateContainer virtualEndpointOnboardStateContainer) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.virtualEndpointOnboardStateContainer = virtualEndpointOnboardStateContainer;
-    }
 
     /**
      * Virtual endpoint onboard process.

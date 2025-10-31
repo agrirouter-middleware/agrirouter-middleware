@@ -13,6 +13,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.common.CapabilityParameterFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +24,11 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class EndpointIntegrationService {
 
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final MqttClientManagementService mqttClientManagementService;
-
-    public EndpointIntegrationService(MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                      MqttClientManagementService mqttClientManagementService) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-    }
 
     /**
      * Send capabilities.

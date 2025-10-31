@@ -5,6 +5,7 @@ import com.dke.data.agrirouter.api.service.RevokingService;
 import com.dke.data.agrirouter.api.service.parameters.RevokeParameters;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,10 @@ import java.util.Collections;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class RevokeProcessIntegrationService {
 
     private final RevokingService revokingService;
-
-    public RevokeProcessIntegrationService(RevokingService revokingService) {
-        this.revokingService = revokingService;
-    }
 
     /**
      * Revoke an existing endpoint.
