@@ -18,6 +18,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -29,19 +30,12 @@ import java.util.ArrayList;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SendMessageIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final EncodeMessageService encodeMessageService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
-
-    public SendMessageIntegrationService(MqttClientManagementService mqttClientManagementService,
-                                         EncodeMessageService encodeMessageService,
-                                         MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.encodeMessageService = encodeMessageService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-    }
 
     /**
      * Publish a message. If the recipients are set also, the sending mode will be only direct sending, you have to decide between publishing and direct sending.
