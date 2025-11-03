@@ -1,28 +1,20 @@
 package de.agrirouter.middleware.domain.log;
 
-import de.agrirouter.middleware.domain.BaseEntity;
-import de.agrirouter.middleware.domain.Endpoint;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * An error.
+ * Base class for log entries used for mapping to DTOs only. No persistence.
  */
 @Data
 @ToString
-@MappedSuperclass
-@EqualsAndHashCode(callSuper = true)
-abstract class LogEntry extends BaseEntity {
+@EqualsAndHashCode(callSuper = false)
+abstract class LogEntry {
 
     /**
      * The response code.
      */
-    @Column(nullable = false)
     private int responseCode;
 
     /**
@@ -44,11 +36,4 @@ abstract class LogEntry extends BaseEntity {
      * The ID of the message.
      */
     private String messageId;
-
-    /**
-     * The belonging endpoint.
-     */
-    @ManyToOne
-    @JoinColumn(name = "endpoint_id")
-    private Endpoint endpoint;
 }

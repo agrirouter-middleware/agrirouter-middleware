@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business;
 
-import agrirouter.commons.MessageOuterClass;
 import com.dke.data.agrirouter.api.dto.encoding.DecodeMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
@@ -27,8 +26,6 @@ import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsInt
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
 import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
-import de.agrirouter.middleware.persistence.jpa.ErrorRepository;
-import de.agrirouter.middleware.persistence.jpa.WarningRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,8 +51,6 @@ public class EndpointService {
     public static final int ADDITIONAL_OFFSET_WHEN_WAITING = 20;
     private final EndpointRepository endpointRepository;
     private final DecodeMessageService decodeMessageService;
-    private final ErrorRepository errorRepository;
-    private final WarningRepository warningRepository;
     private final EndpointIntegrationService endpointIntegrationService;
     private final ApplicationRepository applicationRepository;
     private final MqttClientManagementService mqttClientManagementService;
@@ -83,22 +78,12 @@ public class EndpointService {
     public void updateErrors(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        final var error = createError(endpoint, decodedMessage, message);
-        errorRepository.save(error);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Error has been created.");
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),
+                "AR error received. code=%s type=%s msg=[%s] %s", decodedMessage.getResponseEnvelope().getResponseCode(),
+                decodedMessage.getResponseEnvelope().getType().name(), message.getMessageCode(), message.getMessage());
     }
 
 
-    private static Error createError(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
-        final var error = new Error();
-        error.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
-        error.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
-        error.setMessageId(decodedMessage.getResponseEnvelope().getMessageId());
-        error.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
-        error.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
-        error.setEndpoint(endpoint);
-        return error;
-    }
 
     /**
      * Updating warning messages based on the decoded message.
@@ -109,22 +94,12 @@ public class EndpointService {
     public void updateWarnings(Endpoint endpoint, DecodeMessageResponse decodedMessage) {
         final var messages = decodeMessageService.decode(decodedMessage.getResponsePayloadWrapper().getDetails());
         final var message = messages.getMessages(0);
-        final var warning = createWarning(endpoint, decodedMessage, message);
-        warningRepository.save(warning);
-        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warning has been created.");
+        businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),
+                "AR warning received. code=%s type=%s msg=[%s] %s", decodedMessage.getResponseEnvelope().getResponseCode(),
+                decodedMessage.getResponseEnvelope().getType().name(), message.getMessageCode(), message.getMessage());
     }
 
 
-    private static Warning createWarning(Endpoint endpoint, DecodeMessageResponse decodedMessage, MessageOuterClass.Message message) {
-        final var warning = new Warning();
-        warning.setResponseCode(decodedMessage.getResponseEnvelope().getResponseCode());
-        warning.setResponseType(decodedMessage.getResponseEnvelope().getType().name());
-        warning.setMessageId(decodedMessage.getResponseEnvelope().getMessageId());
-        warning.setTimestamp(decodedMessage.getResponseEnvelope().getTimestamp().getSeconds());
-        warning.setMessage(String.format("[%s] %s", message.getMessageCode(), message.getMessage()));
-        warning.setEndpoint(endpoint);
-        return warning;
-    }
 
     /**
      * Delete the endpoint and remove all the data.
@@ -208,7 +183,7 @@ public class EndpointService {
      * @return -
      */
     public List<Error> getErrors(Endpoint endpoint) {
-        return errorRepository.findByEndpoint(endpoint);
+        return Collections.emptyList();
     }
 
     /**
@@ -218,7 +193,7 @@ public class EndpointService {
      * @return -
      */
     public List<Warning> getWarnings(Endpoint endpoint) {
-        return warningRepository.findByEndpoint(endpoint);
+        return Collections.emptyList();
     }
 
     /**
@@ -335,8 +310,7 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            errorRepository.deleteAllByEndpoint(endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Errors were reset.");
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Reset errors requested. No DB log entries are kept anymore.");
         } else {
             log.warn("Tried to reset errors for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
@@ -353,8 +327,7 @@ public class EndpointService {
         final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             final var endpoint = optionalEndpoint.get();
-            warningRepository.deleteAllByEndpoint(endpoint);
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Warnings were reset.");
+            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Reset warnings requested. No DB log entries are kept anymore.");
         } else {
             log.warn("Tried to reset warnings for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
         }
