@@ -53,14 +53,6 @@ public class EndpointDashboardUIController extends UIController {
 
             model.addAttribute("agrirouterApplication", application);
 
-            final var warnings = endpointService.getWarnings(endpoint);
-            warnings.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-            model.addAttribute("warnings", warnings);
-
-            final var errors = endpointService.getErrors(endpoint);
-            errors.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-            model.addAttribute("errors", errors);
-
             final var technicalConnectionState = mqttClientManagementService.getTechnicalState(endpoint);
             model.addAttribute("technicalConnectionState", technicalConnectionState);
 
@@ -82,30 +74,6 @@ public class EndpointDashboardUIController extends UIController {
             return Routes.UnsecuredEndpoints.ERROR;
         }
         return Routes.UserInterface.ThymeleafRouting.ENDPOINT_DASHBOARD;
-    }
-
-    /**
-     * Clearing errors.
-     *
-     * @return -
-     */
-    @PostMapping("/endpoint-dashboard/clear-errors")
-    public String clearErrors(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
-        log.debug("Clearing errors for endpoint with external endpoint ID {}.", externalEndpointId);
-        endpointService.resetErrors(externalEndpointId);
-        return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
-    }
-
-    /**
-     * Clearing warnings.
-     *
-     * @return -
-     */
-    @PostMapping("/endpoint-dashboard/clear-warnings")
-    public String clearWarnings(@RequestParam(value = "externalEndpointId") String externalEndpointId) {
-        log.debug("Clearing warnings for endpoint with external endpoint ID {}.", externalEndpointId);
-        endpointService.resetWarnings(externalEndpointId);
-        return "redirect:/endpoint-dashboard?externalEndpointId=" + externalEndpointId;
     }
 
     /**

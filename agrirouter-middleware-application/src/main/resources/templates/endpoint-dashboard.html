@@ -137,48 +137,6 @@
             </div>
         </div>
     </div>
-    <div class="mdl-grid" style="width: 100%" th:if="${!errors.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.errors}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th th:text="#{domain.log-entry.timestamp}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.log-entry.response-code}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.log-entry.response-type}"></th>
-                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="error: ${errors}">
-                            <td th:text="${#dates.format(error.timestamp * 1000,'dd.MM.yyyy HH:mm')}"></td>
-                            <td th:text="${error.responseCode}"></td>
-                            <td th:text="${error.responseType}"></td>
-                            <td th:text="${error.messageId}"></td>
-                            <td th:text="${error.message}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
-                    <form action="#"
-                          th:action="@{/endpoint-dashboard/clear-errors(externalEndpointId=${endpoint.externalEndpointId})}"
-                          method="post">
-                        <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                               th:value="#{endpoint.clear-all}"/>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="mdl-grid" th:if="${!connectionErrors.isEmpty()}">
         <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
             <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
@@ -283,48 +241,6 @@
                 <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
                     <form action="#"
                           th:action="@{/endpoint-dashboard/clear-messages-waiting-for-ack(externalEndpointId=${endpoint.externalEndpointId})}"
-                          method="post">
-                        <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                               th:value="#{endpoint.clear-all}"/>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mdl-grid" th:if="${!warnings.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.warnings}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th th:text="#{domain.log-entry.timestamp}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.log-entry.response-code}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.log-entry.response-type}"></th>
-                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.log-entry.message}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="warning: ${warnings}">
-                            <td th:text="${#dates.format(warning.timestamp * 1000,'dd.MM.yyyy HH:mm')}"></td>
-                            <td th:text="${warning.responseCode}"></td>
-                            <td th:text="${warning.responseType}"></td>
-                            <td th:text="${warning.messageId}"></td>
-                            <td th:text="${warning.message}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
-                    <form action="#"
-                          th:action="@{/endpoint-dashboard/clear-warnings(externalEndpointId=${endpoint.externalEndpointId})}"
                           method="post">
                         <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
                                th:value="#{endpoint.clear-all}"/>

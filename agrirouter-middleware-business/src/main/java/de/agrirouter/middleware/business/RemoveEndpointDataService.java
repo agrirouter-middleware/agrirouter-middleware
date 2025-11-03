@@ -2,7 +2,9 @@ package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.business.cache.endpoints.InternalEndpointCache;
 import de.agrirouter.middleware.domain.Endpoint;
-import de.agrirouter.middleware.persistence.jpa.*;
+import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
+import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
+import de.agrirouter.middleware.persistence.jpa.UnprocessedMessageRepository;
 import de.agrirouter.middleware.persistence.mongo.DeviceDescriptionRepository;
 import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RemoveEndpointDataService {
 
-    private final ErrorRepository errorRepository;
-    private final WarningRepository warningRepository;
     private final EndpointRepository endpointRepository;
     private final InternalEndpointCache internalEndpointCache;
     private final UnprocessedMessageRepository unprocessedMessageRepository;
@@ -35,10 +35,6 @@ public class RemoveEndpointDataService {
      */
     @Transactional
     public void removeEndpointData(Endpoint endpoint) {
-        log.debug("Remove all errors, warnings and information.");
-        errorRepository.deleteAllByEndpoint(endpoint);
-        warningRepository.deleteAllByEndpoint(endpoint);
-
         log.debug("Remove endpoint from internal cache to avoid problems.");
         internalEndpointCache.remove(endpoint.getExternalEndpointId());
     }
@@ -50,10 +46,6 @@ public class RemoveEndpointDataService {
      */
     @Transactional
     public void removeEndpointDataAndEndpoint(Endpoint endpoint) {
-        log.debug("Remove all errors, warnings and information.");
-        errorRepository.deleteAllByEndpoint(endpoint);
-        warningRepository.deleteAllByEndpoint(endpoint);
-
         log.debug("Remove the endpoint.");
         endpointRepository.delete(endpoint);
 
