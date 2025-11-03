@@ -9,6 +9,7 @@ import com.dke.data.agrirouter.api.service.parameters.SecuredOnboardingParameter
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,13 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SecuredOnboardProcessIntegrationService {
 
     private final OnboardingService onboardingService;
 
     @Value("${app.signature-verification.disable:false}")
     private boolean disableVerification;
-
-    public SecuredOnboardProcessIntegrationService(OnboardingService onboardingService) {
-        this.onboardingService = onboardingService;
-    }
 
     /**
      * Secured onboard process.

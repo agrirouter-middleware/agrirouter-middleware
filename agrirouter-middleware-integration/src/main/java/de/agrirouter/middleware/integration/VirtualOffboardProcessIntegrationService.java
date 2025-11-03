@@ -10,6 +10,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.integration.parameters.VirtualOffboardProcessIntegrationParameters;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +21,11 @@ import java.util.HashMap;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class VirtualOffboardProcessIntegrationService {
 
     private final MqttClientManagementService mqttClientManagementService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
-
-    public VirtualOffboardProcessIntegrationService(MqttClientManagementService mqttClientManagementService,
-                                                    MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-    }
 
     /**
      * Virtual endpoint offboard process.

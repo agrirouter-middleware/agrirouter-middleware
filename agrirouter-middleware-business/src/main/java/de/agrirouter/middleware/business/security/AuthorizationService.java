@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.business.security;
 
 import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -9,13 +10,10 @@ import java.security.Principal;
  * Service for authorization.
  */
 @Service
+@RequiredArgsConstructor
 public class AuthorizationService {
 
     private final ApplicationRepository applicationRepository;
-
-    public AuthorizationService(ApplicationRepository applicationRepository) {
-        this.applicationRepository = applicationRepository;
-    }
 
     /**
      * Check if the principal is authorized to access the given application.
