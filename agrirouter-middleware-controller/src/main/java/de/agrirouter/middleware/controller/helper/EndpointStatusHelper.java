@@ -119,20 +119,6 @@ public class EndpointStatusHelper {
      * @param endpoint        -
      * @return -
      */
-    public static EndpointWarningsDto mapWarnings(ModelMapper modelMapper, EndpointService endpointService, Endpoint endpoint) {
-        final var dto = new EndpointWarningsDto();
-        modelMapper.map(endpoint, dto);
-        final var warnings = new ArrayList<LogEntryDto>();
-        endpointService.getWarnings(endpoint).forEach(warning -> {
-            final var logEntryDto = new LogEntryDto();
-            modelMapper.map(warning, logEntryDto);
-            logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(warning.getTimestamp())));
-            warnings.add(logEntryDto);
-        });
-        dto.setWarnings(warnings);
-        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
-        return dto;
-    }
 
     /**
      * MAp the endpoint to the dedicated DTO.
@@ -142,20 +128,6 @@ public class EndpointStatusHelper {
      * @param endpoint        -
      * @return -
      */
-    public static EndpointErrorsDto mapErrors(ModelMapper modelMapper, EndpointService endpointService, Endpoint endpoint) {
-        final var dto = new EndpointErrorsDto();
-        modelMapper.map(endpoint, dto);
-        final var errors = new ArrayList<LogEntryDto>();
-        endpointService.getErrors(endpoint).forEach(error -> {
-            final var logEntryDto = new LogEntryDto();
-            modelMapper.map(error, logEntryDto);
-            logEntryDto.setTimestamp(Date.from(Instant.ofEpochSecond(error.getTimestamp())));
-            errors.add(logEntryDto);
-        });
-        dto.setErrors(errors);
-        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
-        return dto;
-    }
 
     /**
      * Map the missing acknowledgements.

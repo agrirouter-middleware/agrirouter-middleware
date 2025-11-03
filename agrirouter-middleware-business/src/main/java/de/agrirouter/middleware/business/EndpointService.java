@@ -12,8 +12,6 @@ import de.agrirouter.middleware.business.cache.events.BusinessEventsCache;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
-import de.agrirouter.middleware.domain.log.Error;
-import de.agrirouter.middleware.domain.log.Warning;
 import de.agrirouter.middleware.integration.EndpointIntegrationService;
 import de.agrirouter.middleware.integration.RevokeProcessIntegrationService;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
@@ -176,25 +174,7 @@ public class EndpointService {
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Capabilities were sent.");
     }
 
-    /**
-     * Fetch all errors for the endpoint.
-     *
-     * @param endpoint -
-     * @return -
-     */
-    public List<Error> getErrors(Endpoint endpoint) {
-        return Collections.emptyList();
-    }
 
-    /**
-     * Fetch all warnings for the endpoint.
-     *
-     * @param endpoint -
-     * @return -
-     */
-    public List<Warning> getWarnings(Endpoint endpoint) {
-        return Collections.emptyList();
-    }
 
     /**
      * Get the state of the connection.
@@ -299,39 +279,7 @@ public class EndpointService {
         return endpointRepository.findAllByInternalApplicationId(internalApplicationId);
     }
 
-    /**
-     * Reset all errors.
-     *
-     * @param externalEndpointId The external ID of the endpoint.
-     */
-    @Async
-    @Transactional
-    public void resetErrors(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Reset errors requested. No DB log entries are kept anymore.");
-        } else {
-            log.warn("Tried to reset errors for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
-        }
-    }
 
-    /**
-     * Reset all warnings.
-     *
-     * @param externalEndpointId The external ID of the endpoint.
-     */
-    @Async
-    @Transactional
-    public void resetWarnings(String externalEndpointId) {
-        final var optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
-        if (optionalEndpoint.isPresent()) {
-            final var endpoint = optionalEndpoint.get();
-            businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Reset warnings requested. No DB log entries are kept anymore.");
-        } else {
-            log.warn("Tried to reset warnings for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
-        }
-    }
 
     /**
      * Remove all messages waiting for ACK for the endpoint.
