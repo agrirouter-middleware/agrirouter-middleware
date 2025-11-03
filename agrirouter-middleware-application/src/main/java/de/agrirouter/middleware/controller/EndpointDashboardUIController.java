@@ -77,12 +77,6 @@ public class EndpointDashboardUIController extends UIController {
     }
 
     /**
-     * Clearing errors.
-     *
-     * @return -
-     */
-
-    /**
      * Clearing messages waiting for ACK.
      *
      * @return -

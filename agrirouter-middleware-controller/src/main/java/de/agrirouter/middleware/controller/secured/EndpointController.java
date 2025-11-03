@@ -272,21 +272,6 @@ public class EndpointController implements SecuredApiController {
     }
 
     /**
-     * Check the warnings for the given IDs of the endpoint.
-     *
-     * @param endpointStatusRequest The request containing the IDs of the endpoints.
-     * @return HTTP 200 with the data of the endpoint or an HTTP 400 with an error message.
-     */
-
-    /**
-     * Fetch the errors for the endpoint.
-     *
-     * @param endpointStatusRequest -
-     * @param errors                -
-     * @return -
-     */
-
-    /**
      * Fetch the missing ACKs.
      *
      * @param endpointStatusRequest -

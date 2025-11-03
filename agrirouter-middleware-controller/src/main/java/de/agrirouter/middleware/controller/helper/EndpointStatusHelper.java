@@ -112,24 +112,6 @@ public class EndpointStatusHelper {
     }
 
     /**
-     * Map the endpoint to the dedicated DTO.
-     *
-     * @param modelMapper     -
-     * @param endpointService -
-     * @param endpoint        -
-     * @return -
-     */
-
-    /**
-     * MAp the endpoint to the dedicated DTO.
-     *
-     * @param modelMapper     -
-     * @param endpointService -
-     * @param endpoint        -
-     * @return -
-     */
-
-    /**
      * Map the missing acknowledgements.
      *
      * @param modelMapper                             -
