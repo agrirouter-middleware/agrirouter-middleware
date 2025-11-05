@@ -117,9 +117,6 @@ public class PushMessageEventListener {
                 farmService.save(contentMessage);
             } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
                 customerService.save(contentMessage);
-            } else {
-                log.warn("Unknown master data type {}.", technicalMessageType);
-            }
             businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
             return;
         }
