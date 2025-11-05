@@ -29,19 +29,6 @@ public interface TimeLogRepository extends MongoRepository<TimeLog, String> {
     List<TimeLog> findAllByTimestampGreaterThanEqualAndTimestampLessThanEqual(long searchFrom, long searchTo);
 
     /**
-     * Fetch all time logs are within the timestamp and have the given team set context ID (exclusive bounds - legacy).
-     *
-     * Note: Spring Data MongoDB translates Between to $gt and $lt (exclusive). Kept for backward compatibility.
-     * Prefer using the inclusive variant below.
-     *
-     * @param searchFrom       The start of the search interval.
-     * @param searchTo         The end of the search interval.
-     * @param teamSetContextId The team set context ID.
-     * @return The time logs.
-     */
-    List<TimeLog> findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(long searchFrom, long searchTo, String teamSetContextId);
-
-    /**
      * Fetch all time logs are within the timestamp and have the given team set context ID (inclusive bounds).
      *
      * @param searchFrom       The start of the search interval (inclusive).
