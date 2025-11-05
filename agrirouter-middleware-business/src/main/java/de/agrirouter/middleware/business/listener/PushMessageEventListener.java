@@ -109,7 +109,6 @@ public class PushMessageEventListener {
         contentMessage.setMessageContent(message.toByteArray());
         contentMessage.setContentMessageMetadata(contentMessageMetadata);
 
-        // Do not persist raw data for master data messages; process only in specialized services.
         if (isMasterData(technicalMessageType)) {
             if (technicalMessageType.equals(ISO_11783_FIELD.getKey())) {
                 fieldService.save(contentMessage);
@@ -117,12 +116,11 @@ public class PushMessageEventListener {
                 farmService.save(contentMessage);
             } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
                 customerService.save(contentMessage);
-                businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
-                return;
             }
+            businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
+            return;
         }
 
-        // Persist all other non-telemetry content messages as before.
         contentMessageRepository.save(contentMessage);
 
         if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
