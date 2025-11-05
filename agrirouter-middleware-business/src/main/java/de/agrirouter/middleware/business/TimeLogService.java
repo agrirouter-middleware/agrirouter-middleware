@@ -166,9 +166,9 @@ public class TimeLogService {
         List<TimeLog> timeLogs;
         if (messagesForTimeLogPeriodParameters.shouldFilterByTime()) {
             if (StringUtils.isNotBlank(messagesForTimeLogPeriodParameters.getTeamSetContextId())) {
-                timeLogs = timeLogRepository.findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault(), messagesForTimeLogPeriodParameters.getTeamSetContextId());
+                timeLogs = timeLogRepository.findAllByTimestampGreaterThanEqualAndTimestampLessThanEqualAndTeamSetContextIdEqualsIgnoreCase(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault(), messagesForTimeLogPeriodParameters.getTeamSetContextId());
             } else {
-                timeLogs = timeLogRepository.findAllByTimestampBetween(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
+                timeLogs = timeLogRepository.findAllByTimestampGreaterThanEqualAndTimestampLessThanEqual(messagesForTimeLogPeriodParameters.getSendFromOrDefault(), messagesForTimeLogPeriodParameters.getSendToOrDefault());
             }
             if (null != messagesForTimeLogPeriodParameters.getDdisToList() && !messagesForTimeLogPeriodParameters.getDdisToList().isEmpty()) {
                 timeLogs.forEach(timeLog -> {
@@ -241,7 +241,7 @@ public class TimeLogService {
         teamSetContextIds.forEach(teamSetContextId -> {
             final List<TimeLog> timeLogs;
             if (searchTimeLogPeriodsParameters.shouldFilterByTime()) {
-                timeLogs = timeLogRepository.findAllByTimestampBetweenAndTeamSetContextIdEqualsIgnoreCase(searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault(), teamSetContextId);
+                timeLogs = timeLogRepository.findAllByTimestampGreaterThanEqualAndTimestampLessThanEqualAndTeamSetContextIdEqualsIgnoreCase(searchTimeLogPeriodsParameters.getSendFromOrDefault(), searchTimeLogPeriodsParameters.getSendToOrDefault(), teamSetContextId);
             } else {
                 timeLogs = timeLogRepository.findAllByTeamSetContextIdEqualsIgnoreCase(teamSetContextId);
             }
