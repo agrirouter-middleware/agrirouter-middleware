@@ -121,6 +121,13 @@ public class MessageQueryResultEventListener {
             contentMessage.setAgrirouterEndpointId(receiverId);
             contentMessage.setMessageContent(message.toByteArray());
             contentMessage.setContentMessageMetadata(contentMessageMetadata);
+
+            // Do not persist raw data for master data messages
+            if (isMasterData(technicalMessageType)) {
+                log.debug("Skipping raw persistence for master data message with technical type {}.", technicalMessageType);
+                return;
+            }
+
             contentMessageRepository.save(contentMessage);
 
             var endpoint = endpointService.findByAgrirouterEndpointId(receiverId);
@@ -311,4 +318,9 @@ public class MessageQueryResultEventListener {
         persistContentMessage(contentMessageMetadata, feedMessage.getHeader().getReceiverId(), feedMessage.getContent().getValue(), feedMessage.getHeader().getTechnicalMessageType());
     }
 
+    private boolean isMasterData(String technicalMessageType) {
+        return technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_FIELD.getKey())
+                || technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_FARM.getKey())
+                || technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_CUSTOMER.getKey());
+    }
 }

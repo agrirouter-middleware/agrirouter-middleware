@@ -108,6 +108,23 @@ public class PushMessageEventListener {
         contentMessage.setAgrirouterEndpointId(receiverId);
         contentMessage.setMessageContent(message.toByteArray());
         contentMessage.setContentMessageMetadata(contentMessageMetadata);
+
+        // Do not persist raw data for master data messages; process only in specialized services.
+        if (isMasterData(technicalMessageType)) {
+            if (technicalMessageType.equals(ISO_11783_FIELD.getKey())) {
+                fieldService.save(contentMessage);
+            } else if (technicalMessageType.equals(ISO_11783_FARM.getKey())) {
+                farmService.save(contentMessage);
+            } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
+                customerService.save(contentMessage);
+            } else {
+                log.warn("Unknown master data type {}.", technicalMessageType);
+            }
+            businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
+            return;
+        }
+
+        // Persist all other non-telemetry content messages as before.
         contentMessageRepository.save(contentMessage);
 
         if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TASKDATA_ZIP.getKey())) {
@@ -121,18 +138,6 @@ public class PushMessageEventListener {
 
         if (technicalMessageType.equals(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey())) {
             timeLogService.save(contentMessage);
-        }
-
-        if (isMasterData(technicalMessageType)) {
-            if (technicalMessageType.equals(ISO_11783_FIELD.getKey())) {
-                fieldService.save(contentMessage);
-            } else if (technicalMessageType.equals(ISO_11783_FARM.getKey())) {
-                farmService.save(contentMessage);
-            } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
-                customerService.save(contentMessage);
-            } else {
-                log.warn("Unknown master data type {}.", technicalMessageType);
-            }
         }
 
         businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Save content message.");
