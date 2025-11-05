@@ -45,13 +45,25 @@ public class SearchNonTelemetryDataService {
             if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
                 contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
                         searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(TechnicalMessageType::getKey).toList(),
-                        List.of(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(), TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
+                        List.of(
+                                TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(),
+                                TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey(),
+                                TemporaryContentMessageType.ISO_11783_FIELD.getKey(),
+                                TemporaryContentMessageType.ISO_11783_FARM.getKey(),
+                                TemporaryContentMessageType.ISO_11783_CUSTOMER.getKey()
+                        ),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
                 log.debug("Found {} content messages in total.", contentMessageMetadata.size());
             } else {
                 contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
-                        List.of(TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(), TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey()),
+                        List.of(
+                                TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(),
+                                TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey(),
+                                TemporaryContentMessageType.ISO_11783_FIELD.getKey(),
+                                TemporaryContentMessageType.ISO_11783_FARM.getKey(),
+                                TemporaryContentMessageType.ISO_11783_CUSTOMER.getKey()
+                        ),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
             }
