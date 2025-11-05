@@ -100,7 +100,6 @@ public class MessageQueryResultEventListener {
             contentMessage.setMessageContent(message.toByteArray());
             contentMessage.setContentMessageMetadata(contentMessageMetadata);
 
-            // Do not persist raw data for master data messages; process only in specialized services.
             if (isMasterData(technicalMessageType)) {
                 if (technicalMessageType.equals(ISO_11783_FIELD.getKey())) {
                     fieldService.save(contentMessage);
@@ -108,8 +107,6 @@ public class MessageQueryResultEventListener {
                     farmService.save(contentMessage);
                 } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
                     customerService.save(contentMessage);
-                } else {
-                    log.warn("Unknown master data type {}.", technicalMessageType);
                 }
                 businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
                 return;
