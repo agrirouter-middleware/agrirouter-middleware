@@ -18,9 +18,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.events.MessageQueryResultEvent;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.business.DeviceDescriptionService;
-import de.agrirouter.middleware.business.EndpointService;
-import de.agrirouter.middleware.business.TimeLogService;
+import de.agrirouter.middleware.business.*;
 import de.agrirouter.middleware.business.cache.events.BusinessEvent;
 import de.agrirouter.middleware.business.cache.events.BusinessEventApplicationEvent;
 import de.agrirouter.middleware.business.cache.events.BusinessEventType;
@@ -36,6 +34,7 @@ import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import de.agrirouter.middleware.isoxml.TaskDataTimeLogService;
 import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
 import de.agrirouter.middleware.persistence.mongo.TaskDataTimeLogContainerRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -48,12 +47,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
+import static de.agrirouter.middleware.domain.enums.TemporaryContentMessageType.*;
 
 /**
  * Confirm messages from the AR.
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MessageQueryResultEventListener {
 
     private final MqttClientManagementService mqttClientManagementService;
@@ -68,32 +69,9 @@ public class MessageQueryResultEventListener {
     private final BusinessOperationLogService businessOperationLogService;
     private final LatestQueryResults latestQueryResults;
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    public MessageQueryResultEventListener(MqttClientManagementService mqttClientManagementService,
-                                           EndpointService endpointService,
-                                           MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService,
-                                           DecodeMessageService decodeMessageService,
-                                           TimeLogService timeLogService,
-                                           TaskDataTimeLogContainerRepository taskDataTimeLogContainerRepository,
-                                           ContentMessageRepository contentMessageRepository,
-                                           TaskDataTimeLogService taskDataTimeLogService,
-                                           DeviceDescriptionService deviceDescriptionService,
-                                           BusinessOperationLogService businessOperationLogService,
-                                           LatestQueryResults latestQueryResults,
-                                           ApplicationEventPublisher applicationEventPublisher) {
-        this.mqttClientManagementService = mqttClientManagementService;
-        this.endpointService = endpointService;
-        this.messageWaitingForAcknowledgementService = messageWaitingForAcknowledgementService;
-        this.decodeMessageService = decodeMessageService;
-        this.timeLogService = timeLogService;
-        this.taskDataTimeLogContainerRepository = taskDataTimeLogContainerRepository;
-        this.contentMessageRepository = contentMessageRepository;
-        this.taskDataTimeLogService = taskDataTimeLogService;
-        this.deviceDescriptionService = deviceDescriptionService;
-        this.businessOperationLogService = businessOperationLogService;
-        this.latestQueryResults = latestQueryResults;
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
+    private final FieldService fieldService;
+    private final FarmService farmService;
+    private final CustomerService customerService;
 
     /**
      * Confirm existing messages.
@@ -122,9 +100,18 @@ public class MessageQueryResultEventListener {
             contentMessage.setMessageContent(message.toByteArray());
             contentMessage.setContentMessageMetadata(contentMessageMetadata);
 
-            // Do not persist raw data for master data messages
+            // Do not persist raw data for master data messages; process only in specialized services.
             if (isMasterData(technicalMessageType)) {
-                log.debug("Skipping raw persistence for master data message with technical type {}.", technicalMessageType);
+                if (technicalMessageType.equals(ISO_11783_FIELD.getKey())) {
+                    fieldService.save(contentMessage);
+                } else if (technicalMessageType.equals(ISO_11783_FARM.getKey())) {
+                    farmService.save(contentMessage);
+                } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
+                    customerService.save(contentMessage);
+                } else {
+                    log.warn("Unknown master data type {}.", technicalMessageType);
+                }
+                businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
                 return;
             }
 
