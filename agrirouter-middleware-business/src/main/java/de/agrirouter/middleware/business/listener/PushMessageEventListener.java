@@ -117,8 +117,9 @@ public class PushMessageEventListener {
                 farmService.save(contentMessage);
             } else if (technicalMessageType.equals(ISO_11783_CUSTOMER.getKey())) {
                 customerService.save(contentMessage);
-            businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
-            return;
+                businessOperationLogService.log(new EndpointLogInformation(NA, receiverId), "Processed master data message without raw persistence.");
+                return;
+            }
         }
 
         // Persist all other non-telemetry content messages as before.
