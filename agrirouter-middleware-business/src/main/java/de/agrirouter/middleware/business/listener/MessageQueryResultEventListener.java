@@ -251,7 +251,7 @@ public class MessageQueryResultEventListener {
         messageQueryResponse.getMessagesList().forEach(feedMessage -> {
             var messageDetails = new LatestQueryResults.QueryResult.MessageDetails();
             messageDetails.setMessageId(feedMessage.getHeader().getMessageId());
-            messageDetails.setTechnicalMessageType(feedMessage.getHeader().getTechnicalMessageType());
+            messageDetails.setTechnicalMessageType(TemporaryContentMessageType.fromKey(feedMessage.getHeader().getTechnicalMessageType()));
             messageDetails.setFileName(feedMessage.getHeader().getMetadata().getFileName());
             messageDetails.setSenderId(feedMessage.getHeader().getSenderId());
             messageDetails.setSentTimestamp(feedMessage.getHeader().getSentTimestamp());
