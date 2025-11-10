@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +44,7 @@ public class MessageWaitingForAcknowledgementDto {
      * The type of message waiting for response.
      */
     @Schema(description = "The type of message waiting for response.")
-    private String technicalMessageType;
+    private TemporaryContentMessageType technicalMessageType;
 
     /**
      * Dynamic properties for the message waiting for ACK.

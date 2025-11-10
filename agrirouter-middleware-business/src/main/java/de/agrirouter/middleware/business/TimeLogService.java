@@ -26,6 +26,7 @@ import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
 import efdi.GrpcEfdi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,7 @@ public class TimeLogService {
 
     private ByteString asByteString(String base64EncodedTimeLog) {
         try {
-            return GrpcEfdi.TimeLog.parseFrom(Base64.getDecoder().decode(base64EncodedTimeLog)).toByteString();
+            return GrpcEfdi.TimeLog.parseFrom(Base64.decodeBase64(base64EncodedTimeLog)).toByteString();
         } catch (InvalidProtocolBufferException e) {
             throw new BusinessException(ErrorMessageFactory.couldNotParseTimeLog());
         }

@@ -26,6 +26,7 @@ import de.saschadoemer.iso11783.clientname.ClientNameDecoder;
 import efdi.GrpcEfdi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -35,7 +36,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -111,7 +111,7 @@ public class DeviceDescriptionService {
                     var deviceDescription = createDeviceDescription(createDeviceDescriptionParameters, optionalDocument);
                     deviceDescriptionRepository.save(deviceDescription);
                     businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()), "Device description created and saved to the database.");
-                    createOrFindDevices(endpoint, Base64.getDecoder().decode(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription()), deviceDescription);
+                    createOrFindDevices(endpoint, Base64.decodeBase64(createDeviceDescriptionParameters.getBase64EncodedDeviceDescription()), deviceDescription);
                 } catch (BusinessException e) {
                     log.error(e.getErrorMessage().asLogMessage());
                 }
@@ -189,7 +189,7 @@ public class DeviceDescriptionService {
      * @return -
      */
     public Optional<GrpcEfdi.ISO11783_TaskData> parse(String base64EncodedDeviceDescription) {
-        final var bytesString = Base64.getDecoder().decode(base64EncodedDeviceDescription);
+        final var bytesString = Base64.decodeBase64(base64EncodedDeviceDescription);
         try {
             return Optional.ofNullable(GrpcEfdi.ISO11783_TaskData.parseFrom(ByteString.copyFrom(bytesString)));
         } catch (InvalidProtocolBufferException e) {
@@ -220,7 +220,7 @@ public class DeviceDescriptionService {
      * @return -
      */
     public ByteString asByteString(String base64EncodedDeviceDescription) {
-        final var bytes = Base64.getDecoder().decode(base64EncodedDeviceDescription);
+        final var bytes = Base64.decodeBase64(base64EncodedDeviceDescription);
         return ByteString.copyFrom(bytes);
     }
 

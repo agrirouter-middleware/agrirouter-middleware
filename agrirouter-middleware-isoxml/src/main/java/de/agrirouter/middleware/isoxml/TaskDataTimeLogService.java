@@ -8,6 +8,7 @@ import de.agrirouter.middleware.isoxml.reader.ByteValueReader;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class TaskDataTimeLogService {
      */
     public List<Document> parseMessageContent(byte[] base64EncodedZipFile) {
         final var documents = new ArrayList<Document>();
-        final var decodedMessageContent = Base64.getDecoder().decode(base64EncodedZipFile);
+        final var decodedMessageContent = Base64.decodeBase64(base64EncodedZipFile);
         log.debug("Message content successfully decoded.");
         log.trace("Decoded message content >>> {}", decodedMessageContent);
         try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(decodedMessageContent))) {

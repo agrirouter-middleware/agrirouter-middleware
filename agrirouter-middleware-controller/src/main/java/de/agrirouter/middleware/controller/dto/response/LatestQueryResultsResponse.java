@@ -2,6 +2,7 @@ package de.agrirouter.middleware.controller.dto.response;
 
 import com.google.protobuf.Timestamp;
 import de.agrirouter.middleware.business.cache.query.LatestQueryResults;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -82,7 +83,7 @@ public class LatestQueryResultsResponse {
                 @Schema(description = "The message ID.")
                 private String messageId;
                 @Schema(description = "The technical message type.")
-                private String technicalMessageType;
+                private TemporaryContentMessageType technicalMessageType;
                 @Schema(description = "The file name.")
                 private String fileName;
                 @Schema(description = "The sender ID.")

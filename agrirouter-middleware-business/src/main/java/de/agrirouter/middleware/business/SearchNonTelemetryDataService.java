@@ -10,6 +10,7 @@ import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,7 +125,7 @@ public class SearchNonTelemetryDataService {
                     return assembleChunkedMessageContent(endpoint.getAgrirouterEndpointId(), contentMessage.getContentMessageMetadata().getChunkContextId());
                 } else {
                     log.debug("This is a single message, therefore returning the content 'as it is'.");
-                    return Base64.getDecoder().decode(contentMessage.getMessageContent());
+                    return Base64.decodeBase64(contentMessage.getMessageContent());
                 }
             } else {
                 throw new BusinessException(ErrorMessageFactory.couldNotFindContentMessage());
@@ -143,7 +144,7 @@ public class SearchNonTelemetryDataService {
             try (var stream = new ByteArrayOutputStream()) {
                 contentMessages.stream()
                         .sorted(Comparator.comparingLong(o -> o.getContentMessageMetadata().getCurrentChunk()))
-                        .map(cm -> Base64.getDecoder().decode(cm.getMessageContent()))
+                        .map(cm -> Base64.decodeBase64(cm.getMessageContent()))
                         .forEach(mc -> {
                             try {
                                 stream.write(mc);
@@ -177,7 +178,10 @@ public class SearchNonTelemetryDataService {
                                 messageCountForTechnicalMessageType.getTechnicalMessageType(),
                                 messageCountForTechnicalMessageType.getSenderId());
                         messageStatistics.addMessageStatisticEntry(messageCountForTechnicalMessageType.getSenderId(),
-                                new MessageStatistics.MessageStatistic.Entry(messageCountForTechnicalMessageType.getTechnicalMessageType(), messageCountForTechnicalMessageType.getNumberOfMessages()));
+                                new MessageStatistics.MessageStatistic.Entry(
+                                        TemporaryContentMessageType.fromKey(messageCountForTechnicalMessageType.getTechnicalMessageType()),
+                                        messageCountForTechnicalMessageType.getNumberOfMessages()
+                                ));
                     }
             );
         } else {

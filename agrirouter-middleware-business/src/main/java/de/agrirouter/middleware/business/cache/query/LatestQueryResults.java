@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.business.cache.query;
 
 import com.google.protobuf.Timestamp;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -63,7 +64,7 @@ public class LatestQueryResults {
         @Setter
         public static class MessageDetails {
             private String messageId;
-            private String technicalMessageType;
+            private TemporaryContentMessageType technicalMessageType;
             private String fileName;
             private String senderId;
             private Timestamp sentTimestamp;

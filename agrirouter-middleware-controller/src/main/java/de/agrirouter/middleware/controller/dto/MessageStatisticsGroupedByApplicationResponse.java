@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.controller.dto;
 
-import de.agrirouter.middleware.business.dto.MessageStatistics;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,7 +51,7 @@ public class MessageStatisticsGroupedByApplicationResponse {
          * The list of the message statistics grouped by sender.
          */
         @Schema(description = "The message statistics grouped by sender.")
-        private Map<String, MessageStatistics.MessageStatistic> messageStatistics;
+        private Map<String, MessageStatisticGroupedBySender.MessageStatistic> messageStatistics;
 
         /**
          * DTO for the message statistic.
@@ -85,7 +85,7 @@ public class MessageStatisticsGroupedByApplicationResponse {
                  * Technical message type.
                  */
                 @Schema(description = "The technical message type.")
-                private String technicalMessageType;
+                private TemporaryContentMessageType technicalMessageType;
 
                 /**
                  * Number of messages.
