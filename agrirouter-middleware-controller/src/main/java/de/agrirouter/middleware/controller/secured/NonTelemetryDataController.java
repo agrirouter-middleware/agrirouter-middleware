@@ -470,7 +470,11 @@ public class NonTelemetryDataController implements SecuredApiController {
         final var searchNonTelemetryDataParameters = modelMapper.map(searchFilesRequest, SearchNonTelemetryDataParameters.class);
         searchNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
         final var contentMessageMetadata = searchNonTelemetryDataService.search(searchNonTelemetryDataParameters);
-        final var fileHeaderDtos = contentMessageMetadata.stream().map(cmm -> modelMapper.map(cmm, FileHeaderDto.class)).toList();
+        final var fileHeaderDtos = contentMessageMetadata.stream().map(cmm -> {
+            final var dto = modelMapper.map(cmm, FileHeaderDto.class);
+            dto.setTechnicalMessageType(TemporaryContentMessageType.fromKey(cmm.getTechnicalMessageType()));
+            return dto;
+        }).toList();
         final var searchFilesResponse = new SearchFilesResponse(fileHeaderDtos.size(), fileHeaderDtos);
         return ResponseEntity.ok(searchFilesResponse);
     }
