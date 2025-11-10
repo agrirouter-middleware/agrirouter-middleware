@@ -5,6 +5,10 @@ import com.dke.data.agrirouter.api.enums.TechnicalMessageType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 @RequiredArgsConstructor
 public enum TemporaryContentMessageType implements TechnicalMessageType {
@@ -35,6 +39,16 @@ public enum TemporaryContentMessageType implements TechnicalMessageType {
     private final String typeUrl;
     private final boolean needsBase64Encoding;
 
+    private static final Map<String, TemporaryContentMessageType> LOOKUP_BY_KEY;
+
+    static {
+        java.util.Map<String, TemporaryContentMessageType> map = new HashMap<>();
+        for (TemporaryContentMessageType t : values()) {
+            map.put(t.key, t);
+        }
+        LOOKUP_BY_KEY = Collections.unmodifiableMap(map);
+    }
+
     @Override
     public boolean needsBase64EncodingAndHasToBeChunkedIfNecessary() {
         return needsBase64Encoding;
@@ -49,13 +63,9 @@ public enum TemporaryContentMessageType implements TechnicalMessageType {
      * otherwise, returns null.
      */
     public static TemporaryContentMessageType fromKey(String key) {
-        if (key != null) {
-            for (var t : values()) {
-                if (t.getKey().equals(key)) {
-                    return t;
-                }
-            }
+        if (key == null) {
+            return null;
         }
-        return null;
+        return LOOKUP_BY_KEY.get(key);
     }
 }
