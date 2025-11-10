@@ -1,8 +1,8 @@
 package de.agrirouter.middleware.domain;
 
+import com.dke.data.agrirouter.api.dto.onboard.RouterDevice;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import com.dke.data.agrirouter.api.dto.onboard.RouterDevice;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
