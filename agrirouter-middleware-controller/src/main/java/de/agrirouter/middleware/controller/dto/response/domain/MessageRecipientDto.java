@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.dto.response.domain;
 
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class MessageRecipientDto {
     /**
      * The technical message type.
      */
-    private String technicalMessageType;
+    private TemporaryContentMessageType technicalMessageType;
 
     /**
      * The direction.
