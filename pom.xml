@@ -100,7 +100,7 @@
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>2.8.13</version>
+                <version>2.8.14</version>
             </dependency>
 
             <!-- MARIA DB -->
@@ -230,7 +230,7 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>1.15.5</version>
+                <version>1.16.0</version>
             </dependency>
 
             <!-- BUCKET4J -->
