@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.integration.mqtt.list_endpoints;
 
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -37,7 +38,7 @@ public class MessageRecipient {
     /**
      * The technical message type.
      */
-    private String technicalMessageType;
+    private TemporaryContentMessageType technicalMessageType;
 
     /**
      * The timestamp when the message recipients have been fetched.

@@ -36,4 +36,23 @@ public enum TemporaryContentMessageType implements TechnicalMessageType {
     public boolean needsBase64EncodingAndHasToBeChunkedIfNecessary() {
         return needsBase64Encoding;
     }
+
+    /**
+     * Resolves a {@link TemporaryContentMessageType} instance based on the provided key.
+     *
+     * @param key The unique key representing a specific {@link TemporaryContentMessageType}.
+     *            It may be null or may not match any existing key.
+     * @return The corresponding {@link TemporaryContentMessageType} if the provided key matches any key;
+     * otherwise, returns null.
+     */
+    public static TemporaryContentMessageType fromKey(String key) {
+        if (key != null) {
+            for (var t : values()) {
+                if (t.getKey().equals(key)) {
+                    return t;
+                }
+            }
+        }
+        return null;
+    }
 }

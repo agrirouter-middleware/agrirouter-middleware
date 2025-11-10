@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.*;
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
@@ -154,7 +155,7 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         messageRecipient.setEndpointName(e.getEndpointName());
         messageRecipient.setEndpointType(e.getEndpointType());
         messageRecipient.setExternalId(e.getExternalId());
-        messageRecipient.setTechnicalMessageType(messageType.getTechnicalMessageType());
+        messageRecipient.setTechnicalMessageType(TemporaryContentMessageType.fromKey(messageType.getTechnicalMessageType()));
         messageRecipient.setTimestamp(now);
         return messageRecipient;
     }
