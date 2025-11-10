@@ -12,13 +12,13 @@ import de.agrirouter.middleware.integration.SendMessageIntegrationService;
 import de.agrirouter.middleware.integration.parameters.MessagingIntegrationParameters;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Base64;
 
 import static de.agrirouter.middleware.api.logging.BusinessOperationLogService.NA;
 
@@ -90,7 +90,7 @@ public class PublishNonTelemetryDataService {
 
     private ByteString asByteString(String base64EncodedMessageContent) {
         try {
-            return ByteString.copyFrom(Base64.getDecoder().decode(base64EncodedMessageContent));
+            return ByteString.copyFrom(Base64.decodeBase64(base64EncodedMessageContent));
         } catch (IllegalArgumentException e) {
             log.debug("Could not decode base64 encoded message content.");
             log.trace("Message content: {}", base64EncodedMessageContent);

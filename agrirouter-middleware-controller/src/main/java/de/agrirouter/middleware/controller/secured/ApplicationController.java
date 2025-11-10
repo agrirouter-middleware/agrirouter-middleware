@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
@@ -32,7 +33,10 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -127,10 +131,10 @@ public class ApplicationController implements SecuredApiController {
         application.setName(applicationRegistrationRequest.getName());
         application.setApplicationType(applicationRegistrationRequest.getApplicationType());
 
-        final var publicKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getBase64EncodedPublicKey()));
+        final var publicKey = new String(Base64.decodeBase64(applicationRegistrationRequest.getBase64EncodedPublicKey()));
         application.setPublicKey(publicKey);
 
-        final var privateKey = new String(Base64.getDecoder().decode(applicationRegistrationRequest.getBase64EncodedPrivateKey()));
+        final var privateKey = new String(Base64.decodeBase64(applicationRegistrationRequest.getBase64EncodedPrivateKey()));
         application.setPrivateKey(privateKey);
 
         final var supportedTechnicalMessageTypes = createTechnicalMessageTypesFromRequest(applicationRegistrationRequest);
@@ -239,12 +243,12 @@ public class ApplicationController implements SecuredApiController {
         }
 
         if (StringUtils.isNotBlank(updateApplicationRequest.getBase64EncodedPublicKey())) {
-            final var publicKey = new String(Base64.getDecoder().decode(updateApplicationRequest.getBase64EncodedPublicKey()));
+            final var publicKey = new String(Base64.decodeBase64(updateApplicationRequest.getBase64EncodedPublicKey()));
             existingApplication.setPublicKey(publicKey);
         }
 
         if (StringUtils.isNotBlank(updateApplicationRequest.getBase64EncodedPrivateKey())) {
-            final var privateKey = new String(Base64.getDecoder().decode(updateApplicationRequest.getBase64EncodedPrivateKey()));
+            final var privateKey = new String(Base64.decodeBase64(updateApplicationRequest.getBase64EncodedPrivateKey()));
             existingApplication.setPrivateKey(privateKey);
         }
 
