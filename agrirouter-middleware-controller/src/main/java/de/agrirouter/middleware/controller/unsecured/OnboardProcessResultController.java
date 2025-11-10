@@ -30,6 +30,7 @@ public class OnboardProcessResultController implements UnsecuredApiController {
         } else {
             model.addAttribute("errorMessage", "");
         }
+        //noinspection SpringMVCViewInspection
         return "onboard-process-result";
     }
 
