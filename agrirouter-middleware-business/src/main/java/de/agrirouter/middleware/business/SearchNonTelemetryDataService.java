@@ -177,7 +177,10 @@ public class SearchNonTelemetryDataService {
                                 messageCountForTechnicalMessageType.getTechnicalMessageType(),
                                 messageCountForTechnicalMessageType.getSenderId());
                         messageStatistics.addMessageStatisticEntry(messageCountForTechnicalMessageType.getSenderId(),
-                                new MessageStatistics.MessageStatistic.Entry(messageCountForTechnicalMessageType.getTechnicalMessageType(), messageCountForTechnicalMessageType.getNumberOfMessages()));
+                                new MessageStatistics.MessageStatistic.Entry(
+                                        TemporaryContentMessageType.fromKey(messageCountForTechnicalMessageType.getTechnicalMessageType()),
+                                        messageCountForTechnicalMessageType.getNumberOfMessages()
+                                ));
                     }
             );
         } else {

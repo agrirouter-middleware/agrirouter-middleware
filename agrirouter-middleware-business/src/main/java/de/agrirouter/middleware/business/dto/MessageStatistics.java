@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.business.dto;
 
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +43,7 @@ public class MessageStatistics {
     @AllArgsConstructor
     public static class MessageStatistic {
         /**
-         * Technical message type.
+         * The overall number of messages.
          */
         private long numberOfMessages;
 
@@ -84,7 +85,7 @@ public class MessageStatistics {
             /**
              * Technical message type.
              */
-            private String technicalMessageType;
+            private TemporaryContentMessageType technicalMessageType;
 
             /**
              * Number of messages.
