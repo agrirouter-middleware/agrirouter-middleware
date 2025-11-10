@@ -125,6 +125,7 @@ public class TelemetryDataController implements SecuredApiController {
         registerMachineParameters.setBase64EncodedDeviceDescription(registerMachineRequest.getBase64EncodedDeviceDescription());
         registerMachineParameters.setCustomTeamSetContextId(registerMachineRequest.getCustomTeamSetContextId());
         final var teamSetContextId = deviceDescriptionService.registerMachine(registerMachineParameters);
+        //noinspection JvmTaintAnalysis
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMachineResponse(teamSetContextId));
     }
 
