@@ -6,8 +6,8 @@
     <title th:text="#{landing_page.title}"></title>
 </head>
 <body>
-<main>
-    <div class="mdl-grid">
+<main class="page page--landing">
+    <div class="mdl-grid page-grid page-grid--landing">
         <div class="mdl-cell mdl-cell--4-col">
         </div>
         <div class="mdl-cell mdl-cell--4-col mdl-typography--text-center">
@@ -26,11 +26,16 @@
     </div>
     <script th:inline="javascript">
         setTimeout(function () {
-            window.location.href = [[${redirectUrl}]] + '?state=' + [[${state}]] +
-            '&token=' + [[${token}]] +
-            '&signature=' + [[${signature}]] +
-            '&error=' + [[${error}]]
-        }, [[${redirectDelay}]]);
+            var redirectUrl = /*[[${redirectUrl}]]*/ '';
+            var state = /*[[${state}]]*/ '';
+            var token = /*[[${token}]]*/ '';
+            var signature = /*[[${signature}]]*/ '';
+            var error = /*[[${error}]]*/ '';
+            window.location.href = redirectUrl + '?state=' + state +
+                '&token=' + token +
+                '&signature=' + signature +
+                '&error=' + error;
+        }, /*[[${redirectDelay}]]*/ 0);
     </script>
 </main>
 </body>
