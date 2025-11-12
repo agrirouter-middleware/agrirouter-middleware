@@ -9,6 +9,11 @@
     <link rel="shortcut icon" type="image/png" th:href="@{/img/favicon.ico}"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-light_green.min.css"/>
+    <link rel="stylesheet" type="text/css" th:href="${@environment.getProperty('app.branding.customCss')}"
+          th:if="${@environment.getProperty('app.branding.customCss') != null
+              and (#strings.startsWith(@environment.getProperty('app.branding.customCss'), 'http://')
+                   or #strings.startsWith(@environment.getProperty('app.branding.customCss'), 'https://')
+                   or #strings.startsWith(@environment.getProperty('app.branding.customCss'), '/'))}"/>
 </head>
 <body>
 <div class="container">

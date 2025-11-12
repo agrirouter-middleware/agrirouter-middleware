@@ -210,6 +210,202 @@ The following jobs are running:
 * The recipients of the endpoints are queried in a configurable intervall.
 * The middleware logs the status of the endpoints in a configurable intervall.
 
+=== Branding the UI with a custom CSS
+
+You can brand the built-in pages (landing page, onboarding result page, and error page) by adding your own stylesheet that is loaded in addition to the default styles.
+
+==== Configuration
+
+The external stylesheet URL/path is read from the Spring property `app.branding.customCss`.
+
+You can set it in `application.yml`:
+
+[source,yaml]
+----
+app:
+  branding:
+    customCss: "/css/custom-theme.css"
+----
+
+Or via environment variable:
+
+[source,shell]
+----
+APP_BRANDING_CUSTOMCSS=/css/custom-theme.css
+----
+
+Supported values:
+
+- A path that is served by the application itself, e.g. `/css/custom-theme.css`.
+- Place your file at `src/main/resources/static/css/custom-theme.css` so it is available under `/css/custom-theme.css` at runtime.
+- A full absolute URL to a CDN or external host, e.g. `https://cdn.example.com/app/custom.css`.
+
+Behavior when unset: If the property is not defined or empty, the additional stylesheet is not included and the UI looks unchanged.
+
+==== Where the CSS is injected
+
+The stylesheet is conditionally included by both layout fragments so all pages that use these layouts will load your CSS:
+
+- `agrirouter-middleware-application/src/main/resources/templates/fragments/layout.html`
+- `agrirouter-middleware-application/src/main/resources/templates/fragments/layout-without-menu.html`
+
+Snippet inside both fragments:
+
+[source,html]
+----
+<link rel="stylesheet" type="text/css"
+      th:href="${@environment.getProperty('app.branding.customCss')}"
+      th:if="${@environment.getProperty('app.branding.customCss')}"/>
+----
+
+Pages using these layouts include (among others):
+
+- Landing page: `agrirouter-middleware-application/src/main/resources/templates/landing_page.html` (uses `layout-without-menu`)
+- Onboard process result page: `agrirouter-middleware-application/src/main/resources/templates/onboard-process-result.html` (uses `layout-without-menu`)
+- Error page: `agrirouter-middleware-application/src/main/resources/templates/error.html` (uses `layout`)
+
+==== Styling hooks per page (examples)
+
+All pages share utility classes to make targeting straightforward.
+Each page adds a page-specific modifier class you can use in your custom CSS.
+
+- Shared across all pages:
+- Container: `.page`
+- Grid: `.page-grid`
+
+- Landing page (`landing_page.html`):
+- Page root: `.page--landing`
+- Grid container: `.page-grid--landing`
+
+  Example:
+
+  [source,css]
+  ----
+  /* Overall page look */
+  .page.page--landing {
+    background: #0f172a;        /* slate-900 */
+    color: #e2e8f0;             /* slate-200 */
+    min-height: 100vh;
+  }
+
+  /* Center content a bit tighter on large screens */
+  .page-grid.page-grid--landing {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  ----
+
+- Onboard process result (`onboard-process-result.html`):
+- Page root: `.page--onboard-result`
+- Grid container: `.page-grid--onboard-result`
+
+  Example:
+
+  [source,css]
+  ----
+  .page.page--onboard-result {
+    background: #f8fafc; /* subtle light background */
+    padding-top: 5vh;
+  }
+
+  /* Optional: colorize the material icon for success/failure states */
+  .page--onboard-result .material-icons {
+    font-size: 72px;
+  }
+  .page--onboard-result .material-icons.success { color: #15803d; } /* if you add such a class */
+  .page--onboard-result .material-icons.error   { color: #b91c1c; }
+  ----
+
+- Error page (`error.html`):
+- Page root: `.page--error`
+
+  Example:
+
+  [source,css]
+  ----
+  .page.page--error {
+    background: #fff1f2; /* light red tint */
+    color: #881337;      /* dark red text */
+    min-height: 100vh;
+  }
+
+  .page--error .error-logo {
+    width: 160px;
+    opacity: 0.9;
+  }
+  ----
+
+==== Minimal complete example stylesheet
+
+Create `src/main/resources/static/css/custom-theme.css` with the following content and configure `app.branding.customCss: "/css/custom-theme.css"`:
+
+[source,css]
+----
+/* Shared */
+.page { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+.page-grid { padding: 24px; }
+
+/* Landing */
+.page--landing { background: linear-gradient(180deg, #0ea5e9 0%, #22c55e 100%); color: #0b1220; }
+.page-grid--landing { max-width: 800px; margin: 0 auto; }
+
+/* Onboard result */
+.page--onboard-result { background: #f8fafc; }
+.page-grid--onboard-result { max-width: 640px; margin: 0 auto; }
+
+/* Error */
+.page--error { background: #fff1f2; color: #7f1d1d; }
+----
+
+[TIP]
+.Cache busting
+====
+When serving the file from your app, you can append a version query to force clients to refresh after updates, e.g. `/css/custom-theme.css?v=2025-11-12`.
+====
+
+[TIP]
+.Troubleshooting
+====
+- Ensure the file is reachable in the browser under the configured path.
+- Verify that your page indeed uses one of the two layout fragments; otherwise the CSS will not be injected.
+- If you host the CSS on a different domain, make sure it is accessible over HTTPS and not blocked by your CSP settings.
+- If actuator endpoints are enabled, you can verify the effective value via `/actuator/env` searching for `app.branding.customCss`.
+- If your overrides don't seem to apply, increase selector specificity or use more targeted selectors; the custom CSS loads after MDL and `application.css`, so it should take precedence without `!important`.
+====
+
+[NOTE]
+.Content Security Policy (CSP) for External Custom CSS
+====
+When using an external URL or CDN for `app.branding.customCss`, your browser may block the stylesheet due to Content Security Policy (CSP) restrictions. To allow your custom CSS to load, you must configure your CSP header to permit styles from the external domain.
+
+**How to configure CSP `style-src` directive:**
+
+Add the domain hosting your custom CSS to the `style-src` directive in your CSP header. For example, if your CSS is hosted at `https://cdn.example.com`, your CSP header should include:
+
+----
+Content-Security-Policy: style-src 'self' https://cdn.example.com;
+----
+
+**Example configurations:**
+
+- *Self-hosted CSS:*
+  ----
+  Content-Security-Policy: style-src 'self';
+  ----
+- *CDN-hosted CSS:*
+  ----
+  Content-Security-Policy: style-src 'self' https://cdn.example.com;
+  ----
+
+**Security best practices:**
+
+- Only allow trusted domains in `style-src`.
+- Avoid using wildcards (e.g., `*`) or `'unsafe-inline'` unless absolutely necessary.
+- Prefer HTTPS for all external resources.
+- Regularly review and update your CSP settings to minimize risk.
+
+For more information, see the [MDN CSP documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src).
+====
 == Development
 
 === Swagger
