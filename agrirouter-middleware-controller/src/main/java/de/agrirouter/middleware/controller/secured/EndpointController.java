@@ -2,12 +2,14 @@ package de.agrirouter.middleware.controller.secured;
 
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
 import de.agrirouter.middleware.business.ApplicationService;
+import de.agrirouter.middleware.business.EndpointMigrationService;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.EndpointHealthStatusRequest;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
+import de.agrirouter.middleware.controller.dto.request.MigrateEndpointRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
@@ -29,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -52,6 +55,7 @@ public class EndpointController implements SecuredApiController {
     private final MessageCache messageCache;
     private final MqttClientManagementService mqttClientManagementService;
     private final CloudOnboardingFailureCache cloudOnboardingFailureCache;
+    private final EndpointMigrationService endpointMigrationService;
 
     /**
      * Find an endpoint status by the given IDs of the endpoint.
@@ -119,6 +123,64 @@ public class EndpointController implements SecuredApiController {
             mappedEndpoints.put(endpoint.getExternalEndpointId(), endpointWithStatusDto);
         });
         return ResponseEntity.ok(new EndpointStatusResponse(mappedEndpoints));
+    }
+
+    @PostMapping(
+            value = "/migrate",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "endpoint.migrate",
+            description = "Migrate a single endpoint from one application of the tenant to another application of the tenant. The migration updates references, re-sends capabilities and subscriptions.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Migration finished successfully.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<Void> migrate(@Parameter(hidden = true) Principal principal,
+                                        @Parameter(description = "The request parameters to migrate the endpoint.", required = true) @Valid @RequestBody MigrateEndpointRequest request,
+                                        @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        endpointMigrationService.migrate(principal, request.getExternalEndpointId(), request.getSourceInternalApplicationId(), request.getTargetInternalApplicationId());
+        return ResponseEntity.ok().build();
     }
 
     /**

@@ -469,7 +469,16 @@ public class EndpointService {
         return endpoints;
     }
 
-
+    /**
+     * Determines the health status of a list of external endpoints by their IDs.
+     * The method attempts to evaluate the health status for each provided endpoint ID
+     * and maps each ID to its corresponding health status value. If an error occurs
+     * while determining the health status of an endpoint, the error is logged, and the
+     * endpoint is not included in the result.
+     *
+     * @param externalEndpointIds a list of external endpoint IDs for which health statuses need to be determined
+     * @return a map where the keys are the external endpoint IDs and the values are their corresponding health status values
+     */
     public Map<String, Integer> areHealthy(List<String> externalEndpointIds) {
         var endpointStatus = new HashMap<String, Integer>();
         externalEndpointIds.forEach(externalEndpointId -> {
@@ -492,6 +501,12 @@ public class EndpointService {
         return endpointRepository.countByEndpointType(EndpointType.NON_VIRTUAL);
     }
 
+
+    /**
+     * Retrieves the number of virtual endpoints from the repository.
+     *
+     * @return the count of virtual endpoints as a long value
+     */
     public long getNrOfVirtualEndpoints() {
         return endpointRepository.countByEndpointType(EndpointType.VIRTUAL);
     }
