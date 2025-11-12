@@ -9,6 +9,7 @@ import de.agrirouter.middleware.business.cache.messaging.MessageCache;
 import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.dto.request.EndpointHealthStatusRequest;
 import de.agrirouter.middleware.controller.dto.request.EndpointStatusRequest;
+import de.agrirouter.middleware.controller.dto.request.MigrateEndpointRequest;
 import de.agrirouter.middleware.controller.dto.response.*;
 import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.controller.helper.EndpointStatusHelper;
@@ -173,7 +174,7 @@ public class EndpointController implements SecuredApiController {
             }
     )
     public ResponseEntity<Void> migrate(@Parameter(hidden = true) Principal principal,
-                                        @Parameter(description = "The request parameters to migrate the endpoint.", required = true) @Valid @RequestBody de.agrirouter.middleware.controller.dto.request.MigrateEndpointRequest request,
+                                        @Parameter(description = "The request parameters to migrate the endpoint.", required = true) @Valid @RequestBody MigrateEndpointRequest request,
                                         @Parameter(hidden = true) Errors errors) {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
