@@ -33,7 +33,7 @@ public class EndpointMigrationService {
         }
         final var endpointOpt = endpointRepository.findByExternalEndpointId(externalEndpointId);
         if (endpointOpt.isEmpty()) {
-            throw new BusinessException(ErrorMessageFactory.unknownError(String.format("Could not find endpoint with the external endpoint ID '%s'.", externalEndpointId)));
+            throw new BusinessException(ErrorMessageFactory.couldNotFindEndpointByExternalId(externalEndpointId));
         } else {
             var endpoint = endpointOpt.get();
 
