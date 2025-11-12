@@ -27,10 +27,10 @@
     <script th:inline="javascript">
         setTimeout(function () {
             var redirectUrl = /*[[${redirectUrl}]]*/ '';
-            var state = /*[[${state}]]*/ '';
-            var token = /*[[${token}]]*/ '';
-            var signature = /*[[${signature}]]*/ '';
-            var error = /*[[${error}]]*/ '';
+            var state = /*[[${state}]]*/ '' || '';
+            var token = /*[[${token}]]*/ '' || '';
+            var signature = /*[[${signature}]]*/ '' || '';
+            var error = /*[[${error}]]*/ '' || '';
             window.location.href = redirectUrl + '?state=' + state +
                 '&token=' + token +
                 '&signature=' + signature +
