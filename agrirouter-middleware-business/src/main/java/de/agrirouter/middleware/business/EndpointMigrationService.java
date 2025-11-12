@@ -42,11 +42,7 @@ public class EndpointMigrationService {
             var targetApp = applicationRepository.findByInternalApplicationIdAndTenantTenantId(targetInternalApplicationId, principal.getName())
                     .orElseThrow(() -> new BusinessException(ErrorMessageFactory.couldNotFindApplication()));
 
-            var ownerOfEndpointOpt = applicationRepository.findByEndpointsContains(endpoint);
-            if (ownerOfEndpointOpt.isEmpty()) {
-                throw new BusinessException(ErrorMessageFactory.couldNotFindApplication());
-            }
-            if (!Objects.equals(ownerOfEndpointOpt.get().getInternalApplicationId(), sourceApp.getInternalApplicationId())) {
+            if (sourceApp.getEndpoints() == null || !sourceApp.getEndpoints().contains(endpoint)) {
                 throw new BusinessException(ErrorMessageFactory.invalidParameterForAction("sourceInternalApplicationId"));
             }
 
