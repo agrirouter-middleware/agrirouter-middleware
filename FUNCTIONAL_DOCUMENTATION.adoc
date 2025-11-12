@@ -373,6 +373,39 @@ When serving the file from your app, you can append a version query to force cli
 - If your overrides don't seem to apply, increase selector specificity or use more targeted selectors; the custom CSS loads after MDL and `application.css`, so it should take precedence without `!important`.
 ====
 
+[NOTE]
+.Content Security Policy (CSP) for External Custom CSS
+====
+When using an external URL or CDN for `app.branding.customCss`, your browser may block the stylesheet due to Content Security Policy (CSP) restrictions. To allow your custom CSS to load, you must configure your CSP header to permit styles from the external domain.
+
+**How to configure CSP `style-src` directive:**
+
+Add the domain hosting your custom CSS to the `style-src` directive in your CSP header. For example, if your CSS is hosted at `https://cdn.example.com`, your CSP header should include:
+
+----
+Content-Security-Policy: style-src 'self' https://cdn.example.com;
+----
+
+**Example configurations:**
+
+- *Self-hosted CSS:*
+  ----
+  Content-Security-Policy: style-src 'self';
+  ----
+- *CDN-hosted CSS:*
+  ----
+  Content-Security-Policy: style-src 'self' https://cdn.example.com;
+  ----
+
+**Security best practices:**
+
+- Only allow trusted domains in `style-src`.
+- Avoid using wildcards (e.g., `*`) or `'unsafe-inline'` unless absolutely necessary.
+- Prefer HTTPS for all external resources.
+- Regularly review and update your CSP settings to minimize risk.
+
+For more information, see the [MDN CSP documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src).
+====
 == Development
 
 === Swagger
