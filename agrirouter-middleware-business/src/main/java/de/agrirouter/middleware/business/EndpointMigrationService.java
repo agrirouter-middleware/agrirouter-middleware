@@ -45,9 +45,8 @@ public class EndpointMigrationService {
                 throw new BusinessException(ErrorMessageFactory.invalidParameterForAction("sourceInternalApplicationId"));
             }
 
-            if (sourceApp.getEndpoints() != null) {
-                sourceApp.getEndpoints().remove(endpoint);
-            }
+            sourceApp.getEndpoints().remove(endpoint);
+
             applicationRepository.save(sourceApp);
 
             if (targetApp.getEndpoints() == null) {
