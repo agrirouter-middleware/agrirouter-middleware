@@ -63,7 +63,12 @@ public class EndpointMigrationService {
 
             var originalOnboardResponse = endpoint.asOnboardingResponse(true);
             var routerOnboardJson = targetApp.createOnboardResponseForRouterDevice(originalOnboardResponse);
-            endpoint.setOnboardResponseForRouterDevice(routerOnboardJson);
+            // Only update router device configuration if targetApp uses a router device
+            if (targetApp.usesRouterDevice()) {
+                endpoint.setOnboardResponseForRouterDevice(routerOnboardJson);
+            } else {
+                endpoint.setOnboardResponseForRouterDevice(null);
+            }
             endpointRepository.save(endpoint);
 
             endpointService.sendCapabilities(targetApp, endpoint);
