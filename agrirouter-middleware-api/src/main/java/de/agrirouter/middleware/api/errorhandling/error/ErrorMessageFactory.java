@@ -150,4 +150,8 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.COULD_NOT_PARSE_FIELD, "Could not parse the field from the given JSON, please check your data.", HttpStatus.BAD_REQUEST);
     }
 
+    public static ErrorMessage couldNotFindEndpointByExternalId(String externalEndpointId) {
+        return new ErrorMessage(ErrorKey.ENDPOINT_NOT_FOUND, String.format("Could not find endpoint by the external endpoint ID: %s", externalEndpointId), HttpStatus.NOT_FOUND);
+    }
+
 }
