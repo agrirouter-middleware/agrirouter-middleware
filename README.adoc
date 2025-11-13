@@ -140,6 +140,81 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 a|image::readme/thumb_up.png[ready,25,role="left]
 |All messages are encoded correctly, therefore no need to worry.
 
+== Getting started
+
+Register your application in the agrirouter© middleware by sending a POST request to the secured endpoint.
+This will create the application within the middleware so you can proceed with onboarding endpoints and messaging.
+
+- Method: POST
+- Path: `/secured/api/application`
+- Content-Type: `application/json`
+- Body: JSON object as shown below (replace the placeholders with your values)
+
+Request body example:
+
+[source]
+----
+{
+    "applicationId": "{{application-id}}",
+    "name": "{{application-name}}",
+    "versionId": "{{certification-version-id}}",
+    "base64EncodedPrivateKey": "{{private-key}}",
+    "base64EncodedPublicKey": "{{public-key}}",
+    "applicationType": "{{application-type}}",
+    "routerDevice": {{router-device-as-json}},
+    "supportedTechnicalMessageTypes": [
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "ISO_11783_TASKDATA_ZIP"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "SHP_SHAPE_ZIP"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "DOC_PDF"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "IMG_JPEG"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "IMG_PNG"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "IMG_BMP"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "VID_AVI"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "VID_MP4"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "VID_WMV"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "GPS_INFO"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "ISO_11783_DEVICE_DESCRIPTION"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "ISO_11783_TIME_LOG"
+        }
+    ]
+}
+----
+
 == Full Functional Documentation
 
 The functional documentation can be found within this repository, please have a look at the following document - https://github.com/agrirouter-middleware/agrirouter-middleware/blob/main/FUNCTIONAL_DOCUMENTATION.adoc[Functional Documentation].
