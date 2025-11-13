@@ -215,6 +215,60 @@ Request body example:
 }
 ----
 
+=== Field explanations
+
+[cols="1,1,1,5"]
+|===
+|Field |Type |Required |Description
+
+|name |string |Yes |Human-readable name of your application as shown in the agrirouter©.
+|applicationId |string |Yes |The agrirouter© application ID from the developer portal.
+|versionId |string |Yes |The certification version ID for the application variant you are registering.
+|base64EncodedPrivateKey |string (Base64) |Yes |Base64-encoded private key used by the middleware to communicate with the agrirouter©. Provide the Base64 content of your key file (no headers/footers).
+|base64EncodedPublicKey |string (Base64) |Yes |Base64-encoded public key matching the private key.
+|applicationType |enum |Yes |Type of application. Allowed values: `FARMING_SOFTWARE`, `TELEMETRY_PLATFORM`.
+|redirectUrl |string (URL) |No |Optional default redirect URL used during endpoint onboarding if none is provided per request.
+|routerDevice |object |Yes |Router device object downloaded from the agrirouter© developer portal (see structure below).
+|supportedTechnicalMessageTypes |array<object> |Yes |List defining which technical message types your application supports and in which direction.
+|===
+
+==== Router device JSON structure
+
+The `routerDevice` must match the JSON you can download from the agrirouter© when creating a router device.
+Structure overview:
+
+[cols="1,1,1,5"]
+|===
+|Field |Type |Required |Description
+
+|deviceAlternateId |string |Yes |Device alternate ID as provided by the agrirouter©.
+|authentication.type |enum |Yes |Certificate type (depends on the certificate you selected when creating the router device; e.g., PEM or P12).
+|authentication.secret |string |Yes |Password/secret protecting the certificate if applicable.
+|authentication.certificate |string |Yes |Certificate content as delivered by the agrirouter© (paste the content as a single string).
+|connectionCriteria.clientId |string |Yes |Client ID to authenticate against the agrirouter© backend (MQTT).
+|connectionCriteria.host |string |Yes |Hostname of the agrirouter© broker.
+|connectionCriteria.port |string |Yes |Port of the agrirouter© broker.
+|===
+
+==== Supported technical message types items
+
+Each entry in `supportedTechnicalMessageTypes` has the following fields:
+
+[cols="1,1,1,5"]
+|===
+|Field |Type |Required |Description
+
+|technicalMessageType |enum |Yes |One of the values supported by the middleware. See the list in the Functional Documentation under "Define the capabilities of the application" for all available values (e.g., `ISO_11783_TASKDATA_ZIP`, `SHP_SHAPE_ZIP`, `DOC_PDF`, `IMG_JPEG`, `IMG_PNG`, `IMG_BMP`, `VID_AVI`, `VID_MP4`, `VID_WMV`, `GPS_INFO`, `ISO_11783_DEVICE_DESCRIPTION`, `ISO_11783_TIME_LOG`).
+|direction |enum |Yes |How the app handles the message type. Allowed values: `SEND`, `RECEIVE`, `SEND_RECEIVE`.
+|===
+
+Note:
+
+- All required fields are validated by the API; missing or invalid values result in HTTP 400 responses.
+- Ensure the public/private key pair matches and that the values are Base64-encoded without line breaks or header/footer lines.
+For general guidance on generating certificates, see the Functional Documentation.
+- The `routerDevice` JSON can be used as-is from the agrirouter© download dialog.
+
 == Full Functional Documentation
 
 The functional documentation can be found within this repository, please have a look at the following document - https://github.com/agrirouter-middleware/agrirouter-middleware/blob/main/FUNCTIONAL_DOCUMENTATION.adoc[Functional Documentation].
