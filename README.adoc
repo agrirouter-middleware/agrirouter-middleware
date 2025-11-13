@@ -56,31 +56,6 @@ There’s also an option to use the services of the https://lmis.de[LMIS AG] to 
 The middleware is hosted in a cloud environment with defined SLAs, so you can be sure that the middleware is available and running.
 If you’re interested in hosting the middleware, feel free to contact our sales team by sending an email to mailto:sales@lmis.de[sales@lmis.de].
 
-== The Partners
-
-The project wouldn’t have been possible without strong partners for the idea and the development.
-The following companies have taken an active part during the development of the agrirouter© middleware.
-
-image::partners/krone.png[krone,175,role="left]
-
-The initial idea for the agrirouter© middleware has been developed by the https://landmaschinen.krone.de/[Maschinenfabrik Bernard Krone GmbH & Co. KG].
-The main concept is based on the idea to make the agrirouter© connection easier for third party app providers.
-
-image::partners/holmer.png[holmer,175,role="left]
-
-The https://www.holmer-maschinenbau.com/[Holmer Maschinenbau GmBH] joined the project after the development started and added the use case of sending machine data using the agrirouter© middleware.
-The agrirouter© middleware is part of the communication concept between their machines and the agrirouter© on the other side.
-
-image::partners/lmis.svg[lmis,175,role="left]
-
-The https://lmis.de[LMIS AG] has been part of the agrirouter© universe since the beginning of the project and was chosen as an implementation partner for the middleware.
-Using an agile development process, the middleware was developed in 2021/2022 and will be maintained as long as the project is active.
-
-image::partners/agrirouter.svg[lmis,175,role="left]
-
-Without the https://my-agrirouter.com[agrirouter] there wouldn’t have been such a project.
-The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
-
 == How Does It Work?
 
 The agrirouter© middleware is an abstraction to the well-known interface of the https://my-agrirouter.com[agrirouter].
@@ -139,6 +114,7 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 |Encoding
 a|image::readme/thumb_up.png[ready,25,role="left]
 |All messages are encoded correctly, therefore no need to worry.
+|===
 
 == Getting started
 
@@ -272,3 +248,28 @@ For general guidance on generating certificates, see the Functional Documentatio
 == Full Functional Documentation
 
 The functional documentation can be found within this repository, please have a look at the following document—https://github.com/agrirouter-middleware/agrirouter-middleware/blob/main/FUNCTIONAL_DOCUMENTATION.adoc[Functional Documentation].
+
+== The Partners
+
+The project wouldn’t have been possible without strong partners for the idea and the development.
+The following companies have taken an active part during the development of the agrirouter© middleware.
+
+image::partners/krone.png[krone,175,role="left]
+
+The initial idea for the agrirouter© middleware has been developed by the https://landmaschinen.krone.de/[Maschinenfabrik Bernard Krone GmbH & Co. KG].
+The main concept is based on the idea to make the agrirouter© connection easier for third party app providers.
+
+image::partners/holmer.png[holmer,175,role="left]
+
+The https://www.holmer-maschinenbau.com/[Holmer Maschinenbau GmBH] joined the project after the development started and added the use case of sending machine data using the agrirouter© middleware.
+The agrirouter© middleware is part of the communication concept between their machines and the agrirouter© on the other side.
+
+image::partners/lmis.svg[lmis,175,role="left]
+
+The https://lmis.de[LMIS AG] has been part of the agrirouter© universe since the beginning of the project and was chosen as an implementation partner for the middleware.
+Using an agile development process, the middleware was developed in 2021/2022 and will be maintained as long as the project is active.
+
+image::partners/agrirouter.svg[lmis,175,role="left]
+
+Without the https://my-agrirouter.com[agrirouter] there wouldn’t have been such a project.
+The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
