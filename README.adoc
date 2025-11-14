@@ -110,7 +110,7 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 
 |Authorization
 a|image::readme/thumb_up.png[ready,25,role="left]
-|The agrirouter© middleware ships customizable redirect pages and everything you need to connect to the agrirouter© and pass the certiciation.
+|The agrirouter© middleware ships customizable redirect pages and everything you need to connect to the agrirouter© and pass the certification.
 
 |Verfication
 a|image::readme/thumb_up.png[ready,25,role="left]
