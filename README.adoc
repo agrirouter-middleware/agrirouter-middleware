@@ -234,10 +234,20 @@ Each entry in `supportedTechnicalMessageTypes` has the following fields:
 |===
 |Field |Type |Required |Description
 
-|technicalMessageType |enum |Yes |One of the values supported by the middleware. See the list in the Functional Documentation under "Define the capabilities of the application" for all available values (e.g., `ISO_11783_TASKDATA_ZIP`, `SHP_SHAPE_ZIP`, `DOC_PDF`, `IMG_JPEG`, `IMG_PNG`, `IMG_BMP`, `VID_AVI`, `VID_MP4`, `VID_WMV`, `GPS_INFO`, `ISO_11783_DEVICE_DESCRIPTION`, `ISO_11783_TIME_LOG`).
+|technicalMessageType |enum |Yes |One of the values supported by the middleware.
+See the list in the Functional Documentation under "Define the capabilities of the application" for all available values.
 |direction |enum |Yes |How the app handles the message type. Allowed values: `SEND`, `RECEIVE`, `SEND_RECEIVE`.
 |===
 
+
+Examples of technical message types include:
+- `ISO_11783_TASKDATA_ZIP`
+- `SHP_SHAPE_ZIP`
+- `DOC_PDF`
+- `IMG_JPEG`
+- `GPS_INFO`
+- `ISO_11783_DEVICE_DESCRIPTION`
+(See documentation for the full list.)
 Note:
 
 - The API validates all required fields; missing or invalid values result in HTTP 400 responses.
