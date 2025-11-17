@@ -18,68 +18,43 @@ In addition, the agrirouter© middleware provides simple data conversion from IS
 === TL;DR
 
 The agrirouter© middleware is a reliable and stable solution for your agrirouter© connection.
-The middleware is OEM certified and there are no additional costs for the certification process.
-Using the middleware to connect to the agrirouter© will speed up the whole process and you can focus on your business logic.
+The middleware is OEM certified, and there are no additional costs for the certification process.
+Using the middleware to connect to the agrirouter© will speed up the whole process, and you can focus on your business logic.
 
 image::oem/speed-up.webp[Speed up the process]
 
 === And The Long Version?
 
 The agrirouter© middleware is OEM certified, what does this mean?
-By using the agrirouter© middleware you are ready to speed up the whole process, since all the certification requirements are already fulfilled by the middleware.
+By using the agrirouter© middleware you’re ready to speed up the whole process, since the middleware already fulfills all the certification requirements.
 This means that you can focus on your business logic and don't need to care about the certification process.
 The agrirouter© middleware is a reliable and stable solution for your agrirouter© connection.
 
 What does the OEM certification mean?
-It means, that at first, there are *no additional costs for the certification process*.
+It means that at first, there are *no additional costs for the certification process*.
 The agrirouter© middleware is already certified and can be used without any additional costs.
 The certification process is part of the middleware and will be maintained by the https://lmis.de[LMIS AG].
-We, as the developers check the agrirouter© specification and update the middleware if there are any changes and provide the updates to the users.
+We, as the developers, check the agrirouter© specification and update the middleware if there are any changes and provide the updates to the users.
 
 image::oem/oem-license-smart-choice.webp[OEM is a smart choice]
 
-In addition, you do not have to worry about the time the certification takes.
+In addition, you don’t have to worry about the time the certification takes.
 All the communication will be between you and the developers of the middleware.
-You just need to send us a quick note, and we will take care of the rest.
-Reach out by sending an email to mailto:agrirouter-certification@lmis.de[agrirouter-certification@lmis.de], and we will get back to you as soon as possible.
+You need to send us a quick note, and we’ll take care of the rest.
+Reach out by sending an email to mailto:agrirouter-certification@lmis.de[agrirouter-certification@lmis.de], and we’ll get back to you as soon as possible.
 
-During the integration of the middleware into your solution we will have a look at your integration, since this is part of the OEM certification rules.
-We check if the integration is done correctly and if there are any issues, we will help you to solve them.
+During the integration of the middleware into your solution, we’ll have a look at your integration, since this is part of the OEM certification rules.
+We check if the integration is done correctly, and if there are any issues, we’ll help you to solve them.
 
 == How Could You Host It?
 
 https://lmis.de[LMIS AG] is providing a free QA environment for the agrirouter© middleware.
 This environment is used for testing and integration purposes.
-Feel free to create an issue in the repository and we will provide you with the necessary information to access the QA environment.
+Feel free to create an issue in the repository, and we’ll provide you with the necessary information to access the QA environment.
 
-There is also an option to use the services of the https://lmis.de[LMIS AG] to host the middleware.
+There’s also an option to use the services of the https://lmis.de[LMIS AG] to host the middleware.
 The middleware is hosted in a cloud environment with defined SLAs, so you can be sure that the middleware is available and running.
-If you are interested in hosting the middleware, feel free contact our sales team by sending an email to mailto:sales@lmis.de[sales@lmis.de].
-
-== The Partners
-
-The project would not have been possible without strong partners for the idea and the development.
-The following companies have taken an active part during the development of the agrirouter© middleware.
-
-image::partners/krone.png[krone,175,role="left]
-
-The initial idea for the agrirouter© middleware has been developed by the https://landmaschinen.krone.de/[Maschinenfabrik Bernard Krone GmbH & Co. KG].
-The main concept is based on the idea to make the agrirouter© connection easier for third party app providers.
-
-image::partners/holmer.png[holmer,175,role="left]
-
-The https://www.holmer-maschinenbau.com/[Holmer Maschinenbau GmBH] joined the project after the development started and added the use case of sending machine data using the agrirouter© middleware.
-The agrirouter© middleware is part of the communication concept between their machines and the agrirouter© on the other side.
-
-image::partners/lmis.svg[lmis,175,role="left]
-
-The https://lmis.de[LMIS AG] is part of the agrirouter© universe since the beginning of the project and was chosen as implementation partner for the middleware.
-Using an agile development process the middleware was developed in 2021/2022 and will be maintained as long as the project is active.
-
-image::partners/agrirouter.svg[lmis,175,role="left]
-
-Without the https://my-agrirouter.com[agrirouter] there would not have been such a project.
-The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
+If you’re interested in hosting the middleware, feel free to contact our sales team by sending an email to mailto:sales@lmis.de[sales@lmis.de].
 
 == How Does It Work?
 
@@ -91,14 +66,14 @@ image::system-overview.svg[agrirouter© middleware overview]
 The agrirouter© middleware provides a REST interface for endpoint management, sending messages and retrieving messages.
 On the other hand the connection to the agrirouter© is based on the faster MQTT protocol to have live telemetry data with real push notifications.
 The messages from the agrirouter© are fetched, confirmed and stored within an internal database.
-There is no need to implement the business process on your own.
+There’s no need to implement the business process on your own.
 
 == Why Should You Use It?
 
 The agrirouter© middleware is ready for certification.
 What does this mean?
-By using the agrirouter© middleware you are ready to speed up the certification process, since most of the requirements are already fulfilled by the middleware.
-To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html'[certification criteria]:
+By using the agrirouter© middleware you’re ready to speed up the certification process, since most of the requirements are already fulfilled by the middleware.
+To get an overview, please see the following table of https://docs.my-agrirouter.com/agrirouter-interface-documentation/latest/certification.html[certification criteria]:
 
 [cols="1,1,1"]
 |===
@@ -106,7 +81,7 @@ To get an overview, please see the following table of https://docs.my-agrirouter
 
 |Secured Onboarding
 a|image::readme/thumb_up.png[ready,25,role="left]
-|The agrirouter© middleware covers the whole onboarding process. You only need to integrate a button to call one of the endpoints and add the status checking. After this you are ready to go.
+|The agrirouter© middleware covers the whole onboarding process. You only need to integrate a button to call one of the endpoints and add the status checking. After this you’re ready to go.
 
 |Authorization
 a|image::readme/thumb_up.png[ready,25,role="left]
@@ -126,7 +101,7 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 
 |VCU onboarding / off-boarding
 a|image::readme/thumb_up.png[ready,25,role="left]
-|Using the agrirouter© middleware to run your telemetry platform you are able to register your machines as virtual endpoints.
+|Using the agrirouter© middleware to run your telemetry platform, you’re able to register your machines as virtual endpoints.
 
 |agrirouter© commands
 a|image::readme/thumb_up.png[ready,25,role="left]
@@ -139,7 +114,172 @@ a|image::readme/thumb_up.png[ready,25,role="left]
 |Encoding
 a|image::readme/thumb_up.png[ready,25,role="left]
 |All messages are encoded correctly, therefore no need to worry.
+|===
+
+== Getting started
+
+Register your application in the agrirouter© middleware by sending a POST request to the secured endpoint.
+This will create the application within the middleware so you can proceed with onboarding endpoints and messaging.
+
+- Method: POST
+- Path: `/secured/api/application`
+- Content-Type: `application/json`
+- Body: JSON objects as shown below (replace the placeholders with your values)
+
+Request body example:
+
+[source,json]
+----
+{
+    "applicationId": "{{application-id}}",
+    "name": "{{application-name}}",
+    "versionId": "{{certification-version-id}}",
+    "base64EncodedPrivateKey": "{{private-key}}",
+    "base64EncodedPublicKey": "{{public-key}}",
+    "applicationType": "{{application-type}}",
+    "routerDevice": {{router-device-as-json}},
+    "supportedTechnicalMessageTypes": [
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "ISO_11783_TASKDATA_ZIP"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "SHP_SHAPE_ZIP"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "DOC_PDF"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "IMG_JPEG"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "IMG_PNG"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "IMG_BMP"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "VID_AVI"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "VID_MP4"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "VID_WMV"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "GPS_INFO"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "ISO_11783_DEVICE_DESCRIPTION"
+        },
+        {
+            "direction": "SEND_RECEIVE",
+            "technicalMessageType": "ISO_11783_TIME_LOG"
+        }
+    ]
+}
+----
+
+=== Field explanations
+
+[cols="1,1,1,5"]
+|===
+|Field |Type |Required |Description
+
+|name |string |Yes |Human-readable name of your application as shown in the agrirouter©.
+|applicationId |string |Yes |The agrirouter© application ID from the developer portal.
+|versionId |string |Yes |The certification version ID for the application variant you’re registering.
+|base64EncodedPrivateKey |string (Base64) |Yes |Base64-encoded private key used by the middleware to communicate with the agrirouter©. Provide the Base64 content of your key file (no headers/footers).
+|base64EncodedPublicKey |string (Base64) |Yes |Base64-encoded public key matching the private key.
+|applicationType |enum |Yes |Type of application. Allowed values: `FARMING_SOFTWARE`, `TELEMETRY_PLATFORM`.
+|redirectUrl |string (URL) |No |Optional default redirect URL used during endpoint onboarding if none is provided per request.
+|routerDevice |object |Yes |Router device objects downloaded from the agrirouter© developer portal (see the structure below).
+|supportedTechnicalMessageTypes |array<object> |Yes |List defining which technical message types your application supports and in which direction.
+|===
+
+==== Router device JSON structure
+
+The `routerDevice` must match the JSON you can download from the agrirouter© when creating a router device.
+Structure overview:
+
+[cols="1,1,1,5"]
+|===
+|Field |Type |Required |Description
+
+|deviceAlternateId |string |Yes |Device alternate ID as provided by the agrirouter©.
+|authentication.type |enum |Yes |The certificate type (depends on the certificate you selected when creating the router device; e.g., PEM or P12).
+|authentication.secret |string |Yes |Password/secret protecting the certificate if applicable.
+|authentication.certificate |string |Yes |Certificate contents as delivered by the agrirouter© (paste the content as a single string).
+|connectionCriteria.clientId |string |Yes |Client ID to authenticate against the agrirouter© backend (MQTT).
+|connectionCriteria.host |string |Yes |Hostname of the agrirouter© broker.
+|connectionCriteria.port |string |Yes |Port of the agrirouter© broker.
+|===
+
+==== Supported technical message types items
+
+Each entry in `supportedTechnicalMessageTypes` has the following fields:
+
+[cols="1,1,1,5"]
+|===
+|Field |Type |Required |Description
+
+|technicalMessageType |enum |Yes |One of the values supported by the middleware.
+See the list in the Functional Documentation under "Define the capabilities of the application" for all available values.
+|direction |enum |Yes |How the app handles the message type. Allowed values: `SEND`, `RECEIVE`, `SEND_RECEIVE`.
+|===
+
+
+Examples of technical message types include:
+- `ISO_11783_TASKDATA_ZIP`
+- `SHP_SHAPE_ZIP`
+- `DOC_PDF`
+- `IMG_JPEG`
+- `GPS_INFO`
+- `ISO_11783_DEVICE_DESCRIPTION`
+(See documentation for the full list.)
+Note:
+
+- The API validates all required fields; missing or invalid values result in HTTP 400 responses.
+- Ensure the public/private key pair matches and that the values are Base64-encoded without line breaks or header/footer lines.
+For general guidance on generating certificates, see the Functional Documentation.
+- The `routerDevice` JSON can be used as-is from the agrirouter© download dialog.
 
 == Full Functional Documentation
 
-The functional documentation can be found within this repository, please have a look at the following document - https://github.com/agrirouter-middleware/agrirouter-middleware/blob/main/FUNCTIONAL_DOCUMENTATION.adoc[Functional Documentation].
+The functional documentation can be found within this repository, please have a look at the following document — https://github.com/agrirouter-middleware/agrirouter-middleware/blob/main/FUNCTIONAL_DOCUMENTATION.adoc[Functional Documentation].
+
+== The Partners
+
+The project wouldn’t have been possible without strong partners for the idea and the development.
+The following companies have taken an active part during the development of the agrirouter© middleware.
+
+image::partners/krone.png[krone,175,role="left]
+
+The initial idea for the agrirouter© middleware has been developed by the https://landmaschinen.krone.de/[Maschinenfabrik Bernard Krone GmbH & Co. KG].
+The main concept is based on the idea to make the agrirouter© connection easier for third party app providers.
+
+image::partners/holmer.png[holmer,175,role="left]
+
+The https://www.holmer-maschinenbau.com/[Holmer Maschinenbau GmBH] joined the project after the development started and added the use case of sending machine data using the agrirouter© middleware.
+The agrirouter© middleware is part of the communication concept between their machines and the agrirouter© on the other side.
+
+image::partners/lmis.svg[lmis,175,role="left]
+
+The https://lmis.de[LMIS AG] has been part of the agrirouter© universe since the beginning of the project and was chosen as an implementation partner for the middleware.
+Using an agile development process, the middleware was developed in 2021/2022 and will be maintained as long as the project is active.
+
+image::partners/agrirouter.svg[lmis,175,role="left]
+
+Without the https://my-agrirouter.com[agrirouter] there wouldn’t have been such a project.
+The easy way to connect machines, farming software and telemetry platforms is one essential step to a strong network of agricultural machines.
