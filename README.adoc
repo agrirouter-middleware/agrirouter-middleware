@@ -128,7 +128,7 @@ This will create the application within the middleware so you can proceed with o
 
 Request body example:
 
-[source]
+[source,json]
 ----
 {
     "applicationId": "{{application-id}}",
