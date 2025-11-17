@@ -66,6 +66,7 @@ public class SecuredOnboardProcessService {
             } else {
                 redirectUrlToUse = applicationSettingsRedirectUrl;
             }
+            parameters.setRedirectUri(redirectUrlToUse);
             parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), redirectUrlToUse));
             return authorizationRequestService.getAuthorizationRequestURL(parameters);
         }
