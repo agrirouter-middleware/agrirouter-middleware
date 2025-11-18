@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.business;
 
-import com.dke.data.agrirouter.api.enums.ApplicationType;
 import com.dke.data.agrirouter.api.enums.SecuredOnboardingResponseType;
 import com.dke.data.agrirouter.api.service.onboard.secured.AuthorizationRequestService;
 import com.dke.data.agrirouter.api.service.parameters.AuthorizationRequestParameters;
@@ -9,6 +8,7 @@ import de.agrirouter.middleware.business.global.OnboardStateContainer;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.ApplicationSettings;
 import de.agrirouter.middleware.domain.Tenant;
+import de.agrirouter.middleware.domain.enums.ApplicationType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,13 +42,13 @@ class SecuredOnboardProcessServiceTest {
     @Test
     void generateAuthorizationUrl_withRedirectUrlParameter_shouldSetRedirectUri() {
         // Arrange
-        String customRedirectUrl = "http://localhost:5117/unsecured/api/callback";
-        String applicationId = "test-app-id";
-        String externalEndpointId = "test-endpoint-id";
-        String tenantId = "test-tenant-id";
-        String state = "random-state";
+        var customRedirectUrl = "http://localhost:5117/unsecured/api/callback";
+        var applicationId = "test-app-id";
+        var externalEndpointId = "test-endpoint-id";
+        var tenantId = "test-tenant-id";
+        var state = "random-state";
 
-        Application application = createApplication(applicationId, tenantId);
+        var application = createApplication(applicationId, tenantId);
         
         when(onboardStateContainer.push(any(), any(), any(), eq(customRedirectUrl)))
                 .thenReturn(state);
@@ -59,10 +59,10 @@ class SecuredOnboardProcessServiceTest {
         securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId, customRedirectUrl);
 
         // Assert
-        ArgumentCaptor<AuthorizationRequestParameters> captor = ArgumentCaptor.forClass(AuthorizationRequestParameters.class);
+        var captor = ArgumentCaptor.forClass(AuthorizationRequestParameters.class);
         verify(authorizationRequestService).getAuthorizationRequestURL(captor.capture());
         
-        AuthorizationRequestParameters capturedParams = captor.getValue();
+        var capturedParams = captor.getValue();
         assertThat(capturedParams.getRedirectUri()).isEqualTo(customRedirectUrl);
         assertThat(capturedParams.getApplicationId()).isEqualTo(applicationId);
         assertThat(capturedParams.getResponseType()).isEqualTo(SecuredOnboardingResponseType.ONBOARD);
@@ -72,13 +72,13 @@ class SecuredOnboardProcessServiceTest {
     @Test
     void generateAuthorizationUrl_withoutRedirectUrlParameter_shouldUseApplicationSettingsRedirectUrl() {
         // Arrange
-        String applicationSettingsRedirectUrl = "https://production.example.com/callback";
-        String applicationId = "test-app-id";
-        String externalEndpointId = "test-endpoint-id";
-        String tenantId = "test-tenant-id";
-        String state = "random-state";
+        var applicationSettingsRedirectUrl = "https://production.example.com/callback";
+        var applicationId = "test-app-id";
+        var externalEndpointId = "test-endpoint-id";
+        var tenantId = "test-tenant-id";
+        var state = "random-state";
 
-        Application application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
+        var application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
         
         when(onboardStateContainer.push(any(), any(), any(), eq(applicationSettingsRedirectUrl)))
                 .thenReturn(state);
@@ -89,10 +89,10 @@ class SecuredOnboardProcessServiceTest {
         securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId, null);
 
         // Assert
-        ArgumentCaptor<AuthorizationRequestParameters> captor = ArgumentCaptor.forClass(AuthorizationRequestParameters.class);
+        var captor = ArgumentCaptor.forClass(AuthorizationRequestParameters.class);
         verify(authorizationRequestService).getAuthorizationRequestURL(captor.capture());
         
-        AuthorizationRequestParameters capturedParams = captor.getValue();
+        var capturedParams = captor.getValue();
         assertThat(capturedParams.getRedirectUri()).isEqualTo(applicationSettingsRedirectUrl);
         assertThat(capturedParams.getApplicationId()).isEqualTo(applicationId);
         assertThat(capturedParams.getResponseType()).isEqualTo(SecuredOnboardingResponseType.ONBOARD);
@@ -102,13 +102,13 @@ class SecuredOnboardProcessServiceTest {
     @Test
     void generateAuthorizationUrl_withEmptyRedirectUrlParameter_shouldUseApplicationSettingsRedirectUrl() {
         // Arrange
-        String applicationSettingsRedirectUrl = "https://production.example.com/callback";
-        String applicationId = "test-app-id";
-        String externalEndpointId = "test-endpoint-id";
-        String tenantId = "test-tenant-id";
-        String state = "random-state";
+        var applicationSettingsRedirectUrl = "https://production.example.com/callback";
+        var applicationId = "test-app-id";
+        var externalEndpointId = "test-endpoint-id";
+        var tenantId = "test-tenant-id";
+        var state = "random-state";
 
-        Application application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
+        var application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
         
         when(onboardStateContainer.push(any(), any(), any(), eq(applicationSettingsRedirectUrl)))
                 .thenReturn(state);
@@ -119,17 +119,17 @@ class SecuredOnboardProcessServiceTest {
         securedOnboardProcessService.generateAuthorizationUrl(application, externalEndpointId, "");
 
         // Assert
-        ArgumentCaptor<AuthorizationRequestParameters> captor = ArgumentCaptor.forClass(AuthorizationRequestParameters.class);
+        var captor = ArgumentCaptor.forClass(AuthorizationRequestParameters.class);
         verify(authorizationRequestService).getAuthorizationRequestURL(captor.capture());
         
-        AuthorizationRequestParameters capturedParams = captor.getValue();
+        var capturedParams = captor.getValue();
         assertThat(capturedParams.getRedirectUri()).isEqualTo(applicationSettingsRedirectUrl);
     }
 
     @Test
     void generateAuthorizationUrl_withNoApplicationType_shouldThrowBusinessException() {
         // Arrange
-        Application application = new Application();
+        var application = new Application();
         application.setApplicationType(null);
 
         // Act & Assert
@@ -143,15 +143,15 @@ class SecuredOnboardProcessServiceTest {
     }
 
     private Application createApplicationWithRedirectUrl(String applicationId, String tenantId, String redirectUrl) {
-        Application application = new Application();
+        var application = new Application();
         application.setApplicationId(applicationId);
         application.setApplicationType(ApplicationType.FARMING_SOFTWARE);
         
-        Tenant tenant = new Tenant();
+        var tenant = new Tenant();
         tenant.setTenantId(tenantId);
         application.setTenant(tenant);
         
-        ApplicationSettings settings = new ApplicationSettings();
+        var settings = new ApplicationSettings();
         settings.setRedirectUrl(redirectUrl);
         application.setApplicationSettings(settings);
         
