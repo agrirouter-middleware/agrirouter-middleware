@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.controller.filter;
 
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +43,6 @@ import java.util.UUID;
  */
 @Slf4j
 @Component
-@WebFilter(urlPatterns = {"/*"})
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class CorrelationIdFilter implements Filter {
 
