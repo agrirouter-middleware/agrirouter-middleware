@@ -198,6 +198,48 @@ The log contains the following information:
 * Parameters and parameter values of the method.
 * Execution time of the method.
 
+==== Request correlation with X-Correlation-ID
+
+The middleware supports request tracing using the `X-Correlation-ID` HTTP header for tracking requests across distributed systems.
+
+===== How it works
+
+* If an `X-Correlation-ID` header is provided with an HTTP request, the middleware will use this ID for all log statements related to that request.
+* If no `X-Correlation-ID` header is provided, the middleware automatically generates a new UUID-based correlation ID.
+* The correlation ID is included in all log statements using the MDC (Mapped Diagnostic Context), appearing in the log output as `[correlationId]`.
+* For async responses, the correlation ID is returned in the response headers using the same `X-Correlation-ID` header name.
+
+===== Usage example
+
+To track a request across multiple systems, include the `X-Correlation-ID` header in your HTTP request:
+
+[source,http]
+----
+POST /secured/api/application HTTP/1.1
+Host: middleware.example.com
+Authorization: Basic dGVzdDp0ZXN0
+X-Correlation-ID: 550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+----
+
+The same correlation ID will appear in all log statements for this request and will be returned in the response headers.
+
+===== Log format
+
+The correlation ID appears in the log output in cyan color between square brackets. Example:
+
+[source]
+----
+2025-11-20T13:45:39.123+00:00 INFO  [http-nio-8080-exec-1] [550e8400-e29b-41d4-a716-446655440000] d.a.m.controller.ApplicationController : Processing application registration
+----
+
+If no correlation ID is provided, it will be shown as `--`:
+
+[source]
+----
+2025-11-20T13:45:39.123+00:00 INFO  [http-nio-8080-exec-1] [--] d.a.m.controller.ApplicationController : Processing application registration
+----
+
 === Scheduled jobs
 
 There are several scheduled jobs that are executed in the background.
