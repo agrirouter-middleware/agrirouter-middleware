@@ -61,11 +61,10 @@ public class CorrelationIdFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        
+
         if (servletRequest instanceof HttpServletRequest httpRequest &&
-            servletResponse instanceof HttpServletResponse httpResponse) {
-            
-            // Extract or generate correlation ID
+                servletResponse instanceof HttpServletResponse httpResponse) {
+
             String correlationId = httpRequest.getHeader(CORRELATION_ID_HEADER);
             if (correlationId == null || correlationId.trim().isEmpty()) {
                 correlationId = UUID.randomUUID().toString();
@@ -73,21 +72,14 @@ public class CorrelationIdFilter implements Filter {
             } else {
                 log.debug("Using provided correlation ID: {}", correlationId);
             }
-
-            // Add to MDC for logging
             MDC.put(CORRELATION_ID_MDC_KEY, correlationId);
-
-            // Add to response headers for async responses
             httpResponse.setHeader(CORRELATION_ID_HEADER, correlationId);
-
             try {
                 filterChain.doFilter(servletRequest, servletResponse);
             } finally {
-                // Clean up MDC to prevent memory leaks in thread pools
                 MDC.remove(CORRELATION_ID_MDC_KEY);
             }
         } else {
-            // Non-HTTP request, just pass through
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
