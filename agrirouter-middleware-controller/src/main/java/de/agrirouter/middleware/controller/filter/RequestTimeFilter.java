@@ -3,7 +3,6 @@ package de.agrirouter.middleware.controller.filter;
 import de.agrirouter.middleware.controller.SecuredApiController;
 import de.agrirouter.middleware.controller.UnsecuredApiController;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +24,7 @@ import java.time.Instant;
  * <p>
  * This filter is implemented as a servlet filter and should be registered with the servlet
  * container for it to take effect. It can be registered by adding the {@code RequestTimeFilter}
- * class as a component and annotating it with {@code @Component}. Additionally, the
- * {@code @WebFilter} annotation should be used to specify the URL patterns that this filter should
- * intercept.
+ * class as a component and annotating it with {@code @Component}.
  *
  * <p>
  * When a request is intercepted by this filter, it captures the start time using {@code Instant.now()}
@@ -44,7 +41,6 @@ import java.time.Instant;
  * <pre>{@code
  *     @Slf4j
  *     @Component
- *     @WebFilter(urlPatterns = {"/api/*"})
  *     public class RequestTimeFilter implements Filter {
  *         // ...
  *     }
@@ -52,7 +48,6 @@ import java.time.Instant;
  */
 @Slf4j
 @Component
-@WebFilter(urlPatterns = {SecuredApiController.API_PREFIX, UnsecuredApiController.API_PREFIX})
 public class RequestTimeFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
