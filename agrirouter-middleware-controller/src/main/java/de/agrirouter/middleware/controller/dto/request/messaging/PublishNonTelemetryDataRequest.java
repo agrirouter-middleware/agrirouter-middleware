@@ -22,7 +22,6 @@ public class PublishNonTelemetryDataRequest {
     /**
      * The content message type to be published.
      */
-    @NotNull
     @Schema(description = "The content message type to be published.")
     private TemporaryContentMessageType contentMessageType;
 

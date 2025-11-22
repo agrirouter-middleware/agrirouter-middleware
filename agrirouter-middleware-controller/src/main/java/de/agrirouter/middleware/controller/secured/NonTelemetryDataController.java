@@ -107,6 +107,9 @@ public class NonTelemetryDataController implements SecuredApiController {
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
+        if (publishNonTelemetryDataRequest.getContentMessageType() == null) {
+            throw new ParameterValidationException("contentMessageType is required");
+        }
         publishNonTelemetryDataRequest.getMessageTuples().forEach(messageTuple -> {
                     final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
                     publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
