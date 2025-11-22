@@ -1,5 +1,6 @@
 package de.agrirouter.middleware.controller.dto.request.messaging;
 
+import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,13 @@ import java.util.List;
 @ToString
 @Schema(description = "Request to publish non-telemetry data.")
 public class PublishNonTelemetryDataRequest {
+
+    /**
+     * The content message type to be published.
+     */
+    @NotNull
+    @Schema(description = "The content message type to be published.")
+    private TemporaryContentMessageType contentMessageType;
 
     /**
      * The content of the message, should be Base64 encoded either way.
