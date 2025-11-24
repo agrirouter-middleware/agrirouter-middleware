@@ -47,11 +47,87 @@ public class NonTelemetryDataController implements SecuredApiController {
     private final ModelMapper modelMapper;
 
     /**
+     * Publish non-telemetry data for a given endpoint.
+     *
+     * @param externalEndpointId             -
+     * @param publishNonTelemetryDataRequest -
+     * @param errors                         -
+     * @return -
+     */
+    @PostMapping(
+            value = "/publish/{externalEndpointId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            operationId = "non-telemetry-data.publish",
+            description = "Publish non-telemetry data (images, videos, documents, task data, etc.) for an existing endpoint.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Response if the message was published successfully.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a business exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "In case of a parameter validation exception.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ParameterValidationProblemResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "In case of an unknown error.",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    ),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<Void> publish(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
+                                        @Parameter(description = "The request body containing all necessary information to publish non-telemetry data.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
+                                        @Parameter(hidden = true) Errors errors) {
+        if (errors.hasErrors()) {
+            throw new ParameterValidationException(errors);
+        }
+        publishNonTelemetryDataRequest.getMessageTuples().forEach(messageTuple -> {
+                    final var publishNonTelemetryDataParameters = new PublishNonTelemetryDataParameters();
+                    publishNonTelemetryDataParameters.setExternalEndpointId(externalEndpointId);
+                    publishNonTelemetryDataParameters.setBase64EncodedMessageContent(messageTuple.getMessageContent());
+                    publishNonTelemetryDataParameters.setFilename(messageTuple.getFileName());
+                    publishNonTelemetryDataParameters.setRecipients(messageTuple.getRecipients());
+                    publishNonTelemetryDataParameters.setContentMessageType(publishNonTelemetryDataRequest.getContentMessageType());
+                    publishNonTelemetryDataService.publish(publishNonTelemetryDataParameters);
+                }
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
      * Publish task data files for a given endpoint.
      *
      * @param publishNonTelemetryDataRequest -
      * @return -
+     * @deprecated Use {@link #publish(String, PublishNonTelemetryDataRequest, Errors)} instead
      */
+    @Deprecated(since = "11.4.0", forRemoval = true)
     @PostMapping(
             value = "/publish/taskdata/{externalEndpointId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
@@ -123,7 +199,9 @@ public class NonTelemetryDataController implements SecuredApiController {
      *
      * @param publishNonTelemetryDataRequest -
      * @return -
+     * @deprecated Use {@link #publish(String, PublishNonTelemetryDataRequest, Errors)} instead
      */
+    @Deprecated(since = "11.4.0", forRemoval = true)
     @PostMapping(
             value = "/publish/shape/{externalEndpointId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
@@ -195,7 +273,9 @@ public class NonTelemetryDataController implements SecuredApiController {
      *
      * @param publishImageDataRequest -
      * @return -
+     * @deprecated Use {@link #publish(String, PublishNonTelemetryDataRequest, Errors)} instead
      */
+    @Deprecated(since = "11.4.0", forRemoval = true)
     @PostMapping(
             value = "/publish/image/{externalEndpointId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
@@ -267,7 +347,9 @@ public class NonTelemetryDataController implements SecuredApiController {
      *
      * @param publishVideoDataRequest -
      * @return -
+     * @deprecated Use {@link #publish(String, PublishNonTelemetryDataRequest, Errors)} instead
      */
+    @Deprecated(since = "11.4.0", forRemoval = true)
     @PostMapping(
             value = "/publish/video/{externalEndpointId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
@@ -339,7 +421,9 @@ public class NonTelemetryDataController implements SecuredApiController {
      *
      * @param publishNonTelemetryDataRequest -
      * @return -
+     * @deprecated Use {@link #publish(String, PublishNonTelemetryDataRequest, Errors)} instead
      */
+    @Deprecated(since = "11.4.0", forRemoval = true)
     @PostMapping(
             value = "/publish/pdf/{externalEndpointId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
