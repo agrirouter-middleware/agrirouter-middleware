@@ -217,7 +217,9 @@ public class ApplicationService {
     @Transactional
     public void delete(String internalApplicationId) {
         Application application = find(internalApplicationId);
-        application.getEndpoints().forEach(endpoint -> endpointService.delete(endpoint.getExternalEndpointId()));
+        // Delete all endpoints for this application
+        var endpoints = endpointRepository.findAllByApplicationId(application.getId());
+        endpoints.forEach(endpoint -> endpointService.delete(endpoint.getExternalEndpointId()));
         businessOperationLogService.log(new ApplicationLogInformation(application.getInternalApplicationId(), application.getApplicationId()), "Application deleted.");
         applicationRepository.delete(application);
     }

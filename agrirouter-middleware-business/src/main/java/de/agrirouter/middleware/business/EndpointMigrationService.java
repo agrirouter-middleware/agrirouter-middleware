@@ -41,18 +41,24 @@ public class EndpointMigrationService {
             var targetApp = applicationRepository.findByInternalApplicationIdAndTenantId(targetInternalApplicationId, principal.getName())
                     .orElseThrow(() -> new BusinessException(ErrorMessageFactory.couldNotFindApplication()));
 
-            if (sourceApp.getEndpoints() == null || !sourceApp.getEndpoints().contains(endpoint)) {
+            // Check if endpoint belongs to source application
+            if (!StringUtils.equals(endpoint.getApplicationId(), sourceApp.getId())) {
                 throw new BusinessException(ErrorMessageFactory.invalidParameterForAction("sourceInternalApplicationId"));
             }
 
-            sourceApp.getEndpoints().remove(endpoint);
+            // Update endpoint to belong to target application
+            endpoint.setApplicationId(targetApp.getId());
 
-            applicationRepository.save(sourceApp);
-
-            if (targetApp.getEndpoints() == null) {
-                targetApp.setEndpoints(new HashSet<>());
+            // Update application endpoint ID lists
+            if (sourceApp.getEndpointIds() != null) {
+                sourceApp.getEndpointIds().remove(endpoint.getId());
+                applicationRepository.save(sourceApp);
             }
-            targetApp.getEndpoints().add(endpoint);
+
+            if (targetApp.getEndpointIds() == null) {
+                targetApp.setEndpointIds(new HashSet<>());
+            }
+            targetApp.getEndpointIds().add(endpoint.getId());
             applicationRepository.save(targetApp);
 
             var originalOnboardResponse = endpoint.asOnboardingResponse(true);
