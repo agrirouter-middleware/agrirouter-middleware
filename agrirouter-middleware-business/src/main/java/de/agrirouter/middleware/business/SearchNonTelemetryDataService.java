@@ -7,7 +7,7 @@ import de.agrirouter.middleware.business.dto.MessageStatistics;
 import de.agrirouter.middleware.business.parameters.SearchNonTelemetryDataParameters;
 import de.agrirouter.middleware.domain.ContentMessageMetadata;
 import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
-import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
+import de.agrirouter.middleware.persistence.ContentMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -44,7 +44,7 @@ public class SearchNonTelemetryDataService {
             log.trace("Filter criteria are >>> {}.", searchNonTelemetryDataParameters);
             final List<ContentMessageMetadata> contentMessageMetadata;
             if (null != searchNonTelemetryDataParameters.getTechnicalMessageTypes() && !searchNonTelemetryDataParameters.getTechnicalMessageTypes().isEmpty()) {
-                contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
+                var contentMessages = contentMessageRepository.findMetadataByFilters(endpoint.getAgrirouterEndpointId(),
                         searchNonTelemetryDataParameters.getTechnicalMessageTypes().stream().map(TechnicalMessageType::getKey).toList(),
                         List.of(
                                 TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(),
@@ -55,9 +55,13 @@ public class SearchNonTelemetryDataService {
                         ),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
+                contentMessageMetadata = contentMessages.stream()
+                        .map(cm -> cm.getContentMessageMetadata())
+                        .filter(Objects::nonNull)
+                        .toList();
                 log.debug("Found {} content messages in total.", contentMessageMetadata.size());
             } else {
-                contentMessageMetadata = contentMessageRepository.findMetadata(endpoint.getAgrirouterEndpointId(),
+                var contentMessages = contentMessageRepository.findMetadataByEndpointAndTimeRange(endpoint.getAgrirouterEndpointId(),
                         List.of(
                                 TemporaryContentMessageType.ISO_11783_TIME_LOG.getKey(),
                                 TemporaryContentMessageType.ISO_11783_DEVICE_DESCRIPTION.getKey(),
@@ -67,6 +71,10 @@ public class SearchNonTelemetryDataService {
                         ),
                         searchNonTelemetryDataParameters.getSendFrom(),
                         searchNonTelemetryDataParameters.getSendTo());
+                contentMessageMetadata = contentMessages.stream()
+                        .map(cm -> cm.getContentMessageMetadata())
+                        .filter(Objects::nonNull)
+                        .toList();
             }
             var flattenedContentMessageMetadata = flattenContentMessageMetadata(contentMessageMetadata);
             log.debug("The {} content messages are flattened to {} 'real' messages.", contentMessageMetadata.size(), flattenedContentMessageMetadata);
@@ -171,19 +179,32 @@ public class SearchNonTelemetryDataService {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             var endpoint = optionalEndpoint.get();
-            var messageCountForTechnicalMessageTypes = contentMessageRepository.countMessagesGroupedByTechnicalMessageType(endpoint.getAgrirouterEndpointId());
-            messageCountForTechnicalMessageTypes.forEach(messageCountForTechnicalMessageType -> {
-                        log.debug("Found {} messages for technical message type {} for the sender {}.",
-                                messageCountForTechnicalMessageType.getNumberOfMessages(),
-                                messageCountForTechnicalMessageType.getTechnicalMessageType(),
-                                messageCountForTechnicalMessageType.getSenderId());
-                        messageStatistics.addMessageStatisticEntry(messageCountForTechnicalMessageType.getSenderId(),
-                                new MessageStatistics.MessageStatistic.Entry(
-                                        TemporaryContentMessageType.fromKey(messageCountForTechnicalMessageType.getTechnicalMessageType()),
-                                        messageCountForTechnicalMessageType.getNumberOfMessages()
-                                ));
-                    }
-            );
+            var contentMessages = contentMessageRepository.findAllByAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
+            
+            // Group by sender and technical message type and count
+            Map<String, Map<String, Long>> groupedCounts = new HashMap<>();
+            contentMessages.forEach(cm -> {
+                if (cm.getContentMessageMetadata() != null) {
+                    String senderId = cm.getContentMessageMetadata().getSenderId();
+                    String technicalMessageType = cm.getContentMessageMetadata().getTechnicalMessageType();
+                    
+                    groupedCounts.putIfAbsent(senderId, new HashMap<>());
+                    groupedCounts.get(senderId).merge(technicalMessageType, 1L, Long::sum);
+                }
+            });
+            
+            // Convert to statistics
+            groupedCounts.forEach((senderId, typeCounts) -> {
+                typeCounts.forEach((technicalMessageType, count) -> {
+                    log.debug("Found {} messages for technical message type {} for the sender {}.",
+                            count, technicalMessageType, senderId);
+                    messageStatistics.addMessageStatisticEntry(senderId,
+                            new MessageStatistics.MessageStatistic.Entry(
+                                    TemporaryContentMessageType.fromKey(technicalMessageType),
+                                    count
+                            ));
+                });
+            });
         } else {
             log.warn("The endpoint with the external ID '{}' was not found, therefore we cannot search for messages.", externalEndpointId);
         }

@@ -4,8 +4,8 @@ import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
-import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.EndpointRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -36,9 +36,9 @@ public class EndpointMigrationService {
         } else {
             var endpoint = endpointOpt.get();
 
-            var sourceApp = applicationRepository.findByInternalApplicationIdAndTenantTenantId(sourceInternalApplicationId, principal.getName())
+            var sourceApp = applicationRepository.findByInternalApplicationIdAndTenantId(sourceInternalApplicationId, principal.getName())
                     .orElseThrow(() -> new BusinessException(ErrorMessageFactory.couldNotFindApplication()));
-            var targetApp = applicationRepository.findByInternalApplicationIdAndTenantTenantId(targetInternalApplicationId, principal.getName())
+            var targetApp = applicationRepository.findByInternalApplicationIdAndTenantId(targetInternalApplicationId, principal.getName())
                     .orElseThrow(() -> new BusinessException(ErrorMessageFactory.couldNotFindApplication()));
 
             if (sourceApp.getEndpoints() == null || !sourceApp.getEndpoints().contains(endpoint)) {

@@ -17,7 +17,7 @@ import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.SecuredOnboardProcessIntegrationService;
 import de.agrirouter.middleware.integration.parameters.SecuredOnboardProcessIntegrationParameters;
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -78,7 +78,7 @@ public class SecuredOnboardProcessService {
      */
     public void onboard(OnboardProcessParameters onboardProcessParameters) {
         try {
-            final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(onboardProcessParameters.getInternalApplicationId(), onboardProcessParameters.getTenantId());
+            final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantId(onboardProcessParameters.getInternalApplicationId(), onboardProcessParameters.getTenantId());
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
                 final var existingEndpoint = endpointService.existsByExternalEndpointId(onboardProcessParameters.getExternalEndpointId());

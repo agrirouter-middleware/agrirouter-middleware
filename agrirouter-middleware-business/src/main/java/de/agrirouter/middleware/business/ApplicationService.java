@@ -10,9 +10,9 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.business.parameters.AddRouterDeviceParameters;
 import de.agrirouter.middleware.domain.*;
 import de.agrirouter.middleware.integration.mqtt.MqttConnectionManager;
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
-import de.agrirouter.middleware.persistence.jpa.RouterDeviceRepository;
-import de.agrirouter.middleware.persistence.jpa.TenantRepository;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
+import de.agrirouter.middleware.persistence.RouterDeviceRepository;
+import de.agrirouter.middleware.persistence.TenantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -106,7 +106,7 @@ public class ApplicationService {
      * @return -
      */
     public Application find(String internalApplicationId, Principal principal) {
-        final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(internalApplicationId, principal.getName());
+        final var optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantId(internalApplicationId, principal.getName());
         if (optionalApplication.isPresent()) {
             return optionalApplication.get();
         } else {
@@ -136,7 +136,7 @@ public class ApplicationService {
      * @return The list of applications.
      */
     public List<Application> findAll(Principal principal) {
-        return applicationRepository.findAllByTenantTenantId(principal.getName());
+        return applicationRepository.findAllByTenantId(principal.getName());
     }
 
     /**
@@ -170,11 +170,11 @@ public class ApplicationService {
      */
     @Transactional
     public void addRouterDevice(AddRouterDeviceParameters addRouterDeviceParameters) {
-        Optional<Application> optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantTenantId(addRouterDeviceParameters.getInternalApplicationId(), addRouterDeviceParameters.getTenantId());
+        Optional<Application> optionalApplication = applicationRepository.findByInternalApplicationIdAndTenantId(addRouterDeviceParameters.getInternalApplicationId(), addRouterDeviceParameters.getTenantId());
         if (optionalApplication.isPresent()) {
             final var application = optionalApplication.get();
             if (application.usesRouterDevice()) {
-                if (routerDeviceRepository.existsByIdNotAndConnectionCriteria_ClientId(application.getApplicationSettings().getRouterDevice().getId(), addRouterDeviceParameters.getClientId())) {
+                if (routerDeviceRepository.existsByIdNotAndConnectionCriteriaClientId(application.getApplicationSettings().getRouterDevice().getId(), addRouterDeviceParameters.getClientId())) {
                     throw new BusinessException(ErrorMessageFactory.routerDeviceAlreadyExists(addRouterDeviceParameters.getClientId()));
                 } else {
                     log.debug("The current application already has a router device, therefore updating it.");

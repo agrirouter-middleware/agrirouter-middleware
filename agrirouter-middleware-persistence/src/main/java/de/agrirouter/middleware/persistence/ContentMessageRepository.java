@@ -1,8 +1,6 @@
 package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.ContentMessage;
-import de.agrirouter.middleware.domain.ContentMessageMetadata;
-import de.agrirouter.middleware.persistence.projections.MessageCountForTechnicalMessageType;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -94,10 +92,8 @@ public interface ContentMessageRepository extends MongoRepository<ContentMessage
      * Count the number of messages for the given endpoint.
      *
      * @param agrirouterEndpointId The endpoint id.
-     * @return The number of messages.
+     * @return The number of messages grouped by sender and technical message type.
      */
-    @Query(value = "{ 'agrirouterEndpointId': ?0 }", 
-           fields = "{ 'contentMessageMetadata.senderId': 1, 'contentMessageMetadata.technicalMessageType': 1 }")
-    List<ContentMessage> findMessageCountData(String agrirouterEndpointId);
+    List<ContentMessage> findAllByAgrirouterEndpointId(String agrirouterEndpointId);
 
 }
