@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.business.security;
 
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class AuthorizationService {
      * @return True if the principal is authorized to access the given application.
      */
     public boolean isAuthorized(Principal principal, String internalApplicationId) {
-        return applicationRepository.findByInternalApplicationIdAndTenantTenantId(internalApplicationId, principal.getName()).isPresent();
+        return applicationRepository.findByInternalApplicationIdAndTenantId(internalApplicationId, principal.getName()).isPresent();
     }
 
 }
