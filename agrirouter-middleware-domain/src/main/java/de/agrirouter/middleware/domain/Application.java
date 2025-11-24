@@ -50,9 +50,9 @@ public class Application extends BaseEntity {
     private Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes;
 
     /**
-     * The onboard responses that belong to this application.
+     * The IDs of the endpoints that belong to this application.
      */
-    private Set<Endpoint> endpoints;
+    private Set<String> endpointIds;
 
     /**
      * Settings for the application.

@@ -35,10 +35,10 @@ public class Tenant extends BaseEntity {
     private String accessToken;
 
     /**
-     * The applications for the tenant.
+     * The IDs of applications for the tenant.
      */
     @ToString.Exclude
-    private Set<Application> applications;
+    private Set<String> applicationIds;
 
     /**
      * Marker if this tenant is a generated tenant.

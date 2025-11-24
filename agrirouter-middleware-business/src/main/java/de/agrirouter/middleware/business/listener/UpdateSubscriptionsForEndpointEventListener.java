@@ -82,7 +82,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             var endpoint = optionalEndpoint.get();
-            final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
+            final var optionalApplication = applicationRepository.findByEndpointIdsContains(endpoint.getId());
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
                 sendSubscriptions(application, endpoint);

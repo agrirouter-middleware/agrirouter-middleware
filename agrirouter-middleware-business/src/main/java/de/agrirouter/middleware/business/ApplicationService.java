@@ -155,7 +155,7 @@ public class ApplicationService {
      * @return -
      */
     public Application findByEndpoint(Endpoint endpoint) {
-        var application = applicationRepository.findByEndpointsContains(endpoint);
+        var application = applicationRepository.findByEndpointIdsContains(endpoint.getId());
         if (application.isPresent()) {
             return application.get();
         } else {

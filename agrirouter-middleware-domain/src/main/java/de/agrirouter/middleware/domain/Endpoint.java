@@ -57,7 +57,7 @@ public class Endpoint extends BaseEntity {
      * The connected virtual endpoints.
      */
     @ToString.Exclude
-    private List<Endpoint> connectedVirtualEndpoints;
+    private List<String> connectedVirtualEndpointIds;
 
     /**
      * Marks an endpoint as deactivated.
@@ -68,6 +68,16 @@ public class Endpoint extends BaseEntity {
      * The type of endpoint, by default NON_VIRTUAL.
      */
     private EndpointType endpointType = EndpointType.NON_VIRTUAL;
+
+    /**
+     * The ID of the application this endpoint belongs to.
+     */
+    private String applicationId;
+
+    /**
+     * The ID of the parent endpoint for virtual endpoints.
+     */
+    private String parentEndpointId;
 
     /**
      * Deliver the internal JSON as DTO.

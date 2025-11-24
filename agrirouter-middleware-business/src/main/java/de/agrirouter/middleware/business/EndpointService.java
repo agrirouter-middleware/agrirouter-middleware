@@ -252,7 +252,7 @@ public class EndpointService {
                 endpointRepository.save(vcu);
             });
             if (EndpointType.NON_VIRTUAL.equals(endpoint.getEndpointType())) {
-                final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
+                final var optionalApplication = applicationRepository.findByEndpointIdsContains(endpoint.getId());
                 if (optionalApplication.isPresent()) {
                     final var application = optionalApplication.get();
                     revokeProcessIntegrationService.revoke(application, endpoint);
@@ -276,7 +276,12 @@ public class EndpointService {
      * @return The endpoints.
      */
     public List<Endpoint> findAll(String internalApplicationId) {
-        return endpointRepository.findAllByInternalApplicationId(internalApplicationId);
+        var optionalApplication = applicationRepository.findByInternalApplicationId(internalApplicationId);
+        if (optionalApplication.isPresent()) {
+            return endpointRepository.findAllByApplicationId(optionalApplication.get().getId());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
 

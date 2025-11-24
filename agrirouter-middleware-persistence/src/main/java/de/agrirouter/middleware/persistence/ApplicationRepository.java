@@ -40,13 +40,13 @@ public interface ApplicationRepository extends MongoRepository<Application, Stri
     Optional<Application> findByInternalApplicationId(String internalApplicationId);
 
     /**
-     * Find an application by one of its onboard responses.
+     * Find an application by one of its endpoint IDs.
      *
-     * @param endpoint The endpoint.
+     * @param endpointId The endpoint ID.
      * @return -
      */
-    @Query("{ 'endpoints': ?0 }")
-    Optional<Application> findByEndpointsContains(Endpoint endpoint);
+    @Query("{ 'endpointIds': ?0 }")
+    Optional<Application> findByEndpointIdsContains(String endpointId);
 
     /**
      * Find an application by its application ID.

@@ -41,13 +41,11 @@ public interface EndpointRepository extends MongoRepository<Endpoint, String> {
 
     /**
      * Finding endpoints by the given internal application ID.
-     * Note: This query may need adjustment based on how endpoints are stored in applications.
      *
      * @param internalApplicationId The internal ID of the application.
      * @return The endpoints.
      */
-    @Query("{ 'id': { $exists: true } }")
-    List<Endpoint> findAllByInternalApplicationId(String internalApplicationId);
+    List<Endpoint> findAllByApplicationId(String applicationId);
 
     /**
      * Find all endpoints by the given external endpoint ID.

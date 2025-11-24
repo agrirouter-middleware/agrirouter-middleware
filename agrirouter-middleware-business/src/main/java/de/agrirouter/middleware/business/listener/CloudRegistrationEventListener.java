@@ -120,7 +120,7 @@ public class CloudRegistrationEventListener {
         log.debug("Find the corresponding endpoint with the ID '{}' for the cloud registration.", fetchMessageResponse.getSensorAlternateId());
         try {
             final var endpoint = endpointService.findByAgrirouterEndpointId(fetchMessageResponse.getSensorAlternateId());
-            final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
+            final var optionalApplication = applicationRepository.findByEndpointIdsContains(endpoint.getId());
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
                 final var optionalOnboardState = virtualEndpointOnboardStateContainer.pop(cloudRegistrationEvent.getApplicationMessageId());
