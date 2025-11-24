@@ -16,19 +16,6 @@ services:
       - backend
     restart: unless-stopped
 
-  mysql:
-    image: mariadb:${MYSQL_VERSION}
-    env_file:
-      - .env
-    volumes:
-      - mysql_data:/var/lib/mysql
-    ports:
-      - "${MYSQL_PORT:-3306}:3306"
-    networks:
-      - backend
-    restart: unless-stopped
-
-
   agrirouter-middleware:
     image: ghcr.io/agrirouter-middleware/agrirouter-middleware:${AGRIROUTER_MIDDLEWARE_VERSION}
     platform: linux/amd64
@@ -39,7 +26,6 @@ services:
     networks:
       - backend
     depends_on:
-      - mysql
       - mongo
 
 networks:
@@ -49,5 +35,3 @@ networks:
 volumes:
   mongo_data:
     name: agrirouter_middleware_latest_release_mongo_data
-  mysql_data:
-    name: agrirouter_middleware_latest_release_mysql_data

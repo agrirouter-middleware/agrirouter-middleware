@@ -1,17 +1,15 @@
 package de.agrirouter.middleware.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * A router device from the AR.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class RouterDevice extends BaseEntity {
@@ -24,13 +22,11 @@ public class RouterDevice extends BaseEntity {
     /**
      * Authentication details.
      */
-    @OneToOne(cascade = CascadeType.ALL)
     private Authentication authentication;
 
     /**
      * Connection criteria.
      */
-    @OneToOne(cascade = CascadeType.ALL)
     private ConnectionCriteria connectionCriteria;
 
     /**

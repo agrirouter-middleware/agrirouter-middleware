@@ -1,15 +1,15 @@
 package de.agrirouter.middleware.domain;
 
-import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Metadata for content messages.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class ContentMessageMetadata extends BaseEntity {

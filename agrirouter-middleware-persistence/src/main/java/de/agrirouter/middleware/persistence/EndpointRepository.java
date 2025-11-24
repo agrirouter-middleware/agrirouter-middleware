@@ -1,10 +1,9 @@
-package de.agrirouter.middleware.persistence.jpa;
+package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.enums.EndpointType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.Optional;
  * Repository to register endpoints from the agrirouter.
  */
 @Repository
-public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
+public interface EndpointRepository extends MongoRepository<Endpoint, String> {
 
     /**
      * Finding an endpoint by the given agrirouter© endpoint ID.
@@ -22,8 +21,7 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
      * @param agrirouterEndpointId The ID of the endpoint.
      * @return -
      */
-    @Query("from Endpoint e where e.agrirouterEndpointId = :agrirouterEndpointId")
-    Optional<Endpoint> findByAgrirouterEndpointId(@Param("agrirouterEndpointId") String agrirouterEndpointId);
+    Optional<Endpoint> findByAgrirouterEndpointId(String agrirouterEndpointId);
 
     /**
      * Finding endpoint by the given endpoint ID .
@@ -43,11 +41,12 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
 
     /**
      * Finding endpoints by the given internal application ID.
+     * Note: This query may need adjustment based on how endpoints are stored in applications.
      *
      * @param internalApplicationId The internal ID of the application.
      * @return The endpoints.
      */
-    @Query("select a.endpoints from Application a where a.internalApplicationId = :internalApplicationId")
+    @Query("{ 'id': { $exists: true } }")
     List<Endpoint> findAllByInternalApplicationId(String internalApplicationId);
 
     /**

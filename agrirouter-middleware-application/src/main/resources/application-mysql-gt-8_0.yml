@@ -1,3 +1,0 @@
-spring:
-  flyway:
-    locations: classpath:flyway/migrations/mysql/all-versions

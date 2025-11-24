@@ -1,12 +1,10 @@
 package de.agrirouter.middleware.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
@@ -14,7 +12,7 @@ import java.util.Set;
  * A tenant for the application.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class Tenant extends BaseEntity {
@@ -22,13 +20,13 @@ public class Tenant extends BaseEntity {
     /**
      * Internal ID of the tenant.
      */
-    @Column(unique = true)
+    @Indexed(unique = true)
     private String tenantId;
 
     /**
      * Name of the tenant.
      */
-    @Column(unique = true)
+    @Indexed(unique = true)
     private String name;
 
     /**
@@ -39,10 +37,6 @@ public class Tenant extends BaseEntity {
     /**
      * The applications for the tenant.
      */
-    @OneToMany(
-            mappedBy = "tenant",
-            cascade = CascadeType.ALL
-    )
     @ToString.Exclude
     private Set<Application> applications;
 

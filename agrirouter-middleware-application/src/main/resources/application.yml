@@ -2,25 +2,9 @@ server:
   forward-headers-strategy: native
 
 spring:
-  datasource:
-    url: ${MYSQL_URL}
-
   data:
     mongodb:
       uri: ${MONGODB_URI}
-
-  jpa:
-    database: default
-    properties:
-      hibernate:
-        jdbc:
-          time_zone: UTC
-    open-in-view: true
-
-  flyway:
-    baseline-on-migrate: true
-    enabled: true
-    locations: classpath:flyway/migrations/mariadb/all-versions,classpath:flyway/migrations/mariadb/gt-10.5
 
   task:
     scheduling:
@@ -35,7 +19,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: info,health,metrics,prometheus,hikaricp,jdbc
+        include: info,health,metrics,prometheus
   endpoint:
     health:
       show-details: always

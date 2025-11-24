@@ -6,11 +6,12 @@ import com.google.gson.JsonParseException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.enums.EndpointType;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * Container holding the onboard responses as JSON.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class Endpoint extends BaseEntity {
@@ -28,40 +29,33 @@ public class Endpoint extends BaseEntity {
     /**
      * The ID of an endpoint.
      */
-    @Column(length = 36, nullable = false, unique = true)
+    @Indexed(unique = true)
     private String agrirouterEndpointId;
 
     /**
      * The ID of an endpoint.
      */
-    @Column(length = 36, nullable = false)
     private String agrirouterAccountId;
 
     /**
      * The external ID of an endpoint.
      */
-    @Column(nullable = false, unique = true)
+    @Indexed(unique = true)
     private String externalEndpointId;
 
     /**
      * JSON holding the original onboard response from the agrirouter.
      */
-    @Lob
-    @Column(nullable = false)
     private String onboardResponse;
 
     /**
      * JSON holding the onboard response in case the endpoint is using a router device from the agrirouter.
      */
-    @Lob
-    @Column
     private String onboardResponseForRouterDevice;
 
     /**
      * The connected virtual endpoints.
      */
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_endpoint_id")
     @ToString.Exclude
     private List<Endpoint> connectedVirtualEndpoints;
 
@@ -73,7 +67,6 @@ public class Endpoint extends BaseEntity {
     /**
      * The type of endpoint, by default NON_VIRTUAL.
      */
-    @Enumerated(EnumType.STRING)
     private EndpointType endpointType = EndpointType.NON_VIRTUAL;
 
     /**

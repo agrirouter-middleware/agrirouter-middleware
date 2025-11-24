@@ -1,15 +1,15 @@
 package de.agrirouter.middleware.domain;
 
-import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * A combination of DDIs to subscribe for.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class DdiCombinationToSubscribeFor extends BaseEntity {

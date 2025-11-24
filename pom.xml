@@ -103,27 +103,6 @@
                 <version>2.8.14</version>
             </dependency>
 
-            <!-- MARIA DB -->
-            <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>3.5.6</version>
-            </dependency>
-
-            <!-- MYSQL -->
-            <dependency>
-                <groupId>com.mysql</groupId>
-                <artifactId>mysql-connector-j</artifactId>
-                <version>9.5.0</version>
-            </dependency>
-
-            <!-- HIKARI -->
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>7.0.2</version>
-            </dependency>
-
             <!-- KOTLIN -->
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -174,18 +153,6 @@
                 <groupId>com.agrirouter.proto</groupId>
                 <artifactId>agrirouter-api-protobuf-definitions</artifactId>
                 <version>1.1.1</version>
-            </dependency>
-
-            <!-- QUERY DSL -->
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-apt</artifactId>
-                <version>5.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jpa</artifactId>
-                <version>5.1.0</version>
             </dependency>
 
             <!-- PROTOBUF -->
@@ -258,14 +225,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-mysql</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

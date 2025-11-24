@@ -1,7 +1,7 @@
-package de.agrirouter.middleware.persistence.jpa;
+package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.Tenant;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -10,7 +10,7 @@ import java.util.Optional;
  * Access the registered tenants.
  */
 @Repository
-public interface TenantRepository extends JpaRepository<Tenant, Long> {
+public interface TenantRepository extends MongoRepository<Tenant, String> {
 
     /**
      * Search for a tenant by name.

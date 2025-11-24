@@ -1,17 +1,16 @@
 package de.agrirouter.middleware.domain;
 
 import com.dke.data.agrirouter.api.dto.onboard.RouterDevice;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Connection details for a router device.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class ConnectionCriteria extends BaseEntity {
@@ -19,19 +18,16 @@ public class ConnectionCriteria extends BaseEntity {
     /**
      * The client ID.
      */
-    @Column(nullable = false)
     private String clientId;
 
     /**
      * The host.
      */
-    @Column(nullable = false)
     private String host;
 
     /**
      * The port.
      */
-    @Column(nullable = false)
     private String port;
 
     /**

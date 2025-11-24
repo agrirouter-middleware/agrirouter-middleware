@@ -3,10 +3,11 @@ package de.agrirouter.middleware.domain;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.google.gson.Gson;
 import de.agrirouter.middleware.domain.enums.ApplicationType;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
@@ -14,7 +15,7 @@ import java.util.Set;
  * Representing an application in the middleware.
  */
 @Data
-@Entity
+@Document
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class Application extends BaseEntity {
@@ -23,74 +24,62 @@ public class Application extends BaseEntity {
     /**
      * The name of the application.
      */
-    @Column(nullable = false)
     private String name;
 
     /**
      * The internal id of the application.
      */
-    @Column(unique = true, nullable = false)
+    @Indexed(unique = true)
     private String internalApplicationId;
 
     /**
      * The agrirouter© ID of the application.
      */
-    @Column(length = 36, nullable = false)
     private String applicationId;
 
     /**
      * The version of the application. Each agrirouter© version creates a new application in the middleware.
      */
-    @Column(length = 36, nullable = false, unique = true)
+    @Indexed(unique = true)
     private String versionId;
 
     /**
      * The supported technical message types for this version of the application.
      */
-    @JoinColumn
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<SupportedTechnicalMessageType> supportedTechnicalMessageTypes;
 
     /**
      * The onboard responses that belong to this application.
      */
-    @JoinColumn(name = "application_id")
-    @OneToMany(fetch = FetchType.EAGER)
     private Set<Endpoint> endpoints;
 
     /**
      * Settings for the application.
      */
-    @OneToOne(cascade = CascadeType.ALL)
     @ToString.Exclude
     private ApplicationSettings applicationSettings;
 
     /**
      * The private key of the application.
      */
-    @Lob
     @ToString.Exclude
     private String privateKey;
 
     /**
      * Type of the application
      */
-    @Enumerated(EnumType.STRING)
     private ApplicationType applicationType;
 
     /**
-     * The registered tenant.
+     * The registered tenant ID.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id")
     @ToString.Exclude
-    private Tenant tenant;
+    private String tenantId;
 
     /**
      * The public key of the application.
      */
-    @Lob
     private String publicKey;
 
     /**
