@@ -104,9 +104,6 @@ public class NonTelemetryDataController implements SecuredApiController {
     public ResponseEntity<Void> publish(@Parameter(description = "The external endpoint ID.", required = true) @PathVariable String externalEndpointId,
                                         @Parameter(description = "The request body containing all necessary information to publish non-telemetry data.", required = true) @Valid @RequestBody PublishNonTelemetryDataRequest publishNonTelemetryDataRequest,
                                         @Parameter(hidden = true) Errors errors) {
-        if (publishNonTelemetryDataRequest.getContentMessageType() == null) {
-            errors.rejectValue("contentMessageType", "NotNull", "The content message type is required and cannot be null.");
-        }
         if (errors.hasErrors()) {
             throw new ParameterValidationException(errors);
         }
