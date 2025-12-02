@@ -1,8 +1,8 @@
 package de.agrirouter.middleware.domain;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,15 +12,13 @@ import java.time.LocalDateTime;
  */
 @Data
 @ToString
-@MappedSuperclass
 public abstract class BaseEntity implements Serializable {
 
     /**
      * Technical ID of the entity.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
     /**
      * The last update.
@@ -30,7 +28,6 @@ public abstract class BaseEntity implements Serializable {
     /**
      * Define timestamp for the last update.
      */
-    @PrePersist
     public void setLastUpdate() {
         lastUpdate = LocalDateTime.now();
     }

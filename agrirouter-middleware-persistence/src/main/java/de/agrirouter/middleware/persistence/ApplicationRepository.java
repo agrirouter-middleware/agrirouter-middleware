@@ -1,8 +1,9 @@
-package de.agrirouter.middleware.persistence.jpa;
+package de.agrirouter.middleware.persistence;
 
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Optional;
  * Repository to access the applications within the database.
  */
 @Repository
-public interface ApplicationRepository extends JpaRepository<Application, Long> {
+public interface ApplicationRepository extends MongoRepository<Application, String> {
 
     /**
      * Fetch all applications for the tenant.
@@ -20,7 +21,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
      * @param tenantId The internal ID of the tenant.
      * @return -
      */
-    List<Application> findAllByTenantTenantId(String tenantId);
+    List<Application> findAllByTenantId(String tenantId);
 
     /**
      * Find an application by its internal ID and the belonging tenant.
@@ -28,7 +29,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
      * @param internalApplicationId The internal ID of the application.
      * @return -
      */
-    Optional<Application> findByInternalApplicationIdAndTenantTenantId(String internalApplicationId, String tenantId);
+    Optional<Application> findByInternalApplicationIdAndTenantId(String internalApplicationId, String tenantId);
 
     /**
      * Find an application by its internal ID.
@@ -39,12 +40,13 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Optional<Application> findByInternalApplicationId(String internalApplicationId);
 
     /**
-     * Find an application by one of its onboard responses.
+     * Find an application by one of its endpoint IDs.
      *
-     * @param endpoint The endpoint.
+     * @param endpointId The endpoint ID.
      * @return -
      */
-    Optional<Application> findByEndpointsContains(Endpoint endpoint);
+    @Query("{ 'endpointIds': ?0 }")
+    Optional<Application> findByEndpointIdsContains(String endpointId);
 
     /**
      * Find an application by its application ID.

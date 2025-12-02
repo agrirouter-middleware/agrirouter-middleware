@@ -17,7 +17,7 @@ import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgement
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
 import de.agrirouter.middleware.integration.common.SubscriptionParameterFactory;
 import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -82,7 +82,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
         final var optionalEndpoint = endpointService.findByExternalEndpointId(externalEndpointId);
         if (optionalEndpoint.isPresent()) {
             var endpoint = optionalEndpoint.get();
-            final var optionalApplication = applicationRepository.findByEndpointsContains(endpoint);
+            final var optionalApplication = applicationRepository.findByEndpointIdsContains(endpoint.getId());
             if (optionalApplication.isPresent()) {
                 final var application = optionalApplication.get();
                 sendSubscriptions(application, endpoint);

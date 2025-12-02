@@ -2,9 +2,9 @@ package de.agrirouter.middleware.business;
 
 import de.agrirouter.middleware.business.cache.endpoints.InternalEndpointCache;
 import de.agrirouter.middleware.domain.Endpoint;
-import de.agrirouter.middleware.persistence.jpa.ContentMessageRepository;
-import de.agrirouter.middleware.persistence.jpa.EndpointRepository;
-import de.agrirouter.middleware.persistence.jpa.UnprocessedMessageRepository;
+import de.agrirouter.middleware.persistence.ContentMessageRepository;
+import de.agrirouter.middleware.persistence.EndpointRepository;
+import de.agrirouter.middleware.persistence.UnprocessedMessageRepository;
 import de.agrirouter.middleware.persistence.mongo.DeviceDescriptionRepository;
 import de.agrirouter.middleware.persistence.mongo.TimeLogRepository;
 import lombok.RequiredArgsConstructor;
