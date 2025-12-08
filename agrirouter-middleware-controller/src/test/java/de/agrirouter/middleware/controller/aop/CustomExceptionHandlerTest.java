@@ -30,7 +30,7 @@ class CustomExceptionHandlerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().message().contains("agrirouter"));
+        assertTrue(response.getBody().errorMessage().contains("agrirouter"));
     }
 
     @Test
@@ -45,7 +45,7 @@ class CustomExceptionHandlerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().message().contains("agrirouter"));
+        assertTrue(response.getBody().errorMessage().contains("agrirouter"));
     }
 
     @Test
@@ -77,6 +77,6 @@ class CustomExceptionHandlerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().message().contains("unknown error"));
+        assertTrue(response.getBody().errorMessage().contains("unknown error"));
     }
 }

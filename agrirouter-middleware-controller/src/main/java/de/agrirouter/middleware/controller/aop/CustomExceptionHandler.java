@@ -53,19 +53,19 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleUnknownRuntimeException(RuntimeException runtimeException) {
-        log.error("A unknown runtime exception occurred.", runtimeException);
+        log.error("An unknown runtime exception occurred.", runtimeException);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "This was an unknown error, please file an issue and see the logs for more details."));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnknownException(Exception exception) {
-        log.error("A unknown exception occurred.", exception);
+        log.error("An unknown exception occurred.", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "This was an unknown error, please file an issue and see the logs for more details."));
     }
 
     @ExceptionHandler({IllegalParameterDefinitionException.class, InvalidFormatException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorResponse> handle(Exception exception) {
-        log.error("A illegal parameter definition exception occurred.", exception);
+        log.error("An illegal parameter definition exception occurred.", exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ErrorKey.ILLEGAL_PARAMETER_DEFINITION.getKey(), "The parameter you provided was not valid."));
     }
 
