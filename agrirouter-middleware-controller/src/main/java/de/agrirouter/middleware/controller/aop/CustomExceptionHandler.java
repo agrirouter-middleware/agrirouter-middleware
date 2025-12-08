@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.controller.aop;
 
 import com.dke.data.agrirouter.api.exception.IllegalParameterDefinitionException;
+import com.dke.data.agrirouter.api.exception.InvalidHttpStatusException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.ParameterValidationException;
@@ -37,6 +38,17 @@ public class CustomExceptionHandler {
     public ResponseEntity<ParameterValidationProblemResponse> handle(ParameterValidationException parameterValidationException) {
         log.error("A parameter validation exception occurred.", parameterValidationException);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ParameterValidationProblemResponse(parameterValidationException.getErrors()));
+    }
+
+    @ExceptionHandler(InvalidHttpStatusException.class)
+    public ResponseEntity<ErrorResponse> handle(InvalidHttpStatusException invalidHttpStatusException) {
+        log.error("An invalid HTTP status exception occurred while communicating with the agrirouter.");
+        log.error("Exception message: {}", invalidHttpStatusException.getMessage());
+        if (invalidHttpStatusException.getCause() != null) {
+            log.error("Cause: {}", invalidHttpStatusException.getCause().getMessage(), invalidHttpStatusException.getCause());
+        }
+        log.error("Full exception details:", invalidHttpStatusException);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "An error occurred while communicating with the agrirouter. Please file an issue and see the logs for more details."));
     }
 
     @ExceptionHandler(RuntimeException.class)
