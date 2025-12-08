@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 @EqualsAndHashCode(callSuper = true)
 @CompoundIndexes({
-        @CompoundIndex(name = "timestamp_teamSetContextId_idx", def = "{'timestamp': 1, 'teamSetContextId': 1}")
+        @CompoundIndex(name = "timestamp_teamSetContextId_idx", def = "{'timestamp': 1, 'teamSetContextId': 1}", background = true)
 })
 public class TimeLog extends NoSqlBaseEntity {
 
@@ -28,7 +28,6 @@ public class TimeLog extends NoSqlBaseEntity {
     /**
      * The timestamp of the message.
      */
-    @Indexed(name = "timestamp_idx")
     private long timestamp;
 
     /**
@@ -44,7 +43,7 @@ public class TimeLog extends NoSqlBaseEntity {
     /**
      * The ID of the endpoint.
      */
-    @Indexed(name = "agrirouterEndpointId_idx")
+    @Indexed(name = "agrirouterEndpointId_idx", background = true)
     private String agrirouterEndpointId;
 
     /**
@@ -60,7 +59,7 @@ public class TimeLog extends NoSqlBaseEntity {
     /**
      * The team set context id.
      */
-    @Indexed(name = "teamSetContextId_idx")
+    @Indexed(name = "teamSetContextId_idx", background = true)
     private String teamSetContextId;
 
 }
