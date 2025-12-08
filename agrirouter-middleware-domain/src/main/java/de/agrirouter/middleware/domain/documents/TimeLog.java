@@ -3,6 +3,9 @@ package de.agrirouter.middleware.domain.documents;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -12,6 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @Document
 @EqualsAndHashCode(callSuper = true)
+@CompoundIndexes({
+        @CompoundIndex(name = "timestamp_teamSetContextId_idx", def = "{'timestamp': 1, 'teamSetContextId': 1}")
+})
 public class TimeLog extends NoSqlBaseEntity {
 
     /**
@@ -22,6 +28,7 @@ public class TimeLog extends NoSqlBaseEntity {
     /**
      * The timestamp of the message.
      */
+    @Indexed(name = "timestamp_idx")
     private long timestamp;
 
     /**
@@ -37,6 +44,7 @@ public class TimeLog extends NoSqlBaseEntity {
     /**
      * The ID of the endpoint.
      */
+    @Indexed(name = "agrirouterEndpointId_idx")
     private String agrirouterEndpointId;
 
     /**
@@ -52,6 +60,7 @@ public class TimeLog extends NoSqlBaseEntity {
     /**
      * The team set context id.
      */
+    @Indexed(name = "teamSetContextId_idx")
     private String teamSetContextId;
 
 }
