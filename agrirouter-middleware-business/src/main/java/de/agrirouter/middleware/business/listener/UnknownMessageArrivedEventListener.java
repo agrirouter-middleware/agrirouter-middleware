@@ -6,7 +6,7 @@ import de.agrirouter.middleware.api.logging.BusinessOperationLogService;
 import de.agrirouter.middleware.api.logging.EndpointLogInformation;
 import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.domain.UnprocessedMessage;
-import de.agrirouter.middleware.persistence.jpa.UnprocessedMessageRepository;
+import de.agrirouter.middleware.persistence.UnprocessedMessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

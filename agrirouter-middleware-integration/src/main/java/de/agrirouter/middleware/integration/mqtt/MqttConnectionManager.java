@@ -9,7 +9,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.domain.RouterDevice;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
-import de.agrirouter.middleware.persistence.jpa.ApplicationRepository;
+import de.agrirouter.middleware.persistence.ApplicationRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

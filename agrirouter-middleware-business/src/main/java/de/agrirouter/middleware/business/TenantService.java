@@ -6,7 +6,7 @@ import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.dto.TenantRegistrationResult;
 import de.agrirouter.middleware.business.security.TenantPrincipal;
 import de.agrirouter.middleware.domain.Tenant;
-import de.agrirouter.middleware.persistence.jpa.TenantRepository;
+import de.agrirouter.middleware.persistence.TenantRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
