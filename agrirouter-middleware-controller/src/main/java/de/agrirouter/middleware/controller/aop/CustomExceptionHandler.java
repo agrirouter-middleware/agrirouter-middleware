@@ -42,13 +42,17 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(InvalidHttpStatusException.class)
     public ResponseEntity<ErrorResponse> handle(InvalidHttpStatusException invalidHttpStatusException) {
-        log.error("An invalid HTTP status exception occurred while communicating with the agrirouter.");
-        log.error("Exception message: {}", invalidHttpStatusException.getMessage());
+        StringBuilder logMessage = new StringBuilder("An invalid HTTP status exception occurred while communicating with the agrirouter.");
+        String exceptionMessage = invalidHttpStatusException.getMessage();
+        if (exceptionMessage != null) {
+            logMessage.append(" Exception message: ").append(exceptionMessage);
+        }
         if (invalidHttpStatusException.getCause() != null) {
             String causeMessage = invalidHttpStatusException.getCause().getMessage();
-            log.error("Cause: {}", causeMessage != null ? causeMessage : "No message available", invalidHttpStatusException.getCause());
+            logMessage.append(" Cause: ")
+                      .append(causeMessage != null ? causeMessage : "No message available");
         }
-        log.error("Full exception details:", invalidHttpStatusException);
+        log.error(logMessage.toString(), invalidHttpStatusException);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorKey.UNKNOWN_ERROR.getKey(), "An error occurred while communicating with the agrirouter. Please file an issue and see the logs for more details."));
     }
 
