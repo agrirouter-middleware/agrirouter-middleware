@@ -54,7 +54,7 @@ class CustomExceptionHandlerTest {
     }
 
     @Test
-    void givenInvalidHttpStatusExceptionWhenHandleThenShouldLogCorrectMessage() {
+    void givenInvalidHttpStatusExceptionWith400WhenHandleThenShouldLogCorrectMessage() {
         // Given
         InvalidHttpStatusException exception = new InvalidHttpStatusException(400);
 
@@ -73,7 +73,7 @@ class CustomExceptionHandlerTest {
     }
 
     @Test
-    void givenInvalidHttpStatusExceptionWhenHandleThenShouldLogExceptionWithStatusCode() {
+    void givenInvalidHttpStatusExceptionWith500WhenHandleThenShouldLogExceptionWithStatusCode() {
         // Given
         InvalidHttpStatusException exception = new InvalidHttpStatusException(500);
 
