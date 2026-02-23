@@ -49,23 +49,6 @@ class CustomExceptionHandlerTest {
     }
 
     @Test
-    void givenInvalidHttpStatusExceptionWithCauseWhenHandleThenShouldReturnInternalServerError() {
-        // Given
-        Exception cause = new RuntimeException("Root cause error");
-        InvalidHttpStatusException exception = new InvalidHttpStatusException(400);
-        // Note: InvalidHttpStatusException doesn't have a constructor that accepts a cause,
-        // but the handler checks for it defensively
-
-        // When
-        ResponseEntity<ErrorResponse> response = customExceptionHandler.handle(exception);
-
-        // Then
-        assertNotNull(response);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
     void givenRuntimeExceptionWhenHandleThenShouldReturnInternalServerError() {
         // Given
         RuntimeException exception = new RuntimeException("Generic runtime error");
