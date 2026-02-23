@@ -378,7 +378,7 @@ public class EndpointService {
                 return new HealthStatusWithLastKnownHealthyStatus(healthStatus, null);
             }
         } else {
-            log.warn("Tried to determine the health status for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
+            log.debug("Tried to determine the health status for an endpoint with the ID '{}', but it was not found.", externalEndpointId);
             return new HealthStatusWithLastKnownHealthyStatus(HttpStatus.NOT_FOUND, null);
         }
     }
