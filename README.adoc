@@ -4,12 +4,6 @@
 :toc-title:
 :toclevels: 4
 
-[WARNING]
-====
-*This project is now in maintenance mode.
-No more features, just bugfixes and patches.*
-====
-
 image::readme/maintenance_mode_eol.png[Maintenance Mode - No New Features, No Further Development, Bug Fixes Only]
 
 The agrirouter© middleware will no longer receive new features or active development.
