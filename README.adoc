@@ -8,7 +8,7 @@
 ====
 *This project is now in maintenance mode.*
 
-image::https://github.com/user-attachments/assets/946ce102-9224-45e7-9279-72a462e1755b[Maintenance Mode - No New Features, No Further Development, Bug Fixes Only]
+image::readme/maintenance_mode_eol.png[Maintenance Mode - No New Features, No Further Development, Bug Fixes Only]
 
 The agrirouter© middleware will no longer receive new features or active development.
 Only bug fixes will be provided going forward.
