@@ -1,4 +1,4 @@
-= Agrirouter© Middleware
+= agrirouter© Middleware
 :imagesdir: assets/img
 :toc:
 :toc-title:
@@ -6,16 +6,16 @@
 
 [WARNING]
 ====
-*This project is now in maintenance mode.*
+*This project is now in maintenance mode.
+No more features, just bugfixes and patches.*
+====
 
 image::readme/maintenance_mode_eol.png[Maintenance Mode - No New Features, No Further Development, Bug Fixes Only]
 
 The agrirouter© middleware will no longer receive new features or active development.
-Only bug fixes will be provided going forward.
-*We strongly recommend migrating to the https://docs.my-agrirouter.com[official agrirouter© REST-API]*, which is the supported and recommended way to integrate with the agrirouter© platform.
-====
+Only bug fixes will be provided going forward. *We strongly recommend migrating to the official agrirouter© REST-API*, which is the supported and recommended way to integrate with the agrirouter© platform.
 
-== Thank You
+=== Thank You
 
 We want to take a moment to sincerely thank everyone who has used the agrirouter© middleware over the years.
 Your feedback, contributions, and trust in this project have been invaluable.
@@ -23,7 +23,9 @@ The agrirouter© middleware was built to lower the barrier of entry for agrirout
 
 Thank you to all our partners, contributors, and users — your support made this project what it is.
 
-If you are starting a new integration or looking for a long-term supported solution, please consider using the https://docs.my-agrirouter.com[official agrirouter© REST-API] provided directly by the agrirouter© team.
+If you are starting a new integration or looking for a long-term supported solution, please consider using the official agrirouter© REST-API provided directly by the agrirouter© team.
+
+'''
 
 == The Project
 
