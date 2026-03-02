@@ -1,12 +1,11 @@
 package de.agrirouter.middleware.integration.mqtt;
 
 import com.dke.data.agrirouter.api.enums.Gateway;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.mqtt.status.MqttConnectionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class MqttClientManagementService {
      * @param endpoint The endpoint for which the MQTT client should be created.
      * @return The MQTT client.
      */
-    public Optional<IMqttClient> get(Endpoint endpoint) {
+    public Optional<Mqtt3AsyncClient> get(Endpoint endpoint) {
         var onboardingResponse = endpoint.asOnboardingResponse();
         if (Gateway.MQTT.getKey().equals(onboardingResponse.getConnectionCriteria().getGatewayId())) {
             return mqttConnectionManager.getCachedMqttClient(onboardingResponse).mqttClient();
@@ -49,11 +48,12 @@ public class MqttClientManagementService {
 
     /**
      * Get all pending delivery tokens for the endpoint.
+     * HiveMQ does not expose pending delivery tokens; an empty list is always returned.
      *
      * @param endpoint The endpoint.
-     * @return The list of pending delivery tokens.
+     * @return An empty list.
      */
-    public List<IMqttDeliveryToken> getPendingDeliveryTokens(Endpoint endpoint) {
+    public List<?> getPendingDeliveryTokens(Endpoint endpoint) {
         return mqttConnectionManager.getPendingDeliveryTokens(endpoint);
     }
 

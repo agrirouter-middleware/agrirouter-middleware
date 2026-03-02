@@ -35,7 +35,7 @@ public class HealthStatusIntegrationService {
         var mqttClient = mqttClientManagementService.get(endpoint);
         var messageId = new AtomicReference<>("not_set_yet");
         mqttClient.ifPresentOrElse(client -> {
-                    if (client.isConnected()) {
+                    if (client.getState().isConnected()) {
                         var pingService = new PingServiceImpl(client);
                         var onboardingResponse = endpoint.asOnboardingResponse();
                         var parameters = new PingParameters();

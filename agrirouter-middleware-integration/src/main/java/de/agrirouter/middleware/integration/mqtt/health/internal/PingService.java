@@ -14,10 +14,8 @@ import com.dke.data.agrirouter.impl.common.MessageIdService;
 import com.dke.data.agrirouter.impl.messaging.MessageBodyCreator;
 import com.dke.data.agrirouter.impl.messaging.SequenceNumberService;
 import com.google.protobuf.ByteString;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -38,7 +36,7 @@ public class PingService implements MessageBodyCreator {
 
     private final EncodeMessageService encodeMessageService;
 
-    public String send(IMqttClient mqttClient, OnboardingResponse onboardingResponse) {
+    public String send(Mqtt3AsyncClient mqttClient, OnboardingResponse onboardingResponse) {
         try {
             var encodedMessage = this.encode(onboardingResponse);
             var sendMessageParameters = new SendMessageParameters();
@@ -47,13 +45,14 @@ public class PingService implements MessageBodyCreator {
                     Collections.singletonList(encodedMessage.getEncodedMessage()));
             var messageAsJson = this.createMessageBody(sendMessageParameters);
             var payload = messageAsJson.getBytes();
-            mqttClient.publish(
-                    Objects.requireNonNull(onboardingResponse)
+            mqttClient.publishWith()
+                    .topic(Objects.requireNonNull(onboardingResponse)
                             .getConnectionCriteria()
-                            .getMeasures(),
-                    new MqttMessage(payload));
+                            .getMeasures())
+                    .payload(payload)
+                    .send();
             return encodedMessage.getApplicationMessageID();
-        } catch (MqttException e) {
+        } catch (Exception e) {
             throw new CouldNotSendMqttMessageException(e);
         }
     }
