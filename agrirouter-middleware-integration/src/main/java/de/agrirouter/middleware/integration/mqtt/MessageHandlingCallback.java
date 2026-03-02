@@ -7,6 +7,7 @@ import com.dke.data.agrirouter.api.dto.messaging.FetchMessageResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.DecodeMessageService;
 import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.events.*;
 import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
@@ -18,22 +19,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * Callback for all MQTT connections to the agrirouter.
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MessageHandlingCallback implements MqttCallbackExtended {
+public class MessageHandlingCallback implements Consumer<Mqtt3Publish> {
 
     private static final Gson GSON = new Gson();
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -47,18 +45,12 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
     private String clientIdOfTheRouterDevice;
 
     @Override
-    public void connectionLost(Throwable throwable) {
-        log.error("Connection to MQTT broker lost.", throwable);
-        mqttStatistics.increaseNumberOfConnectionLosses();
-    }
-
-    @Override
-    public void messageArrived(String s, MqttMessage mqttMessage) {
+    public void accept(Mqtt3Publish mqtt3Publish) {
         try {
-            log.debug("Message '{}' with QoS {} arrived.", mqttMessage.getId(), mqttMessage.getQos());
-            log.trace("Message payload for message '{}' >>> {}", mqttMessage.getId(), StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8));
+            log.debug("Message arrived.");
             mqttStatistics.increaseNumberOfMessagesArrived();
-            var payload = StringUtils.toEncodedString(mqttMessage.getPayload(), StandardCharsets.UTF_8);
+            var payload = StringUtils.toEncodedString(mqtt3Publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+            log.trace("Message payload >>> {}", payload);
             handleAgrirouterMessage(payload);
         } catch (BusinessException e) {
             log.error("An internal business exception occurred.", e);
@@ -160,22 +152,4 @@ public class MessageHandlingCallback implements MqttCallbackExtended {
         return messageRecipient;
     }
 
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-        log.debug("Delivery for message '{}' complete.", iMqttDeliveryToken.getMessageId());
-        mqttStatistics.increaseNumberOfMessagesPublished();
-        try {
-            if (null != iMqttDeliveryToken.getMessage()) {
-                log.trace("Message payload for message '{}' >>> {}", iMqttDeliveryToken.getMessageId(), StringUtils.toEncodedString(iMqttDeliveryToken.getMessage().getPayload(), StandardCharsets.UTF_8));
-                mqttStatistics.increasePayloadReceived(iMqttDeliveryToken.getMessage().getPayload().length);
-            }
-        } catch (MqttException e) {
-            log.error("Could not log message content.", e);
-        }
-    }
-
-    @Override
-    public void connectComplete(boolean reconnect, String serverURI) {
-        applicationEventPublisher.publishEvent(new ClearSubscriptionsForMqttClientEvent(this, clientIdOfTheRouterDevice));
-    }
 }
