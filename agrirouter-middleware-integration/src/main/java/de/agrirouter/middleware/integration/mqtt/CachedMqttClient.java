@@ -1,6 +1,6 @@
 package de.agrirouter.middleware.integration.mqtt;
 
-import org.eclipse.paho.client.mqttv3.IMqttClient;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +14,7 @@ import java.util.Optional;
  * @param connectionErrors     The list of connection errors.
  */
 public record CachedMqttClient(String agrirouterEndpointId, String id,
-                               Optional<IMqttClient> mqttClient,
+                               Optional<Mqtt3AsyncClient> mqttClient,
                                List<ConnectionError> connectionErrors) {
     public void clearConnectionErrors() {
         connectionErrors.clear();
