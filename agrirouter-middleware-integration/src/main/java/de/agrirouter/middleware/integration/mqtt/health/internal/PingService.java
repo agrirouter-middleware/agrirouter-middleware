@@ -5,7 +5,6 @@ import agrirouter.request.Request;
 import com.dke.data.agrirouter.api.dto.encoding.EncodedMessage;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.enums.SystemMessageType;
-import com.dke.data.agrirouter.api.exception.CouldNotSendMqttMessageException;
 import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageService;
 import com.dke.data.agrirouter.api.service.parameters.MessageHeaderParameters;
 import com.dke.data.agrirouter.api.service.parameters.PayloadParameters;
@@ -14,10 +13,8 @@ import com.dke.data.agrirouter.impl.common.MessageIdService;
 import com.dke.data.agrirouter.impl.messaging.MessageBodyCreator;
 import com.dke.data.agrirouter.impl.messaging.SequenceNumberService;
 import com.google.protobuf.ByteString;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -38,24 +35,21 @@ public class PingService implements MessageBodyCreator {
 
     private final EncodeMessageService encodeMessageService;
 
-    public String send(IMqttClient mqttClient, OnboardingResponse onboardingResponse) {
-        try {
-            var encodedMessage = this.encode(onboardingResponse);
-            var sendMessageParameters = new SendMessageParameters();
-            sendMessageParameters.setOnboardingResponse(onboardingResponse);
-            sendMessageParameters.setEncodedMessages(
-                    Collections.singletonList(encodedMessage.getEncodedMessage()));
-            var messageAsJson = this.createMessageBody(sendMessageParameters);
-            var payload = messageAsJson.getBytes();
-            mqttClient.publish(
-                    Objects.requireNonNull(onboardingResponse)
-                            .getConnectionCriteria()
-                            .getMeasures(),
-                    new MqttMessage(payload));
-            return encodedMessage.getApplicationMessageID();
-        } catch (MqttException e) {
-            throw new CouldNotSendMqttMessageException(e);
-        }
+    public String send(Mqtt3AsyncClient mqttClient, OnboardingResponse onboardingResponse) {
+        var encodedMessage = this.encode(onboardingResponse);
+        var sendMessageParameters = new SendMessageParameters();
+        sendMessageParameters.setOnboardingResponse(onboardingResponse);
+        sendMessageParameters.setEncodedMessages(
+                Collections.singletonList(encodedMessage.getEncodedMessage()));
+        var messageAsJson = this.createMessageBody(sendMessageParameters);
+        var payload = messageAsJson.getBytes();
+        mqttClient.publishWith()
+                .topic(Objects.requireNonNull(onboardingResponse)
+                        .getConnectionCriteria()
+                        .getMeasures())
+                .payload(payload)
+                .send();
+        return encodedMessage.getApplicationMessageID();
     }
 
     private EncodedMessage encode(OnboardingResponse onboardingResponse) {
