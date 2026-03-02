@@ -47,6 +47,13 @@ public class MessageHandlingCallback {
         mqttStatistics.increaseNumberOfConnectionLosses();
     }
 
+    /**
+     * Handles an incoming MQTT message published on a subscribed topic.
+     * Decodes the agrirouter message payload and dispatches the appropriate application event
+     * based on the message type (acknowledgement, push notification, cloud registration, etc.).
+     *
+     * @param publish The incoming MQTT publish message containing the topic and payload.
+     */
     public void handleMessage(Mqtt3Publish publish) {
         try {
             var payload = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);

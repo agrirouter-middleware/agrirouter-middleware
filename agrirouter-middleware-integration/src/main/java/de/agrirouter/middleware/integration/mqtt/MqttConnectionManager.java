@@ -34,7 +34,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -124,7 +123,7 @@ public class MqttConnectionManager {
 
     private void subscribeIfNecessary(OnboardingResponse onboardingResponse, Mqtt3AsyncClient mqttClient) {
         var topic = onboardingResponse.getConnectionCriteria().getCommands();
-        var clientId = mqttClient.getConfig().getClientIdentifier().map(Object::toString).orElse("");
+        var clientId = mqttClient.getConfig().getClientIdentifier().map(Object::toString).orElse("n.a.");
         log.debug("Checking if the subscriptions for endpoint '{}' are already sent.", onboardingResponse.getSensorAlternateId());
         log.debug("The topic for the incoming commands is '{}'.", topic);
         if (subscriptionsForMqttClient.exists(clientId, topic)) {
@@ -146,19 +145,26 @@ public class MqttConnectionManager {
         }
     }
 
-    private Mqtt3AsyncClient initMqttClient(RouterDevice endpoint) throws ExecutionException, InterruptedException, TimeoutException {
-        mqttStatistics.increaseNumberOfClientInitializations();
-        var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
-        messageHandlingCallback.setClientIdOfTheRouterDevice(endpoint.getConnectionCriteria().getClientId());
-        var mqttClient = createMqttClient(endpoint, messageHandlingCallback);
-        mqttClient.publishes(MqttGlobalPublishFilter.ALL, messageHandlingCallback::handleMessage);
-        mqttClient.connect(
-                Mqtt3Connect.builder()
-                        .cleanSession(cleanSession)
-                        .keepAlive(keepAliveInterval)
-                        .build()
-        ).get(connectionTimeout, TimeUnit.SECONDS);
-        return mqttClient;
+    private Mqtt3AsyncClient initMqttClient(RouterDevice endpoint) {
+        try {
+            mqttStatistics.increaseNumberOfClientInitializations();
+            var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
+            messageHandlingCallback.setClientIdOfTheRouterDevice(endpoint.getConnectionCriteria().getClientId());
+            var mqttClient = createMqttClient(endpoint, messageHandlingCallback);
+            mqttClient.publishes(MqttGlobalPublishFilter.ALL, messageHandlingCallback::handleMessage);
+            mqttClient.connect(
+                    Mqtt3Connect.builder()
+                            .cleanSession(cleanSession)
+                            .keepAlive(keepAliveInterval)
+                            .build()
+            ).get(connectionTimeout, TimeUnit.SECONDS);
+            return mqttClient;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CouldNotCreateMqttClientException("Connection to MQTT broker was interrupted.", e);
+        } catch (ExecutionException | TimeoutException e) {
+            throw new CouldNotCreateMqttClientException("Could not connect to MQTT broker within timeout.", e);
+        }
     }
 
     private Mqtt3AsyncClient createMqttClient(RouterDevice routerDevice, MessageHandlingCallback messageHandlingCallback) {
@@ -197,8 +203,12 @@ public class MqttConnectionManager {
                 kmf.init(
                         keyStoreCreationService.createAndReturnKeystoreFromP12(certificate, secret),
                         secret.toCharArray());
+            } else {
+                throw new CouldNotCreateMqttClientException("Unsupported certificate type: " + certificationType);
             }
             return kmf;
+        } catch (CouldNotCreateMqttClientException e) {
+            throw e;
         } catch (Exception e) {
             throw new CouldNotCreateMqttClientException("Could not create SSL context for MQTT client.", e);
         }
@@ -298,7 +308,7 @@ public class MqttConnectionManager {
             if (null != cachedMqttClient) {
                 if (cachedMqttClient.mqttClient().isPresent()) {
                     var mqttClient = cachedMqttClient.mqttClient().get();
-                    var clientId = mqttClient.getConfig().getClientIdentifier().map(Object::toString).orElse("");
+                    var clientId = mqttClient.getConfig().getClientIdentifier().map(Object::toString).orElse("n.a.");
                     return new ConnectionState(cachedMqttClient.id(),
                             true,
                             mqttClient.getState().isConnected(),
