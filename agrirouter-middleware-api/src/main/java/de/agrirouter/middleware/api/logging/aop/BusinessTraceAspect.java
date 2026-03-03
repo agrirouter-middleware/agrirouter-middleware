@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.api.logging.aop;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,10 +15,9 @@ import java.util.UUID;
 @Aspect
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class BusinessTraceAspect {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * This method is used to trace the business logic for each public method.
