@@ -14,9 +14,7 @@ import de.agrirouter.middleware.domain.enums.TemporaryContentMessageType;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.MessageRecipient;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,10 +37,6 @@ public class MessageHandlingCallback implements Consumer<Mqtt3Publish> {
     private final MqttStatistics mqttStatistics;
     private final ListEndpointsMessages listEndpointsMessages;
     private final HealthStatusMessages healthStatusMessages;
-
-    @Setter
-    @Getter
-    private String clientIdOfTheRouterDevice;
 
     @Override
     public void accept(Mqtt3Publish mqtt3Publish) {
