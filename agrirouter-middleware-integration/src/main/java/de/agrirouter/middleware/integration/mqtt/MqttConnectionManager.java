@@ -1,7 +1,6 @@
 package de.agrirouter.middleware.integration.mqtt;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
-import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.hivemq.client.mqtt.MqttClientSslConfig;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
@@ -35,7 +34,6 @@ public class MqttConnectionManager {
     private final Map<String, CachedMqttClient> cachedMqttClients = new HashMap<>();
 
     private final ApplicationRepository applicationRepository;
-    private final Environment environment;
     private final MqttStatistics mqttStatistics;
     private final ApplicationContext applicationContext;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
@@ -48,9 +46,6 @@ public class MqttConnectionManager {
 
     @Value("${app.agrirouter.mqtt.options.connection-timeout}")
     private int connectionTimeout;
-
-    @Value("${app.agrirouter.mqtt.options.max-in-flight}")
-    private int maxInFlight;
 
     @PostConstruct
     public void connectAllExistingRouterDevices() {
@@ -139,7 +134,6 @@ public class MqttConnectionManager {
         mqttStatistics.increaseNumberOfClientInitializations();
         final var mqttClient = createMqttClient(endpoint);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
-        messageHandlingCallback.setClientIdOfTheRouterDevice(endpoint.getConnectionCriteria().getClientId());
 
         mqttClient.publishes(com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL, messageHandlingCallback);
 
