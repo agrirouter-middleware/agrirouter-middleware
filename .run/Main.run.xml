@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="de.agrirouter.middleware.Main" type="SpringBootApplicationConfigurationType"
+                 factoryName="Spring Boot">
       <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev"/>
     <envs>
       <env name="MONGODB_URI" value="mongodb://mongouser:changeit@localhost:27017/agriroutermiddleware" />
