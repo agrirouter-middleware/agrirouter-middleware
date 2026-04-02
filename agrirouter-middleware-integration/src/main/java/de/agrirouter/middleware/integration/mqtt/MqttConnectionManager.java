@@ -20,6 +20,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.ByteArrayInputStream;
+import java.security.KeyStore;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -166,13 +170,33 @@ public class MqttConnectionManager {
         if (StringUtils.isAnyBlank(host, port, clientId)) {
             throw new CouldNotCreateMqttClientException("Currently there are parameters missing. Did you onboard correctly - host, port or client id are missing.");
         } else {
-            return Mqtt3Client.builder()
-                    .identifier(clientId)
-                    .serverHost(host)
-                    .serverPort(Integer.parseInt(port))
-                    .sslConfig(MqttClientSslConfig.builder().build())
-                    .buildAsync();
+            try {
+                return Mqtt3Client.builder()
+                        .identifier(clientId)
+                        .serverHost(host)
+                        .serverPort(Integer.parseInt(port))
+                        .sslConfig(createMqttClientSslConfig(onboardingResponse.getAuthentication()))
+                        .buildAsync();
+            } catch (Exception e) {
+                throw new CouldNotCreateMqttClientException("Could not create MQTT client.", e);
+            }
         }
+    }
+
+    private MqttClientSslConfig createMqttClientSslConfig(de.agrirouter.middleware.domain.Authentication authentication) throws Exception {
+        var keyStore = KeyStore.getInstance("PKCS12");
+        keyStore.load(new ByteArrayInputStream(Base64.getDecoder().decode(authentication.getCertificate())), authentication.getSecret().toCharArray());
+
+        var keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, authentication.getSecret().toCharArray());
+
+        var trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init((KeyStore) null);
+
+        return MqttClientSslConfig.builder()
+                .keyManagerFactory(keyManagerFactory)
+                .trustManagerFactory(trustManagerFactory)
+                .build();
     }
 
     /**
