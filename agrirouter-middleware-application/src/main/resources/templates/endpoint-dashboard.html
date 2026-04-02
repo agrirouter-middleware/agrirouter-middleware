@@ -87,7 +87,7 @@
                                th:text="#{domain.endpoint.connection-errors.nr}"></p>
                         </div>
                         <div class="mdl-cell--8-col mdl-typography--text-left">
-                            <p th:text="${technicalConnectionState.connectionErrors.size}"></p>
+                            <p th:text="${technicalConnectionState.connectionErrors.size()}"></p>
                         </div>
 
                         <div class="mdl-cell--12-col mdl-typography--text-left">
