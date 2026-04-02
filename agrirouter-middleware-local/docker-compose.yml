@@ -28,20 +28,6 @@ services:
       - backend
     restart: unless-stopped
 
-
-  agrirouter-middleware:
-    image: ghcr.io/agrirouter-middleware/agrirouter-middleware:${AGRIROUTER_MIDDLEWARE_VERSION}
-    platform: linux/amd64
-    env_file:
-      - .env
-    ports:
-      - "${AGRIROUTER_MIDDLEWARE_PORT:-8080}:8080"
-    networks:
-      - backend
-    depends_on:
-      - mysql
-      - mongo
-
 networks:
   backend:
   frontend:
