@@ -200,26 +200,6 @@ public class MqttConnectionManager {
     }
 
     /**
-     * Determine the technical connection state.
-     *
-     * @param endpoint -
-     * @return -
-     */
-    public TechnicalConnectionState getTechnicalState(Endpoint endpoint) {
-        return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
-    }
-
-    /**
-     * Get all pending delivery tokens for the endpoint.
-     *
-     * @param endpoint The endpoint.
-     * @return The list of pending delivery tokens.
-     */
-    public List<Object> getPendingDeliveryTokens(Endpoint endpoint) {
-        return Collections.emptyList();
-    }
-
-    /**
      * Clear the connection errors.
      *
      * @param endpoint The endpoint.

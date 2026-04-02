@@ -37,26 +37,6 @@ public class MqttClientManagementService {
     }
 
     /**
-     * Determine the technical connection state.
-     *
-     * @param endpoint -
-     * @return -
-     */
-    public TechnicalConnectionState getTechnicalState(Endpoint endpoint) {
-        return mqttConnectionManager.getTechnicalState(endpoint);
-    }
-
-    /**
-     * Get all pending delivery tokens for the endpoint.
-     *
-     * @param endpoint The endpoint.
-     * @return The list of pending delivery tokens.
-     */
-    public List<Object> getPendingDeliveryTokens(Endpoint endpoint) {
-        return mqttConnectionManager.getPendingDeliveryTokens(endpoint);
-    }
-
-    /**
      * Clear the connection errors.
      *
      * @param endpoint The endpoint.

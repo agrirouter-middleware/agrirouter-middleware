@@ -53,14 +53,7 @@ public class EndpointDashboardUIController extends UIController {
 
             model.addAttribute("agrirouterApplication", application);
 
-            final var technicalConnectionState = mqttClientManagementService.getTechnicalState(endpoint);
-            model.addAttribute("technicalConnectionState", technicalConnectionState);
-
-            model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
-
             model.addAttribute("cloudOnboardingFailures", cloudOnboardingFailureCache.getAll(endpoint.getExternalEndpointId()));
-
-            model.addAttribute("pendingDeliveryTokens", mqttClientManagementService.getPendingDeliveryTokens(endpoint));
 
             final var messagesWaitingForAcknowledgement = new ArrayList<>(messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
                     .stream()
