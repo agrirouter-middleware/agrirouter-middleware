@@ -17,8 +17,11 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Service implementation.
@@ -33,6 +36,8 @@ import java.util.Objects;
 @SuppressWarnings("DeprecatedIsStillUsed")
 public class PingService implements MessageBodyCreator {
 
+    private static final Logger LOGGER = Logger.getLogger(PingService.class.getName());
+
     private final EncodeMessageService encodeMessageService;
 
     public String send(Mqtt3AsyncClient mqttClient, OnboardingResponse onboardingResponse) {
@@ -42,13 +47,21 @@ public class PingService implements MessageBodyCreator {
         sendMessageParameters.setEncodedMessages(
                 Collections.singletonList(encodedMessage.getEncodedMessage()));
         var messageAsJson = this.createMessageBody(sendMessageParameters);
-        var payload = messageAsJson.getBytes();
+        var payload = messageAsJson.getBytes(StandardCharsets.UTF_8);
         mqttClient.publishWith()
                 .topic(Objects.requireNonNull(onboardingResponse)
                         .getConnectionCriteria()
                         .getMeasures())
                 .payload(payload)
-                .send();
+                .send()
+                .whenComplete((publishResult, throwable) -> {
+                    if (throwable != null) {
+                        LOGGER.log(Level.SEVERE,
+                                "Failed to publish ping message with applicationMessageId "
+                                        + encodedMessage.getApplicationMessageID(),
+                                throwable);
+                    }
+                });
         return encodedMessage.getApplicationMessageID();
     }
 
@@ -67,7 +80,7 @@ public class PingService implements MessageBodyCreator {
         var payloadParameters = new PayloadParameters();
         payloadParameters.setTypeUrl(SystemMessageType.DKE_PING.getTypeUrl());
 
-        payloadParameters.setValue(ByteString.copyFrom(messageContent.getBytes()));
+        payloadParameters.setValue(ByteString.copyFrom(messageContent.getBytes(StandardCharsets.UTF_8)));
 
         var encodedMessage = encodeMessageService.encode(messageHeaderParameters, payloadParameters);
         return new EncodedMessage(applicationMessageID, encodedMessage);
