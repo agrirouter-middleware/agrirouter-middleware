@@ -137,7 +137,10 @@ public class MqttConnectionManager {
 
             try {
                 subscribeFuture.get(connectionTimeout, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Subscription attempt interrupted for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), e);
+            } catch (ExecutionException | TimeoutException e) {
                 log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), e);
             }
         }
