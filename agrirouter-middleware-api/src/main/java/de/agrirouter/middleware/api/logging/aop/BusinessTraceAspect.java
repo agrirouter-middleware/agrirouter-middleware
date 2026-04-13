@@ -17,8 +17,11 @@ import java.util.UUID;
 @Component
 public class BusinessTraceAspect {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
+    public BusinessTraceAspect(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
     /**
      * This method is used to trace the business logic for each public method.
      */
