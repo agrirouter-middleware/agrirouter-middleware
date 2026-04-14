@@ -48,6 +48,8 @@ logging:
 app:
   version: '@project.version@'
   build: '@maven.build.timestamp@'
+  device-descriptions:
+    threshold: 5
   agrirouter:
     threading:
       fixed-thread-pool-size: 200 #Number of threads in the fixed thread pool, default is 200. This has to be less than the max-in-flight value of the MQTT configuration.
