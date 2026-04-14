@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -346,7 +347,7 @@ public class DeviceDescriptionService {
 
     private boolean checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(String newDeviceDescription, String existingDeviceDescription) {
         log.debug("Comparing the new device description with the existing one based on their base 64 representation.");
-        return StringUtils.equals(newDeviceDescription, existingDeviceDescription);
+        return Strings.CS.equals(newDeviceDescription, existingDeviceDescription);
     }
 
     /**
