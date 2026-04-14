@@ -63,9 +63,9 @@ class DeviceDescriptionServiceTest {
         ReflectionTestUtils.setField(deviceDescriptionService, "deviceDescriptionThreshold", 3);
         when(deviceRepository.findAll()).thenReturn(List.of());
 
-        DeviceDescription dd1 = createDeviceDescription("1", "teamSet1", 100);
-        DeviceDescription dd2 = createDeviceDescription("2", "teamSet1", 200);
-        DeviceDescription dd3 = createDeviceDescription("3", "teamSet1", 300);
+        DeviceDescription dd1 = createDeviceDescription("1", 100);
+        DeviceDescription dd2 = createDeviceDescription("2", 200);
+        DeviceDescription dd3 = createDeviceDescription("3", 300);
 
         when(deviceDescriptionRepository.findAll()).thenReturn(List.of(dd1, dd2, dd3));
 
@@ -130,10 +130,10 @@ class DeviceDescriptionServiceTest {
         return deviceDescription;
     }
 
-    private DeviceDescription createDeviceDescription(String id, String teamSetContextId, long timestamp) {
+    private DeviceDescription createDeviceDescription(String id, long timestamp) {
         DeviceDescription deviceDescription = new DeviceDescription();
         deviceDescription.setExternalEndpointId(id);
-        deviceDescription.setTeamSetContextId(teamSetContextId);
+        deviceDescription.setTeamSetContextId("teamSet1");
         deviceDescription.setTimestamp(timestamp);
         return deviceDescription;
     }
