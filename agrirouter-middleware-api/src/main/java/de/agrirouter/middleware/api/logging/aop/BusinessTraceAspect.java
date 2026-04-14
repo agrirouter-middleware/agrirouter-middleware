@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BusinessTraceAspect {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * This method is used to trace the business logic for each public method.
