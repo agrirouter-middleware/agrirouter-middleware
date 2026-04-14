@@ -40,7 +40,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Service to handle business operations round about the device descriptions.
@@ -197,14 +196,10 @@ public class DeviceDescriptionService {
 
     private void pruneDeviceDescriptionCollection() {
         log.debug("Pruning the device description collection.");
-        final var allDeviceDescriptions = deviceDescriptionRepository.findAll();
-        Map<String, List<DeviceDescription>> grouped = allDeviceDescriptions.stream()
-                .filter(dd -> StringUtils.isNotBlank(dd.getTeamSetContextId()))
-                .collect(Collectors.groupingBy(DeviceDescription::getTeamSetContextId));
-
-        grouped.forEach((teamSetContextId, descriptions) -> {
+        deviceDescriptionRepository.findDistinctTeamSetContextIds().forEach(projection -> {
+            final var teamSetContextId = projection.getTeamSetContextId();
+            final var descriptions = deviceDescriptionRepository.findByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
             if (descriptions.size() > 1) {
-                descriptions.sort(Comparator.comparingLong(DeviceDescription::getTimestamp).reversed());
                 final var toDelete = descriptions.subList(1, descriptions.size());
                 log.debug("Deleting {} old device descriptions for team set context ID '{}'.", toDelete.size(), teamSetContextId);
                 deviceDescriptionRepository.deleteAll(toDelete);

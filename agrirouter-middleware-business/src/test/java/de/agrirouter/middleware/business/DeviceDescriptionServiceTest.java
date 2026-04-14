@@ -44,7 +44,7 @@ class DeviceDescriptionServiceTest {
         device.setDeviceDescriptions(deviceDescriptions);
 
         when(deviceRepository.findAll()).thenReturn(List.of(device));
-        when(deviceDescriptionRepository.findAll()).thenReturn(List.of());
+        when(deviceDescriptionRepository.findDistinctTeamSetContextIds()).thenReturn(List.of());
 
         // When
         deviceDescriptionService.pruneAll();
@@ -67,7 +67,11 @@ class DeviceDescriptionServiceTest {
         DeviceDescription dd2 = createDeviceDescription("2", 200);
         DeviceDescription dd3 = createDeviceDescription("3", 300);
 
-        when(deviceDescriptionRepository.findAll()).thenReturn(List.of(dd1, dd2, dd3));
+        DeviceDescriptionRepository.TeamSetContextIdOnly projection = () -> "teamSet1";
+        when(deviceDescriptionRepository.findDistinctTeamSetContextIds()).thenReturn(List.of(projection));
+        // Repository returns records newest-first (DESC); dd3 is newest and should be kept
+        when(deviceDescriptionRepository.findByTeamSetContextIdOrderByTimestampDesc("teamSet1"))
+                .thenReturn(List.of(dd3, dd2, dd1));
 
         // When
         deviceDescriptionService.pruneAll();
