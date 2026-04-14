@@ -198,7 +198,7 @@ public class DeviceDescriptionService {
         log.debug("Pruning the device description collection.");
         final var allDeviceDescriptions = deviceDescriptionRepository.findAll();
         Map<String, List<DeviceDescription>> grouped = allDeviceDescriptions.stream()
-                .filter(dd -> dd.getTeamSetContextId() != null)
+                .filter(dd -> StringUtils.isNotBlank(dd.getTeamSetContextId()))
                 .collect(Collectors.groupingBy(DeviceDescription::getTeamSetContextId));
 
         grouped.forEach((teamSetContextId, descriptions) -> {
