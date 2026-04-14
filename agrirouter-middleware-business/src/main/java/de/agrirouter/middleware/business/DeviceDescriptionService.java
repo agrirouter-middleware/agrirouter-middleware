@@ -187,8 +187,9 @@ public class DeviceDescriptionService {
         log.info("Pruning all device descriptions.");
         deviceRepository.findAll().forEach(device -> {
             log.debug("Pruning device descriptions for device '{}'.", device.getInternalDeviceId());
-            pruneDeviceDescriptions(device);
-            deviceRepository.save(device);
+            if (pruneDeviceDescriptions(device)) {
+                deviceRepository.save(device);
+            }
         });
         pruneDeviceDescriptionCollection();
         log.info("Finished pruning all device descriptions.");
@@ -211,12 +212,14 @@ public class DeviceDescriptionService {
         });
     }
 
-    private void pruneDeviceDescriptions(Device device) {
+    private boolean pruneDeviceDescriptions(Device device) {
         if (device.getDeviceDescriptions().size() > deviceDescriptionThreshold) {
             log.debug("The device description threshold has been reached, pruning the device descriptions.");
             final var prunedDeviceDescriptions = device.getDeviceDescriptions().subList(device.getDeviceDescriptions().size() - deviceDescriptionThreshold, device.getDeviceDescriptions().size());
             device.setDeviceDescriptions(new ArrayList<>(prunedDeviceDescriptions));
+            return true;
         }
+        return false;
     }
 
     private Optional<ClientName> decodeSafely(GrpcEfdi.Device d) {
