@@ -38,11 +38,10 @@ public class DeviceDescriptionMaintenanceController implements UnsecuredApiContr
     /**
      * Prune all device descriptions for all devices.
      *
-     * @return HTTP 200 after pruning.
+     * @return HTTP 200 with an empty body after pruning.
      */
     @PostMapping(
-            value = "/prune",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/prune"
     )
     @Operation(
             operationId = "maintenance.device-descriptions.prune",
