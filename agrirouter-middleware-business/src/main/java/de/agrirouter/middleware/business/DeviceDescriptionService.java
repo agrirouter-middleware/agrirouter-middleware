@@ -37,10 +37,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Service to handle business operations round about the device descriptions.
@@ -178,6 +177,37 @@ public class DeviceDescriptionService {
                 log.warn("There are no devices within the device description. Skipping the device description.");
             }
         }
+    }
+
+    /**
+     * Prune all device descriptions for all devices.
+     */
+    public void pruneAll() {
+        log.info("Pruning all device descriptions.");
+        deviceRepository.findAll().forEach(device -> {
+            log.debug("Pruning device descriptions for device '{}'.", device.getInternalDeviceId());
+            pruneDeviceDescriptions(device);
+            deviceRepository.save(device);
+        });
+        pruneDeviceDescriptionCollection();
+        log.info("Finished pruning all device descriptions.");
+    }
+
+    private void pruneDeviceDescriptionCollection() {
+        log.debug("Pruning the device description collection.");
+        final var allDeviceDescriptions = deviceDescriptionRepository.findAll();
+        Map<String, List<DeviceDescription>> grouped = allDeviceDescriptions.stream()
+                .filter(dd -> dd.getTeamSetContextId() != null)
+                .collect(Collectors.groupingBy(DeviceDescription::getTeamSetContextId));
+
+        grouped.forEach((teamSetContextId, descriptions) -> {
+            if (descriptions.size() > 1) {
+                descriptions.sort(Comparator.comparingLong(DeviceDescription::getTimestamp).reversed());
+                final var toDelete = descriptions.subList(1, descriptions.size());
+                log.debug("Deleting {} old device descriptions for team set context ID '{}'.", toDelete.size(), teamSetContextId);
+                deviceDescriptionRepository.deleteAll(toDelete);
+            }
+        });
     }
 
     private void pruneDeviceDescriptions(Device device) {
