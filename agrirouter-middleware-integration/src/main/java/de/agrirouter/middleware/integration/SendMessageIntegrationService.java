@@ -1,6 +1,5 @@
 package de.agrirouter.middleware.integration;
 
-import agrirouter.commons.MessageOuterClass;
 import agrirouter.request.Request;
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
 import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageService;
@@ -9,7 +8,6 @@ import com.dke.data.agrirouter.api.service.parameters.PayloadParameters;
 import com.dke.data.agrirouter.api.service.parameters.SendMessageParameters;
 import com.dke.data.agrirouter.impl.common.MessageIdService;
 import com.dke.data.agrirouter.impl.messaging.SequenceNumberService;
-import com.dke.data.agrirouter.impl.messaging.mqtt.SendMessageServiceImpl;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.Endpoint;
@@ -53,14 +51,23 @@ public class SendMessageIntegrationService {
 
         final var messageParameterTuples = encodeMessageService.chunkAndBase64EncodeEachChunk(messageHeaderParameters, payloadParameters, onboardingResponse);
         final var encodedMessages = encodeMessageService.encode(messageParameterTuples);
-        SendMessageServiceImpl sendMessageService = new SendMessageServiceImpl(iMqttClient.get());
+
         SendMessageParameters sendMessageParameters = new SendMessageParameters();
         sendMessageParameters.setOnboardingResponse(onboardingResponse);
         sendMessageParameters.setEncodedMessages(encodedMessages);
         if (StringUtils.isNotBlank(messagingIntegrationParameters.teamSetContextId())) {
             sendMessageParameters.setTeamsetContextId(messagingIntegrationParameters.teamSetContextId());
         }
-        sendMessageService.send(sendMessageParameters);
+
+        var messageBodyCreator = new com.dke.data.agrirouter.impl.messaging.MessageBodyCreator() {
+        };
+        var messageAsJson = messageBodyCreator.createMessageBody(sendMessageParameters);
+        var payload = messageAsJson.getBytes();
+
+        iMqttClient.get().publishWith()
+                .topic(onboardingResponse.getConnectionCriteria().getMeasures())
+                .payload(payload)
+                .send();
 
         log.debug("Saving message with ID '{}'  waiting for ACK.", messageHeaderParameters.getApplicationMessageId());
         MessageWaitingForAcknowledgement messageWaitingForAcknowledgement = new MessageWaitingForAcknowledgement();
@@ -85,7 +92,7 @@ public class SendMessageIntegrationService {
         messageHeaderParameters.setApplicationMessageId(MessageIdService.generateMessageId());
         messageHeaderParameters.setApplicationMessageSeqNo(SequenceNumberService.generateSequenceNumberForEndpoint(onboardingResponse));
         messageHeaderParameters.setTechnicalMessageType(messagingIntegrationParameters.technicalMessageType());
-        final var metadataBuilder = MessageOuterClass.Metadata.newBuilder();
+        final var metadataBuilder = agrirouter.commons.MessageOuterClass.Metadata.newBuilder();
         if (StringUtils.isNotBlank(messagingIntegrationParameters.filename())) {
             metadataBuilder.setFileName(messagingIntegrationParameters.filename());
         }

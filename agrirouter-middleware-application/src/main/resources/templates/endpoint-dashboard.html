@@ -57,230 +57,112 @@
                 </div>
             </div>
         </div>
-        <div class="mdl-cell mdl-cell--6-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.technical-connection-state}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <div class="mdl-grid">
-
-                        <div class="mdl-cell--4-col mdl-typography--text-left">
-                            <p class="mdl-typography--font-bold" th:text="#{domain.endpoint.active}"></p>
-                        </div>
-                        <div class="mdl-cell--8-col mdl-typography--text-left">
-                            <i th:class="${endpoint.deactivated}?'material-icons mdl-color-text--red':'material-icons mdl-color-text--green'"
-                               th:text="${endpoint.deactivated}?'block':'check_small'"></i>
-                        </div>
-
-                        <div class="mdl-cell--4-col mdl-typography--text-left">
-                            <p class="mdl-typography--font-bold"
-                               th:text="#{domain.endpoint.pending-delivery-tokens.nr}"></p>
-                        </div>
-                        <div class="mdl-cell--8-col mdl-typography--text-left">
-                            <p th:text="${technicalConnectionState.nrOfPendingDeliveryTokens}"></p>
-                        </div>
-
-                        <div class="mdl-cell--4-col mdl-typography--text-left">
-                            <p class="mdl-typography--font-bold"
-                               th:text="#{domain.endpoint.connection-errors.nr}"></p>
-                        </div>
-                        <div class="mdl-cell--8-col mdl-typography--text-left">
-                            <p th:text="${technicalConnectionState.connectionErrors.size}"></p>
-                        </div>
-
-                        <div class="mdl-cell--12-col mdl-typography--text-left">
-                            <p class="mdl-typography--font-bold has-the-same-color-as-the-background"
-                               th:text="#{dummy.placeholder}"></p>
-                        </div>
-
-                        <div class="mdl-cell--12-col mdl-typography--text-left">
-                            <p class="mdl-typography--font-bold has-the-same-color-as-the-background"
-                               th:text="#{dummy.placeholder}"></p>
-                        </div>
+        <div class="mdl-cell mdl-cell--12-col"
+             th:if="${null != endpoint.connectedVirtualEndpoints && !endpoint.connectedVirtualEndpoints.isEmpty()}">
+            <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+                <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                    <div class="mdl-card__title">
+                        <h2 class="mdl-card__title-text"
+                            th:text="#{domain.endpoint.virtual-endpoints}"></h2>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                            <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.endpoint.active}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.endpoint.external-endpoint-id}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.endpoint.agrirouter-endpoint-id}"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="vcu: ${endpoint.connectedVirtualEndpoints}">
+                                <td>
+                                    <i th:class="${vcu.deactivated}?'material-icons mdl-color-text--red':'material-icons mdl-color-text--green'"
+                                       th:text="${vcu.deactivated}?'block':'check_small'"></i></td>
+                                <td th:text="${vcu.externalEndpointId}"></td>
+                                <td th:text="${vcu.agrirouterEndpointId}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="mdl-grid"
-         th:if="${null != endpoint.connectedVirtualEndpoints && !endpoint.connectedVirtualEndpoints.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.virtual-endpoints}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric" th:text="#{domain.endpoint.active}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.external-endpoint-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.agrirouter-endpoint-id}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="vcu: ${endpoint.connectedVirtualEndpoints}">
-                            <td>
-                                <i th:class="${vcu.deactivated}?'material-icons mdl-color-text--red':'material-icons mdl-color-text--green'"
-                                   th:text="${vcu.deactivated}?'block':'check_small'"></i></td>
-                            <td th:text="${vcu.externalEndpointId}"></td>
-                            <td th:text="${vcu.agrirouterEndpointId}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mdl-grid" th:if="${!connectionErrors.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.connection-errors}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.connection-errors.timestamp}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.connection-errors.message}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="connectionError: ${Connectionserrors}">
-                            <td th:text="${#dates.format(error.pointInTime * 1000,'dd.MM.yyyy HH:mm')}"></td>
-                            <td th:text="${error.errorMessage}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
-                    <form action="#"
-                          th:action="@{/endpoint-dashboard/clear-connection-errors(externalEndpointId=${endpoint.externalEndpointId})}"
-                          method="post">
-                        <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                               th:value="#{endpoint.clear-all}"/>
-                    </form>
+        <div class="mdl-grid" th:if="${!cloudOnboardingFailures.isEmpty()}">
+            <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+                <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                    <div class="mdl-card__title">
+                        <h2 class="mdl-card__title-text"
+                            th:text="#{domain.endpoint.cloud-onboarding-failures}"></h2>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                            <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.endpoint.cloud-onboarding-failures.timestamp}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.endpoint.cloud-onboarding-failures.virtual-endpoint-id}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.endpoint.cloud-onboarding-failures.error-code}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.endpoint.cloud-onboarding-failures.error-message}"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="cloudOnboardingFailure: ${cloudOnboardingFailures}">
+                                <td th:text="${#temporals.format(cloudOnboardingFailure.timestamp,'dd.MM.yyyy HH:mm')}"></td>
+                                <td th:text="${cloudOnboardingFailure.virtualExternalEndpointId}"></td>
+                                <td th:text="${cloudOnboardingFailure.errorCode}"></td>
+                                <td th:text="${cloudOnboardingFailure.errorMessage}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="mdl-grid" th:if="${!cloudOnboardingFailures.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.cloud-onboarding-failures}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.cloud-onboarding-failures.timestamp}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.cloud-onboarding-failures.virtual-endpoint-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.cloud-onboarding-failures.error-code}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.endpoint.cloud-onboarding-failures.error-message}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="cloudOnboardingFailure: ${cloudOnboardingFailures}">
-                            <td th:text="${#temporals.format(cloudOnboardingFailure.timestamp,'dd.MM.yyyy HH:mm')}"></td>
-                            <td th:text="${cloudOnboardingFailure.virtualExternalEndpointId}"></td>
-                            <td th:text="${cloudOnboardingFailure.errorCode}"></td>
-                            <td th:text="${cloudOnboardingFailure.errorMessage}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mdl-grid" th:if="${!messagesWaitingForAcknowledgement.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.messages-waiting-for-acknowledgement}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.message-waiting-for-acknowledgement.created}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.message-waiting-for-acknowledgement.agrirouter-endpoint-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.message-waiting-for-acknowledgement.message-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.message-waiting-for-acknowledgement.technical-message-type}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="messageWaitingForAcknowledgement: ${messagesWaitingForAcknowledgement}">
-                            <td th:text="${#dates.format(messageWaitingForAcknowledgement.created * 1000,'dd.MM.yyyy HH:mm')}"></td>
-                            <td th:text="${messageWaitingForAcknowledgement.agrirouterEndpointId}"></td>
-                            <td th:text="${messageWaitingForAcknowledgement.messageId}"></td>
-                            <td th:text="${messageWaitingForAcknowledgement.technicalMessageType}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
-                    <form action="#"
-                          th:action="@{/endpoint-dashboard/clear-messages-waiting-for-ack(externalEndpointId=${endpoint.externalEndpointId})}"
-                          method="post">
-                        <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                               th:value="#{endpoint.clear-all}"/>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mdl-grid" th:if="${!pendingDeliveryTokens.isEmpty()}">
-        <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-            <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text"
-                        th:text="#{domain.endpoint.pending-delivery-tokens}"></h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th th:text="#{domain.delivery-token.message-id}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.delivery-token.granted-qos}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.delivery-token.topics}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.delivery-token.complete}"></th>
-                            <th class="mdl-data-table__cell--non-numeric"
-                                th:text="#{domain.delivery-token.message-qos}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="pendingDeliveryToken: ${pendingDeliveryTokens}">
-                            <td th:text="${pendingDeliveryToken.messageId}"></td>
-                            <td th:text="${pendingDeliveryToken.grantedQos}"></td>
-                            <td th:text="${pendingDeliveryToken.topics}"></td>
-                            <td th:text="${pendingDeliveryToken.complete}"></td>
-                            <td th:text="${pendingDeliveryToken.messageQos}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
+        <div class="mdl-grid" th:if="${!messagesWaitingForAcknowledgement.isEmpty()}">
+            <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+                <div class="mdl-card mdl-shadow--2dp mdl-card--expand">
+                    <div class="mdl-card__title">
+                        <h2 class="mdl-card__title-text"
+                            th:text="#{domain.endpoint.messages-waiting-for-acknowledgement}"></h2>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                            <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.message-waiting-for-acknowledgement.created}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.message-waiting-for-acknowledgement.agrirouter-endpoint-id}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.message-waiting-for-acknowledgement.message-id}"></th>
+                                <th class="mdl-data-table__cell--non-numeric"
+                                    th:text="#{domain.message-waiting-for-acknowledgement.technical-message-type}"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="messageWaitingForAcknowledgement: ${messagesWaitingForAcknowledgement}">
+                                <td th:text="${#dates.format(messageWaitingForAcknowledgement.created * 1000,'dd.MM.yyyy HH:mm')}"></td>
+                                <td th:text="${messageWaitingForAcknowledgement.agrirouterEndpointId}"></td>
+                                <td th:text="${messageWaitingForAcknowledgement.messageId}"></td>
+                                <td th:text="${messageWaitingForAcknowledgement.technicalMessageType}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mdl-card__actions mdl-card--border mdl-typography--text-left">
+                        <form action="#"
+                              th:action="@{/endpoint-dashboard/clear-messages-waiting-for-ack(externalEndpointId=${endpoint.externalEndpointId})}"
+                              method="post">
+                            <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                                   th:value="#{endpoint.clear-all}"/>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

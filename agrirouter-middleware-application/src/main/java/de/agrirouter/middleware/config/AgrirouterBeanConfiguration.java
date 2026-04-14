@@ -10,8 +10,6 @@ import com.dke.data.agrirouter.api.service.messaging.encoding.EncodeMessageServi
 import com.dke.data.agrirouter.api.service.onboard.OnboardingService;
 import com.dke.data.agrirouter.api.service.onboard.secured.AuthorizationRequestService;
 import com.dke.data.agrirouter.convenience.decode.DecodeCloudOnboardingResponsesService;
-import com.dke.data.agrirouter.convenience.mqtt.client.MqttClientService;
-import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
 import com.dke.data.agrirouter.impl.messaging.encoding.DecodeMessageServiceImpl;
 import com.dke.data.agrirouter.impl.messaging.encoding.DecodePushNotificationServiceImpl;
 import com.dke.data.agrirouter.impl.messaging.encoding.EncodeMessageServiceImpl;
@@ -79,28 +77,6 @@ public class AgrirouterBeanConfiguration {
     @Bean
     public DecodeMessageService decodeMessageService() {
         return new DecodeMessageServiceImpl();
-    }
-
-    /**
-     * Create an instance of the service to create MQTT clients.
-     *
-     * @param environment The current environment, injected.
-     * @return -
-     */
-    @Bean
-    public MqttClientService mqqMqttClientService(Environment environment) {
-        return new MqttClientService(environment);
-    }
-
-    /**
-     * Create an instance of the service for MQTT options.
-     *
-     * @param environment The current environment, injected.
-     * @return -
-     */
-    @Bean
-    public MqttOptionService mqttOptionService(Environment environment) {
-        return new MqttOptionService(environment);
     }
 
     /**

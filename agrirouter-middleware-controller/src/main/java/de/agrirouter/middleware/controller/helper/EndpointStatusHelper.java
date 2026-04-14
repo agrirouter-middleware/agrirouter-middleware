@@ -7,7 +7,6 @@ import de.agrirouter.middleware.controller.dto.response.domain.*;
 import de.agrirouter.middleware.domain.Application;
 import de.agrirouter.middleware.domain.Endpoint;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
-import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import org.modelmapper.ModelMapper;
 
 import java.time.Instant;
@@ -134,20 +133,4 @@ public class EndpointStatusHelper {
         return dto;
     }
 
-    /**
-     * Map the technical connection status.
-     *
-     * @param modelMapper                 -
-     * @param endpointService             -
-     * @param mqttClientManagementService -
-     * @param endpoint                    -
-     * @return -
-     */
-    public static TechnicalConnectionStateDto mapTechnicalConnectionState(ModelMapper modelMapper, EndpointService endpointService, MqttClientManagementService mqttClientManagementService, Endpoint endpoint) {
-        final var dto = new TechnicalConnectionStateDto();
-        modelMapper.map(endpoint, dto);
-        dto.setTechnicalConnectionState(mqttClientManagementService.getTechnicalState(endpoint));
-        dto.setConnectionState(mapTechnicalConnectionState(endpointService, endpoint));
-        return dto;
-    }
 }

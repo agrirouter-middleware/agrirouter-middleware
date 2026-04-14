@@ -6,7 +6,6 @@ import de.agrirouter.middleware.business.EndpointService;
 import de.agrirouter.middleware.business.cache.cloud.CloudOnboardingFailureCache;
 import de.agrirouter.middleware.controller.dto.response.domain.MessageWaitingForAcknowledgementDto;
 import de.agrirouter.middleware.integration.ack.MessageWaitingForAcknowledgementService;
-import de.agrirouter.middleware.integration.mqtt.MqttClientManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -30,7 +29,6 @@ import java.util.Date;
 public class EndpointDashboardUIController extends UIController {
 
     private final EndpointService endpointService;
-    private final MqttClientManagementService mqttClientManagementService;
     private final ApplicationService applicationService;
     private final MessageWaitingForAcknowledgementService messageWaitingForAcknowledgementService;
     private final ModelMapper modelMapper;
@@ -53,14 +51,7 @@ public class EndpointDashboardUIController extends UIController {
 
             model.addAttribute("agrirouterApplication", application);
 
-            final var technicalConnectionState = mqttClientManagementService.getTechnicalState(endpoint);
-            model.addAttribute("technicalConnectionState", technicalConnectionState);
-
-            model.addAttribute("connectionErrors", technicalConnectionState.connectionErrors());
-
             model.addAttribute("cloudOnboardingFailures", cloudOnboardingFailureCache.getAll(endpoint.getExternalEndpointId()));
-
-            model.addAttribute("pendingDeliveryTokens", mqttClientManagementService.getPendingDeliveryTokens(endpoint));
 
             final var messagesWaitingForAcknowledgement = new ArrayList<>(messageWaitingForAcknowledgementService.findAllForAgrirouterEndpointId(endpoint.getAgrirouterEndpointId())
                     .stream()

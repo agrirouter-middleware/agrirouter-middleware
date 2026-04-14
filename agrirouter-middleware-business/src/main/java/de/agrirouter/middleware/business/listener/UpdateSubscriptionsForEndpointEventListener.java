@@ -129,7 +129,7 @@ public class UpdateSubscriptionsForEndpointEventListener {
     private void enableSubscriptions(Endpoint endpoint, List<SetSubscriptionParameters.Subscription> subscriptions) {
         log.debug("Enable the subscriptions for the endpoint with the id '{}'.", endpoint.getExternalEndpointId());
         final var iMqttClient = mqttClientManagementService.get(endpoint);
-        if (iMqttClient.isEmpty() || !iMqttClient.get().isConnected()) {
+        if (iMqttClient.isEmpty() || !iMqttClient.get().getState().isConnected()) {
             log.error("No MQTT client found for endpoint with the external endpoint ID '{}'.", endpoint.getExternalEndpointId());
         } else {
             SetSubscriptionParameters parameters = new SetSubscriptionParameters();

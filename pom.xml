@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>4.0.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -146,6 +146,10 @@
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-nop</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.eclipse.paho</groupId>
+                        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -156,6 +160,10 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.eclipse.paho</groupId>
+                        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -254,6 +262,13 @@
                 <version>1.21.0</version>
             </dependency>
 
+            <!-- HIVEMQ -->
+            <dependency>
+                <groupId>com.hivemq</groupId>
+                <artifactId>hivemq-mqtt-client</artifactId>
+                <version>1.3.12</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -284,7 +299,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

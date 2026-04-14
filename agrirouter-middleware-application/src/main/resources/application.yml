@@ -3,11 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${MYSQL_URL}
-
-  data:
-    mongodb:
-      uri: ${MONGODB_URI}
+    url: ${MYSQL_URL:jdbc:mariadb://localhost:3306/agriroutermiddleware?useUnicode=true&characterEncoding=UTF-8&user=mysqluser&password=changeit}
+  mongodb:
+    uri: ${MONGODB_URI:mongodb://mongouser:changeit@localhost:27017/agriroutermiddleware}
 
   jpa:
     database: default
