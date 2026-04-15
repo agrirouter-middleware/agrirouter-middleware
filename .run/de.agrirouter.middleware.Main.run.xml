@@ -1,8 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-      <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev"/>
+    <configuration default="false" name="de.agrirouter.middleware.Main" type="SpringBootApplicationConfigurationType"
+                   factoryName="Spring Boot">
+        <option name="ACTIVE_PROFILES" value="maintenance, connect-agrirouter-prod, dev"/>
     <envs>
-      <env name="MONGODB_URI" value="mongodb://mongouser:changeit@localhost:27017/agriroutermiddleware" />
+        <env name="MONGODB_URI"
+             value="mongodb://mongouser:changeit@localhost:27017/agriroutermiddleware?retryWrites=true&amp;w=majority"/>
         <env name="MYSQL_URL"
              value="jdbc:mariadb://localhost:3306/agriroutermiddleware?useUnicode=true&amp;characterEncoding=UTF-8&amp;user=mysqluser&amp;password=changeit"/>
     </envs>

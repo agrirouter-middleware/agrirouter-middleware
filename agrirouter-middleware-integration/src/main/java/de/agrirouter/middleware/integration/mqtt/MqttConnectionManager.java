@@ -1,9 +1,10 @@
 package de.agrirouter.middleware.integration.mqtt;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
-import com.dke.data.agrirouter.api.env.Environment;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
-import com.dke.data.agrirouter.convenience.mqtt.client.MqttOptionService;
+import com.hivemq.client.mqtt.MqttClientSslConfig;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3Client;
 import de.agrirouter.middleware.api.errorhandling.BusinessException;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.domain.Endpoint;
@@ -14,18 +15,20 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.ByteArrayInputStream;
+import java.security.KeyStore;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Component
@@ -36,8 +39,6 @@ public class MqttConnectionManager {
     private final Map<String, CachedMqttClient> cachedMqttClients = new HashMap<>();
 
     private final ApplicationRepository applicationRepository;
-    private final Environment environment;
-    private final MqttOptionService mqttOptionService;
     private final MqttStatistics mqttStatistics;
     private final ApplicationContext applicationContext;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
@@ -50,9 +51,6 @@ public class MqttConnectionManager {
 
     @Value("${app.agrirouter.mqtt.options.connection-timeout}")
     private int connectionTimeout;
-
-    @Value("${app.agrirouter.mqtt.options.max-in-flight}")
-    private int maxInFlight;
 
     @PostConstruct
     public void connectAllExistingRouterDevices() {
@@ -67,9 +65,8 @@ public class MqttConnectionManager {
                     final var newCachedMqttClient = new CachedMqttClient(existingRouterDevice.getDeviceAlternateId(), existingRouterDevice.getConnectionCriteria().getClientId(), Optional.of(mqttClient), new ArrayList<>());
                     cachedMqttClients.put(existingRouterDevice.getConnectionCriteria().getClientId(), newCachedMqttClient);
                     log.debug("Cached MQTT client for application has been created and is ready to be used: {}", application.getApplicationId());
-                } catch (MqttException e) {
-                    log.error("Could not connect router device for application: {}", application.getApplicationId(), e);
-                    throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(application.getApplicationId()));
+                } catch (BusinessException e) {
+                    log.warn("Could not connect router device for application '{}', skipping: {}", application.getApplicationId(), e.getErrorMessage().asLogMessage());
                 }
             } else {
                 log.warn("Router device not found for application: {}", application.getApplicationId());
@@ -93,9 +90,8 @@ public class MqttConnectionManager {
                         final var newCachedMqttClient = new CachedMqttClient(existingRouterDevice.getDeviceAlternateId(), existingRouterDevice.getConnectionCriteria().getClientId(), Optional.of(mqttClient), new ArrayList<>());
                         cachedMqttClients.put(existingRouterDevice.getConnectionCriteria().getClientId(), newCachedMqttClient);
                         log.debug("Cached MQTT client for application has been created and is ready to be used: {}", application.getApplicationId());
-                    } catch (MqttException e) {
-                        log.error("Could not connect router device for application: {}", application.getApplicationId(), e);
-                        throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(application.getApplicationId()));
+                    } catch (BusinessException e) {
+                        log.warn("Could not connect router device for application '{}', skipping: {}", application.getApplicationId(), e.getErrorMessage().asLogMessage());
                     }
                 }
             } else {
@@ -117,115 +113,100 @@ public class MqttConnectionManager {
         return existingCachedMqttClient;
     }
 
-    private void subscribeIfNecessary(OnboardingResponse onboardingResponse, IMqttClient mqttClient) {
+    private void subscribeIfNecessary(OnboardingResponse onboardingResponse, Mqtt3AsyncClient mqttClient) {
         var topic = onboardingResponse.getConnectionCriteria().getCommands();
         log.debug("Checking if the subscriptions for endpoint '{}' are already sent.", onboardingResponse.getSensorAlternateId());
         log.debug("The topic for the incoming commands is '{}'.", topic);
-        try {
-            if (subscriptionsForMqttClient.exists(mqttClient.getClientId(), topic)) {
-                log.debug("Already sent subscriptions for endpoint '{}', not sending again.", onboardingResponse.getSensorAlternateId());
-            } else {
-                log.debug("Sending subscriptions for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
-                var iMqttToken = mqttClient.subscribeWithResponse(topic);
-                if (iMqttToken.isComplete()) {
-                    subscriptionsForMqttClient.add(mqttClient.getClientId(), topic);
-                    log.debug("Successfully subscribed to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
+        if (subscriptionsForMqttClient.exists(mqttClient.getConfig().getClientIdentifier().get().toString(), topic)) {
+            log.debug("Already sent subscriptions for endpoint '{}', not sending again.", onboardingResponse.getSensorAlternateId());
+        } else {
+            log.debug("Sending subscriptions for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
+            final var subscribeFuture = mqttClient.subscribeWith()
+                    .topicFilter(topic)
+                    // TODO add QoS
+                    .send();
+
+            subscribeFuture.whenComplete((subAck, throwable) -> {
+                if (throwable != null) {
+                    log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), throwable);
                 } else {
-                    log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
+                    subscriptionsForMqttClient.add(mqttClient.getConfig().getClientIdentifier().get().toString(), topic);
+                    log.debug("Successfully subscribed to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId());
                 }
+            });
+
+            try {
+                subscribeFuture.get(connectionTimeout, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Subscription attempt interrupted for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), e);
+            } catch (ExecutionException | TimeoutException e) {
+                log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), e);
             }
-        } catch (MqttException e) {
-            log.error("Could not subscribe to the commands for endpoint '{}'.", onboardingResponse.getSensorAlternateId(), e);
         }
     }
 
-    private IMqttClient initMqttClient(RouterDevice endpoint) throws MqttException {
+    private Mqtt3AsyncClient initMqttClient(RouterDevice endpoint) {
         mqttStatistics.increaseNumberOfClientInitializations();
         final var mqttClient = createMqttClient(endpoint);
-        final var mqttConnectOptions = mqttOptionService.createMqttConnectOptions(endpoint.asAgrirouterRouterDevice());
-        mqttConnectOptions.setCleanSession(cleanSession);
-        mqttConnectOptions.setKeepAliveInterval(keepAliveInterval);
-        mqttConnectOptions.setConnectionTimeout(connectionTimeout);
-        mqttConnectOptions.setMaxInflight(maxInFlight);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
-        messageHandlingCallback.setClientIdOfTheRouterDevice(endpoint.getConnectionCriteria().getClientId());
-        mqttClient.setCallback(messageHandlingCallback);
-        mqttClient.connect(mqttConnectOptions);
+
+        mqttClient.publishes(com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL, messageHandlingCallback);
+
+        final var connectFuture = mqttClient.connectWith()
+                .cleanSession(cleanSession)
+                .keepAlive(keepAliveInterval)
+                .send();
+
+        try {
+            connectFuture.get(connectionTimeout, TimeUnit.SECONDS);
+            log.info("Successfully connected MQTT client for application: {}", endpoint.getConnectionCriteria().getClientId());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Connection attempt interrupted for MQTT client: {}", endpoint.getConnectionCriteria().getClientId(), e);
+            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getConnectionCriteria().getClientId()), e);
+        } catch (ExecutionException | TimeoutException e) {
+            log.error("Could not connect MQTT client for application: {}", endpoint.getConnectionCriteria().getClientId(), e);
+            throw new BusinessException(ErrorMessageFactory.couldNotConnectMqttClient(endpoint.getConnectionCriteria().getClientId()), e);
+        }
+
         return mqttClient;
     }
 
-    private IMqttClient createMqttClient(RouterDevice onboardingResponse) {
-        try {
-            var host = onboardingResponse.getConnectionCriteria().getHost();
-            var port = onboardingResponse.getConnectionCriteria().getPort();
-            var clientId = onboardingResponse.getConnectionCriteria().getClientId();
-            if (StringUtils.isAnyBlank(host, port, clientId)) {
-                throw new CouldNotCreateMqttClientException("Currently there are parameters missing. Did you onboard correctly - host, port or client id are missing.");
-            } else {
-                return new MqttClient(this.environment.getMqttServerUrl(host, port), Objects.requireNonNull(clientId), new MemoryPersistence());
+    private Mqtt3AsyncClient createMqttClient(RouterDevice onboardingResponse) {
+        var host = onboardingResponse.getConnectionCriteria().getHost();
+        var port = onboardingResponse.getConnectionCriteria().getPort();
+        var clientId = onboardingResponse.getConnectionCriteria().getClientId();
+        if (StringUtils.isAnyBlank(host, port, clientId)) {
+            throw new CouldNotCreateMqttClientException("Currently there are parameters missing. Did you onboard correctly - host, port or client id are missing.");
+        } else {
+            try {
+                return Mqtt3Client.builder()
+                        .identifier(clientId)
+                        .serverHost(host)
+                        .serverPort(Integer.parseInt(port))
+                        .sslConfig(createMqttClientSslConfig(onboardingResponse.getAuthentication()))
+                        .buildAsync();
+            } catch (Exception e) {
+                throw new CouldNotCreateMqttClientException("Could not create MQTT client.", e);
             }
-        } catch (MqttException var5) {
-            throw new CouldNotCreateMqttClientException("Could not create MQTT client.", var5);
         }
     }
 
-    /**
-     * Determine the technical connection state.
-     *
-     * @param endpoint -
-     * @return -
-     */
-    public TechnicalConnectionState getTechnicalState(Endpoint endpoint) {
-        try {
-            var onboardingResponse = endpoint.asOnboardingResponse();
-            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-            if (cachedMqttClient != null) {
-                if (cachedMqttClient.mqttClient().isPresent()) {
-                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                    final var nrOfPendingDeliveryTokens = iMqttClient.getPendingDeliveryTokens().length;
-                    final var pendingDeliveryTokens = new ArrayList<PendingDeliveryToken>();
-                    Arrays.stream(iMqttClient.getPendingDeliveryTokens()).forEach(token -> {
-                        try {
-                            final var messageId = token.getMessageId();
-                            final var grantedQos = token.getGrantedQos();
-                            final var topics = token.getTopics();
-                            final var complete = token.isComplete();
-                            final var message = token.getMessage();
-                            int qos = message.getQos();
-                            pendingDeliveryTokens.add(new PendingDeliveryToken(messageId, grantedQos, topics, complete, qos));
-                        } catch (Exception e) {
-                            log.error("Error while fetching the technical state of the MQTT client for endpoint with the MQTT client ID '{}'. Skipping this one.", onboardingResponse.getConnectionCriteria().getClientId());
-                        }
-                    });
-                    return new TechnicalConnectionState(nrOfPendingDeliveryTokens, pendingDeliveryTokens, cachedMqttClient.connectionErrors());
-                }
-            }
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
-        }
-        return new TechnicalConnectionState(0, Collections.emptyList(), Collections.emptyList());
-    }
+    private MqttClientSslConfig createMqttClientSslConfig(de.agrirouter.middleware.domain.Authentication authentication) throws Exception {
+        var keyStore = KeyStore.getInstance("PKCS12");
+        keyStore.load(new ByteArrayInputStream(Base64.getDecoder().decode(authentication.getCertificate())), authentication.getSecret().toCharArray());
 
-    /**
-     * Get all pending delivery tokens for the endpoint.
-     *
-     * @param endpoint The endpoint.
-     * @return The list of pending delivery tokens.
-     */
-    public List<IMqttDeliveryToken> getPendingDeliveryTokens(Endpoint endpoint) {
-        try {
-            final var onboardingResponse = endpoint.asOnboardingResponse();
-            final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-            if (cachedMqttClient != null) {
-                if (cachedMqttClient.mqttClient().isPresent()) {
-                    IMqttClient iMqttClient = cachedMqttClient.mqttClient().get();
-                    return Arrays.asList(iMqttClient.getPendingDeliveryTokens());
-                }
-            }
-        } catch (BusinessException e) {
-            log.error(e.getErrorMessage().asLogMessage());
-        }
-        return Collections.emptyList();
+        var keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, authentication.getSecret().toCharArray());
+
+        var trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init((KeyStore) null);
+
+        return MqttClientSslConfig.builder()
+                .keyManagerFactory(keyManagerFactory)
+                .trustManagerFactory(trustManagerFactory)
+                .build();
     }
 
     /**
@@ -247,7 +228,7 @@ public class MqttConnectionManager {
      * @return The number of active connections.
      */
     long getNumberOfActiveConnections() {
-        return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().isConnected()).count();
+        return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isPresent() && cachedMqttClient.mqttClient().get().getState().isConnected()).count();
     }
 
     /**
@@ -256,7 +237,7 @@ public class MqttConnectionManager {
      * @return The number of inactive connections.
      */
     long getNumberOfInactiveConnections() {
-        return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().isConnected()).count();
+        return cachedMqttClients.values().stream().filter(cachedMqttClient -> cachedMqttClient.mqttClient().isEmpty() || !cachedMqttClient.mqttClient().get().getState().isConnected()).count();
     }
 
     /**
@@ -269,8 +250,8 @@ public class MqttConnectionManager {
         cachedMqttClients.forEach((key, cachedMqttClient) -> {
             if (cachedMqttClient.mqttClient().isPresent()) {
                 var iMqttClient = cachedMqttClient.mqttClient().get();
-                var status = iMqttClient.isConnected() ? "CONNECTED" : "DISCONNECTED";
-                mqttConnectionStatus.add(MqttConnectionStatus.builder().key(key).clientId(iMqttClient.getClientId()).connectionStatus(status).build());
+                var status = iMqttClient.getState().isConnected() ? "CONNECTED" : "DISCONNECTED";
+                mqttConnectionStatus.add(MqttConnectionStatus.builder().key(key).clientId(iMqttClient.getConfig().getClientIdentifier().get().toString()).connectionStatus(status).build());
             } else {
                 mqttConnectionStatus.add(MqttConnectionStatus.builder().key(key).clientId("n.a.").connectionStatus("EMPTY").build());
             }
@@ -293,8 +274,8 @@ public class MqttConnectionManager {
                     var iMqttClient = cachedMqttClient.mqttClient().get();
                     return new ConnectionState(cachedMqttClient.id(),
                             true,
-                            iMqttClient.isConnected(),
-                            subscriptionsForMqttClient.exists(iMqttClient.getClientId(), onboardingResponse.getConnectionCriteria().getCommands()),
+                            iMqttClient.getState().isConnected(),
+                            subscriptionsForMqttClient.exists(iMqttClient.getConfig().getClientIdentifier().get().toString(), onboardingResponse.getConnectionCriteria().getCommands()),
                             cachedMqttClient.connectionErrors());
                 } else {
                     return new ConnectionState(cachedMqttClient.id(),

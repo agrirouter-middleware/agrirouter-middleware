@@ -29,15 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -56,6 +57,9 @@ public class DeviceDescriptionService {
     private final SendMessageIntegrationService sendMessageIntegrationService;
     private final BusinessOperationLogService businessOperationLogService;
     private final TransientMachineRegistrationCache machineRegistrationCache;
+
+    @Value("${app.device-descriptions.threshold:20}")
+    private int deviceDescriptionThreshold;
 
     /**
      * Save a device description received from the AR.
@@ -153,6 +157,7 @@ public class DeviceDescriptionService {
                                 device.setInternalDeviceId(IdFactory.deviceId());
                             }
                             device.getDeviceDescriptions().add(deviceDescription);
+                            pruneDeviceDescriptions(device);
                             deviceRepository.save(device);
                         }, () -> {
                             log.debug("There has been no device found, creating new device.");
@@ -163,6 +168,7 @@ public class DeviceDescriptionService {
                             device.setAgrirouterEndpointId(endpoint.getAgrirouterEndpointId());
                             device.setSerialNumber(d.getDeviceSerialNumber());
                             device.getDeviceDescriptions().add(deviceDescription);
+                            pruneDeviceDescriptions(device);
                             deviceRepository.save(device);
                         });
                     }, () -> log.error("Could not decode client name. Device will not be created."));
@@ -171,6 +177,44 @@ public class DeviceDescriptionService {
                 log.warn("There are no devices within the device description. Skipping the device description.");
             }
         }
+    }
+
+    /**
+     * Prune all device descriptions for all devices.
+     */
+    public void pruneAll() {
+        log.info("Pruning all device descriptions.");
+        deviceRepository.findAll().forEach(device -> {
+            log.debug("Pruning device descriptions for device '{}'.", device.getInternalDeviceId());
+            if (pruneDeviceDescriptions(device)) {
+                deviceRepository.save(device);
+            }
+        });
+        pruneDeviceDescriptionCollection();
+        log.info("Finished pruning all device descriptions.");
+    }
+
+    private void pruneDeviceDescriptionCollection() {
+        log.debug("Pruning the device description collection.");
+        deviceDescriptionRepository.findDistinctTeamSetContextIds().forEach(projection -> {
+            final var teamSetContextId = projection.getTeamSetContextId();
+            final var descriptions = deviceDescriptionRepository.findByTeamSetContextIdOrderByTimestampDesc(teamSetContextId);
+            if (descriptions.size() > 1) {
+                final var toDelete = descriptions.subList(1, descriptions.size());
+                log.debug("Deleting {} old device descriptions for team set context ID '{}'.", toDelete.size(), teamSetContextId);
+                deviceDescriptionRepository.deleteAll(toDelete);
+            }
+        });
+    }
+
+    private boolean pruneDeviceDescriptions(Device device) {
+        if (device.getDeviceDescriptions().size() > deviceDescriptionThreshold) {
+            log.debug("The device description threshold has been reached, pruning the device descriptions.");
+            final var prunedDeviceDescriptions = device.getDeviceDescriptions().subList(device.getDeviceDescriptions().size() - deviceDescriptionThreshold, device.getDeviceDescriptions().size());
+            device.setDeviceDescriptions(new ArrayList<>(prunedDeviceDescriptions));
+            return true;
+        }
+        return false;
     }
 
     private Optional<ClientName> decodeSafely(GrpcEfdi.Device d) {
@@ -301,7 +345,7 @@ public class DeviceDescriptionService {
 
     private boolean checkIfTheNewDeviceDescriptionIsTheSameAsTheExistingOne(String newDeviceDescription, String existingDeviceDescription) {
         log.debug("Comparing the new device description with the existing one based on their base 64 representation.");
-        return StringUtils.equals(newDeviceDescription, existingDeviceDescription);
+        return Strings.CS.equals(newDeviceDescription, existingDeviceDescription);
     }
 
     /**
