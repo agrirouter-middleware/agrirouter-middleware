@@ -38,11 +38,9 @@ class LastKnownHealthyMessagesTest {
     }
 
     @Test
-    void put_twice_updatesTimestamp() throws InterruptedException {
+    void put_twice_updatesTimestamp() {
         lastKnownHealthyMessages.put("ar-ep-update");
         var first = lastKnownHealthyMessages.get("ar-ep-update").orElseThrow();
-
-        Thread.sleep(10);
         lastKnownHealthyMessages.put("ar-ep-update");
         var second = lastKnownHealthyMessages.get("ar-ep-update").orElseThrow();
 
