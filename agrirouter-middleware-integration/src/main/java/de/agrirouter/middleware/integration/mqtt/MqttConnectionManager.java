@@ -1,6 +1,7 @@
 package de.agrirouter.middleware.integration.mqtt;
 
 import com.dke.data.agrirouter.api.dto.onboard.OnboardingResponse;
+import com.dke.data.agrirouter.api.enums.CertificationType;
 import com.dke.data.agrirouter.api.exception.CouldNotCreateMqttClientException;
 import com.hivemq.client.mqtt.MqttClientSslConfig;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
@@ -21,14 +22,23 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
+import java.security.KeyFactory;
 import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -195,7 +205,51 @@ public class MqttConnectionManager {
 
     private MqttClientSslConfig createMqttClientSslConfig(de.agrirouter.middleware.domain.Authentication authentication) throws Exception {
         var keyStore = KeyStore.getInstance("PKCS12");
-        keyStore.load(new ByteArrayInputStream(Base64.getDecoder().decode(authentication.getCertificate())), authentication.getSecret().toCharArray());
+        if (CertificationType.PEM.equals(authentication.getType())) {
+            var cf = CertificateFactory.getInstance("X.509");
+            var certificateMatcher = Pattern.compile("-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", Pattern.DOTALL).matcher(authentication.getCertificate());
+            var certificatesJoined = new StringBuilder();
+            while (certificateMatcher.find()) {
+                certificatesJoined.append(certificateMatcher.group());
+            }
+            var certificates = cf.generateCertificates(new ByteArrayInputStream(certificatesJoined.toString().getBytes()));
+            var certificateChain = certificates.toArray(new Certificate[0]);
+
+            var privateKeyMatcher = Pattern.compile("-----BEGIN.*?PRIVATE KEY-----.*?-----END.*?PRIVATE KEY-----", Pattern.DOTALL).matcher(authentication.getCertificate());
+            if (privateKeyMatcher.find()) {
+                var privateKeyPem = privateKeyMatcher.group();
+                var base64Key = privateKeyPem
+                        .replace("-----BEGIN ENCRYPTED PRIVATE KEY-----", "")
+                        .replace("-----END ENCRYPTED PRIVATE KEY-----", "")
+                        .replace("-----BEGIN PRIVATE KEY-----", "")
+                        .replace("-----END PRIVATE KEY-----", "")
+                        .replace("-----BEGIN RSA PRIVATE KEY-----", "")
+                        .replace("-----END RSA PRIVATE KEY-----", "")
+                        .replaceAll("\\s", "");
+                var decodedKey = Base64.getDecoder().decode(base64Key);
+
+                PrivateKey privateKey;
+                if (privateKeyPem.contains("ENCRYPTED")) {
+                    var encKeyInfo = new EncryptedPrivateKeyInfo(decodedKey);
+                    var skf = SecretKeyFactory.getInstance(encKeyInfo.getAlgName());
+                    var pbeKeySpec = new PBEKeySpec(authentication.getSecret().toCharArray());
+                    var secretKey = skf.generateSecret(pbeKeySpec);
+                    var pkcs8Spec = encKeyInfo.getKeySpec(secretKey);
+                    var kf = KeyFactory.getInstance("RSA");
+                    privateKey = kf.generatePrivate(pkcs8Spec);
+                } else {
+                    var kf = KeyFactory.getInstance("RSA");
+                    privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(decodedKey));
+                }
+
+                keyStore.load(null, null);
+                keyStore.setKeyEntry("client", privateKey, authentication.getSecret().toCharArray(), certificateChain);
+            } else {
+                throw new IllegalArgumentException("No private key found in the PEM certificate.");
+            }
+        } else {
+            keyStore.load(new ByteArrayInputStream(Base64.getDecoder().decode(authentication.getCertificate())), authentication.getSecret().toCharArray());
+        }
 
         var keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(keyStore, authentication.getSecret().toCharArray());
