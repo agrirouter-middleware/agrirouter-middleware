@@ -255,6 +255,13 @@
                 <version>3.1.0</version>
             </dependency>
 
+            <!-- JACKSON -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.18.2</version>
+            </dependency>
+
             <!-- COMMONS CODEC -->
             <dependency>
                 <groupId>commons-codec</groupId>
