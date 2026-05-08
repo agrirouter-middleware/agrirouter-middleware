@@ -236,7 +236,7 @@ public class MqttConnectionManager {
                 keyStore.load(null, null);
                 keyStore.setKeyEntry("client", privateKey, authentication.getSecret().toCharArray(), certificateChain);
             } else {
-                throw new IllegalArgumentException("No private key found in the PEM certificate.");
+                throw new IllegalArgumentException("No encrypted private key found in the provided PEM content. Expected an encrypted PKCS#8 PEM block (-----BEGIN ENCRYPTED PRIVATE KEY-----).");
             }
         } else {
             keyStore.load(new ByteArrayInputStream(Base64.getDecoder().decode(authentication.getCertificate())), authentication.getSecret().toCharArray());
