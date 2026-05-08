@@ -210,7 +210,7 @@ public class MqttConnectionManager {
             var certificateMatcher = Pattern.compile("-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", Pattern.DOTALL).matcher(authentication.getCertificate());
             var certificatesJoined = new StringBuilder();
             while (certificateMatcher.find()) {
-                certificatesJoined.append(certificateMatcher.group());
+                certificatesJoined.append(certificateMatcher.group()).append(System.lineSeparator());
             }
             var certificates = cf.generateCertificates(new ByteArrayInputStream(certificatesJoined.toString().getBytes()));
             var certificateChain = certificates.toArray(new Certificate[0]);
