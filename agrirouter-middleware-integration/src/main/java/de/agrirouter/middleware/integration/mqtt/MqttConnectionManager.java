@@ -28,6 +28,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -210,7 +211,7 @@ public class MqttConnectionManager {
             while (certificateMatcher.find()) {
                 certificatesJoined.append(certificateMatcher.group()).append(System.lineSeparator());
             }
-            var certificates = cf.generateCertificates(new ByteArrayInputStream(certificatesJoined.toString().getBytes()));
+            var certificates = cf.generateCertificates(new ByteArrayInputStream(certificatesJoined.toString().getBytes(StandardCharsets.UTF_8)));
             if (certificates.isEmpty()) {
                 throw new IllegalArgumentException("PEM authentication was selected, but no X.509 certificate was found in the provided PEM content.");
             }
