@@ -213,6 +213,9 @@ public class MqttConnectionManager {
                 certificatesJoined.append(certificateMatcher.group()).append(System.lineSeparator());
             }
             var certificates = cf.generateCertificates(new ByteArrayInputStream(certificatesJoined.toString().getBytes()));
+            if (certificates.isEmpty()) {
+                throw new IllegalArgumentException("PEM authentication was selected, but no X.509 certificate was found in the provided PEM content.");
+            }
             var certificateChain = certificates.toArray(new Certificate[0]);
 
             var privateKeyMatcher = Pattern.compile("-----BEGIN.*?PRIVATE KEY-----.*?-----END.*?PRIVATE KEY-----", Pattern.DOTALL).matcher(authentication.getCertificate());
