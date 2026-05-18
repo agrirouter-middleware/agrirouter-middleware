@@ -1,5 +1,7 @@
 package de.agrirouter.middleware.business.listener;
 
+import de.agrirouter.middleware.api.errorhandling.BusinessException;
+import de.agrirouter.middleware.api.errorhandling.error.ErrorKey;
 import de.agrirouter.middleware.api.errorhandling.error.ErrorMessageFactory;
 import de.agrirouter.middleware.business.ApplicationService;
 import de.agrirouter.middleware.business.EndpointService;
@@ -46,6 +48,12 @@ public class ReconnectAllOnboardResponsesEventListener {
                     final var mqttClient = mqttClientManagementService.get(endpoint);
                     mqttClient.ifPresentOrElse(mc -> log.debug("MQTT client for endpoint with the ID '{}' and client ID '{}' connected", onboardingResponse.getSensorAlternateId(), mc.getConfig().getClientIdentifier()), () ->
                             log.error("Could not reconnect a client, please check the client to avoid data loss."));
+                }
+            } catch (BusinessException e) {
+                if (ErrorKey.MISSING_ROUTER_DEVICE == e.getErrorMessage().key()) {
+                    log.error("Could not reconnect a client, please check the client to avoid data loss. {}", e.getMessage());
+                } else {
+                    log.error("Could not reconnect a client, please check the client to avoid data loss.", e);
                 }
             } catch (Exception e) {
                 log.error("Could not reconnect a client, please check the client to avoid data loss.", e);
