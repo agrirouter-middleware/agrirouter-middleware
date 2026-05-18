@@ -51,7 +51,7 @@ public class ReconnectAllOnboardResponsesEventListener {
                 }
             } catch (BusinessException e) {
                 if (ErrorKey.MISSING_ROUTER_DEVICE.equals(e.getErrorMessage().key())) {
-                    log.error("Could not reconnect a client, please check the client to avoid data loss.");
+                    log.error("Could not reconnect a client, please check the client to avoid data loss. {}", e.getErrorMessage().asLogMessage());
                 } else {
                     log.error("Could not reconnect a client, please check the client to avoid data loss.", e);
                 }
