@@ -49,3 +49,6 @@ message-cache
 
 # MAC_OS #
 .DS_Store
+
+# GPG significant files
+gpg_signingkey.key
