@@ -128,12 +128,12 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib</artifactId>
-                <version>2.3.21</version>
+                <version>2.4.0</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
-                <version>2.3.21</version>
+                <version>2.4.0</version>
             </dependency>
 
             <!-- AGRIROUTER -->
@@ -259,7 +259,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.21.3</version>
+                <version>2.22.0</version>
             </dependency>
 
             <!-- COMMONS CODEC -->
