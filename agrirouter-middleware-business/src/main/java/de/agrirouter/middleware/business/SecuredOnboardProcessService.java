@@ -59,15 +59,8 @@ public class SecuredOnboardProcessService {
             final var parameters = new AuthorizationRequestParameters();
             parameters.setApplicationId(application.getApplicationId());
             parameters.setResponseType(SecuredOnboardingResponseType.ONBOARD);
-            var applicationSettingsRedirectUrl = application.getApplicationSettings().getRedirectUrl();
-            final String redirectUrlToUse;
-            if (StringUtils.isNotBlank(redirectUrl)) {
-                redirectUrlToUse = redirectUrl;
-            } else {
-                redirectUrlToUse = applicationSettingsRedirectUrl;
-            }
-            parameters.setRedirectUri(redirectUrlToUse);
-            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), redirectUrlToUse));
+            parameters.setRedirectUri(application.getApplicationSettings().getRedirectUrl());
+            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), redirectUrl));
             return authorizationRequestService.getAuthorizationRequestURL(parameters);
         }
     }
