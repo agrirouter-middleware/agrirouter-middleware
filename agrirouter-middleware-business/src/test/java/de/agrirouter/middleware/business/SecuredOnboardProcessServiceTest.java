@@ -71,7 +71,7 @@ class SecuredOnboardProcessServiceTest {
     }
 
     @Test
-    void generateAuthorizationUrl_withoutRedirectUrlParameter_shouldNotUseApplicationSettingsRedirectUrl() {
+    void generateAuthorizationUrl_withoutRedirectUrlParameter() {
         // Arrange
         var applicationSettingsRedirectUrl = "https://production.example.com/callback";
         var applicationId = "test-app-id";
@@ -101,7 +101,7 @@ class SecuredOnboardProcessServiceTest {
     }
 
     @Test
-    void generateAuthorizationUrl_withEmptyRedirectUrlParameter_shouldNotUseApplicationSettingsRedirectUrl() {
+    void generateAuthorizationUrl_withEmptyRedirectUrlParameter() {
         // Arrange
         var applicationSettingsRedirectUrl = "https://production.example.com/callback";
         var applicationId = "test-app-id";
