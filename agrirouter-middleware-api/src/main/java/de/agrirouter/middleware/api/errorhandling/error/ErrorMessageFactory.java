@@ -154,4 +154,7 @@ public final class ErrorMessageFactory {
         return new ErrorMessage(ErrorKey.ENDPOINT_NOT_FOUND, String.format("Could not find endpoint by the external endpoint ID: %s", externalEndpointId), HttpStatus.NOT_FOUND);
     }
 
+    public static ErrorMessage redirectUrlIsMissing() {
+        return new ErrorMessage(ErrorKey.REDIRECT_URL_IS_MISSING, "The redirect URL is missing for the onboard process.", HttpStatus.BAD_REQUEST);
+    }
 }

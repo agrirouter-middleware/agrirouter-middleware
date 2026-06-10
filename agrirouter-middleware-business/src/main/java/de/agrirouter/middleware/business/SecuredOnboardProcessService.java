@@ -47,20 +47,40 @@ public class SecuredOnboardProcessService {
     private int fixedThreadPoolSize;
 
     /**
-     * Generate the authorization URL for the application.
+     * Generate the authorization URL for the onboard process.
      *
-     * @param application The application.
-     * @return The URL to authorize the application against the AR.
+     * @param application                     The application for which the authorization URL should be generated.
+     * @param externalEndpointId              The external endpoint ID, in case this is a re-onboard process for an existing endpoint.
+     * @param customRedirectUrlFromTheRequest The custom redirect URL from the request, in case this is a common telemetry connection or farming software, where the redirect URL is given as a parameter and not stored in the application settings.
+     * @return The authorization URL to which the user should be redirected to start the onboard process.
      */
-    public String generateAuthorizationUrl(Application application, String externalEndpointId, String redirectUrl) {
+    public String generateAuthorizationUrl(Application application, String externalEndpointId, String customRedirectUrlFromTheRequest) {
         if (null == application.getApplicationType()) {
             throw new BusinessException(ErrorMessageFactory.applicationDoesNotSupportSecuredOnboarding());
         } else {
             final var parameters = new AuthorizationRequestParameters();
             parameters.setApplicationId(application.getApplicationId());
             parameters.setResponseType(SecuredOnboardingResponseType.ONBOARD);
-            parameters.setRedirectUri(application.getApplicationSettings().getRedirectUrl());
-            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), redirectUrl));
+            /*
+             * Do not mix up with the redirect URL configured within the agrirouter.
+             * The redirect URL in the agrirouter is the URL of the middleware, where the AR will send the user after the authorization.
+             * The redirect URL in the application settings is the URL of the customer instance, which should be used for the callback after the AR has sent the user to the middleware.
+             */
+            final String internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware;
+            if (StringUtils.isNotBlank(customRedirectUrlFromTheRequest)) {
+                // This would be the case if the redirect URL is given as a parameter, which is the case for the common telemetry connections and farming software.
+                // In this case we want to use the redirect URL given as a parameter.
+                internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware = customRedirectUrlFromTheRequest;
+            } else {
+                // This would be the case for custom applications, where the redirect URL is not given as a parameter, but is stored in the application settings.
+                // In this case we want to use the redirect URL from the application settings.
+                if (application.getApplicationSettings() == null || StringUtils.isBlank(application.getApplicationSettings().getRedirectUrl())) {
+                    throw new BusinessException(ErrorMessageFactory.redirectUrlIsMissing());
+                } else {
+                    internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware = application.getApplicationSettings().getRedirectUrl();
+                }
+            }
+            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware));
             return authorizationRequestService.getAuthorizationRequestURL(parameters);
         }
     }
