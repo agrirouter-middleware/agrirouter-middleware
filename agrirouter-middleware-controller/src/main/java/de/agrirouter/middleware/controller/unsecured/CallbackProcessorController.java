@@ -104,7 +104,7 @@ public class CallbackProcessorController implements UnsecuredApiController {
     private RedirectView redirect(OnboardStateContainer.OnboardState onboardState, Application application, OnboardProcessResult result, String errorMessage) {
         if (StringUtils.isNotBlank(onboardState.redirectUrlAfterCallback())) {
             return redirect(result, onboardState.redirectUrlAfterCallback(), errorMessage);
-        } else if (StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
+        } else if (application.getApplicationSettings() != null && StringUtils.isNotBlank(application.getApplicationSettings().getRedirectUrl())) {
             return redirect(result, application.getApplicationSettings().getRedirectUrl(), errorMessage);
         } else {
             return redirect(result, Routes.UnsecuredEndpoints.ONBOARD_PROCESS_RESULT, errorMessage);
