@@ -45,13 +45,14 @@ class SecuredOnboardProcessServiceTest {
         var applicationSettingsRedirectUrl = "https://production.example.com/callback";
         var customRedirectUrl = "http://localhost:5117/unsecured/api/callback";
         var applicationId = "test-app-id";
+        var internalApplicationId = "test-internal-app-id";
         var externalEndpointId = "test-endpoint-id";
         var tenantId = "test-tenant-id";
         var state = "random-state";
 
-        var application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
+        var application = createApplicationWithRedirectUrl(applicationId, internalApplicationId, tenantId, applicationSettingsRedirectUrl);
 
-        when(onboardStateContainer.push(any(), any(), any(), eq(customRedirectUrl)))
+        when(onboardStateContainer.push(eq(internalApplicationId), eq(externalEndpointId), eq(tenantId), eq(customRedirectUrl)))
                 .thenReturn(state);
         when(authorizationRequestService.getAuthorizationRequestURL(any()))
                 .thenReturn("http://agrirouter.example/authorize?state=" + state);
@@ -64,7 +65,6 @@ class SecuredOnboardProcessServiceTest {
         verify(authorizationRequestService).getAuthorizationRequestURL(captor.capture());
 
         var capturedParams = captor.getValue();
-        assertThat(capturedParams.getRedirectUri()).isEqualTo(applicationSettingsRedirectUrl);
         assertThat(capturedParams.getApplicationId()).isEqualTo(applicationId);
         assertThat(capturedParams.getResponseType()).isEqualTo(SecuredOnboardingResponseType.ONBOARD);
         assertThat(capturedParams.getState()).isEqualTo(state);
@@ -75,13 +75,14 @@ class SecuredOnboardProcessServiceTest {
         // Arrange
         var applicationSettingsRedirectUrl = "https://production.example.com/callback";
         var applicationId = "test-app-id";
+        var internalApplicationId = "test-internal-app-id";
         var externalEndpointId = "test-endpoint-id";
         var tenantId = "test-tenant-id";
         var state = "random-state";
 
-        var application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
+        var application = createApplicationWithRedirectUrl(applicationId, internalApplicationId, tenantId, applicationSettingsRedirectUrl);
 
-        when(onboardStateContainer.push(any(), any(), any(), eq(null)))
+        when(onboardStateContainer.push(eq(internalApplicationId), eq(externalEndpointId), eq(tenantId), eq(applicationSettingsRedirectUrl)))
                 .thenReturn(state);
         when(authorizationRequestService.getAuthorizationRequestURL(any()))
                 .thenReturn("http://agrirouter.example/authorize?state=" + state);
@@ -94,7 +95,6 @@ class SecuredOnboardProcessServiceTest {
         verify(authorizationRequestService).getAuthorizationRequestURL(captor.capture());
 
         var capturedParams = captor.getValue();
-        assertThat(capturedParams.getRedirectUri()).isEqualTo(applicationSettingsRedirectUrl);
         assertThat(capturedParams.getApplicationId()).isEqualTo(applicationId);
         assertThat(capturedParams.getResponseType()).isEqualTo(SecuredOnboardingResponseType.ONBOARD);
         assertThat(capturedParams.getState()).isEqualTo(state);
@@ -105,13 +105,14 @@ class SecuredOnboardProcessServiceTest {
         // Arrange
         var applicationSettingsRedirectUrl = "https://production.example.com/callback";
         var applicationId = "test-app-id";
+        var internalApplicationId = "test-internal-app-id";
         var externalEndpointId = "test-endpoint-id";
         var tenantId = "test-tenant-id";
         var state = "random-state";
 
-        var application = createApplicationWithRedirectUrl(applicationId, tenantId, applicationSettingsRedirectUrl);
+        var application = createApplicationWithRedirectUrl(applicationId, internalApplicationId, tenantId, applicationSettingsRedirectUrl);
 
-        when(onboardStateContainer.push(any(), any(), any(), eq("")))
+        when(onboardStateContainer.push(eq(internalApplicationId), eq(externalEndpointId), eq(tenantId), eq(applicationSettingsRedirectUrl)))
                 .thenReturn(state);
         when(authorizationRequestService.getAuthorizationRequestURL(any()))
                 .thenReturn("http://agrirouter.example/authorize?state=" + state);
@@ -124,7 +125,7 @@ class SecuredOnboardProcessServiceTest {
         verify(authorizationRequestService).getAuthorizationRequestURL(captor.capture());
 
         var capturedParams = captor.getValue();
-        assertThat(capturedParams.getRedirectUri()).isEqualTo(applicationSettingsRedirectUrl);
+        assertThat(capturedParams.getState()).isEqualTo(state);
     }
 
     @Test
@@ -139,13 +140,14 @@ class SecuredOnboardProcessServiceTest {
         );
     }
 
-    private Application createApplication(String applicationId, String tenantId) {
-        return createApplicationWithRedirectUrl(applicationId, tenantId, "http://default.example.com/callback");
+    private Application createApplication(String applicationId, String internalApplicationId, String tenantId) {
+        return createApplicationWithRedirectUrl(applicationId, internalApplicationId, tenantId, "http://default.example.com/callback");
     }
 
-    private Application createApplicationWithRedirectUrl(String applicationId, String tenantId, String redirectUrl) {
+    private Application createApplicationWithRedirectUrl(String applicationId, String internalApplicationId, String tenantId, String redirectUrl) {
         var application = new Application();
         application.setApplicationId(applicationId);
+        application.setInternalApplicationId(internalApplicationId);
         application.setApplicationType(ApplicationType.FARMING_SOFTWARE);
 
         var tenant = new Tenant();
