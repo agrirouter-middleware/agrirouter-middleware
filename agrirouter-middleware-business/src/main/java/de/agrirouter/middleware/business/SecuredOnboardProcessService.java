@@ -59,7 +59,6 @@ public class SecuredOnboardProcessService {
             final var parameters = new AuthorizationRequestParameters();
             parameters.setApplicationId(application.getApplicationId());
             parameters.setResponseType(SecuredOnboardingResponseType.ONBOARD);
-            var applicationWideConfiguredRedirectUrlForAllEndpoints = application.getApplicationSettings().getRedirectUrl();
             /*
              * Do not mix up with the redirect URL configured within the agrirouter.
              * The redirect URL in the agrirouter is the URL of the middleware, where the AR will send the user after the authorization.
@@ -73,7 +72,11 @@ public class SecuredOnboardProcessService {
             } else {
                 // This would be the case for custom applications, where the redirect URL is not given as a parameter, but is stored in the application settings.
                 // In this case we want to use the redirect URL from the application settings.
-                internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware = applicationWideConfiguredRedirectUrlForAllEndpoints;
+                if (application.getApplicationSettings() == null || StringUtils.isBlank(application.getApplicationSettings().getRedirectUrl())) {
+                    throw new BusinessException(ErrorMessageFactory.redirectUrlIsMissing());
+                } else {
+                    internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware = application.getApplicationSettings().getRedirectUrl();
+                }
             }
             parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware));
             return authorizationRequestService.getAuthorizationRequestURL(parameters);
