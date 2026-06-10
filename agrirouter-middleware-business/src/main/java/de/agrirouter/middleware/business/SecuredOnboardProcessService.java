@@ -47,10 +47,12 @@ public class SecuredOnboardProcessService {
     private int fixedThreadPoolSize;
 
     /**
-     * Generate the authorization URL for the application.
+     * Generate the authorization URL for the onboard process.
      *
-     * @param application The application.
-     * @return The URL to authorize the application against the AR.
+     * @param application                     The application for which the authorization URL should be generated.
+     * @param externalEndpointId              The external endpoint ID, in case this is a re-onboard process for an existing endpoint.
+     * @param customRedirectUrlFromTheRequest The custom redirect URL from the request, in case this is a common telemetry connection or farming software, where the redirect URL is given as a parameter and not stored in the application settings.
+     * @return The authorization URL to which the user should be redirected to start the onboard process.
      */
     public String generateAuthorizationUrl(Application application, String externalEndpointId, String customRedirectUrlFromTheRequest) {
         if (null == application.getApplicationType()) {
