@@ -52,15 +52,30 @@ public class SecuredOnboardProcessService {
      * @param application The application.
      * @return The URL to authorize the application against the AR.
      */
-    public String generateAuthorizationUrl(Application application, String externalEndpointId, String redirectUrl) {
+    public String generateAuthorizationUrl(Application application, String externalEndpointId, String customRedirectUrlFromTheRequest) {
         if (null == application.getApplicationType()) {
             throw new BusinessException(ErrorMessageFactory.applicationDoesNotSupportSecuredOnboarding());
         } else {
             final var parameters = new AuthorizationRequestParameters();
             parameters.setApplicationId(application.getApplicationId());
             parameters.setResponseType(SecuredOnboardingResponseType.ONBOARD);
-            parameters.setRedirectUri(application.getApplicationSettings().getRedirectUrl());
-            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), redirectUrl));
+            var applicationWideConfiguredRedirectUrlForAllEndpoints = application.getApplicationSettings().getRedirectUrl();
+            /*
+             * Do not mix up with the redirect URL configured within the agrirouter.
+             * The redirect URL in the agrirouter is the URL of the middleware, where the AR will send the user after the authorization.
+             * The redirect URL in the application settings is the URL of the customer instance, which should be used for the callback after the AR has sent the user to the middleware.
+             */
+            final String internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware;
+            if (StringUtils.isNotBlank(customRedirectUrlFromTheRequest)) {
+                // This would be the case if the redirect URL is given as a parameter, which is the case for the common telemetry connections and farming software.
+                // In this case we want to use the redirect URL given as a parameter.
+                internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware = customRedirectUrlFromTheRequest;
+            } else {
+                // This would be the case for custom applications, where the redirect URL is not given as a parameter, but is stored in the application settings.
+                // In this case we want to use the redirect URL from the application settings.
+                internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware = applicationWideConfiguredRedirectUrlForAllEndpoints;
+            }
+            parameters.setState(onboardStateContainer.push(application.getInternalApplicationId(), externalEndpointId, application.getTenant().getTenantId(), internalRedirectUrlAfterAgrirouterRedirectToTheMiddleware));
             return authorizationRequestService.getAuthorizationRequestURL(parameters);
         }
     }
