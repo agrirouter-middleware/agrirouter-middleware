@@ -4,6 +4,10 @@ server:
 spring:
   datasource:
     url: ${MYSQL_URL:jdbc:mariadb://localhost:3306/agriroutermiddleware?useUnicode=true&characterEncoding=UTF-8&user=mysqluser&password=changeit}
+    hikari:
+      # The messages are handled in parallel and every message needs a connection, so the pool has to be able to serve
+      # all of the message processing workers plus the scheduled tasks and the incoming requests.
+      maximum-pool-size: ${MYSQL_MAX_POOL_SIZE:40}
   mongodb:
     uri: ${MONGODB_URI:mongodb://mongouser:changeit@localhost:27017/agriroutermiddleware}
 
@@ -70,6 +74,14 @@ app:
         keep-alive-interval: 30
         connection-timeout: 120
         max-in-flight: 600
+      message-processing:
+        # Number of messages that are handled in parallel. A MQTT connection delivers its messages one after another,
+        # therefore this is what determines the throughput of the middleware. Handling a message needs a database
+        # connection, so this should not exceed the maximum pool size of the datasource.
+        pool-size: ${MESSAGE_PROCESSING_POOL_SIZE:32}
+        # Number of messages that are allowed to wait for a free worker. Once the queue is full, the messages are
+        # handled on the thread that delivers them, which throttles the incoming messages instead of dropping them.
+        queue-capacity: ${MESSAGE_PROCESSING_QUEUE_CAPACITY:500}
   fetch-messages:
     max-tries: 5
     interval: 1000
