@@ -37,13 +37,26 @@ public class MessageHandlingCallback implements Consumer<Mqtt3Publish> {
     private final MqttStatistics mqttStatistics;
     private final ListEndpointsMessages listEndpointsMessages;
     private final HealthStatusMessages healthStatusMessages;
+    private final MessageProcessingPool messageProcessingPool;
 
     @Override
     public void accept(Mqtt3Publish mqtt3Publish) {
         try {
             log.debug("Message arrived.");
             mqttStatistics.increaseNumberOfMessagesArrived();
+            // The payload belongs to the MQTT client and is only valid while the message is being delivered, therefore
+            // it has to be read before the message is handed over.
             var payload = StringUtils.toEncodedString(mqtt3Publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+            // Handling the message takes far longer than receiving it and the messages of a connection are delivered
+            // one after another, so handling them here would limit the middleware to a single message at a time.
+            messageProcessingPool.execute(() -> handleMessage(payload));
+        } catch (Exception e) {
+            log.error("Could not hand the message over to be handled.", e);
+        }
+    }
+
+    private void handleMessage(String payload) {
+        try {
             log.trace("Message payload >>> {}", payload);
             handleAgrirouterMessage(payload);
         } catch (BusinessException e) {

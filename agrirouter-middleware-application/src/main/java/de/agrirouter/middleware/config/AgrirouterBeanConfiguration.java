@@ -18,6 +18,7 @@ import com.dke.data.agrirouter.impl.onboard.secured.AuthorizationRequestServiceI
 import com.dke.data.agrirouter.impl.revoke.RevokingServiceImpl;
 import de.agrirouter.middleware.config.env.Ar2QA;
 import de.agrirouter.middleware.integration.mqtt.MessageHandlingCallback;
+import de.agrirouter.middleware.integration.mqtt.MessageProcessingPool;
 import de.agrirouter.middleware.integration.mqtt.MqttStatistics;
 import de.agrirouter.middleware.integration.mqtt.health.HealthStatusMessages;
 import de.agrirouter.middleware.integration.mqtt.list_endpoints.ListEndpointsMessages;
@@ -123,12 +124,14 @@ public class AgrirouterBeanConfiguration {
                                                            DecodeMessageService decodeMessageService,
                                                            MqttStatistics mqttStatistics,
                                                            ListEndpointsMessages listEndpointsMessages,
-                                                           HealthStatusMessages healthStatusMessages) {
+                                                           HealthStatusMessages healthStatusMessages,
+                                                           MessageProcessingPool messageProcessingPool) {
         return new MessageHandlingCallback(applicationEventPublisher,
                 decodeMessageService,
                 mqttStatistics,
                 listEndpointsMessages,
-                healthStatusMessages);
+                healthStatusMessages,
+                messageProcessingPool);
     }
 
     /**

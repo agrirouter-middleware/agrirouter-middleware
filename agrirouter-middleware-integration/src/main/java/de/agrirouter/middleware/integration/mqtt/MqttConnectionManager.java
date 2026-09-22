@@ -34,6 +34,7 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -45,12 +46,14 @@ import java.util.regex.Pattern;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class MqttConnectionManager {
 
-    private final Map<String, CachedMqttClient> cachedMqttClients = new HashMap<>();
+    // The messages are handled in parallel, therefore the cache is accessed by several threads at the same time.
+    private final Map<String, CachedMqttClient> cachedMqttClients = new ConcurrentHashMap<>();
 
     private final ApplicationRepository applicationRepository;
     private final MqttStatistics mqttStatistics;
     private final ApplicationContext applicationContext;
     private final SubscriptionsForMqttClient subscriptionsForMqttClient;
+    private final MessageProcessingPool messageProcessingPool;
 
     @Value("${app.agrirouter.mqtt.options.clean-session}")
     private boolean cleanSession;
@@ -110,16 +113,16 @@ public class MqttConnectionManager {
     }
 
     CachedMqttClient getCachedMqttClient(OnboardingResponse onboardingResponse) {
-        final var cachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        if (null == cachedMqttClient) {
+        final var clientId = onboardingResponse.getConnectionCriteria().getClientId();
+        // Creating the entry has to be atomic, otherwise a client that has just been connected is replaced by an empty
+        // one while several messages are handled in parallel.
+        final var cachedMqttClient = cachedMqttClients.computeIfAbsent(clientId, ignored -> {
             mqttStatistics.increaseNumberOfCacheMisses();
-            log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'. Creating a new one.", onboardingResponse.getConnectionCriteria().getClientId());
-            final var newCachedMqttClient = new CachedMqttClient(onboardingResponse.getSensorAlternateId(), onboardingResponse.getConnectionCriteria().getClientId(), Optional.empty(), new ArrayList<>());
-            cachedMqttClients.put(onboardingResponse.getConnectionCriteria().getClientId(), newCachedMqttClient);
-        }
-        var existingCachedMqttClient = cachedMqttClients.get(onboardingResponse.getConnectionCriteria().getClientId());
-        existingCachedMqttClient.mqttClient().ifPresent(mqttClient -> subscribeIfNecessary(onboardingResponse, mqttClient));
-        return existingCachedMqttClient;
+            log.debug("Did not find a mqtt client for endpoint with the MQTT client ID '{}'. Creating a new one.", clientId);
+            return new CachedMqttClient(onboardingResponse.getSensorAlternateId(), clientId, Optional.empty(), new ArrayList<>());
+        });
+        cachedMqttClient.mqttClient().ifPresent(mqttClient -> subscribeIfNecessary(onboardingResponse, mqttClient));
+        return cachedMqttClient;
     }
 
     private void subscribeIfNecessary(OnboardingResponse onboardingResponse, Mqtt3AsyncClient mqttClient) {
@@ -160,7 +163,9 @@ public class MqttConnectionManager {
         final var mqttClient = createMqttClient(endpoint);
         var messageHandlingCallback = applicationContext.getBean(MessageHandlingCallback.class);
 
-        mqttClient.publishes(com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL, messageHandlingCallback);
+        // Delivering on a dedicated thread keeps the network threads of the MQTT client free, so that the connection
+        // stays alive even while the middleware is busy handling messages.
+        mqttClient.publishes(com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL, messageHandlingCallback, messageProcessingPool.deliveryExecutor());
 
         final var connectFuture = mqttClient.connectWith()
                 .cleanSession(cleanSession)
