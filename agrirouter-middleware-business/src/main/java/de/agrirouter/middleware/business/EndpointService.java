@@ -167,12 +167,14 @@ public class EndpointService {
                 }
             } catch (InterruptedException e) {
                 log.error("Could not wait for the executor service to finish.", e);
+                Thread.currentThread().interrupt();
             }
         }));
         mainExecutorService.shutdown();
         try {
             if (!mainExecutorService.awaitTermination(3, TimeUnit.MINUTES)) {
                 log.error("Could not wait for the executor service to finish. The data for the endpoint '{}' will not be removed completely.", externalEndpointId);
+                mainExecutorService.shutdownNow();
             }
         } catch (InterruptedException e) {
             log.error("Could not wait for the executor service to finish.", e);
