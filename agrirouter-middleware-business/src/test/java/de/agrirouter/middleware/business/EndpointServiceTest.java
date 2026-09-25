@@ -27,14 +27,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +49,8 @@ class EndpointServiceTest {
 
     private static final String AGRIROUTER_ENDPOINT_ID = "ar-endpoint-id";
     private static final String EXTERNAL_ENDPOINT_ID = "external-endpoint-id";
+    private static final long TIME_TO_REMOVE_AN_ENDPOINT_IN_MILLISECONDS = 100;
+    private static final long MAXIMUM_TIME_TO_WAIT_IN_MILLISECONDS = 5_000;
 
     @Mock
     private EndpointRepository endpointRepository;
@@ -167,6 +175,83 @@ class EndpointServiceTest {
 
         assertThat(internalEndpointCache.getByAgrirouterEndpointId(AGRIROUTER_ENDPOINT_ID)).isEmpty();
         assertThat(internalEndpointCache.get(EXTERNAL_ENDPOINT_ID)).isEmpty();
+    }
+
+    @Test
+    void delete_withoutMatchingEndpoints_doesNotFail() {
+        when(endpointRepository.findAllByExternalEndpointId(EXTERNAL_ENDPOINT_ID)).thenReturn(Collections.emptyList());
+
+        assertThatCode(() -> endpointService.delete(EXTERNAL_ENDPOINT_ID)).doesNotThrowAnyException();
+
+        verifyNoInteractions(removeEndpointDataService);
+    }
+
+    @Test
+    void delete_removesTheDataForEachDeletedEndpoint() {
+        var firstEndpoint = endpoint(EXTERNAL_ENDPOINT_ID, "ar-endpoint-id-1");
+        var secondEndpoint = endpoint(EXTERNAL_ENDPOINT_ID, "ar-endpoint-id-2");
+        when(endpointRepository.findAllByExternalEndpointId(EXTERNAL_ENDPOINT_ID)).thenReturn(List.of(firstEndpoint, secondEndpoint));
+        takeSomeTimeWhenRemovingTheEndpoint();
+
+        endpointService.delete(EXTERNAL_ENDPOINT_ID);
+
+        verify(removeEndpointDataService).removeEndpointDataAndEndpoint(firstEndpoint);
+        verify(removeEndpointDataService).removeEndpointDataAndEndpoint(secondEndpoint);
+        verify(removeEndpointDataService).removeData("ar-endpoint-id-1");
+        verify(removeEndpointDataService).removeData("ar-endpoint-id-2");
+    }
+
+    @Test
+    void delete_removesTheDataForTheConnectedVirtualEndpointsAsWell() {
+        var virtualEndpoint = endpoint("external-endpoint-id-virtual", "ar-endpoint-id-virtual");
+        var mainEndpoint = endpoint(EXTERNAL_ENDPOINT_ID, "ar-endpoint-id-main");
+        mainEndpoint.setConnectedVirtualEndpoints(List.of(virtualEndpoint));
+        when(endpointRepository.findAllByExternalEndpointId(EXTERNAL_ENDPOINT_ID)).thenReturn(List.of(mainEndpoint));
+        takeSomeTimeWhenRemovingTheEndpoint();
+
+        endpointService.delete(EXTERNAL_ENDPOINT_ID);
+
+        verify(removeEndpointDataService).removeEndpointData(virtualEndpoint);
+        verify(removeEndpointDataService).removeEndpointDataAndEndpoint(mainEndpoint);
+        verify(removeEndpointDataService).removeData("ar-endpoint-id-virtual");
+        verify(removeEndpointDataService).removeData("ar-endpoint-id-main");
+    }
+
+    @Test
+    void delete_doesNotLeaveAnyRunningThreadsBehind() throws InterruptedException {
+        var endpoints = List.of(endpoint(EXTERNAL_ENDPOINT_ID, "ar-endpoint-id-1"),
+                endpoint(EXTERNAL_ENDPOINT_ID, "ar-endpoint-id-2"));
+        when(endpointRepository.findAllByExternalEndpointId(EXTERNAL_ENDPOINT_ID)).thenReturn(endpoints);
+        var threadsUsedForTheRemoval = new ConcurrentLinkedQueue<Thread>();
+        doAnswer(invocation -> {
+            threadsUsedForTheRemoval.add(Thread.currentThread());
+            return null;
+        }).when(removeEndpointDataService).removeEndpointDataAndEndpoint(any());
+
+        endpointService.delete(EXTERNAL_ENDPOINT_ID);
+
+        awaitUntilAllThreadsAreTerminated(threadsUsedForTheRemoval, endpoints.size());
+        assertThat(threadsUsedForTheRemoval).hasSize(endpoints.size());
+        assertThat(threadsUsedForTheRemoval).noneMatch(Thread::isAlive);
+    }
+
+    /**
+     * The removal of an endpoint takes a moment in production, therefore the mock does so as well. Without that delay it
+     * would be pure luck whether the workers are done before the sensor alternate IDs are read.
+     */
+    private void takeSomeTimeWhenRemovingTheEndpoint() {
+        doAnswer(invocation -> {
+            Thread.sleep(TIME_TO_REMOVE_AN_ENDPOINT_IN_MILLISECONDS);
+            return null;
+        }).when(removeEndpointDataService).removeEndpointDataAndEndpoint(any());
+    }
+
+    private void awaitUntilAllThreadsAreTerminated(Collection<Thread> threads, int expectedNumberOfThreads) throws InterruptedException {
+        var deadline = System.currentTimeMillis() + MAXIMUM_TIME_TO_WAIT_IN_MILLISECONDS;
+        while (System.currentTimeMillis() < deadline
+                && (threads.size() < expectedNumberOfThreads || threads.stream().anyMatch(Thread::isAlive))) {
+            Thread.sleep(25);
+        }
     }
 
     private Endpoint endpoint(String externalEndpointId, String agrirouterEndpointId) {
