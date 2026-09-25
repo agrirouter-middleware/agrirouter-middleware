@@ -80,6 +80,8 @@ public class EndpointService {
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),
                 "AR error received. code=%s type=%s msg=[%s] %s", decodedMessage.getResponseEnvelope().getResponseCode(),
                 decodedMessage.getResponseEnvelope().getType().name(), message.getMessageCode(), message.getMessage());
+        log.debug("Remove endpoint '{}' / '{}' from internal cache to avoid problems.", endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId());
+        internalEndpointCache.remove(endpoint.getExternalEndpointId());
     }
 
 
@@ -96,6 +98,8 @@ public class EndpointService {
         businessOperationLogService.log(new EndpointLogInformation(endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId()),
                 "AR warning received. code=%s type=%s msg=[%s] %s", decodedMessage.getResponseEnvelope().getResponseCode(),
                 decodedMessage.getResponseEnvelope().getType().name(), message.getMessageCode(), message.getMessage());
+        log.debug("Remove endpoint '{}' / '{}' from internal cache to avoid problems.", endpoint.getExternalEndpointId(), endpoint.getAgrirouterEndpointId());
+        internalEndpointCache.remove(endpoint.getExternalEndpointId());
     }
 
 
@@ -116,6 +120,8 @@ public class EndpointService {
         } else {
             log.warn("Endpoint with agrirouter endpoint ID {} not found.", agrirouterEndpointId);
         }
+        log.debug("Remove endpoint with agrirouter endpoint ID '{}' from internal cache to avoid problems.", agrirouterEndpointId);
+        internalEndpointCache.removeByAgrirouterEndpointId(agrirouterEndpointId);
     }
 
     /**
@@ -236,7 +242,7 @@ public class EndpointService {
         if (optionalEndpoint.isPresent()) {
             log.info("Cache hit, looks like we already requested the endpoint earlier.");
         } else {
-            log.info("Endpoint was not cached yet, fetching the endpoint from the database and place it into the cache.");
+            log.info("Endpoint was not cached yet, fetching the endpoint from the database and placing it into the cache.");
             optionalEndpoint = endpointRepository.findByExternalEndpointId(externalEndpointId);
             if (optionalEndpoint.isPresent()) {
                 internalEndpointCache.put(externalEndpointId, optionalEndpoint.get());
@@ -452,7 +458,17 @@ public class EndpointService {
      * @return The endpoint.
      */
     public Endpoint findByAgrirouterEndpointId(String agrirouterEndpointId) {
-        var optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
+        var optionalEndpoint = internalEndpointCache.getByAgrirouterEndpointId(agrirouterEndpointId);
+        if (optionalEndpoint.isPresent()) {
+            log.debug("Cache hit, looks like we already requested the endpoint earlier.");
+        } else {
+            log.debug("Endpoint was not cached yet, fetching the endpoint from the database and placing it into the cache.");
+            optionalEndpoint = endpointRepository.findByAgrirouterEndpointId(agrirouterEndpointId);
+            if (optionalEndpoint.isPresent()) {
+                final var endpoint = optionalEndpoint.get();
+                internalEndpointCache.put(endpoint.getExternalEndpointId(), endpoint);
+            }
+        }
         if (optionalEndpoint.isPresent()) {
             return optionalEndpoint.get();
         } else {

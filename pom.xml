@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -107,7 +107,7 @@
             <dependency>
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
-                <version>3.5.8</version>
+                <version>3.5.9</version>
             </dependency>
 
             <!-- MYSQL -->
@@ -121,7 +121,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>7.0.2</version>
+                <version>7.1.0</version>
             </dependency>
 
             <!-- KOTLIN -->
@@ -238,7 +238,7 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>1.16.6</version>
+                <version>1.17.0</version>
             </dependency>
 
             <!-- BUCKET4J -->
