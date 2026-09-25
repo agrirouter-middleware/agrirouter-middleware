@@ -35,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -125,7 +126,11 @@ public class EndpointService {
     @Transactional
     public void delete(String externalEndpointId) {
         var endpoints = endpointRepository.findAllByExternalEndpointId(externalEndpointId);
-        var sensorAlternateIds = new ArrayList<String>();
+        if (CollectionUtils.isEmpty(endpoints)) {
+            log.warn("There are no endpoints for the external endpoint ID '{}', therefore there is nothing to delete.", externalEndpointId);
+            return;
+        }
+        var sensorAlternateIds = new ConcurrentLinkedQueue<String>();
         var mainExecutorService = Executors.newFixedThreadPool(endpoints.size());
         endpoints.forEach(endpoint -> mainExecutorService.execute(() -> {
             try {
@@ -158,6 +163,15 @@ public class EndpointService {
                 log.error("Could not wait for the executor service to finish.", e);
             }
         }));
+        mainExecutorService.shutdown();
+        try {
+            if (!mainExecutorService.awaitTermination(3, TimeUnit.MINUTES)) {
+                log.error("Could not wait for the executor service to finish. The data for the endpoint '{}' will not be removed completely.", externalEndpointId);
+            }
+        } catch (InterruptedException e) {
+            log.error("Could not wait for the executor service to finish.", e);
+            Thread.currentThread().interrupt();
+        }
 
         log.debug("Remove the data for the endpoint incl. messages, timelogs and so on.");
         sensorAlternateIds.forEach(removeEndpointDataService::removeData);
